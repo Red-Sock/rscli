@@ -1,0 +1,2 @@
+# rscli
+redsock cli tool
