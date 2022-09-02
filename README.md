@@ -1,2 +1,2 @@
-# rscli
-redsock cli tool
+# RS CLI
+CLI tool
