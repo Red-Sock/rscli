@@ -1,17 +1,47 @@
 package config
 
 import (
-	"github.com/Red-Sock/rscli/internal/service/config/model"
+	"github.com/Red-Sock/rscli/pkg/config"
+	"strconv"
 )
 
-const (
-	dbFlag = "db"
-)
+func DefaultRdsPattern(args []string) map[string]interface{} {
+	out := make(map[string]interface{})
+	if len(args) == 0 {
+		args = append(args, "redis")
+	}
 
-type partition interface {
-	GetParts(nestingLevel int) []model.Part
+	port := 6379
+
+	for _, name := range args {
+		out[name] = &config.Redis{
+			Host: "0.0.0.0",
+			Port: strconv.Itoa(port),
+		}
+		port++
+	}
+
+	return out
 }
 
-var patterns = map[string]func(argument []string) partition{
-	dbFlag: newDbPattern,
+func DefaultPgPattern(args []string) map[string]interface{} {
+	out := make(map[string]interface{})
+	if len(args) == 0 {
+		args = append(args, "postgres")
+	}
+
+	port := 5432
+
+	for _, name := range args {
+		out[name] = &config.Postgres{
+			Name: name,
+			User: name,
+			Pwd:  name,
+			Host: "0.0.0.0",
+			Port: strconv.Itoa(port),
+		}
+		port++
+	}
+
+	return out
 }

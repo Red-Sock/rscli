@@ -1,9 +1,9 @@
 package internal
 
 import (
-	"github.com/Red-Sock/rscli/internal/commands"
 	"github.com/Red-Sock/rscli/internal/service/config"
 	"github.com/Red-Sock/rscli/internal/service/help"
+	"github.com/Red-Sock/rscli/internal/utils"
 )
 
 type Tool interface {
@@ -11,23 +11,16 @@ type Tool interface {
 	HelpMessage() string
 }
 
-func init() {
-	cfgTool := config.NewConfigTool()
-	cmd[commands.Config] = cfgTool
-	cmd["c"] = cfgTool
-	cmd["cfg"] = cfgTool
-
-	helpTool := help.NewHelpTool()
-	cmd[commands.Help] = helpTool
-}
-
-var cmd = map[string]Tool{}
-
 func Run(args []string) {
 	if len(args) == 0 {
-		println(cmd[commands.Help].Run(args))
+		println(help.Run())
 		return
 	}
+	var res string
+	switch {
+	case utils.Contains(config.Command(), args[0]):
+		res = config.Run(args[0:])
+	}
 
-	println(cmd[args[0]].Run(args))
+	println(res)
 }

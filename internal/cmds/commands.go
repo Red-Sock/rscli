@@ -1,4 +1,4 @@
-package commands
+package cmds
 
 const (
 	Help   = "help"

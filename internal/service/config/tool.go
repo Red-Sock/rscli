@@ -2,34 +2,32 @@ package config
 
 import (
 	"fmt"
-	"github.com/Red-Sock/rscli/internal/commands"
 	"github.com/Red-Sock/rscli/internal/service/help"
 	"github.com/Red-Sock/rscli/internal/utils"
 	"strings"
 )
 
-type configTool struct {
+var commands = []string{"config", "c"}
+
+func Command() []string {
+	return commands
 }
 
-func NewConfigTool() *configTool {
-	return &configTool{}
-}
-
-func (c *configTool) Run(args []string) string {
-	if utils.Contains(args, commands.Help) {
-		return c.HelpMessage()
+func Run(args []string) string {
+	if utils.Contains(args, help.Command) {
+		return HelpMessage()
 	}
 
 	args = args[1:]
 
 	if len(args) == 0 {
-		return c.runDefault()
+		return runDefault()
 	}
 
 	var opts map[string][]string
 	var err error
 
-	opts, err = c.parseArgs(args)
+	opts, err = parseArgs(args)
 	if err != nil {
 		return err.Error()
 	}
@@ -37,25 +35,28 @@ func (c *configTool) Run(args []string) string {
 	return NewConfig(opts)
 }
 
-func (c *configTool) HelpMessage() string {
+func HelpMessage() string {
 	return help.FormMessage(defaultHelp)
 }
 
-func (c *configTool) runDefault() string {
+func runDefault() string {
 	opts := map[string][]string{
-		dbFlag: {"postgres", "1"},
+		sourceNamePg: {"postgres"},
 	}
 
 	return NewConfig(opts)
 }
 
-func (c *configTool) parseArgs(args []string) (map[string][]string, error) {
+func parseArgs(args []string) (map[string][]string, error) {
 	flagToArgs := make(map[string][]string)
 
 	key := ""
 
 	for _, item := range args {
 		if strings.HasPrefix(item, "-") {
+			if _, ok := flagToArgs[item]; ok {
+				return nil, fmt.Errorf("%s flag repited", item)
+			}
 			key = item
 			flagToArgs[key] = nil
 		} else {
@@ -73,10 +74,16 @@ func (c *configTool) parseArgs(args []string) (map[string][]string, error) {
 const defaultHelp = `
 rscli config - creates configuration file
 ============================================================================
---db [source_name]_[connection_name]: allows to setup multiple connections to database. 
-        Example: "rscli config --db postgres_users redis_cache" will create configuration file
-                 with postgres connection named "users" and redis connection named "cache".
-                 
-                 "rscli config --db postgres redis" will create configuration file
-                 with connections named by source type 
+--pg [connection_name]: setup postgres connection(s).
+        Example: "rscli config --pg" will create configuration file
+                 with default connection to local postgres.
+
+--rds [connection_name]: setup redis connection(s).
+       Example:  "rscli config --rds" will create configuration file
+                 with default connection to local redis.
+
+Putting name(s) after flag will create named connections
+       Example:  "rscli config --pg parking_lot key" will create
+                 configuration file with connections to postgres
+                 databases named "parking_lot" and "key". 
 `
