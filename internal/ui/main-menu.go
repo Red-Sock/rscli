@@ -10,7 +10,7 @@ type MainMenu struct {
 }
 
 const (
-	configMenu = "crete config"
+	configMenu = "create config"
 )
 
 func newMainMenu() uikit.UIElement {

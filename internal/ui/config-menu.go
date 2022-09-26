@@ -6,6 +6,7 @@ import (
 	"github.com/Red-Sock/rscli-uikit/label"
 	"github.com/Red-Sock/rscli-uikit/multiselect"
 	"github.com/Red-Sock/rscli-uikit/selectone"
+	"github.com/Red-Sock/rscli/internal/randomizer"
 	"github.com/Red-Sock/rscli/internal/service/config"
 	"log"
 	"os"
@@ -83,7 +84,7 @@ func (c *cfgDialog) selectPathForConfig(p string) uikit.UIElement {
 			return sb
 		}
 	}
-	return label.New("successfully created file at " + c.cfg.GetPath())
+	return label.New("successfully created file at " + c.cfg.GetPath() + ". " + randomizer.GoodGoodBuy())
 }
 
 func (c *cfgDialog) processOverrideAnswer(answ string) uikit.UIElement {
@@ -92,7 +93,7 @@ func (c *cfgDialog) processOverrideAnswer(answ string) uikit.UIElement {
 		if err != nil {
 			return label.New(err.Error())
 		}
-		return label.New("successfully created file at " + c.cfg.GetPath())
+		return label.New("successfully created file at " + c.cfg.GetPath() + ". " + randomizer.GoodGoodBuy())
 	}
-	return label.New("aborting config creation. see ya!")
+	return label.New("aborting config creation. " + randomizer.GoodGoodBuy())
 }
