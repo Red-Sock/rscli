@@ -31,4 +31,5 @@ func RunConfig(args []string) {
 			println("aborting config creation. " + randomizer.GoodGoodBuy())
 		}
 	}
+	println("successfully create config at " + c.GetPath() + ". " + randomizer.GoodGoodBuy())
 }
