@@ -10,7 +10,8 @@ const (
 ========================
 `
 	options = `
-configure, cfg, c - creates configuration file (by default - API application with PostgresSQL connection)  
+configure, cfg, c - creates configuration file (by default - API application with PostgresSQL connection)
+ui - opens visual menu
 `
 )
 
