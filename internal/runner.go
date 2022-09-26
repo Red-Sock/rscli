@@ -1,8 +1,10 @@
 package internal
 
 import (
+	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli/internal/service/config"
 	"github.com/Red-Sock/rscli/internal/service/help"
+	"github.com/Red-Sock/rscli/internal/ui"
 	"github.com/Red-Sock/rscli/internal/utils"
 )
 
@@ -20,6 +22,10 @@ func Run(args []string) {
 	switch {
 	case utils.Contains(config.Command(), args[0]):
 		res = config.Run(args[0:])
+	case args[0] == ui.Command:
+		qE := make(chan struct{})
+		uikit.NewHandler(ui.NewMainMenu()).Start(qE)
+		return
 	}
 
 	println(res)
