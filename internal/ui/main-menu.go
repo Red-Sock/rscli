@@ -7,10 +7,8 @@ import (
 
 const Command = "ui"
 
-var _ uikit.UIElement = (*MainMenu)(nil)
-
 type MainMenu struct {
-	selectone.MultiSelectBox // TODO изменится в RSI-16
+	selectone.SelectBox
 }
 
 const (
