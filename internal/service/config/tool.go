@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"github.com/Red-Sock/rscli/internal/service/help"
 	"github.com/Red-Sock/rscli/internal/utils"
@@ -13,9 +14,9 @@ func Command() []string {
 	return commands
 }
 
-func Run(args []string) string {
+func Run(args []string) (*Config, error) {
 	if utils.Contains(args, help.Command) {
-		return HelpMessage()
+		return nil, HelpMessage()
 	}
 
 	args = args[1:]
@@ -29,17 +30,17 @@ func Run(args []string) string {
 
 	opts, err = parseArgs(args)
 	if err != nil {
-		return err.Error()
+		return nil, err
 	}
 
 	return NewConfig(opts)
 }
 
-func HelpMessage() string {
-	return help.FormMessage(defaultHelp)
+func HelpMessage() error {
+	return errors.New(help.FormMessage(defaultHelp))
 }
 
-func runDefault() string {
+func runDefault() (*Config, error) {
 	opts := map[string][]string{
 		sourceNamePg: {"postgres"},
 	}
@@ -86,4 +87,8 @@ Putting name(s) after flag will create named connections
        Example:  "rscli config --pg parking_lot key" will create
                  configuration file with connections to postgres
                  databases named "parking_lot" and "key". 
+
+--fo forces to override currently available config.
+
+--path [path/to/config.yml] will set custom config path. 
 `

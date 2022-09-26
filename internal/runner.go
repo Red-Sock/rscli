@@ -21,10 +21,10 @@ func Run(args []string) {
 	var res string
 	switch {
 	case utils.Contains(config.Command(), args[0]):
-		res = config.Run(args[0:])
-	case args[0] == ui.Command:
+		config.Run(args[0:])
+	case utils.Contains(args, ui.Command):
 		qE := make(chan struct{})
-		uikit.NewHandler(ui.NewMainMenu()).Start(qE)
+		uikit.NewHandler(ui.NewUI(args)).Start(qE)
 		return
 	}
 

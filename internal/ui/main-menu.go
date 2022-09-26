@@ -5,8 +5,6 @@ import (
 	"github.com/Red-Sock/rscli-uikit/selectone"
 )
 
-const Command = "ui"
-
 type MainMenu struct {
 	selectone.SelectBox
 }
@@ -15,7 +13,7 @@ const (
 	configMenu = "crete config"
 )
 
-func NewMainMenu() uikit.UIElement {
+func newMainMenu() uikit.UIElement {
 	sb, _ := selectone.New(
 		mainMenuCallback,
 		selectone.ItemsAttribute(configMenu),
