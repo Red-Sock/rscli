@@ -1,11 +1,13 @@
 package cmds
 
 import (
-	"bufio"
-	"github.com/Red-Sock/rscli/internal/randomizer"
-	"github.com/Red-Sock/rscli/internal/service/config"
 	"os"
 	"strings"
+
+	"github.com/Red-Sock/rscli/internal/utils"
+
+	"github.com/Red-Sock/rscli/internal/randomizer"
+	"github.com/Red-Sock/rscli/internal/service/config"
 )
 
 func RunConfig(args []string) {
@@ -22,13 +24,17 @@ func RunConfig(args []string) {
 			return
 		}
 
-		reader := bufio.NewReader(os.Stdin)
-		println("file " + c.GetPath() + " already exists. Do you want to override it? Y(es)/N(o)")
-		anws, _ := reader.ReadString('\n')
-		anws = strings.ToLower(strings.Replace(anws, "\n", "", -1))
+		answ := utils.GetAnswer("file " + c.GetPath() + " already exists. Do you want to override it? Y(es)/N(o)")
+		answ = strings.ToLower(strings.Replace(answ, "\n", "", -1))
 
-		if strings.HasPrefix(anws, "n") {
+		if !strings.HasPrefix(answ, "y") {
 			println("aborting config creation. " + randomizer.GoodGoodBuy())
+		}
+
+		err = c.ForceWrite()
+		if err != nil {
+			println(err.Error())
+			return
 		}
 	}
 	println("successfully create config at " + c.GetPath() + ". " + randomizer.GoodGoodBuy())

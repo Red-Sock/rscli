@@ -2,22 +2,32 @@ package config
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"os"
+	"path"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
-// root keys names
 const (
-	dataSource = "data_sources"
+	DataSourceKey = "data_sources"
 )
 
+// data sources (sub-keys)
 const (
 	sourceNamePg  = "pg"
 	sourceNameRds = "rds"
+)
 
+// flags
+const (
 	forceOverride = "fo"
 	configPath    = "path"
+)
+
+const (
+	DefaultDir    = "config"
+	LocalFileName = "local_config.yaml"
 )
 
 type Config struct {
@@ -34,9 +44,12 @@ func NewConfig(opts map[string][]string) (*Config, error) {
 
 	_, isForceOverride := opts[forceOverride]
 
-	defaultPath := "./config/local_config.yaml"
+	var defaultPath string
+
 	if p, ok := opts[configPath]; ok && len(p) > 0 {
 		defaultPath = p[0]
+	} else {
+		defaultPath = path.Join("./", DefaultDir, LocalFileName)
 	}
 
 	return &Config{
@@ -64,7 +77,9 @@ func (c *Config) TryWrite() (err error) {
 
 	var f *os.File
 
-	_ = os.Mkdir("./config", 0775)
+	dir, _ := path.Split(c.pth)
+
+	_ = os.Mkdir(dir, 0775)
 
 	st, _ := os.Stat(c.pth)
 	if st != nil {
@@ -102,7 +117,7 @@ func buildConfig(opts map[string][]string) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	out[dataSource] = ds
+	out[DataSourceKey] = ds
 	return out, nil
 }
 

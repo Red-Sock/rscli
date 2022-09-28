@@ -6,6 +6,7 @@ import (
 	"github.com/Red-Sock/rscli-uikit/label"
 	"github.com/Red-Sock/rscli/internal/service/config"
 	"github.com/Red-Sock/rscli/internal/service/help"
+	"github.com/Red-Sock/rscli/internal/service/project"
 	"github.com/Red-Sock/rscli/internal/utils"
 )
 
@@ -23,6 +24,8 @@ func NewUI(args []string) uikit.UIElement {
 		return newMainMenu()
 	case utils.Contains(config.Command(), args[0]):
 		return newConfigMenu()
+	case utils.Contains(project.Command(), args[0]):
+		return newProjectMenu()
 	default:
 		return label.New(fmt.Sprintf("no ui for %s is available", args[0]))
 	}

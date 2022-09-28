@@ -10,13 +10,17 @@ type MainMenu struct {
 }
 
 const (
-	configMenu = "create config"
+	configMenu  = "config"
+	projectMenu = "project"
 )
 
 func newMainMenu() uikit.UIElement {
 	sb, _ := selectone.New(
 		mainMenuCallback,
-		selectone.ItemsAttribute(configMenu),
+		selectone.ItemsAttribute(
+			configMenu,
+			projectMenu,
+		),
 	)
 	return sb
 
@@ -26,6 +30,8 @@ func mainMenuCallback(res string) uikit.UIElement {
 	switch res {
 	case configMenu:
 		return newConfigMenu()
+	case projectMenu:
+		return newProjectMenu()
 	default:
 		return nil
 	}
