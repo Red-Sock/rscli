@@ -7,7 +7,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/utils"
 	"gopkg.in/yaml.v3"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
 )
 
@@ -97,7 +97,7 @@ func (p *Project) readConfig() ([]folder, error) {
 
 	out = append(out, dsFolders)
 
-	return nil, err
+	return out, err
 }
 
 func extractDataSources(ds map[string]interface{}) (folder, error) {
@@ -185,7 +185,7 @@ func tryFindConfig(args map[string][]string) (string, error) {
 		return pth, nil
 	}
 
-	currentDir := filepath.Dir("./")
+	currentDir := "./"
 	dirs, err := os.ReadDir(currentDir)
 	if err != nil {
 		return "", err
@@ -193,13 +193,25 @@ func tryFindConfig(args map[string][]string) (string, error) {
 
 	for _, d := range dirs {
 		if d.Name() == config.DefaultDir {
-			pth = config.DefaultDir
+			pth = path.Join(currentDir, config.DefaultDir)
 			break
 		}
 	}
 
 	if pth == "" {
 		return "", ErrNoConfigNoAppNameFlag
+	}
+
+	confs, err := os.ReadDir(pth)
+	if err != nil {
+		return "", err
+	}
+	for _, f := range confs {
+		name := f.Name()
+		if strings.HasSuffix(name, "config.yaml") {
+			pth = path.Join(pth, name)
+			break
+		}
 	}
 
 	return pth, nil
