@@ -1,6 +1,7 @@
 package project
 
 import (
+	_ "embed"
 	"errors"
 	"fmt"
 	"github.com/Red-Sock/rscli/internal/service/config"
@@ -10,6 +11,9 @@ import (
 	"path"
 	"strings"
 )
+
+//go:embed main.go.pattern
+var mainFile []byte
 
 var commands = []string{"p", "project"}
 
@@ -53,16 +57,20 @@ func (p *Project) Create() error {
 	patterns, err := p.readPatterns()
 	folders = append(folders, patterns...)
 
-	if p.cfgPath == "" {
-		folders = append(folders, folder{name: "config"})
-	}
+	folders = append(folders, folder{name: "config"})
 
 	projFolder := folder{
 		name:  "./" + p.Name,
 		inner: folders,
 	}
 
-	return projFolder.MakeAll("")
+	err = projFolder.MakeAll("")
+	if err != nil {
+		return err
+	}
+
+	return p.moveCfg()
+
 }
 
 func (p *Project) ValidateName() error {
@@ -110,16 +118,45 @@ func (p *Project) readConfig() ([]folder, error) {
 	return out, err
 }
 
+func (p *Project) moveCfg() error {
+	if p.cfgPath == "" {
+		return nil
+	}
+	cfgDir, _ := path.Split(p.cfgPath)
+	cfgs, err := os.ReadDir(cfgDir)
+	if err != nil {
+		return err
+	}
+
+	var content []byte
+
+	for _, c := range cfgs {
+		oldPath := path.Join(cfgDir, c.Name())
+		content, err = os.ReadFile(oldPath)
+		if err != nil {
+			return err
+		}
+		err = os.WriteFile(path.Join(p.Name, "config", c.Name()), content, 0755)
+		if err != nil {
+			return nil
+		}
+
+		err = os.Remove(oldPath)
+		if err != nil {
+			return err
+		}
+	}
+
+	return os.Remove(cfgDir)
+}
+
 func (p *Project) readPatterns() (out []folder, err error) {
 
 	cmd := folder{
 		name:  "cmd",
 		inner: nil,
 	}
-	mainFile, err := os.ReadFile("./internal/service/project/main.go.pattern")
-	if err != nil {
-		return nil, err
-	}
+
 	cmd.inner = append(cmd.inner, folder{
 		name: p.Name,
 		inner: []folder{
@@ -292,7 +329,7 @@ func (f *folder) MakeAll(root string) error {
 	}
 
 	for _, d := range f.inner {
-		err = d.MakeAll(f.name)
+		err = d.MakeAll(pth)
 		if err != nil {
 			return err
 		}
