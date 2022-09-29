@@ -81,7 +81,10 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 
 func (p *projectInteraction) confirmCreateProjectCallback(resp string) uikit.UIElement {
 	if resp == "yes" {
-		p.p.Create()
+		err := p.p.Create()
+		if err != nil {
+			return label.New(err.Error())
+		}
 	}
 	return nil
 }

@@ -50,9 +50,19 @@ func (p *Project) Create() error {
 		return err
 	}
 
-	println(folders)
+	patterns, err := p.readPatterns()
+	folders = append(folders, patterns...)
 
-	return nil
+	if p.cfgPath == "" {
+		folders = append(folders, folder{name: "config"})
+	}
+
+	projFolder := folder{
+		name:  "./" + p.Name,
+		inner: folders,
+	}
+
+	return projFolder.MakeAll("")
 }
 
 func (p *Project) ValidateName() error {
@@ -98,6 +108,46 @@ func (p *Project) readConfig() ([]folder, error) {
 	out = append(out, dsFolders)
 
 	return out, err
+}
+
+func (p *Project) readPatterns() (out []folder, err error) {
+
+	cmd := folder{
+		name:  "cmd",
+		inner: nil,
+	}
+	mainFile, err := os.ReadFile("./internal/service/project/main.go.pattern")
+	if err != nil {
+		return nil, err
+	}
+	cmd.inner = append(cmd.inner, folder{
+		name: p.Name,
+		inner: []folder{
+			{
+				name:    "main.go",
+				content: mainFile,
+			},
+		},
+	})
+	out = append(out, cmd)
+
+	out = append(out, folder{
+		name: "internal",
+	})
+
+	out = append(out, folder{
+		name: "pkg",
+		inner: []folder{
+			{
+				name: "swagger",
+			},
+			{
+				name: "api",
+			},
+		},
+	})
+
+	return out, nil
 }
 
 func extractDataSources(ds map[string]interface{}) (folder, error) {
@@ -218,6 +268,34 @@ func tryFindConfig(args map[string][]string) (string, error) {
 }
 
 type folder struct {
-	name  string
-	inner []folder
+	name    string
+	inner   []folder
+	content []byte
+}
+
+func (f *folder) MakeAll(root string) error {
+	pth := path.Join(root, f.name)
+
+	if len(f.content) != 0 {
+		fw, err := os.Create(pth)
+		if err != nil {
+			return err
+		}
+		defer fw.Close()
+		_, err = fw.Write(f.content)
+		return err
+	}
+
+	err := os.MkdirAll(pth, 0755)
+	if err != nil {
+		return err
+	}
+
+	for _, d := range f.inner {
+		err = d.MakeAll(f.name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
