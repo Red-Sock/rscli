@@ -6,7 +6,7 @@ import (
 )
 
 type MainMenu struct {
-	selectone.SelectBox
+	selectone.Box
 }
 
 const (
@@ -15,9 +15,9 @@ const (
 )
 
 func newMainMenu() uikit.UIElement {
-	sb, _ := selectone.New(
+	sb := selectone.New(
 		mainMenuCallback,
-		selectone.ItemsAttribute(
+		selectone.Items(
 			configMenu,
 			projectMenu,
 		),

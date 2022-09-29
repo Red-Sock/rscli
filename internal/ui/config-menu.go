@@ -8,7 +8,6 @@ import (
 	"github.com/Red-Sock/rscli-uikit/selectone"
 	"github.com/Red-Sock/rscli/internal/randomizer"
 	"github.com/Red-Sock/rscli/internal/service/config"
-	"log"
 	"os"
 )
 
@@ -18,14 +17,11 @@ const (
 )
 
 func newConfigMenu() uikit.UIElement {
-	msb, err := multiselect.New(
+	msb := multiselect.New(
 		configCallback,
-		multiselect.ItemsAttribute(pgCon, redisCon),
+		multiselect.Items(pgCon, redisCon),
 	)
 
-	if err != nil {
-		log.Fatal("error creating config selector", err)
-	}
 	return msb
 }
 
@@ -47,7 +43,7 @@ func configCallback(res []string) uikit.UIElement {
 
 	confDiag := cfgDialog{cfg: cfg}
 
-	tb := input.NewTextBox(confDiag.selectPathForConfig)
+	tb := input.New(confDiag.selectPathForConfig)
 	// TODO RSI-23
 	tb.W = 10
 	tb.H = 1
@@ -63,10 +59,10 @@ func (c *cfgDialog) selectPathForConfig(p string) uikit.UIElement {
 		err := c.cfg.SetPath(p)
 		if err != nil {
 			if err == os.ErrExist {
-				sb, _ := selectone.New(
+				sb := selectone.New(
 					c.processOverrideAnswer,
-					selectone.ItemsAttribute("yes", "no"),
-					selectone.HeaderAttribute("file "+p+" already exists. Want to override?"),
+					selectone.Items("yes", "no"),
+					selectone.Header("file "+p+" already exists. Want to override?"),
 				)
 				return sb
 			}
@@ -76,10 +72,10 @@ func (c *cfgDialog) selectPathForConfig(p string) uikit.UIElement {
 	err := c.cfg.TryWrite()
 	if err != nil {
 		if err == os.ErrExist {
-			sb, _ := selectone.New(
+			sb := selectone.New(
 				c.processOverrideAnswer,
-				selectone.ItemsAttribute("yes", "no"),
-				selectone.HeaderAttribute("file "+c.cfg.GetPath()+" already exists. Want to override?"),
+				selectone.Items("yes", "no"),
+				selectone.Header("file "+c.cfg.GetPath()+" already exists. Want to override?"),
 			)
 			return sb
 		}

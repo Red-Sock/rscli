@@ -7,7 +7,6 @@ import (
 	"github.com/Red-Sock/rscli-uikit/label"
 	"github.com/Red-Sock/rscli-uikit/selectone"
 	"github.com/Red-Sock/rscli/internal/service/project"
-	"log"
 )
 
 const (
@@ -15,14 +14,10 @@ const (
 )
 
 func newProjectMenu() uikit.UIElement {
-	sb, err := selectone.New(
+	sb := selectone.New(
 		projectCallback,
-		selectone.ItemsAttribute(projCreate),
+		selectone.Items(projCreate),
 	)
-
-	if err != nil {
-		log.Fatal("error creating config selector", err)
-	}
 
 	return sb
 }
@@ -42,19 +37,18 @@ func projectCallback(resp string) uikit.UIElement {
 		pi := projectInteraction{p: p}
 
 		if pi.p.Name == "" {
-			// header attribute in RSI-22
-			inputer := input.NewTextBox(pi.callBackInputName)
-			inputer.W = 20
-			inputer.H = 1
-			return inputer
+			return input.New(
+				pi.callBackInputName,
+				input.Width(20),
+				input.Height(1),
+			)
 		}
 
-		so, _ := selectone.New(
+		return selectone.New(
 			pi.confirmCreateProjectCallback,
-			selectone.HeaderAttribute(fmt.Sprintf("You wish to create project named %s", p.Name)),
-			selectone.ItemsAttribute("yes", "no"),
+			selectone.Header(fmt.Sprintf("You wish to create project named %s", p.Name)),
+			selectone.Items("yes", "no"),
 		)
-		return so
 	}
 
 	return nil
@@ -65,16 +59,16 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 
 	err := p.p.ValidateName()
 	if err != nil {
-		// header attribute in RSI-22
-		inputer := input.NewTextBox(p.callBackInputName)
-		inputer.W = 20
-		inputer.H = 1
-		return inputer
+		return input.New(
+			p.callBackInputName,
+			input.Width(20),
+			input.Height(1),
+		)
 	}
-	so, _ := selectone.New(
+	so := selectone.New(
 		p.confirmCreateProjectCallback,
-		selectone.HeaderAttribute(fmt.Sprintf("You wish to create project named %s", p.p.Name)),
-		selectone.ItemsAttribute("yes", "no"),
+		selectone.Header(fmt.Sprintf("You wish to create project named %s", p.p.Name)),
+		selectone.Items("yes", "no"),
 	)
 	return so
 }
