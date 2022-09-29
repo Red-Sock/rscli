@@ -22,5 +22,17 @@ func RemoveIdx[T comparable](slice []T, idx int) []T {
 	if idx >= len(slice) {
 		return slice[0:idx]
 	}
-	return append(slice[0:idx], slice[idx+1])
+	return append(slice[0:idx], slice[idx+1:]...)
+}
+
+func Exclude[T comparable](slice []T, elems ...T) []T {
+	for _, itemToExclude := range elems {
+		for idx, item := range slice {
+			if item == itemToExclude {
+				slice = RemoveIdx(slice, idx)
+				break
+			}
+		}
+	}
+	return slice
 }

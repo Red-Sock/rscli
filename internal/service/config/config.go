@@ -1,63 +1,114 @@
 package config
 
 import (
-	"bufio"
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"os"
+	"path"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
-// root keys names
 const (
-	dataSource = "data_sources"
+	DataSourceKey = "data_sources"
 )
 
+// data sources (sub-keys)
 const (
 	sourceNamePg  = "pg"
 	sourceNameRds = "rds"
 )
 
-func NewConfig(opts map[string][]string) string {
+// flags
+const (
+	forceOverride = "fo"
+	configPath    = "path"
+)
+
+const (
+	DefaultDir    = "config"
+	LocalFileName = "local_config.yaml"
+)
+
+type Config struct {
+	content         map[string]interface{}
+	pth             string
+	isForceOverride bool
+}
+
+func NewConfig(opts map[string][]string) (*Config, error) {
 	cfg, err := buildConfig(opts)
 	if err != nil {
-		return err.Error()
+		return nil, err
 	}
 
-	pth := "./config/local_config.yaml"
+	_, isForceOverride := opts[forceOverride]
+
+	var defaultPath string
+
+	if p, ok := opts[configPath]; ok && len(p) > 0 {
+		defaultPath = p[0]
+	} else {
+		defaultPath = path.Join("./", DefaultDir, LocalFileName)
+	}
+
+	return &Config{
+		content:         cfg,
+		pth:             defaultPath,
+		isForceOverride: isForceOverride,
+	}, nil
+}
+
+func (c *Config) SetPath(pth string) (err error) {
+	st, _ := os.Stat(pth)
+	if st != nil {
+		return os.ErrExist
+	}
+
+	c.pth = pth
+	return nil
+}
+
+func (c *Config) GetPath() string {
+	return c.pth
+}
+
+func (c *Config) TryWrite() (err error) {
 
 	var f *os.File
 
-	_ = os.Mkdir("./config", 0775)
-	st, _ := os.Stat(pth)
+	dir, _ := path.Split(c.pth)
+
+	_ = os.Mkdir(dir, 0775)
+
+	st, _ := os.Stat(c.pth)
 	if st != nil {
-		println("config at" + pth + " already exists. Want to override? (Y)es/(N)o")
+		return os.ErrExist
+	}
+	if f, err = os.Create(c.pth); err != nil {
+		return err
+	}
+	defer f.Close()
 
-		reader := bufio.NewReader(os.Stdin)
-		var resp string
-		resp, err = reader.ReadString('\n')
-		if err != nil {
-			return "error reading user response: " + err.Error()
-		}
-		resp = strings.ToLower(resp)
-		if !strings.HasPrefix(resp, "y") {
-			return "config creation is aborted by user"
-		}
+	if err = yaml.NewEncoder(f).Encode(c.content); err != nil {
+		return err
 	}
-	if f, err = os.Create(pth); err != nil {
-		return "error creating file at " + pth + ": " + err.Error()
-	}
-	defer func() {
-		err = f.Close()
-		if err != nil {
-			println("INTERNAL SYSTEM error when closing file " + pth + " " + err.Error())
-		}
-	}()
 
-	if err = yaml.NewEncoder(f).Encode(cfg); err != nil {
-		return err.Error()
+	return nil
+}
+
+func (c *Config) ForceWrite() (err error) {
+	_ = os.RemoveAll(c.pth)
+	w, err := os.Create(c.pth)
+	if err != nil {
+		return err
 	}
-	return "Successfully created config file"
+	defer w.Close()
+
+	if err = yaml.NewEncoder(w).Encode(c.content); err != nil {
+		return err
+	}
+	return nil
 }
 
 func buildConfig(opts map[string][]string) (map[string]interface{}, error) {
@@ -66,7 +117,7 @@ func buildConfig(opts map[string][]string) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	out[dataSource] = ds
+	out[DataSourceKey] = ds
 	return out, nil
 }
 

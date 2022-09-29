@@ -5,22 +5,22 @@ import (
 	"github.com/Red-Sock/rscli-uikit/selectone"
 )
 
-const Command = "ui"
-
-var _ uikit.UIElement = (*MainMenu)(nil)
-
 type MainMenu struct {
-	selectone.MultiSelectBox // TODO изменится в RSI-16
+	selectone.SelectBox
 }
 
 const (
-	configMenu = "crete config"
+	configMenu  = "config"
+	projectMenu = "project"
 )
 
-func NewMainMenu() uikit.UIElement {
+func newMainMenu() uikit.UIElement {
 	sb, _ := selectone.New(
 		mainMenuCallback,
-		selectone.ItemsAttribute(configMenu),
+		selectone.ItemsAttribute(
+			configMenu,
+			projectMenu,
+		),
 	)
 	return sb
 
@@ -30,6 +30,8 @@ func mainMenuCallback(res string) uikit.UIElement {
 	switch res {
 	case configMenu:
 		return newConfigMenu()
+	case projectMenu:
+		return newProjectMenu()
 	default:
 		return nil
 	}
