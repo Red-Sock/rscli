@@ -5,11 +5,9 @@ import (
 )
 
 func RunProject(args []string) {
-	p, err := project.NewProject(args)
+	_, err := project.NewProject(args)
 	if err != nil {
 		println(err.Error())
 		return
 	}
-
-	println(p)
 }

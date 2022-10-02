@@ -44,7 +44,7 @@ type Project struct {
 	cfgPath string
 }
 
-func NewProject(args []string) (*Project, error) {
+func NewProject(args []string) (Project, error) {
 	return createProject(args)
 }
 
@@ -54,7 +54,8 @@ func (p *Project) Create() error {
 		return err
 	}
 
-	patterns, err := p.readPatterns()
+	patterns := p.readPatterns()
+
 	folders = append(folders, patterns...)
 
 	folders = append(folders, folder{name: "config"})
@@ -74,9 +75,14 @@ func (p *Project) Create() error {
 }
 
 func (p *Project) ValidateName() error {
+	if p.Name == "" {
+		return errors.New("no name entered")
+	}
+
 	if strings.Contains(p.Name, " ") {
 		return errors.New("name contains space symbols")
 	}
+
 	return nil
 }
 
@@ -150,7 +156,7 @@ func (p *Project) moveCfg() error {
 	return os.Remove(cfgDir)
 }
 
-func (p *Project) readPatterns() (out []folder, err error) {
+func (p *Project) readPatterns() (out []folder) {
 
 	cmd := folder{
 		name:  "cmd",
@@ -184,7 +190,7 @@ func (p *Project) readPatterns() (out []folder, err error) {
 		},
 	})
 
-	return out, nil
+	return out
 }
 
 func extractDataSources(ds map[string]interface{}) (folder, error) {
@@ -201,23 +207,23 @@ func extractDataSources(ds map[string]interface{}) (folder, error) {
 	return out, nil
 }
 
-func createProject(args []string) (*Project, error) {
-	p := &Project{}
+func createProject(args []string) (Project, error) {
+	p := Project{}
 
 	flags, err := utils.ParseArgs(args)
 	if err != nil {
-		return nil, err
+		return Project{}, err
 	}
 
 	p.Name, err = extractNameFromFlags(flags)
 	if err != nil {
-		return nil, err
+		return Project{}, err
 	}
 
 	if p.Name == "" {
 		p.cfgPath, err = tryFindConfig(flags)
 		if err != nil {
-			return nil, err
+			return Project{}, err
 		}
 	}
 

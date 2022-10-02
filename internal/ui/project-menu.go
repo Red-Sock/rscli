@@ -23,30 +23,30 @@ func newProjectMenu() uikit.UIElement {
 }
 
 type projectInteraction struct {
-	p *project.Project
+	p project.Project
 }
 
 func projectCallback(resp string) uikit.UIElement {
+	var err error
 	switch resp {
 	case projCreate:
-		p, err := project.NewProject(nil)
+		pi := &projectInteraction{}
+
+		pi.p, err = project.NewProject(nil)
 		if err != nil {
-			return label.New(err.Error())
+			if err != project.ErrNoConfigNoAppNameFlag {
+				return label.New(err.Error())
+			}
+			return projectNameTextBox(pi)
 		}
 
-		pi := projectInteraction{p: p}
-
 		if pi.p.Name == "" {
-			return input.New(
-				pi.callBackInputName,
-				input.Width(20),
-				input.Height(1),
-			)
+			return projectNameTextBox(pi)
 		}
 
 		return selectone.New(
 			pi.confirmCreateProjectCallback,
-			selectone.Header(fmt.Sprintf("You wish to create project named %s", p.Name)),
+			selectone.Header(fmt.Sprintf("You wish to create project named %s", pi.p.Name)),
 			selectone.Items("yes", "no"),
 		)
 	}
@@ -59,12 +59,9 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 
 	err := p.p.ValidateName()
 	if err != nil {
-		return input.New(
-			p.callBackInputName,
-			input.Width(20),
-			input.Height(1),
-		)
+		return projectNameTextBox(p)
 	}
+
 	so := selectone.New(
 		p.confirmCreateProjectCallback,
 		selectone.Header(fmt.Sprintf("You wish to create project named %s", p.p.Name)),
@@ -81,4 +78,15 @@ func (p *projectInteraction) confirmCreateProjectCallback(resp string) uikit.UIE
 		}
 	}
 	return nil
+}
+
+func projectNameTextBox(pi *projectInteraction) *input.TextBox {
+	return input.New(
+		pi.callBackInputName,
+		input.Width(20),
+		input.Height(1),
+
+		input.TextAbove("Input project name"),
+		input.TextBelow("Enter to confirm"),
+	)
 }

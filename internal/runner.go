@@ -20,20 +20,20 @@ func Run(args []string) {
 		println(help.Run())
 		return
 	}
-	var res string
-	switch {
 
-	case utils.Contains(args, ui.Command):
+	var res string
+
+	if utils.Contains(args, ui.Command) {
 		qE := make(chan struct{})
 		uikit.NewHandler(ui.NewUI(args)).Start(qE)
 		return
+	}
 
+	switch {
 	case utils.Contains(config.Command(), args[0]):
-		cmds.RunConfig(args[0:])
-
+		cmds.RunConfig(args[1:])
 	case utils.Contains(project.Command(), args[0]):
 		cmds.RunProject(args[1:])
-
 	}
 
 	println(res)
