@@ -1,7 +1,7 @@
 package cmds
 
 import (
-	"github.com/Red-Sock/rscli/internal/service/project"
+	"github.com/Red-Sock/rscli/pkg/service/project"
 )
 
 func RunProject(args []string) {

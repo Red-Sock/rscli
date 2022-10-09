@@ -4,10 +4,10 @@ import (
 	"fmt"
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/label"
-	"github.com/Red-Sock/rscli/internal/service/config"
-	"github.com/Red-Sock/rscli/internal/service/help"
-	"github.com/Red-Sock/rscli/internal/service/project"
 	"github.com/Red-Sock/rscli/internal/utils"
+	"github.com/Red-Sock/rscli/pkg/service/config"
+	"github.com/Red-Sock/rscli/pkg/service/help"
+	"github.com/Red-Sock/rscli/pkg/service/project"
 )
 
 const Command = "ui"

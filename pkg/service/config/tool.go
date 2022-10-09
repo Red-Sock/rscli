@@ -2,8 +2,8 @@ package config
 
 import (
 	"errors"
-	"github.com/Red-Sock/rscli/internal/service/help"
 	"github.com/Red-Sock/rscli/internal/utils"
+	"github.com/Red-Sock/rscli/pkg/service/help"
 )
 
 var commands = []string{"config", "c"}

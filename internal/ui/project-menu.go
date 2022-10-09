@@ -3,10 +3,11 @@ package ui
 import (
 	"fmt"
 	uikit "github.com/Red-Sock/rscli-uikit"
+	"github.com/Red-Sock/rscli-uikit/common"
 	"github.com/Red-Sock/rscli-uikit/input"
 	"github.com/Red-Sock/rscli-uikit/label"
 	"github.com/Red-Sock/rscli-uikit/selectone"
-	"github.com/Red-Sock/rscli/internal/service/project"
+	"github.com/Red-Sock/rscli/pkg/service/project"
 )
 
 const (
@@ -85,7 +86,7 @@ func projectNameTextBox(pi *projectInteraction) *input.TextBox {
 		pi.callBackInputName,
 		input.Width(20),
 		input.Height(1),
-
+		input.Position(common.NewRelativePositioning(0.5, 0.5)),
 		input.TextAbove("Input project name"),
 		input.TextBelow("Enter to confirm"),
 	)

@@ -7,7 +7,7 @@ import (
 	"github.com/Red-Sock/rscli-uikit/multiselect"
 	"github.com/Red-Sock/rscli-uikit/selectone"
 	"github.com/Red-Sock/rscli/internal/randomizer"
-	"github.com/Red-Sock/rscli/internal/service/config"
+	config2 "github.com/Red-Sock/rscli/pkg/service/config"
 	"os"
 )
 
@@ -36,7 +36,7 @@ func configCallback(res []string) uikit.UIElement {
 		}
 	}
 
-	cfg, err := config.Run(args)
+	cfg, err := config2.Run(args)
 	if err != nil {
 		return label.New(err.Error())
 	}
@@ -51,7 +51,7 @@ func configCallback(res []string) uikit.UIElement {
 }
 
 type cfgDialog struct {
-	cfg *config.Config
+	cfg *config2.Config
 }
 
 func (c *cfgDialog) selectPathForConfig(p string) uikit.UIElement {

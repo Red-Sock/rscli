@@ -3,11 +3,8 @@ package ui
 import (
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/selectone"
+	"github.com/Red-Sock/rscli/pkg/service/help"
 )
-
-type MainMenu struct {
-	selectone.Box
-}
 
 const (
 	configMenu  = "config"
@@ -17,6 +14,7 @@ const (
 func newMainMenu() uikit.UIElement {
 	sb := selectone.New(
 		mainMenuCallback,
+		selectone.Header(help.Header),
 		selectone.Items(
 			configMenu,
 			projectMenu,
