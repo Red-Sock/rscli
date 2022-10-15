@@ -2,10 +2,10 @@ package ui
 
 import (
 	uikit "github.com/Red-Sock/rscli-uikit"
-	"github.com/Red-Sock/rscli-uikit/input"
-	"github.com/Red-Sock/rscli-uikit/label"
-	"github.com/Red-Sock/rscli-uikit/multiselect"
-	"github.com/Red-Sock/rscli-uikit/selectone"
+	"github.com/Red-Sock/rscli-uikit/basic/label"
+	"github.com/Red-Sock/rscli-uikit/composit-items/input"
+	"github.com/Red-Sock/rscli-uikit/composit-items/multiselect"
+	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli/internal/randomizer"
 	config2 "github.com/Red-Sock/rscli/pkg/service/config"
 	"os"
@@ -59,10 +59,10 @@ func (c *cfgDialog) selectPathForConfig(p string) uikit.UIElement {
 		err := c.cfg.SetPath(p)
 		if err != nil {
 			if err == os.ErrExist {
-				sb := selectone.New(
+				sb := radioselect.New(
 					c.processOverrideAnswer,
-					selectone.Items("yes", "no"),
-					selectone.Header("file "+p+" already exists. Want to override?"),
+					radioselect.Items("yes", "no"),
+					radioselect.Header("file "+p+" already exists. Want to override?"),
 				)
 				return sb
 			}
@@ -72,10 +72,10 @@ func (c *cfgDialog) selectPathForConfig(p string) uikit.UIElement {
 	err := c.cfg.TryWrite()
 	if err != nil {
 		if err == os.ErrExist {
-			sb := selectone.New(
+			sb := radioselect.New(
 				c.processOverrideAnswer,
-				selectone.Items("yes", "no"),
-				selectone.Header("file "+c.cfg.GetPath()+" already exists. Want to override?"),
+				radioselect.Items("yes", "no"),
+				radioselect.Header("file "+c.cfg.GetPath()+" already exists. Want to override?"),
 			)
 			return sb
 		}

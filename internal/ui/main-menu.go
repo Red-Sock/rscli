@@ -2,7 +2,7 @@ package ui
 
 import (
 	uikit "github.com/Red-Sock/rscli-uikit"
-	"github.com/Red-Sock/rscli-uikit/selectone"
+	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli/pkg/service/help"
 )
 
@@ -12,10 +12,10 @@ const (
 )
 
 func newMainMenu() uikit.UIElement {
-	sb := selectone.New(
+	sb := radioselect.New(
 		mainMenuCallback,
-		selectone.Header(help.Header),
-		selectone.Items(
+		radioselect.Header(help.Header),
+		radioselect.Items(
 			configMenu,
 			projectMenu,
 		),

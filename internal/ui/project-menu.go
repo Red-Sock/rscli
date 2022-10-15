@@ -3,10 +3,10 @@ package ui
 import (
 	"fmt"
 	uikit "github.com/Red-Sock/rscli-uikit"
-	"github.com/Red-Sock/rscli-uikit/common"
-	"github.com/Red-Sock/rscli-uikit/input"
-	"github.com/Red-Sock/rscli-uikit/label"
-	"github.com/Red-Sock/rscli-uikit/selectone"
+	"github.com/Red-Sock/rscli-uikit/basic/label"
+	"github.com/Red-Sock/rscli-uikit/composit-items/input"
+	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
+	"github.com/Red-Sock/rscli-uikit/utils/common"
 	"github.com/Red-Sock/rscli/pkg/service/project"
 )
 
@@ -15,9 +15,9 @@ const (
 )
 
 func newProjectMenu() uikit.UIElement {
-	sb := selectone.New(
+	sb := radioselect.New(
 		projectCallback,
-		selectone.Items(projCreate),
+		radioselect.Items(projCreate),
 	)
 
 	return sb
@@ -45,10 +45,10 @@ func projectCallback(resp string) uikit.UIElement {
 			return projectNameTextBox(pi)
 		}
 
-		return selectone.New(
+		return radioselect.New(
 			pi.confirmCreateProjectCallback,
-			selectone.Header(fmt.Sprintf("You wish to create project named %s", pi.p.Name)),
-			selectone.Items("yes", "no"),
+			radioselect.Header(fmt.Sprintf("You wish to create project named %s", pi.p.Name)),
+			radioselect.Items("yes", "no"),
 		)
 	}
 
@@ -63,10 +63,10 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 		return projectNameTextBox(p)
 	}
 
-	so := selectone.New(
+	so := radioselect.New(
 		p.confirmCreateProjectCallback,
-		selectone.Header(fmt.Sprintf("You wish to create project named %s", p.p.Name)),
-		selectone.Items("yes", "no"),
+		radioselect.Header(fmt.Sprintf("You wish to create project named %s", p.p.Name)),
+		radioselect.Items("yes", "no"),
 	)
 	return so
 }
