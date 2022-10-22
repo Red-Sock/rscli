@@ -1,7 +1,6 @@
 package project
 
 import (
-	_ "embed"
 	"errors"
 	"fmt"
 	"github.com/Red-Sock/rscli/internal/utils"
@@ -11,9 +10,6 @@ import (
 	"path"
 	"strings"
 )
-
-//go:embed main.go.pattern
-var mainFile []byte
 
 var commands = []string{"p", "project"}
 
@@ -31,17 +27,17 @@ var (
 const (
 	flagCreate = "create"
 
-	flagAppName      = "name"
-	flagAppNameShort = "n"
+	FlagAppName      = "name"
+	FlagAppNameShort = "n"
 
-	flagCfgPath      = "cfg"
-	flagCfgPathShort = "c"
+	FlagCfgPath      = "cfg"
+	FlagCfgPathShort = "c"
 )
 
 type Project struct {
 	Name string
 
-	cfgPath string
+	CfgPath string
 }
 
 func NewProject(args []string) (Project, error) {
@@ -87,13 +83,13 @@ func (p *Project) ValidateName() error {
 }
 
 func (p *Project) readConfig() ([]folder, error) {
-	if p.cfgPath == "" {
+	if p.CfgPath == "" {
 		return nil, nil
 	}
 
 	conf := make(map[string]interface{})
 
-	bytes, err := os.ReadFile(p.cfgPath)
+	bytes, err := os.ReadFile(p.CfgPath)
 	if err != nil {
 		return nil, err
 	}
@@ -125,39 +121,28 @@ func (p *Project) readConfig() ([]folder, error) {
 }
 
 func (p *Project) moveCfg() error {
-	if p.cfgPath == "" {
+	if p.CfgPath == "" {
 		return nil
-	}
-	cfgDir, _ := path.Split(p.cfgPath)
-	cfgs, err := os.ReadDir(cfgDir)
-	if err != nil {
-		return err
 	}
 
 	var content []byte
 
-	for _, c := range cfgs {
-		oldPath := path.Join(cfgDir, c.Name())
-		content, err = os.ReadFile(oldPath)
-		if err != nil {
-			return err
-		}
-		err = os.WriteFile(path.Join(p.Name, "config", c.Name()), content, 0755)
-		if err != nil {
-			return nil
-		}
+	oldPath := p.CfgPath
+	p.CfgPath = path.Join(p.Name, "config", config.FileName)
 
-		err = os.Remove(oldPath)
-		if err != nil {
-			return err
-		}
+	content, err := os.ReadFile(oldPath)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(p.CfgPath, content, 0755)
+	if err != nil {
+		return nil
 	}
 
-	return os.Remove(cfgDir)
+	return os.RemoveAll(oldPath)
 }
 
 func (p *Project) readPatterns() (out []folder) {
-
 	cmd := folder{
 		name:  "cmd",
 		inner: nil,
@@ -193,37 +178,23 @@ func (p *Project) readPatterns() (out []folder) {
 	return out
 }
 
-func extractDataSources(ds map[string]interface{}) (folder, error) {
-	out := folder{
-		name: "data",
-	}
-
-	for dsn := range ds {
-		out.inner = append(out.inner, folder{
-			name: dsn,
-		})
-	}
-
-	return out, nil
-}
-
 func createProject(args []string) (Project, error) {
 	p := Project{}
 
 	flags, err := utils.ParseArgs(args)
 	if err != nil {
-		return Project{}, err
+		return p, err
 	}
 
 	p.Name, err = extractNameFromFlags(flags)
 	if err != nil {
-		return Project{}, err
+		return p, err
 	}
 
 	if p.Name == "" {
-		p.cfgPath, err = tryFindConfig(flags)
+		err = p.tryFindConfig(flags)
 		if err != nil {
-			return Project{}, err
+			return p, err
 		}
 	}
 
@@ -231,9 +202,9 @@ func createProject(args []string) (Project, error) {
 }
 
 func extractNameFromFlags(flagsArgs map[string][]string) (string, error) {
-	name, ok := flagsArgs[flagAppName]
+	name, ok := flagsArgs[FlagAppName]
 	if !ok {
-		name, ok = flagsArgs[flagAppNameShort]
+		name, ok = flagsArgs[FlagAppNameShort]
 		if !ok {
 			return "", nil
 		}
@@ -247,98 +218,4 @@ func extractNameFromFlags(flagsArgs map[string][]string) (string, error) {
 	}
 
 	return name[0], nil
-}
-
-func extractCfgPathFromFlags(flagsArgs map[string][]string) (string, error) {
-	name, ok := flagsArgs[flagCfgPath]
-	if !ok {
-		name, ok = flagsArgs[flagCfgPathShort]
-		if !ok {
-			return "", nil
-		}
-	}
-	if len(name) == 0 {
-		return "", fmt.Errorf("%w expected 1 got 0 ", ErrNoArgumentsSpecifiedForFlag)
-	}
-
-	if len(name) > 1 {
-		return "", fmt.Errorf("%w expected 1 got %d", ErrFlagHasTooManyArguments, len(name))
-	}
-
-	return name[0], nil
-}
-
-func tryFindConfig(args map[string][]string) (string, error) {
-	pth, err := extractCfgPathFromFlags(args)
-	if err != nil {
-		return "", err
-	}
-
-	if pth != "" {
-		return pth, nil
-	}
-
-	currentDir := "./"
-	dirs, err := os.ReadDir(currentDir)
-	if err != nil {
-		return "", err
-	}
-
-	for _, d := range dirs {
-		if d.Name() == config.DefaultDir {
-			pth = path.Join(currentDir, config.DefaultDir)
-			break
-		}
-	}
-
-	if pth == "" {
-		return "", ErrNoConfigNoAppNameFlag
-	}
-
-	confs, err := os.ReadDir(pth)
-	if err != nil {
-		return "", err
-	}
-	for _, f := range confs {
-		name := f.Name()
-		if strings.HasSuffix(name, "config.yaml") {
-			pth = path.Join(pth, name)
-			break
-		}
-	}
-
-	return pth, nil
-}
-
-type folder struct {
-	name    string
-	inner   []folder
-	content []byte
-}
-
-func (f *folder) MakeAll(root string) error {
-	pth := path.Join(root, f.name)
-
-	if len(f.content) != 0 {
-		fw, err := os.Create(pth)
-		if err != nil {
-			return err
-		}
-		defer fw.Close()
-		_, err = fw.Write(f.content)
-		return err
-	}
-
-	err := os.MkdirAll(pth, 0755)
-	if err != nil {
-		return err
-	}
-
-	for _, d := range f.inner {
-		err = d.MakeAll(pth)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }

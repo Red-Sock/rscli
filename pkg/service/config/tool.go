@@ -38,7 +38,7 @@ func HelpMessage() error {
 
 func runDefault() (*Config, error) {
 	opts := map[string][]string{
-		sourceNamePg: {"postgres"},
+		SourceNamePg: {"postgres"},
 	}
 
 	return NewConfig(opts)

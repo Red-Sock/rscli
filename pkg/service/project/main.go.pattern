@@ -1,5 +1,4 @@
-package project
-
+package main
 
 func main() {
 

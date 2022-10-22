@@ -7,16 +7,26 @@ import (
 	"github.com/Red-Sock/rscli-uikit/composit-items/input"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli-uikit/utils/common"
+	"github.com/Red-Sock/rscli/pkg/service/config"
+	"github.com/Red-Sock/rscli/pkg/service/help"
 	"github.com/Red-Sock/rscli/pkg/service/project"
+	"os"
+	"path"
 )
 
 const (
 	projCreate = "create"
+
+	// TODO
+
+	projUpdate = "update" // update version
+	projAdd    = "add"    // add new (source type, transport, etc)
 )
 
 func newProjectMenu() uikit.UIElement {
 	sb := radioselect.New(
 		projectCallback,
+		radioselect.Header(help.Header+"Creating project"),
 		radioselect.Items(projCreate),
 	)
 
@@ -60,7 +70,22 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 
 	err := p.p.ValidateName()
 	if err != nil {
-		return projectNameTextBox(p)
+		return input.New(
+			p.callBackInputName,
+			input.Width(20),
+			input.Height(1),
+			input.Position(common.NewRelativePositioning(0.5, 0.5)),
+			input.TextAbove(err.Error()+". Input project name"),
+			input.TextBelow("Enter to confirm"),
+		)
+	}
+
+	if p.p.CfgPath == "" {
+		return radioselect.New(
+			p.doConfig,
+			radioselect.Header(help.Header+"Want to create config?"),
+			radioselect.Items("yes", "no"),
+		)
 	}
 
 	so := radioselect.New(
@@ -79,6 +104,21 @@ func (p *projectInteraction) confirmCreateProjectCallback(resp string) uikit.UIE
 		}
 	}
 	return nil
+}
+
+func (p *projectInteraction) doConfig(resp string) uikit.UIElement {
+	confirmCreation := radioselect.New(
+		p.confirmCreateProjectCallback,
+		radioselect.Header(fmt.Sprintf("You wish to create project named %s", p.p.Name)),
+		radioselect.Items("yes", "no"),
+	)
+	if resp == "yes" {
+		dir, _ := os.Getwd()
+		p.p.CfgPath = path.Join(dir, config.FileName)
+
+		return newConfigMenu(confirmCreation)
+	}
+	return confirmCreation
 }
 
 func projectNameTextBox(pi *projectInteraction) *input.TextBox {

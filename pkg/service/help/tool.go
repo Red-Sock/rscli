@@ -6,6 +6,7 @@ const Command = "help"
 
 const (
 	Header = `
+========================
     RedSock CLI tool
 ========================
 `
