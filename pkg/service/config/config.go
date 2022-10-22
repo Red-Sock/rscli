@@ -15,8 +15,8 @@ const (
 
 // data sources (sub-keys)
 const (
-	sourceNamePg  = "pg"
-	sourceNameRds = "rds"
+	SourceNamePg  = "pg"
+	SourceNameRds = "rds"
 )
 
 // flags
@@ -26,8 +26,8 @@ const (
 )
 
 const (
-	DefaultDir    = "config"
-	LocalFileName = "local_config.yaml"
+	DefaultDir = "config"
+	FileName   = "config.yaml"
 )
 
 type Config struct {
@@ -49,7 +49,7 @@ func NewConfig(opts map[string][]string) (*Config, error) {
 	if p, ok := opts[configPath]; ok && len(p) > 0 {
 		defaultPath = p[0]
 	} else {
-		defaultPath = path.Join("./", DefaultDir, LocalFileName)
+		defaultPath = path.Join("./", DefaultDir, FileName)
 	}
 
 	return &Config{
@@ -59,8 +59,8 @@ func NewConfig(opts map[string][]string) (*Config, error) {
 	}, nil
 }
 
-func (c *Config) SetPath(pth string) (err error) {
-	st, _ := os.Stat(pth)
+func (c *Config) SetFolderPath(pth string) (err error) {
+	st, _ := os.Stat(path.Join(pth, FileName))
 	if st != nil {
 		return os.ErrExist
 	}
@@ -126,9 +126,9 @@ func buildDataSources(opts map[string][]string) (map[string]interface{}, error) 
 
 	for f, args := range opts {
 		switch strings.Replace(f, "-", "", -1) {
-		case sourceNamePg:
+		case SourceNamePg:
 			cfg = append(cfg, DefaultPgPattern(args))
-		case sourceNameRds:
+		case SourceNameRds:
 			cfg = append(cfg, DefaultRdsPattern(args))
 		}
 	}

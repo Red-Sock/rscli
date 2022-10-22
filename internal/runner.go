@@ -1,13 +1,11 @@
 package internal
 
 import (
-	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli/internal/cmds"
-	"github.com/Red-Sock/rscli/internal/service/config"
-	"github.com/Red-Sock/rscli/internal/service/help"
-	"github.com/Red-Sock/rscli/internal/service/project"
 	"github.com/Red-Sock/rscli/internal/ui"
 	"github.com/Red-Sock/rscli/internal/utils"
+	"github.com/Red-Sock/rscli/pkg/service/config"
+	"github.com/Red-Sock/rscli/pkg/service/project"
 )
 
 type Tool interface {
@@ -16,24 +14,18 @@ type Tool interface {
 }
 
 func Run(args []string) {
-	if len(args) == 0 {
-		println(help.Run())
+	if len(args) == 0 || utils.Contains(args, ui.Command) {
+		ui.Run(args)
 		return
 	}
+
 	var res string
+
 	switch {
-
-	case utils.Contains(args, ui.Command):
-		qE := make(chan struct{})
-		uikit.NewHandler(ui.NewUI(args)).Start(qE)
-		return
-
 	case utils.Contains(config.Command(), args[0]):
-		cmds.RunConfig(args[0:])
-
+		cmds.RunConfig(args[1:])
 	case utils.Contains(project.Command(), args[0]):
 		cmds.RunProject(args[1:])
-
 	}
 
 	println(res)

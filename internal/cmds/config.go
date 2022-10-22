@@ -1,13 +1,13 @@
 package cmds
 
 import (
+	"github.com/Red-Sock/rscli/pkg/service/config"
 	"os"
 	"strings"
 
 	"github.com/Red-Sock/rscli/internal/utils"
 
 	"github.com/Red-Sock/rscli/internal/randomizer"
-	"github.com/Red-Sock/rscli/internal/service/config"
 )
 
 func RunConfig(args []string) {

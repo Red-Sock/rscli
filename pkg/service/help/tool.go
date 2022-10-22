@@ -5,11 +5,12 @@ import "strings"
 const Command = "help"
 
 const (
-	header = `
+	Header = `
+========================
     RedSock CLI tool
 ========================
 `
-	options = `
+	Options = `
 configure, cfg, c - creates configuration file (by default - API application with PostgresSQL connection)
 ui - opens visual menu
 `
@@ -21,9 +22,9 @@ func Run() string {
 
 func FormMessage(additionalInfo ...string) string {
 	messageSB := &strings.Builder{}
-	messageSB.WriteString(header)
+	messageSB.WriteString(Header)
 
-	messageSB.WriteString(options)
+	messageSB.WriteString(Options)
 
 	for _, item := range additionalInfo {
 		messageSB.WriteString(item)

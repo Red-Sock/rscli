@@ -2,14 +2,14 @@ package ui
 
 import (
 	uikit "github.com/Red-Sock/rscli-uikit"
-	"github.com/Red-Sock/rscli-uikit/input"
-	"github.com/Red-Sock/rscli-uikit/label"
-	"github.com/Red-Sock/rscli-uikit/multiselect"
-	"github.com/Red-Sock/rscli-uikit/selectone"
+	"github.com/Red-Sock/rscli-uikit/basic/label"
+	"github.com/Red-Sock/rscli-uikit/composit-items/multiselect"
+	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli/internal/randomizer"
-	"github.com/Red-Sock/rscli/internal/service/config"
-	"log"
+	"github.com/Red-Sock/rscli/pkg/service/config"
+	"github.com/Red-Sock/rscli/pkg/service/help"
 	"os"
+	"path"
 )
 
 const (
@@ -17,83 +17,99 @@ const (
 	redisCon = "redis connection"
 )
 
-func newConfigMenu() uikit.UIElement {
-	msb, err := multiselect.New(
-		configCallback,
-		multiselect.ItemsAttribute(pgCon, redisCon),
+func newConfigMenu(previousSequence uikit.UIElement) uikit.UIElement {
+	c := &cfgDialog{
+		previousScreen: previousSequence,
+	}
+
+	msb := multiselect.New(
+		c.dataSourcesSelectCallback,
+		multiselect.Header(help.Header+"DataSources"),
+		multiselect.Items(
+			pgCon,
+			redisCon,
+		),
+		multiselect.SeparatorChecked([]rune{'x'}),
 	)
 
-	if err != nil {
-		log.Fatal("error creating config selector", err)
-	}
 	return msb
 }
 
-func configCallback(res []string) uikit.UIElement {
+type cfgDialog struct {
+	cfg  *config.Config
+	path string
+
+	previousScreen uikit.UIElement
+}
+
+func (c *cfgDialog) dataSourcesSelectCallback(res []string) uikit.UIElement {
 	args := make([]string, 0, len(res))
 	for _, item := range res {
 		switch item {
 		case pgCon:
-			args = append(args, "--pg")
+			args = append(args, "-"+config.SourceNamePg)
 		case redisCon:
-			args = append(args, "--rds")
+			args = append(args, "-"+config.SourceNameRds)
 		}
 	}
 
 	cfg, err := config.Run(args)
 	if err != nil {
-		return label.New(err.Error())
+		return label.New("error creating config: " + err.Error())
 	}
 
-	confDiag := cfgDialog{cfg: cfg}
+	c.cfg = cfg
 
-	tb := input.NewTextBox(confDiag.selectPathForConfig)
-	// TODO RSI-23
-	tb.W = 10
-	tb.H = 1
-	return tb
+	c.path, _ = os.Getwd()
+	c.path = path.Join(c.path, config.FileName)
+
+	return c.trySelectPathForConfig()
 }
 
-type cfgDialog struct {
-	cfg *config.Config
-}
-
-func (c *cfgDialog) selectPathForConfig(p string) uikit.UIElement {
-	if p != "" {
-		err := c.cfg.SetPath(p)
-		if err != nil {
-			if err == os.ErrExist {
-				sb, _ := selectone.New(
-					c.processOverrideAnswer,
-					selectone.ItemsAttribute("yes", "no"),
-					selectone.HeaderAttribute("file "+p+" already exists. Want to override?"),
-				)
-				return sb
-			}
-		}
-	}
-
-	err := c.cfg.TryWrite()
+func (c *cfgDialog) trySelectPathForConfig() uikit.UIElement {
+	err := c.cfg.SetFolderPath(c.path)
 	if err != nil {
 		if err == os.ErrExist {
-			sb, _ := selectone.New(
-				c.processOverrideAnswer,
-				selectone.ItemsAttribute("yes", "no"),
-				selectone.HeaderAttribute("file "+c.cfg.GetPath()+" already exists. Want to override?"),
+			sb := radioselect.New(
+				c.handleOverrideAnswer,
+				radioselect.Items("yes", "no"),
+				radioselect.Header("file "+c.path+" already exists. Want to override?"),
 			)
 			return sb
 		}
 	}
-	return label.New("successfully created file at " + c.cfg.GetPath() + ". " + randomizer.GoodGoodBuy())
+
+	err = c.cfg.TryWrite()
+	if err != nil {
+		if err == os.ErrExist {
+			sb := radioselect.New(
+				c.handleOverrideAnswer,
+				radioselect.Items("yes", "no"),
+				radioselect.Header("file "+c.cfg.GetPath()+" already exists. Want to override?"),
+			)
+			return sb
+		}
+	}
+	return c.endDialog()
 }
 
-func (c *cfgDialog) processOverrideAnswer(answ string) uikit.UIElement {
+func (c *cfgDialog) handleOverrideAnswer(answ string) uikit.UIElement {
 	if answ == "yes" {
 		err := c.cfg.ForceWrite()
 		if err != nil {
 			return label.New(err.Error())
 		}
-		return label.New("successfully created file at " + c.cfg.GetPath() + ". " + randomizer.GoodGoodBuy())
+		return c.endDialog()
 	}
 	return label.New("aborting config creation. " + randomizer.GoodGoodBuy())
+}
+
+func (c *cfgDialog) endDialog() uikit.UIElement {
+	if c.previousScreen == nil {
+		return label.New("successfully created file at " + c.cfg.GetPath() + ". " + randomizer.GoodGoodBuy())
+	}
+	return label.New("successfully created file at "+c.cfg.GetPath()+". ",
+		label.NextScreen(func() uikit.UIElement {
+			return c.previousScreen
+		}))
 }

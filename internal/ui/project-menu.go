@@ -3,58 +3,63 @@ package ui
 import (
 	"fmt"
 	uikit "github.com/Red-Sock/rscli-uikit"
-	"github.com/Red-Sock/rscli-uikit/input"
-	"github.com/Red-Sock/rscli-uikit/label"
-	"github.com/Red-Sock/rscli-uikit/selectone"
-	"github.com/Red-Sock/rscli/internal/service/project"
-	"log"
+	"github.com/Red-Sock/rscli-uikit/basic/label"
+	"github.com/Red-Sock/rscli-uikit/composit-items/input"
+	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
+	"github.com/Red-Sock/rscli-uikit/utils/common"
+	"github.com/Red-Sock/rscli/pkg/service/config"
+	"github.com/Red-Sock/rscli/pkg/service/help"
+	"github.com/Red-Sock/rscli/pkg/service/project"
+	"os"
+	"path"
 )
 
 const (
 	projCreate = "create"
+
+	// TODO
+
+	projUpdate = "update" // update version
+	projAdd    = "add"    // add new (source type, transport, etc)
 )
 
 func newProjectMenu() uikit.UIElement {
-	sb, err := selectone.New(
+	sb := radioselect.New(
 		projectCallback,
-		selectone.ItemsAttribute(projCreate),
+		radioselect.Header(help.Header+"Creating project"),
+		radioselect.Items(projCreate),
 	)
-
-	if err != nil {
-		log.Fatal("error creating config selector", err)
-	}
 
 	return sb
 }
 
 type projectInteraction struct {
-	p *project.Project
+	p project.Project
 }
 
 func projectCallback(resp string) uikit.UIElement {
+	var err error
 	switch resp {
 	case projCreate:
-		p, err := project.NewProject(nil)
-		if err != nil {
-			return label.New(err.Error())
-		}
+		pi := &projectInteraction{}
 
-		pi := projectInteraction{p: p}
+		pi.p, err = project.NewProject(nil)
+		if err != nil {
+			if err != project.ErrNoConfigNoAppNameFlag {
+				return label.New(err.Error())
+			}
+			return projectNameTextBox(pi)
+		}
 
 		if pi.p.Name == "" {
-			// header attribute in RSI-22
-			inputer := input.NewTextBox(pi.callBackInputName)
-			inputer.W = 20
-			inputer.H = 1
-			return inputer
+			return projectNameTextBox(pi)
 		}
 
-		so, _ := selectone.New(
+		return radioselect.New(
 			pi.confirmCreateProjectCallback,
-			selectone.HeaderAttribute(fmt.Sprintf("You wish to create project named %s", p.Name)),
-			selectone.ItemsAttribute("yes", "no"),
+			radioselect.Header(fmt.Sprintf("You wish to create project named %s", pi.p.Name)),
+			radioselect.Items("yes", "no"),
 		)
-		return so
 	}
 
 	return nil
@@ -65,16 +70,28 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 
 	err := p.p.ValidateName()
 	if err != nil {
-		// header attribute in RSI-22
-		inputer := input.NewTextBox(p.callBackInputName)
-		inputer.W = 20
-		inputer.H = 1
-		return inputer
+		return input.New(
+			p.callBackInputName,
+			input.Width(20),
+			input.Height(1),
+			input.Position(common.NewRelativePositioning(0.5, 0.5)),
+			input.TextAbove(err.Error()+". Input project name"),
+			input.TextBelow("Enter to confirm"),
+		)
 	}
-	so, _ := selectone.New(
+
+	if p.p.CfgPath == "" {
+		return radioselect.New(
+			p.doConfig,
+			radioselect.Header(help.Header+"Want to create config?"),
+			radioselect.Items("yes", "no"),
+		)
+	}
+
+	so := radioselect.New(
 		p.confirmCreateProjectCallback,
-		selectone.HeaderAttribute(fmt.Sprintf("You wish to create project named %s", p.p.Name)),
-		selectone.ItemsAttribute("yes", "no"),
+		radioselect.Header(fmt.Sprintf("You wish to create project named %s", p.p.Name)),
+		radioselect.Items("yes", "no"),
 	)
 	return so
 }
@@ -87,4 +104,30 @@ func (p *projectInteraction) confirmCreateProjectCallback(resp string) uikit.UIE
 		}
 	}
 	return nil
+}
+
+func (p *projectInteraction) doConfig(resp string) uikit.UIElement {
+	confirmCreation := radioselect.New(
+		p.confirmCreateProjectCallback,
+		radioselect.Header(fmt.Sprintf("You wish to create project named %s", p.p.Name)),
+		radioselect.Items("yes", "no"),
+	)
+	if resp == "yes" {
+		dir, _ := os.Getwd()
+		p.p.CfgPath = path.Join(dir, config.FileName)
+
+		return newConfigMenu(confirmCreation)
+	}
+	return confirmCreation
+}
+
+func projectNameTextBox(pi *projectInteraction) *input.TextBox {
+	return input.New(
+		pi.callBackInputName,
+		input.Width(20),
+		input.Height(1),
+		input.Position(common.NewRelativePositioning(0.5, 0.5)),
+		input.TextAbove("Input project name"),
+		input.TextBelow("Enter to confirm"),
+	)
 }
