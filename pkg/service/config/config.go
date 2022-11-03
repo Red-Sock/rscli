@@ -9,29 +9,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const (
-	DataSourceKey = "data_sources"
-)
-
-// data sources (sub-keys)
-const (
-	SourceNamePg  = "pg"
-	SourceNameRds = "rds"
-)
-
-// flags
-const (
-	forceOverride = "fo"
-	configPath    = "path"
-)
-
-const (
-	DefaultDir = "config"
-	FileName   = "config.yaml"
-)
+type orderedMap map[string]interface{}
 
 type Config struct {
-	content         map[string]interface{}
+	content         orderedMap
 	pth             string
 	isForceOverride bool
 }
@@ -118,6 +99,14 @@ func buildConfig(opts map[string][]string) (map[string]interface{}, error) {
 		return nil, err
 	}
 	out[DataSourceKey] = ds
+
+	serverOptions, err := buildServerOptions(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	out[ServerOptsKey] = serverOptions
+
 	return out, nil
 }
 
@@ -137,6 +126,29 @@ func buildDataSources(opts map[string][]string) (map[string]interface{}, error) 
 		for k, v := range item {
 			if _, ok := out[k]; ok {
 				return nil, fmt.Errorf("colliding names for data sources: %s", k)
+			}
+			out[k] = v
+		}
+	}
+	return out, nil
+}
+
+func buildServerOptions(opts map[string][]string) (map[string]interface{}, error) {
+	cfg := make([]map[string]interface{}, 0, len(opts))
+
+	for f, args := range opts {
+		switch strings.Replace(f, "-", "", -1) {
+		case RESTHTTPServer:
+			cfg = append(cfg, DefaultHTTPPattern(args))
+		case GRPCServer:
+			cfg = append(cfg, DefaultGRPCPattern(args))
+		}
+	}
+	out := make(map[string]interface{})
+	for _, item := range cfg {
+		for k, v := range item {
+			if _, ok := out[k]; ok {
+				return nil, fmt.Errorf("colliding names for transport layers: %s", k)
 			}
 			out[k] = v
 		}
