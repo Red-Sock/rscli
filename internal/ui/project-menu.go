@@ -12,6 +12,8 @@ import (
 	"github.com/Red-Sock/rscli/pkg/service/project"
 	"os"
 	"path"
+	"sort"
+	"strings"
 )
 
 const (
@@ -21,6 +23,14 @@ const (
 
 	projUpdate = "update" // update version
 	projAdd    = "add"    // add new (source type, transport, etc)
+
+	// config
+
+	uec = "use existing config"
+	yes = "yes"
+	noo = "no"
+
+	yamlExtension = ".yaml"
 )
 
 func newProjectMenu() uikit.UIElement {
@@ -58,7 +68,7 @@ func projectCallback(resp string) uikit.UIElement {
 		return radioselect.New(
 			pi.confirmCreateProjectCallback,
 			radioselect.Header(fmt.Sprintf("You wish to create project named %s", pi.p.Name)),
-			radioselect.Items("yes", "no"),
+			radioselect.Items(yes, noo),
 		)
 	}
 
@@ -83,21 +93,21 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 	if p.p.CfgPath == "" {
 		return radioselect.New(
 			p.doConfig,
-			radioselect.Header(help.Header+"Want to create config?"),
-			radioselect.Items("yes", "no"),
+			radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", p.p.Name)),
+			radioselect.Items(yes, noo, uec),
 		)
 	}
 
 	so := radioselect.New(
 		p.confirmCreateProjectCallback,
 		radioselect.Header(fmt.Sprintf("You wish to create project named %s", p.p.Name)),
-		radioselect.Items("yes", "no"),
+		radioselect.Items(yes, noo),
 	)
 	return so
 }
 
 func (p *projectInteraction) confirmCreateProjectCallback(resp string) uikit.UIElement {
-	if resp == "yes" {
+	if resp == yes {
 		err := p.p.Create()
 		if err != nil {
 			return label.New(err.Error())
@@ -110,15 +120,89 @@ func (p *projectInteraction) doConfig(resp string) uikit.UIElement {
 	confirmCreation := radioselect.New(
 		p.confirmCreateProjectCallback,
 		radioselect.Header(fmt.Sprintf("You wish to create project named %s", p.p.Name)),
-		radioselect.Items("yes", "no"),
+		radioselect.Items(yes, noo),
 	)
-	if resp == "yes" {
+	switch resp {
+	case yes:
 		dir, _ := os.Getwd()
 		p.p.CfgPath = path.Join(dir, config.FileName)
 
 		return newConfigMenu(confirmCreation)
+	case uec:
+		return p.handleUEC()
+	default:
+		return confirmCreation
 	}
-	return confirmCreation
+}
+
+func (p *projectInteraction) selectExistingConfig(answ string) uikit.UIElement {
+	if answ == "" {
+		return radioselect.New(
+			p.doConfig,
+			radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", p.p.Name)),
+			radioselect.Items(yes, noo, uec),
+		)
+	}
+	p.p.CfgPath = answ
+	return radioselect.New(
+		p.confirmCreateProjectCallback,
+		radioselect.Header(fmt.Sprintf("You wish to create project named %s", p.p.Name)),
+		radioselect.Items(yes, noo),
+	)
+}
+
+func (p *projectInteraction) handleUEC() uikit.UIElement {
+	dir, err := os.Getwd()
+	if err != nil {
+		return label.New(
+			err.Error(),
+			label.NextScreen(func() uikit.UIElement {
+				return radioselect.New(
+					p.doConfig,
+					radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", p.p.Name)),
+					radioselect.Items(yes, noo, uec),
+				)
+			}))
+	}
+
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return label.New(
+			err.Error(),
+			label.NextScreen(func() uikit.UIElement {
+				return radioselect.New(
+					p.doConfig,
+					radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", p.p.Name)),
+					radioselect.Items(yes, noo, uec),
+				)
+			}))
+	}
+
+	potentialConfigs := make([]string, 0, len(files)/2)
+	otherFiles := make([]string, 0, len(files)/2)
+
+	for _, item := range files {
+		name := item.Name()
+		if strings.HasPrefix(name, yamlExtension) {
+			potentialConfigs = append(potentialConfigs, path.Join(dir, name))
+		} else {
+			otherFiles = append(otherFiles, path.Join(dir, name))
+		}
+	}
+
+	sort.Slice(potentialConfigs, func(i, j int) bool {
+		return potentialConfigs[i] > potentialConfigs[j]
+	})
+
+	sort.Slice(otherFiles, func(i, j int) bool {
+		return otherFiles[i] > otherFiles[j]
+	})
+
+	return radioselect.New(
+		p.selectExistingConfig,
+		radioselect.Header("Select one of the files:"),
+		radioselect.Items(append(potentialConfigs, otherFiles...)...),
+	)
 }
 
 func projectNameTextBox(pi *projectInteraction) *input.TextBox {

@@ -1,37 +1,15 @@
 package config
 
 import (
-	"fmt"
+	"gopkg.in/yaml.v3"
 	"os"
 	"path"
-	"strings"
-
-	"gopkg.in/yaml.v3"
 )
 
-const (
-	DataSourceKey = "data_sources"
-)
-
-// data sources (sub-keys)
-const (
-	SourceNamePg  = "pg"
-	SourceNameRds = "rds"
-)
-
-// flags
-const (
-	forceOverride = "fo"
-	configPath    = "path"
-)
-
-const (
-	DefaultDir = "config"
-	FileName   = "config.yaml"
-)
+type orderedMap map[string]interface{}
 
 type Config struct {
-	content         map[string]interface{}
+	content         orderedMap
 	pth             string
 	isForceOverride bool
 }
@@ -112,34 +90,28 @@ func (c *Config) ForceWrite() (err error) {
 }
 
 func buildConfig(opts map[string][]string) (map[string]interface{}, error) {
-	out := map[string]interface{}{}
-	ds, err := buildDataSources(opts)
-	if err != nil {
-		return nil, err
-	}
-	out[DataSourceKey] = ds
-	return out, nil
-}
-
-func buildDataSources(opts map[string][]string) (map[string]interface{}, error) {
-	cfg := make([]map[string]interface{}, 0, len(opts))
+	grandParts := map[string]map[string]interface{}{}
 
 	for f, args := range opts {
-		switch strings.Replace(f, "-", "", -1) {
-		case SourceNamePg:
-			cfg = append(cfg, DefaultPgPattern(args))
-		case SourceNameRds:
-			cfg = append(cfg, DefaultRdsPattern(args))
+		name, vals := parseFlag(f, args)
+		if vals == nil {
+			continue
 		}
-	}
-	out := make(map[string]interface{})
-	for _, item := range cfg {
-		for k, v := range item {
-			if _, ok := out[k]; ok {
-				return nil, fmt.Errorf("colliding names for data sources: %s", k)
+		for vN, vV := range vals {
+			gP, ok := grandParts[name]
+			if !ok {
+				gP = map[string]interface{}{}
 			}
-			out[k] = v
+			gP[vN] = vV
+			grandParts[name] = gP
 		}
 	}
+
+	out := make(map[string]interface{}, len(grandParts))
+
+	for n, v := range grandParts {
+		out[n] = v
+	}
+
 	return out, nil
 }

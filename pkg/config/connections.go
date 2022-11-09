@@ -17,3 +17,7 @@ type Redis struct {
 	Pwd  string
 	Db   int
 }
+
+type RestApi struct {
+	Port uint16
+}

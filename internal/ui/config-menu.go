@@ -3,7 +3,6 @@ package ui
 import (
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
-	"github.com/Red-Sock/rscli-uikit/composit-items/multiselect"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli/internal/randomizer"
 	"github.com/Red-Sock/rscli/pkg/service/config"
@@ -12,27 +11,18 @@ import (
 	"path"
 )
 
-const (
-	pgCon    = "pg connection"
-	redisCon = "redis connection"
-)
-
+// menu itself
 func newConfigMenu(previousSequence uikit.UIElement) uikit.UIElement {
 	c := &cfgDialog{
 		previousScreen: previousSequence,
 	}
 
-	msb := multiselect.New(
-		c.dataSourcesSelectCallback,
-		multiselect.Header(help.Header+"DataSources"),
-		multiselect.Items(
-			pgCon,
-			redisCon,
-		),
-		multiselect.SeparatorChecked([]rune{'x'}),
-	)
+	c.subMenus = map[string]*configMenuSubItem{
+		transportTypeMenu: newConfigMenuSubItem(transportTypeItems(), c.configMenu),
+		dataSourceMenu:    newConfigMenuSubItem(dataSourcesItems(), c.configMenu),
+	}
 
-	return msb
+	return c.configMenu()
 }
 
 type cfgDialog struct {
@@ -40,17 +30,36 @@ type cfgDialog struct {
 	path string
 
 	previousScreen uikit.UIElement
+
+	subMenus map[string]*configMenuSubItem
 }
 
-func (c *cfgDialog) dataSourcesSelectCallback(res []string) uikit.UIElement {
-	args := make([]string, 0, len(res))
-	for _, item := range res {
-		switch item {
-		case pgCon:
-			args = append(args, "-"+config.SourceNamePg)
-		case redisCon:
-			args = append(args, "-"+config.SourceNameRds)
-		}
+// main screen of config menu
+func (c *cfgDialog) configMenu() uikit.UIElement {
+	return radioselect.New(
+		c.mainMenuCallback,
+		radioselect.Header(help.Header+"DataSources"),
+		radioselect.Items(mainMenuItems()...),
+	)
+}
+
+func (c *cfgDialog) mainMenuCallback(res string) uikit.UIElement {
+	if res == commitConfig {
+		return c.commitConfig()
+	}
+
+	subMenu, ok := c.subMenus[res]
+	if !ok {
+		return label.New("something went wrong 0_o")
+	}
+
+	return subMenu.uiElement()
+}
+
+func (c *cfgDialog) commitConfig() uikit.UIElement {
+	args := make([]string, 0, len(c.subMenus))
+	for _, a := range c.subMenus {
+		args = append(args, a.buildFlagsForConfig()...)
 	}
 
 	cfg, err := config.Run(args)
@@ -63,11 +72,7 @@ func (c *cfgDialog) dataSourcesSelectCallback(res []string) uikit.UIElement {
 	c.path, _ = os.Getwd()
 	c.path = path.Join(c.path, config.FileName)
 
-	return c.trySelectPathForConfig()
-}
-
-func (c *cfgDialog) trySelectPathForConfig() uikit.UIElement {
-	err := c.cfg.SetFolderPath(c.path)
+	err = c.cfg.SetFolderPath(c.path)
 	if err != nil {
 		if err == os.ErrExist {
 			sb := radioselect.New(

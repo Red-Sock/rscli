@@ -19,14 +19,16 @@ func Run(args []string) {
 		help.FormMessage(helpUI)
 	}
 
-	sig := make(chan os.Signal)
-	signal.Notify(sig, os.Interrupt)
-
 	qE := make(chan struct{})
-	uikit.NewHandler(selectMenu(utils.Exclude(args, Command))).Start(qE)
 
-	<-sig
-	qE <- struct{}{}
+	go func() {
+		sig := make(chan os.Signal)
+		signal.Notify(sig, os.Interrupt)
+		<-sig
+		qE <- struct{}{}
+	}()
+
+	uikit.NewHandler(selectMenu(utils.Exclude(args, Command))).Start(qE)
 }
 
 func selectMenu(args []string) uikit.UIElement {

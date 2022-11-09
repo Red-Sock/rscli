@@ -45,3 +45,59 @@ func DefaultPgPattern(args []string) map[string]interface{} {
 
 	return out
 }
+
+func DefaultHTTPPattern(args []string) map[string]interface{} {
+	out := make(map[string]interface{})
+
+	port := uint16(8080)
+
+	if len(args) != 0 {
+		p, err := strconv.ParseUint(args[0], 10, 16)
+		if err == nil {
+			port = uint16(p)
+		}
+	}
+
+	out["rest_api"] = &config.RestApi{
+		Port: port,
+	}
+
+	return out
+}
+
+func DefaultGRPCPattern(args []string) map[string]interface{} {
+	out := make(map[string]interface{})
+
+	port := uint16(50051)
+
+	if len(args) != 0 {
+		p, err := strconv.ParseUint(args[0], 10, 16)
+		if err == nil {
+			port = uint16(p)
+		}
+	}
+
+	out["grpc"] = &config.RestApi{
+		Port: port,
+	}
+
+	return out
+}
+
+func AppNamePattern(args []string) map[string]interface{} {
+	if len(args) == 0 {
+		return nil
+	}
+	return map[string]interface{}{
+		"name": args[0],
+	}
+}
+
+func AppVersionPattern(args []string) map[string]interface{} {
+	if len(args) == 0 {
+		return nil
+	}
+	return map[string]interface{}{
+		"version": args[0],
+	}
+}
