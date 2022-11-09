@@ -94,6 +94,9 @@ func buildConfig(opts map[string][]string) (map[string]interface{}, error) {
 
 	for f, args := range opts {
 		name, vals := parseFlag(f, args)
+		if vals == nil {
+			continue
+		}
 		for vN, vV := range vals {
 			gP, ok := grandParts[name]
 			if !ok {

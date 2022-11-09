@@ -83,3 +83,21 @@ func DefaultGRPCPattern(args []string) map[string]interface{} {
 
 	return out
 }
+
+func AppNamePattern(args []string) map[string]interface{} {
+	if len(args) == 0 {
+		return nil
+	}
+	return map[string]interface{}{
+		"name": args[0],
+	}
+}
+
+func AppVersionPattern(args []string) map[string]interface{} {
+	if len(args) == 0 {
+		return nil
+	}
+	return map[string]interface{}{
+		"version": args[0],
+	}
+}

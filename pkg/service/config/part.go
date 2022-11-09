@@ -21,6 +21,11 @@ func parseFlag(f string, args []string) (name string, values map[string]interfac
 	case GRPCServer:
 		return ServerOptsKey, DefaultGRPCPattern(args)
 
+	// app info
+	case AppName:
+		return AppKey, AppNamePattern(args)
+	case AppVersion:
+		return AppKey, AppVersionPattern(args)
 	default:
 		return "", nil
 	}
