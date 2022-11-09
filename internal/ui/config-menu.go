@@ -24,6 +24,29 @@ const (
 	grpcType     = "grpc"
 )
 
+func mainMenuItems() []string {
+	return []string{
+		transportTypeMenu,
+		dataSourceMenu,
+		commitConfig,
+	}
+}
+
+func transportTypeItems() []string {
+	return []string{
+		restHttpType,
+		grpcType,
+	}
+
+}
+
+func dataSourcesItems() []string {
+	return []string{
+		pgCon,
+		redisCon,
+	}
+}
+
 func newConfigMenu(previousSequence uikit.UIElement) uikit.UIElement {
 	c := &cfgDialog{
 		previousScreen: previousSequence,
@@ -45,41 +68,37 @@ func (c *cfgDialog) configMenu() uikit.UIElement {
 	return radioselect.New(
 		c.selectWhatToConfig,
 		radioselect.Header(help.Header+"DataSources"),
-		radioselect.Items(
-			transportTypeMenu,
-			dataSourceMenu,
-			commitConfig,
-		),
+		radioselect.Items(mainMenuItems()...),
 	)
 }
 
 func (c *cfgDialog) selectWhatToConfig(res string) uikit.UIElement {
 	switch res {
 	case transportTypeMenu:
+		transpTypes := transportTypeItems()
+		checked := make([]int, 0, 1)
+		for idx, item := range transpTypes {
+			if _, ok := c.args[item]; ok {
+				checked = append(checked, idx)
+			}
+		}
+
 		return multiselect.New(
 			c.transportLayerSelectCallback,
 			multiselect.Header(help.Header+"DataSources"),
-			multiselect.Items(
-				restHttpType,
-				grpcType),
+			multiselect.Items(transpTypes...),
 			multiselect.SeparatorChecked([]rune{'x'}),
+			multiselect.Checked(checked),
 		)
 	case dataSourceMenu:
 		return multiselect.New(
 			c.dataSourcesSelectCallback,
 			multiselect.Header(help.Header+"DataSources"),
-			multiselect.Items(
-				pgCon,
-				redisCon,
-			),
+			multiselect.Items(dataSourcesItems()...),
 			multiselect.SeparatorChecked([]rune{'x'}),
 		)
 	case commitConfig:
-		args := make([]string, 0, len(c.args))
-		for _, a := range c.args {
-			args = append(args, a...)
-		}
-		cfg, err := config.Run(args)
+		cfg, err := config.Run(c.convertToArgs())
 		if err != nil {
 			return label.New("error creating config: " + err.Error())
 		}
@@ -170,4 +189,13 @@ func (c *cfgDialog) endDialog() uikit.UIElement {
 		label.NextScreen(func() uikit.UIElement {
 			return c.previousScreen
 		}))
+}
+
+func (c *cfgDialog) convertToArgs() []string {
+	args := make([]string, 0, len(c.args))
+	for _, a := range c.args {
+		args = append(args, a...)
+	}
+
+	return args
 }
