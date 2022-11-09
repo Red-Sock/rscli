@@ -98,14 +98,17 @@ func buildConfig(opts map[string][]string) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	out[DataSourceKey] = ds
+	if len(ds) != 0 {
+		out[DataSourceKey] = ds
+	}
 
 	serverOptions, err := buildServerOptions(opts)
 	if err != nil {
 		return nil, err
 	}
-
-	out[ServerOptsKey] = serverOptions
+	if len(serverOptions) != 0 {
+		out[ServerOptsKey] = serverOptions
+	}
 
 	return out, nil
 }
