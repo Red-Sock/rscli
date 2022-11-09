@@ -8,13 +8,16 @@ import (
 )
 
 const (
+	// main config menu items
 	transportTypeMenu = "transport type"
 	dataSourceMenu    = "data source"
 	commitConfig      = "done"
 
+	// destination menu items
 	pgCon    = "pg connection"
 	redisCon = "redis connection"
 
+	// transport layer menu items
 	restHttpType = "HTTP/rest"
 	grpcType     = "grpc"
 )
@@ -30,7 +33,6 @@ func mapToConfig(menuItem string) (args []string) {
 		return []string{"-" + config.SourceNamePg}
 	case redisCon:
 		return []string{"-" + config.SourceNameRds}
-
 	default:
 		return nil
 	}
