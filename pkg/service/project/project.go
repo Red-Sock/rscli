@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Red-Sock/rscli/internal/utils"
+	configpattern "github.com/Red-Sock/rscli/pkg/config"
 	"github.com/Red-Sock/rscli/pkg/service/config"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -134,6 +135,21 @@ func (p *Project) moveCfg() error {
 	if err != nil {
 		return err
 	}
+
+	var cfg configpattern.Config
+	err = yaml.Unmarshal(content, &cfg)
+	if err != nil {
+		return fmt.Errorf("error unmarshalling config from file %w", err)
+	}
+
+	cfg.AppInfo.Name = p.Name
+	cfg.AppInfo.Version = "0.0.1"
+
+	content, err = yaml.Marshal(cfg)
+	if err != nil {
+		return fmt.Errorf("error marshaling config into file %w", err)
+	}
+
 	err = os.WriteFile(p.CfgPath, content, 0755)
 	if err != nil {
 		return nil
