@@ -26,9 +26,9 @@ const (
 
 	// config
 
-	uec = "use existing config"
-	yes = "yes"
-	noo = "no"
+	useExistingConfig = "use existing config"
+	yes               = "yes"
+	noo               = "no"
 
 	yamlExtension = ".yaml"
 )
@@ -94,7 +94,7 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 		return radioselect.New(
 			p.doConfig,
 			radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", p.p.Name)),
-			radioselect.Items(yes, noo, uec),
+			radioselect.Items(yes, noo, useExistingConfig),
 		)
 	}
 
@@ -128,8 +128,8 @@ func (p *projectInteraction) doConfig(resp string) uikit.UIElement {
 		p.p.CfgPath = path.Join(dir, config.FileName)
 
 		return newConfigMenu(confirmCreation)
-	case uec:
-		return p.handleUEC()
+	case useExistingConfig:
+		return p.handleUseExistingConfig()
 	default:
 		return confirmCreation
 	}
@@ -140,7 +140,7 @@ func (p *projectInteraction) selectExistingConfig(answ string) uikit.UIElement {
 		return radioselect.New(
 			p.doConfig,
 			radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", p.p.Name)),
-			radioselect.Items(yes, noo, uec),
+			radioselect.Items(yes, noo, useExistingConfig),
 		)
 	}
 	p.p.CfgPath = answ
@@ -151,7 +151,7 @@ func (p *projectInteraction) selectExistingConfig(answ string) uikit.UIElement {
 	)
 }
 
-func (p *projectInteraction) handleUEC() uikit.UIElement {
+func (p *projectInteraction) handleUseExistingConfig() uikit.UIElement {
 	dir, err := os.Getwd()
 	if err != nil {
 		return label.New(
@@ -160,7 +160,7 @@ func (p *projectInteraction) handleUEC() uikit.UIElement {
 				return radioselect.New(
 					p.doConfig,
 					radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", p.p.Name)),
-					radioselect.Items(yes, noo, uec),
+					radioselect.Items(yes, noo, useExistingConfig),
 				)
 			}))
 	}
@@ -173,7 +173,7 @@ func (p *projectInteraction) handleUEC() uikit.UIElement {
 				return radioselect.New(
 					p.doConfig,
 					radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", p.p.Name)),
-					radioselect.Items(yes, noo, uec),
+					radioselect.Items(yes, noo, useExistingConfig),
 				)
 			}))
 	}

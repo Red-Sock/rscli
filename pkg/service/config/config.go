@@ -1,15 +1,14 @@
 package config
 
 import (
+	"github.com/Red-Sock/rscli/pkg/config"
 	"gopkg.in/yaml.v3"
 	"os"
 	"path"
 )
 
-type orderedMap map[string]interface{}
-
 type Config struct {
-	content         orderedMap
+	content         *config.Config
 	pth             string
 	isForceOverride bool
 }
@@ -89,28 +88,14 @@ func (c *Config) ForceWrite() (err error) {
 	return nil
 }
 
-func buildConfig(opts map[string][]string) (map[string]interface{}, error) {
-	grandParts := map[string]map[string]interface{}{}
+func buildConfig(opts map[string][]string) (*config.Config, error) {
+	out := config.NewEmptyConfig()
 
 	for f, args := range opts {
-		name, vals := parseFlag(f, args)
-		if vals == nil {
-			continue
+		err := parseFlag(f, args, out)
+		if err != nil {
+			return nil, err
 		}
-		for vN, vV := range vals {
-			gP, ok := grandParts[name]
-			if !ok {
-				gP = map[string]interface{}{}
-			}
-			gP[vN] = vV
-			grandParts[name] = gP
-		}
-	}
-
-	out := make(map[string]interface{}, len(grandParts))
-
-	for n, v := range grandParts {
-		out[n] = v
 	}
 
 	return out, nil
