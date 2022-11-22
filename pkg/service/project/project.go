@@ -52,16 +52,6 @@ func (p *Project) Create() error {
 		return err
 	}
 
-	pth, ok := os.LookupEnv("GOROOT")
-	if !ok {
-		return fmt.Errorf("no go installed!\nhttps://golangr.com/install/")
-	}
-	b, err := exec.Command(pth + "/bin/go mod init " + p.Name).Output()
-	if err != nil {
-		return err
-	}
-	println(b)
-
 	patterns := p.readPatterns()
 
 	folders = append(folders, patterns...)
@@ -74,6 +64,19 @@ func (p *Project) Create() error {
 	}
 
 	err = projFolder.MakeAll("")
+	if err != nil {
+		return err
+	}
+
+	pth, ok := os.LookupEnv("GOROOT")
+	if !ok {
+		return fmt.Errorf("no go installed!\nhttps://golangr.com/install/")
+	}
+
+	cmd := exec.Command(pth+"/bin/go", "mod", "init", p.Name)
+	wd, _ := os.Getwd()
+	cmd.Dir = path.Join(wd, p.Name)
+	err = cmd.Run()
 	if err != nil {
 		return err
 	}

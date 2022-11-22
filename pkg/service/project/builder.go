@@ -35,5 +35,6 @@ func (f *folder) MakeAll(root string) error {
 			return err
 		}
 	}
+
 	return nil
 }
