@@ -8,6 +8,7 @@ import (
 	"github.com/Red-Sock/rscli/pkg/service/config"
 	"gopkg.in/yaml.v3"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 )
@@ -51,11 +52,21 @@ func (p *Project) Create() error {
 		return err
 	}
 
+	pth, ok := os.LookupEnv("GOROOT")
+	if !ok {
+		return fmt.Errorf("no go installed!\nhttps://golangr.com/install/")
+	}
+	b, err := exec.Command(pth + "/bin/go mod init " + p.Name).Output()
+	if err != nil {
+		return err
+	}
+	println(b)
+
 	patterns := p.readPatterns()
 
 	folders = append(folders, patterns...)
 
-	folders = append(folders, folder{name: "config"})
+	folders = append(folders, folder{name: "config", inner: generateConfig(p.Name)})
 
 	projFolder := folder{
 		name:  "./" + p.Name,
