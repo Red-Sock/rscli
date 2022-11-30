@@ -2,27 +2,76 @@ package project
 
 import (
 	"fmt"
-	"github.com/Red-Sock/rscli/pkg/service/config"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/Red-Sock/rscli/pkg/service/config"
+	"gopkg.in/yaml.v3"
 )
 
-func (p *Project) tryFindConfig(args map[string][]string) error {
-	pth, err := extractCfgPathFromFlags(args)
+type Config struct {
+	path string
+
+	values map[string]interface{}
+}
+
+// NewProjectConfig - constructor for configuration of project
+func NewProjectConfig(p string) *Config {
+	return &Config{
+		path: p,
+	}
+}
+
+// prepares self to be worked on
+func (c *Config) parseSelf() error {
+	c.values = make(map[string]interface{})
+
+	bytes, err := os.ReadFile(c.path)
 	if err != nil {
 		return err
 	}
 
-	if pth != "" {
-		p.CfgPath = pth
-		return nil
+	err = yaml.Unmarshal(bytes, &c.values)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// extracts data sources information from config file and parses it as folders in project
+func (c *Config) extractDataSources() (*Folder, error) {
+	dataSources, ok := c.values[config.DataSourceKey]
+	if !ok {
+		return nil, nil
 	}
 
+	var ds map[string]interface{}
+	ds, ok = dataSources.(map[string]interface{})
+	if !ok {
+		return nil, nil
+	}
+	out := &Folder{
+		name: "data",
+	}
+
+	for dsn := range ds {
+		out.inner = append(out.inner, &Folder{
+			name: dsn,
+		})
+	}
+
+	return out, nil
+}
+
+// tries to find path to configuration in same directory
+func findConfigPath() (pth string, err error) {
 	currentDir := "./"
-	dirs, err := os.ReadDir(currentDir)
+
+	var dirs []os.DirEntry
+	dirs, err = os.ReadDir(currentDir)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	for _, d := range dirs {
@@ -33,12 +82,12 @@ func (p *Project) tryFindConfig(args map[string][]string) error {
 	}
 
 	if pth == "" {
-		return ErrNoConfigNoAppNameFlag
+		return "", nil
 	}
 
 	confs, err := os.ReadDir(pth)
 	if err != nil {
-		return err
+		return "", err
 	}
 	for _, f := range confs {
 		name := f.Name()
@@ -47,32 +96,25 @@ func (p *Project) tryFindConfig(args map[string][]string) error {
 			break
 		}
 	}
-	p.CfgPath = pth
-	return nil
+
+	return pth, nil
 }
 
-func extractDataSources(ds map[string]interface{}) (folder, error) {
-	out := folder{
-		name: "data",
-	}
-
-	for dsn := range ds {
-		out.inner = append(out.inner, folder{
-			name: dsn,
-		})
-	}
-
-	return out, nil
-}
-
-func extractCfgPathFromFlags(flagsArgs map[string][]string) (string, error) {
-	name, ok := flagsArgs[FlagCfgPath]
-	if !ok {
-		name, ok = flagsArgs[FlagCfgPathShort]
-		if !ok {
-			return "", nil
+// extracts one value from number of flags
+func extractOneValueFromFlags(flagsArgs map[string][]string, flags ...string) (string, error) {
+	var name []string
+	for _, f := range flags {
+		var ok bool
+		name, ok = flagsArgs[f]
+		if ok {
+			break
 		}
 	}
+
+	if name == nil {
+		return "", nil
+	}
+
 	if len(name) == 0 {
 		return "", fmt.Errorf("%w expected 1 got 0 ", ErrNoArgumentsSpecifiedForFlag)
 	}
@@ -84,43 +126,10 @@ func extractCfgPathFromFlags(flagsArgs map[string][]string) (string, error) {
 	return name[0], nil
 }
 
-func generateConfig(projectName string) []folder {
-
-	out := []folder{
-		{
-			name: "config.go",
-			content: []byte(
-				strings.ReplaceAll(configurator, "{{projectNAME}}", strings.ToUpper(projectName)),
-			),
-		},
-	}
-
-	keys := generateConfigKeys(projectName)
-	if len(keys) != 0 {
-		out = append(out,
-			folder{
-				name:    "keys.go",
-				content: keys,
-			})
-	}
-
-	return out
-}
-
-func readEnvironment(prefix string) []string {
-	listEnv := os.Environ()
-	values := make([]string, 0, 10)
-	for _, e := range listEnv {
-		if strings.HasPrefix(e, prefix+"_") {
-			values = append(values, e[len(prefix)+1:])
-		}
-	}
-	return values
-}
-
+// generates file with constant config keys
 func generateConfigKeys(prefix string) []byte {
 	envKeys := configKeysFromEnv(prefix)
-	configKeys := configKeysFromConfig()
+	configKeys := convertConfigKeysToGoConstName()
 
 	for e, v := range envKeys {
 		if _, ok := configKeys[e]; !ok {
@@ -135,12 +144,19 @@ func generateConfigKeys(prefix string) []byte {
 	return []byte(sb.String())
 }
 
+// extracts keys from env
 func configKeysFromEnv(prefix string) map[string]string {
-	envVals := readEnvironment(prefix)
+	listEnv := os.Environ()
+	envs := make([]string, 0, 10)
+	for _, e := range listEnv {
+		if strings.HasPrefix(e, prefix+"_") {
+			envs = append(envs, e[len(prefix)+1:])
+		}
+	}
 
 	values := map[string]string{}
 
-	for _, e := range envVals {
+	for _, e := range envs {
 		nAv := strings.Split(e, "=")
 		if len(nAv) != 2 {
 			continue
@@ -152,10 +168,12 @@ func configKeysFromEnv(prefix string) map[string]string {
 	return values
 }
 
-func configKeysFromConfig() map[string]string {
+// generates names for go const config keys
+func convertConfigKeysToGoConstName() map[string]string {
 	return nil
 }
 
+// generates names for go const env keys
 func convertEnvVarToGoConstName(in string) (out string) {
 	keyWords := strings.Split(in, "_")
 	for idx := range keyWords {

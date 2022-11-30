@@ -1,27 +1,15 @@
 package project
 
 import (
-	"errors"
-	"fmt"
 	"github.com/Red-Sock/rscli/internal/utils"
-	configpattern "github.com/Red-Sock/rscli/pkg/config"
-	"github.com/Red-Sock/rscli/pkg/service/config"
-	"gopkg.in/yaml.v3"
-	"os"
-	"os/exec"
-	"path"
-	"strings"
+	"github.com/pkg/errors"
 )
 
-var commands = []string{"p", "project"}
-
 func Command() []string {
-	return commands
+	return []string{"p", "project"}
 }
 
 var (
-	ErrNoConfigNoAppNameFlag = errors.New("no config or app name flag was specified")
-
 	ErrNoArgumentsSpecifiedForFlag = errors.New("flag specified but no name was given")
 	ErrFlagHasTooManyArguments     = errors.New("too many arguments specified for flag")
 )
@@ -36,216 +24,104 @@ const (
 	FlagCfgPathShort = "c"
 )
 
+type Action func(p *Project) error
+
+type Validator func(p *Project) error
+
 type Project struct {
 	Name string
+	Cfg  *Config
 
-	CfgPath string
+	Actions []Action
+
+	validators []Validator
+
+	f Folder
 }
 
-func NewProject(args []string) (Project, error) {
-	return createProject(args)
+type CreateArgs struct {
+	Name       string
+	CfgPath    string
+	Validators []Validator
 }
 
-func (p *Project) Create() error {
-	folders, err := p.readConfig()
-	if err != nil {
-		return err
-	}
-
-	patterns := p.readPatterns()
-
-	folders = append(folders, patterns...)
-
-	folders = append(folders, folder{name: "config", inner: generateConfig(p.Name)})
-
-	projFolder := folder{
-		name:  "./" + p.Name,
-		inner: folders,
-	}
-
-	err = projFolder.MakeAll("")
-	if err != nil {
-		return err
-	}
-
-	pth, ok := os.LookupEnv("GOROOT")
-	if !ok {
-		return fmt.Errorf("no go installed!\nhttps://golangr.com/install/")
-	}
-
-	cmd := exec.Command(pth+"/bin/go", "mod", "init", p.Name)
-	wd, _ := os.Getwd()
-	cmd.Dir = path.Join(wd, p.Name)
-	err = cmd.Run()
-	if err != nil {
-		return err
-	}
-
-	return p.moveCfg()
-
-}
-
-func (p *Project) ValidateName() error {
-	if p.Name == "" {
-		return errors.New("no name entered")
-	}
-
-	if strings.Contains(p.Name, " ") {
-		return errors.New("name contains space symbols")
-	}
-
-	return nil
-}
-
-func (p *Project) readConfig() ([]folder, error) {
-	if p.CfgPath == "" {
-		return nil, nil
-	}
-
-	conf := make(map[string]interface{})
-
-	bytes, err := os.ReadFile(p.CfgPath)
-	if err != nil {
-		return nil, err
-	}
-
-	err = yaml.Unmarshal(bytes, &conf)
-	if err != nil {
-		return nil, err
-	}
-
-	dataSources, ok := conf[config.DataSourceKey]
-	if !ok {
-		return nil, nil
-	}
-	ds, ok := dataSources.(map[string]interface{})
-	if !ok {
-		return nil, nil
-	}
-
-	out := make([]folder, 0, len(conf))
-
-	dsFolders, err := extractDataSources(ds)
-	if err != nil {
-		return nil, err
-	}
-
-	out = append(out, dsFolders)
-
-	return out, err
-}
-
-func (p *Project) moveCfg() error {
-	if p.CfgPath == "" {
-		return nil
-	}
-
-	var content []byte
-
-	oldPath := p.CfgPath
-	p.CfgPath = path.Join(p.Name, "config", config.FileName)
-
-	content, err := os.ReadFile(oldPath)
-	if err != nil {
-		return err
-	}
-
-	var cfg configpattern.Config
-	err = yaml.Unmarshal(content, &cfg)
-	if err != nil {
-		return fmt.Errorf("error unmarshalling config from file %w", err)
-	}
-
-	cfg.AppInfo.Name = p.Name
-	cfg.AppInfo.Version = "0.0.1"
-
-	content, err = yaml.Marshal(cfg)
-	if err != nil {
-		return fmt.Errorf("error marshaling config into file %w", err)
-	}
-
-	err = os.WriteFile(p.CfgPath, content, 0755)
-	if err != nil {
-		return nil
-	}
-
-	return os.RemoveAll(oldPath)
-}
-
-func (p *Project) readPatterns() (out []folder) {
-	cmd := folder{
-		name:  "cmd",
-		inner: nil,
-	}
-
-	cmd.inner = append(cmd.inner, folder{
-		name: p.Name,
-		inner: []folder{
-			{
-				name:    "main.go",
-				content: mainFile,
-			},
+func NewProject(args CreateArgs) *Project {
+	proj := &Project{
+		Name: args.Name,
+		Actions: []Action{
+			prepareProjectStructure, // basic project structure
+			prepareConfigFolders,    // data sources and other things taken from config
+			buildConfigGoFolder,     // config driver
+			buildProject,            // build project in file system
+			initGoMod,               // executes go mod
+			moveCfg,                 // moves external used config into project
 		},
-	})
-	out = append(out, cmd)
-
-	out = append(out, folder{
-		name: "internal",
-	})
-
-	out = append(out, folder{
-		name: "pkg",
-		inner: []folder{
-			{
-				name: "swagger",
-			},
-			{
-				name: "api",
-			},
+		f: Folder{
+			name: args.Name, // TODO проверить нужно ли "./" в начале
 		},
-	})
+		validators: append(args.Validators, ValidateName),
+	}
+	if args.CfgPath != "" {
+		proj.Cfg = NewProjectConfig(args.CfgPath)
+	}
 
-	return out
+	return proj
 }
 
-func createProject(args []string) (Project, error) {
-	p := Project{}
+func NewProjectWithRowArgs(args []string) (*Project, error) {
+	progArgs := CreateArgs{}
 
 	flags, err := utils.ParseArgs(args)
 	if err != nil {
-		return p, err
+		return nil, err
 	}
 
-	p.Name, err = extractNameFromFlags(flags)
+	// Define project name
+	progArgs.Name, err = extractOneValueFromFlags(flags, FlagAppName, FlagAppNameShort)
 	if err != nil {
-		return p, err
+		return nil, err
 	}
 
-	if p.Name == "" {
-		err = p.tryFindConfig(flags)
+	// Define path to configuration file
+	progArgs.CfgPath, err = extractOneValueFromFlags(flags, FlagCfgPath, FlagCfgPathShort)
+	if err != nil {
+		return nil, err
+	}
+	if progArgs.CfgPath == "" {
+		progArgs.CfgPath, err = findConfigPath()
 		if err != nil {
-			return p, err
+			return nil, err
 		}
 	}
 
-	return p, nil
+	return NewProject(progArgs), nil
 }
 
-func extractNameFromFlags(flagsArgs map[string][]string) (string, error) {
-	name, ok := flagsArgs[FlagAppName]
-	if !ok {
-		name, ok = flagsArgs[FlagAppNameShort]
-		if !ok {
-			return "", nil
+func (p *Project) Build() error {
+	for _, a := range p.Actions {
+		if err := a(p); err != nil {
+			return err
 		}
 	}
-	if len(name) == 0 {
-		return "", fmt.Errorf("%w expected 1 got 0 ", ErrNoArgumentsSpecifiedForFlag)
+	return nil
+}
+
+func (p *Project) Validate() error {
+	var errs []error
+	for _, v := range p.validators {
+		if err := v(p); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
-	if len(name) > 1 {
-		return "", fmt.Errorf("%w expected 1 got %d", ErrFlagHasTooManyArguments, len(name))
+	if len(errs) == 0 {
+		return nil
 	}
 
-	return name[0], nil
+	globalErr := errors.New("error while validating the project")
+	for _, e := range errs {
+		globalErr = errors.Wrap(globalErr, e.Error())
+	}
+
+	return globalErr
 }

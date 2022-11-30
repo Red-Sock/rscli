@@ -5,7 +5,7 @@ import (
 )
 
 func RunProject(args []string) {
-	_, err := project.NewProject(args)
+	_, err := project.NewProjectWithRowArgs(args)
 	if err != nil {
 		println(err.Error())
 		return

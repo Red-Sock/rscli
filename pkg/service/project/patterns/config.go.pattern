@@ -10,7 +10,7 @@ import (
 // Priority of configuration
 // 1. If config is provided in ./config/config.yaml
 //       OR by passing path to it via -c=path_to_config.yaml
-//       OR by passing path to it via {{projectNAME_}}CONFIG_PATH
+//       OR by passing path to it via {{projectNAME_}}_CONFIG_PATH
 // values from it is used
 // 2. If not, values from environment that starts with {{projectNAME_}} are used
 //

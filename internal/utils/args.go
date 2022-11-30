@@ -15,7 +15,7 @@ func ParseArgs(args []string) (map[string][]string, error) {
 			if _, ok := flagToArgs[item]; ok {
 				return nil, fmt.Errorf("%s flag repited", item)
 			}
-			key = item
+			key = strings.ReplaceAll(item, "-", "")
 			flagToArgs[key] = nil
 		} else {
 			flagToArgs[key] = append(flagToArgs[key], item)
