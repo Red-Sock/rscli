@@ -15,8 +15,6 @@ var (
 )
 
 const (
-	flagCreate = "create"
-
 	FlagAppName      = "name"
 	FlagAppNameShort = "n"
 
