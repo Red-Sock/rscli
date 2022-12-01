@@ -6,8 +6,17 @@ import (
 	"path"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/Red-Sock/rscli/pkg/service/config"
 	"gopkg.in/yaml.v3"
+)
+
+type dataSourcePrefix string
+
+const (
+	RedisDataSourcePrefix    dataSourcePrefix = "redis"
+	PostgresDataSourcePrefix dataSourcePrefix = "postgres"
 )
 
 type Config struct {
@@ -52,12 +61,25 @@ func (c *Config) extractDataSources() (*Folder, error) {
 		return nil, nil
 	}
 	out := &Folder{
-		name: "data",
+		name: "clients",
 	}
 
 	for dsn := range ds {
+		file := datasourceClients[dataSourcePrefix(strings.Split(dsn, "_")[0])]
+		if file == nil {
+			return nil, errors.New(fmt.Sprintf("unknown data source %s. "+
+				"DataSource should start with name of source (e.g redis, postgres)"+
+				"and (or) be followed by \"_\" symbol if needed (e.g redis_shard1, postgres_replica2)", dsn))
+		}
+
 		out.inner = append(out.inner, &Folder{
 			name: dsn,
+			inner: []*Folder{
+				{
+					name:    "conn.go",
+					content: file,
+				},
+			},
 		})
 	}
 

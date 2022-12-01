@@ -80,6 +80,26 @@ func prepareConfigFolders(p *Project) error {
 	return nil
 }
 
+func prepareEnvironmentFolders(p *Project) error {
+	p.f.inner = append(p.f.inner,
+		[]*Folder{
+			{
+				name:    "docker-compose.yml",
+				content: dockerCompose,
+			},
+			{
+				name:    "Dockerfile",
+				content: dockerfile,
+			},
+			{
+				name:    "README.md",
+				content: readme,
+			},
+		}...,
+	)
+	return nil
+}
+
 func buildConfigGoFolder(p *Project) error {
 	out := []*Folder{
 		{

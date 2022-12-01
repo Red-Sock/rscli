@@ -47,12 +47,13 @@ func NewProject(args CreateArgs) *Project {
 	proj := &Project{
 		Name: args.Name,
 		Actions: []Action{
-			prepareProjectStructure, // basic project structure
-			prepareConfigFolders,    // data sources and other things taken from config
-			buildConfigGoFolder,     // config driver
-			buildProject,            // build project in file system
-			initGoMod,               // executes go mod
-			moveCfg,                 // moves external used config into project
+			prepareProjectStructure,   // basic project structure
+			prepareConfigFolders,      // data sources and other things taken from config
+			prepareEnvironmentFolders, // prepares environment files
+			buildConfigGoFolder,       // config driver
+			buildProject,              // build project in file system
+			initGoMod,                 // executes go mod
+			moveCfg,                   // moves external used config into project
 		},
 		f: Folder{
 			name: args.Name, // TODO проверить нужно ли "./" в начале
