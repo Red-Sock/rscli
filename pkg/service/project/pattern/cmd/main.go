@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"financial-microservice/internal/config"
-	"financial-microservice/internal/transport"
+	"financial-microservice/internal/transport/rest"
 	"log"
 	"os"
 	"os/signal"
@@ -19,7 +19,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("error reading config %s", err.Error())
 	}
-	server := transport.NewServer(*cfg)
+	server := rest.NewServer(*cfg)
 	go func() {
 		err = server.Start()
 		if err != nil {

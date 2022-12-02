@@ -1,11 +1,12 @@
-package transport
+package rest
 
 import (
 	"context"
 	"encoding/json"
 	"financial-microservice/internal/config"
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type Server struct {

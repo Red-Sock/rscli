@@ -19,6 +19,13 @@ const (
 	PostgresDataSourcePrefix dataSourcePrefix = "postgres"
 )
 
+type serverOptsPrefix string
+
+const (
+	RESTServerPrefix serverOptsPrefix = "rest"
+	GRPCServerPrefix serverOptsPrefix = "grpc"
+)
+
 type Config struct {
 	path string
 
@@ -81,6 +88,46 @@ func (c *Config) extractDataSources() (*Folder, error) {
 				},
 			},
 		})
+	}
+
+	return out, nil
+}
+
+func (c *Config) extractServerOptions() (*Folder, error) {
+	serverOpts, ok := c.values[config.ServerOptsKey]
+	if !ok {
+		return nil, nil
+	}
+
+	var so map[string]interface{}
+	so, ok = serverOpts.(map[string]interface{})
+	if !ok {
+		return nil, nil
+	}
+	out := &Folder{
+		name: "transport",
+	}
+
+	for serverName := range so {
+		files := serverOptsPatterns[serverOptsPrefix(strings.Split(serverName, "_")[0])]
+		if files == nil {
+			return nil, errors.New(fmt.Sprintf("unknown server option %s. "+
+				"Server Option should start with type of server (e.g rest, grpc)"+
+				"and (or) be followed by \"_\" symbol if needed (e.g rest_v1, grpc_proxy)", serverName))
+		}
+
+		for name, content := range files {
+			out.inner = append(out.inner, &Folder{
+				name: serverName,
+				inner: []*Folder{
+					{
+						name:    name,
+						content: content,
+					},
+				},
+			})
+		}
+
 	}
 
 	return out, nil

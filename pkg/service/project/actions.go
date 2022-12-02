@@ -76,6 +76,14 @@ func prepareConfigFolders(p *Project) error {
 		configFolders = append(configFolders, dsFolders)
 	}
 
+	serverFolders, err := p.Cfg.extractServerOptions()
+	if err != nil {
+		return err
+	}
+	if dsFolders != nil {
+		configFolders = append(configFolders, serverFolders)
+	}
+	
 	p.f.AddWithPath("internal", configFolders...)
 	return nil
 }
