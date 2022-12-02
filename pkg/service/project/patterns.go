@@ -20,7 +20,7 @@ var redisConn []byte
 //go:embed pattern_c/internal/clients/postgres/conn.go.pattern
 var pgConn []byte
 
-//go:embed patterns/config.go.pattern
+//go:embed pattern_c/internal/config/config.go.pattern
 var configurator string
 
 //go:embed pattern_c/Dockerfile

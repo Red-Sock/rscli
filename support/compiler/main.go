@@ -39,7 +39,6 @@ var pathToPattern = []string{
 	"pkg", "service", "project", "pattern",
 }
 
-// TODO
 func findPatternFolder() string {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -94,7 +93,7 @@ func movePattern(patternPath, newPath string) {
 				log.Fatal("error reading file:", pathToFile, err)
 			}
 
-			if strings.HasSuffix(itemName, ".go") {
+			if hasOneOfSuffixes(itemName, ".go", "go.mod") {
 				newItemPath += ".pattern"
 			}
 
@@ -105,4 +104,13 @@ func movePattern(patternPath, newPath string) {
 		}
 	}
 
+}
+
+func hasOneOfSuffixes(in string, sufs ...string) bool {
+	for _, s := range sufs {
+		if strings.HasSuffix(in, s) {
+			return true
+		}
+	}
+	return false
 }
