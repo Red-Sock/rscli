@@ -33,5 +33,5 @@ const (
 // default values
 const (
 	DefaultDir = "config"
-	FileName   = "config.yaml"
+	FileName   = "dev.yaml"
 )

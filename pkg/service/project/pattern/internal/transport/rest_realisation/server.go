@@ -1,4 +1,4 @@
-package rest
+package rest_realisation
 
 import (
 	"context"
@@ -15,7 +15,7 @@ type Server struct {
 	version string
 }
 
-func NewServer(cfg config.Config) *Server {
+func NewServer(cfg *config.Config) *Server {
 	r := mux.NewRouter()
 	s := &Server{
 		HttpServer: &http.Server{
@@ -31,7 +31,7 @@ func NewServer(cfg config.Config) *Server {
 	return s
 }
 
-func (s *Server) Start() error {
+func (s *Server) Start(ctx context.Context) error {
 	return s.HttpServer.ListenAndServe()
 }
 

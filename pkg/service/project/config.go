@@ -115,21 +115,21 @@ func (c *Config) extractServerOptions() (*Folder, error) {
 				"Server Option should start with type of server (e.g rest, grpc)"+
 				"and (or) be followed by \"_\" symbol if needed (e.g rest_v1, grpc_proxy)", serverName))
 		}
-
+		if len(files) == 0 {
+			continue
+		}
+		serverFolder := &Folder{
+			name: serverName,
+		}
 		for name, content := range files {
-			out.inner = append(out.inner, &Folder{
-				name: serverName,
-				inner: []*Folder{
-					{
-						name:    name,
-						content: content,
-					},
-				},
+			serverFolder.inner = append(serverFolder.inner, &Folder{
+				name:    name,
+				content: content,
 			})
 		}
 
+		out.inner = append(out.inner, serverFolder)
 	}
-
 	return out, nil
 }
 
@@ -196,21 +196,24 @@ func extractOneValueFromFlags(flagsArgs map[string][]string, flags ...string) (s
 }
 
 // generates file with constant config keys
-func generateConfigKeys(prefix string) []byte {
+func generateConfigKeys(prefix, pathToConfig string) ([]byte, error) {
 	envKeys := configKeysFromEnv(prefix)
-	configKeys := convertConfigKeysToGoConstName()
-
+	configKeys, err := convertConfigKeysToGoConstName(pathToConfig)
+	if err != nil {
+		return nil, err
+	}
 	for e, v := range envKeys {
 		if _, ok := configKeys[e]; !ok {
 			configKeys[e] = v
 		}
 	}
 	sb := &strings.Builder{}
+	sb.WriteString("package config\nconst (\n")
 	for key, v := range configKeys {
-		sb.WriteString(key + `="` + v + `"`)
+		sb.WriteString(key + "= \"" + v + "\"\n")
 	}
-
-	return []byte(sb.String())
+	sb.WriteString(")")
+	return []byte(sb.String()), nil
 }
 
 // extracts keys from env
@@ -238,8 +241,46 @@ func configKeysFromEnv(prefix string) map[string]string {
 }
 
 // generates names for go const config keys
-func convertConfigKeysToGoConstName() map[string]string {
-	return nil
+func convertConfigKeysToGoConstName(pathToConfig string) (map[string]string, error) {
+	cfgBytes, err := os.ReadFile(pathToConfig)
+	if err != nil {
+		return nil, err
+	}
+	cfg := make(map[string]interface{})
+	err = yaml.Unmarshal(cfgBytes, cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	vars, err := extractVariables("", cfg)
+	if err != nil {
+		return nil, err
+	}
+	variables := make(map[string]string, len(cfg))
+	for _, v := range vars {
+		parts := strings.Split(v[1:], "_")
+		for i := range parts {
+			parts[i] = strings.ToUpper(parts[i][:1]) + strings.ToLower(parts[i][1:])
+		}
+		variables[strings.Join(parts, "")] = v[1:]
+	}
+
+	return variables, nil
+}
+
+func extractVariables(prefix string, in map[string]interface{}) (out []string, err error) {
+	for k, v := range in {
+		if newMap, ok := v.(map[string]interface{}); ok {
+			values, err := extractVariables(prefix+"_"+k, newMap)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, values...)
+		} else {
+			out = append(out, prefix+"_"+k)
+		}
+	}
+	return out, nil
 }
 
 // generates names for go const env keys

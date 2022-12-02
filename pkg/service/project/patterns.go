@@ -34,11 +34,20 @@ var dockerfile []byte
 //go:embed pattern_c/README.md
 var readme []byte
 
-//go:embed pattern_c/internal/transport/rest/server.go.pattern
+//go:embed pattern_c/internal/transport/rest_realisation/server.go.pattern
 var restServ []byte
 
-//go:embed pattern_c/internal/transport/rest/version.go.pattern
+//go:embed pattern_c/internal/transport/rest_realisation/version.go.pattern
 var restServVersion []byte
 
 // TODO
 var grpcServ []byte
+
+//go:embed pattern_c/internal/transport/manager.go.pattern
+var managerPattern []byte
+
+//go:embed pattern_c/examples/api.http
+var apiHTTP []byte
+
+//go:embed pattern_c/examples/http-client.env.json
+var httpEnvironment []byte

@@ -3,7 +3,6 @@ package project
 import (
 	"os"
 	"path"
-	"strings"
 )
 
 type Folder struct {
@@ -12,11 +11,10 @@ type Folder struct {
 	content []byte
 }
 
-func (f *Folder) AddWithPath(pth string, folders ...*Folder) {
+func (f *Folder) AddWithPath(pths []string, folders ...*Folder) {
 	if len(folders) == 0 {
 		return
 	}
-	pths := strings.Split(pth, string(os.PathSeparator))
 
 	folder := f
 	for _, pathPart := range pths {
@@ -38,6 +36,26 @@ func (f *Folder) AddWithPath(pth string, folders ...*Folder) {
 	}
 
 	folder.inner = append(folder.inner, folders...)
+}
+
+func (f *Folder) GetByPath(pth ...string) *Folder {
+	currentFolder := f
+	for _, p := range pth {
+		var foundFolder *Folder
+		for _, cf := range currentFolder.inner {
+			if cf.name == p {
+				foundFolder = cf
+				break
+			}
+		}
+
+		if foundFolder == nil {
+			return nil
+		}
+		currentFolder = foundFolder
+	}
+
+	return currentFolder
 }
 
 func (f *Folder) Build(root string) error {

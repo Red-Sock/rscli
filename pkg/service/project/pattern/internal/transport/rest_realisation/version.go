@@ -1,4 +1,4 @@
-package rest
+package rest_realisation
 
 import (
 	"net/http"

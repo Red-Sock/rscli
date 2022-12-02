@@ -1,6 +1,7 @@
 package project
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -30,6 +31,7 @@ func initGoMod(p *Project) error {
 
 func prepareProjectStructure(p *Project) error {
 	cmd := &Folder{name: "cmd"}
+
 	cmd.inner = append(cmd.inner, &Folder{
 		name: p.Name,
 		inner: []*Folder{
@@ -76,15 +78,62 @@ func prepareConfigFolders(p *Project) error {
 		configFolders = append(configFolders, dsFolders)
 	}
 
+	p.f.AddWithPath([]string{"internal"}, configFolders...)
+	return nil
+}
+
+func prepareAPIFolders(p *Project) error {
 	serverFolders, err := p.Cfg.extractServerOptions()
 	if err != nil {
 		return err
 	}
-	if dsFolders != nil {
-		configFolders = append(configFolders, serverFolders)
+
+	projMainFile := p.f.GetByPath("cmd", p.Name, "main.go")
+
+	importReplace := make([]string, 0, len(serverFolders.inner))
+	serversInit := make([]string, 0, len(serverFolders.inner))
+
+	for _, serv := range serverFolders.inner {
+		importReplace = append(importReplace, serv.name+" \""+p.Name+"/internal/transport/"+serv.name+"\"")
+		serversInit = append(serversInit, "mngr.AddServer("+serv.name+".NewServer(cfg))")
 	}
 
-	p.f.AddWithPath("internal", configFolders...)
+	projMainFile.content = bytes.ReplaceAll(
+		projMainFile.content,
+		[]byte("//_transport_imports"),
+		[]byte(strings.Join(importReplace, "\n\t")))
+
+	projMainFile.content = bytes.ReplaceAll(
+		projMainFile.content,
+		[]byte("//_initiation_of_servers"),
+		[]byte(strings.Join(serversInit, "\n\t")))
+
+	serverFolders.inner = append(serverFolders.inner, &Folder{
+		name:    "manager.go",
+		content: managerPattern,
+	})
+
+	if serverFolders != nil {
+		p.f.AddWithPath([]string{"internal"}, serverFolders)
+	}
+
+	return nil
+}
+
+func prepareExamplesFolders(p *Project) error {
+	p.f.inner = append(p.f.inner, &Folder{
+		name: "examples",
+		inner: []*Folder{
+			{
+				name:    "api.http",
+				content: apiHTTP,
+			},
+			{
+				name:    "http-client.env.json",
+				content: httpEnvironment,
+			},
+		},
+	})
 	return nil
 }
 
@@ -114,7 +163,10 @@ func buildConfigGoFolder(p *Project) error {
 		},
 	}
 
-	keys := generateConfigKeys(p.Name)
+	keys, err := generateConfigKeys(p.Name, p.Cfg.path)
+	if err != nil {
+		return err
+	}
 	if len(keys) != 0 {
 		out = append(out,
 			&Folder{
@@ -123,11 +175,11 @@ func buildConfigGoFolder(p *Project) error {
 			})
 	}
 
-	p.f.AddWithPath(strings.Join(
+	p.f.AddWithPath(
 		[]string{
 			"internal",
 			"config",
-		}, string(os.PathSeparator)),
+		},
 		out...,
 	)
 
@@ -135,6 +187,9 @@ func buildConfigGoFolder(p *Project) error {
 }
 
 func buildProject(p *Project) error {
+
+	changeProjectName(p.Name, &p.f)
+
 	err := p.f.Build("")
 	if err != nil {
 		return err
@@ -180,18 +235,40 @@ func moveCfg(p *Project) error {
 	return os.RemoveAll(oldPath)
 }
 
-func fetchDependencies(p *Project) error {
+func fixupProject(p *Project) error {
 	pth, ok := os.LookupEnv("GOROOT")
 	if !ok {
 		return fmt.Errorf("no go installed!\nhttps://golangr.com/install/")
 	}
 
-	cmd := exec.Command(pth+"/bin/go", "mod", "tidy")
 	wd, _ := os.Getwd()
-	cmd.Dir = path.Join(wd, p.Name)
+	wd = path.Join(wd, p.Name)
+
+	cmd := exec.Command(pth+"/bin/go", "mod", "tidy")
+	cmd.Dir = wd
 	err := cmd.Run()
 	if err != nil {
 		return err
 	}
+
+	cmd = exec.Command(pth+"/bin/go", "fmt", "./...")
+	cmd.Dir = wd
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+
 	return nil
+}
+
+// helping functions
+
+func changeProjectName(name string, f *Folder) {
+	if f.content != nil {
+		f.content = bytes.ReplaceAll(f.content, []byte("financial-microservice"), []byte(name))
+		return
+	}
+	for _, innerFolder := range f.inner {
+		changeProjectName(name, innerFolder)
+	}
 }
