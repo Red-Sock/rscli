@@ -31,9 +31,6 @@ var configurator string
 //go:embed pattern_c/Dockerfile
 var dockerfile []byte
 
-//go:embed pattern_c/docker-compose.yml
-var dockerCompose []byte
-
 //go:embed pattern_c/README.md
 var readme []byte
 
@@ -42,4 +39,6 @@ var restServ []byte
 
 //go:embed pattern_c/internal/transport/rest/version.go.pattern
 var restServVersion []byte
+
+// TODO
 var grpcServ []byte

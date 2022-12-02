@@ -54,6 +54,7 @@ func NewProject(args CreateArgs) *Project {
 			buildProject,              // build project in file system
 			initGoMod,                 // executes go mod
 			moveCfg,                   // moves external used config into project
+			fetchDependencies,
 		},
 		f: Folder{
 			name: args.Name, // TODO проверить нужно ли "./" в начале

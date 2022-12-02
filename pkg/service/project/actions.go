@@ -83,7 +83,7 @@ func prepareConfigFolders(p *Project) error {
 	if dsFolders != nil {
 		configFolders = append(configFolders, serverFolders)
 	}
-	
+
 	p.f.AddWithPath("internal", configFolders...)
 	return nil
 }
@@ -91,10 +91,6 @@ func prepareConfigFolders(p *Project) error {
 func prepareEnvironmentFolders(p *Project) error {
 	p.f.inner = append(p.f.inner,
 		[]*Folder{
-			{
-				name:    "docker-compose.yml",
-				content: dockerCompose,
-			},
 			{
 				name:    "Dockerfile",
 				content: dockerfile,
@@ -182,4 +178,20 @@ func moveCfg(p *Project) error {
 	}
 
 	return os.RemoveAll(oldPath)
+}
+
+func fetchDependencies(p *Project) error {
+	pth, ok := os.LookupEnv("GOROOT")
+	if !ok {
+		return fmt.Errorf("no go installed!\nhttps://golangr.com/install/")
+	}
+
+	cmd := exec.Command(pth+"/bin/go", "mod", "tidy")
+	wd, _ := os.Getwd()
+	cmd.Dir = path.Join(wd, p.Name)
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
 }
