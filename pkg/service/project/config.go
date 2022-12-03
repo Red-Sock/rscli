@@ -208,11 +208,11 @@ func generateConfigKeys(prefix, pathToConfig string) ([]byte, error) {
 		}
 	}
 	sb := &strings.Builder{}
-	sb.WriteString("package config\nconst (\n")
+
 	for key, v := range configKeys {
 		sb.WriteString(key + "= \"" + v + "\"\n")
 	}
-	sb.WriteString(")")
+	
 	return []byte(sb.String()), nil
 }
 

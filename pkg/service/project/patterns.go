@@ -28,6 +28,9 @@ var pgConn []byte
 //go:embed pattern_c/internal/config/config.go.pattern
 var configurator string
 
+//go:embed pattern_c/internal/config/keys.go.pattern
+var configKeys []byte
+
 //go:embed pattern_c/Dockerfile
 var dockerfile []byte
 

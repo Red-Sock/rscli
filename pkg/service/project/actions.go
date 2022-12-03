@@ -171,7 +171,7 @@ func buildConfigGoFolder(p *Project) error {
 		out = append(out,
 			&Folder{
 				name:    "keys.go",
-				content: keys,
+				content: bytes.ReplaceAll(configKeys, []byte("// _config_keys_goes_here"), keys),
 			})
 	}
 
