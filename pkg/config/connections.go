@@ -19,5 +19,5 @@ type Redis struct {
 }
 
 type RestApi struct {
-	Port uint16
+	Port string
 }

@@ -167,11 +167,17 @@ func buildConfigGoFolder(p *Project) error {
 	if err != nil {
 		return err
 	}
+	cfgKeysStr := string(configKeys)
+
+	body := append(configKeys[:strings.Index(cfgKeysStr, "// _start_of_consts_to_replace")], keys...)
+	body = append(body, configKeys[strings.Index(cfgKeysStr, "// _end_of_consts_to_replace"):]...)
+	body = bytes.ReplaceAll(body, []byte("// _end_of_consts_to_replace"), []byte(""))
+
 	if len(keys) != 0 {
 		out = append(out,
 			&Folder{
 				name:    "keys.go",
-				content: bytes.ReplaceAll(configKeys, []byte("// _config_keys_goes_here"), keys),
+				content: body,
 			})
 	}
 

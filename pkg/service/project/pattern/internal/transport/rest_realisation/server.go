@@ -19,11 +19,11 @@ func NewServer(cfg *config.Config) *Server {
 	r := mux.NewRouter()
 	s := &Server{
 		HttpServer: &http.Server{
-			Addr:    "0.0.0.0:" + cfg.App.Port,
+			Addr:    "0.0.0.0:" + cfg.GetString(config.ServerRestApiPort),
 			Handler: r,
 		},
 
-		version: cfg.App.Version,
+		version: cfg.GetString(config.AppInfoVersion),
 	}
 
 	r.HandleFunc("/version", s.Version)
