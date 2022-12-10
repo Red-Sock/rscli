@@ -2,6 +2,15 @@ package ui
 
 import (
 	"fmt"
+	"os"
+	"path"
+	"sort"
+	"strings"
+
+	"github.com/Red-Sock/rscli/pkg/service/project/validators"
+
+	"github.com/Red-Sock/rscli/pkg/flag"
+
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
 	"github.com/Red-Sock/rscli-uikit/composit-items/input"
@@ -10,10 +19,7 @@ import (
 	"github.com/Red-Sock/rscli/pkg/service/config"
 	"github.com/Red-Sock/rscli/pkg/service/help"
 	"github.com/Red-Sock/rscli/pkg/service/project"
-	"os"
-	"path"
-	"sort"
-	"strings"
+	projectconfig "github.com/Red-Sock/rscli/pkg/service/project/config"
 )
 
 const (
@@ -44,41 +50,34 @@ func newProjectMenu() uikit.UIElement {
 }
 
 type projectInteraction struct {
-	p project.Project
+	p *project.Project
 }
 
 func projectCallback(resp string) uikit.UIElement {
-	var err error
 	switch resp {
 	case projCreate:
 		pi := &projectInteraction{}
-
-		pi.p, err = project.NewProject(nil)
-		if err != nil {
-			if err != project.ErrNoConfigNoAppNameFlag {
-				return label.New(err.Error())
-			}
-			return projectNameTextBox(pi)
-		}
-
-		if pi.p.Name == "" {
-			return projectNameTextBox(pi)
-		}
-
-		return radioselect.New(
-			pi.confirmCreateProjectCallback,
-			radioselect.Header(fmt.Sprintf("You wish to create project named %s", pi.p.Name)),
-			radioselect.Items(yes, noo),
-		)
+		return projectNameTextBox(pi)
 	}
 
 	return nil
 }
 
 func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
-	p.p.Name = resp
+	if resp == "" {
+		return projectNameTextBox(p)
+	}
 
-	err := p.p.ValidateName()
+	var err error
+	p.p, err = project.NewProjectWithRowArgs(flag.BuildFlagArg(project.FlagAppName, resp))
+	if err != nil {
+		if err != nil {
+			return label.New(err.Error())
+		}
+
+	}
+
+	err = validators.ValidateName(p.p)
 	if err != nil {
 		return input.New(
 			p.callBackInputName,
@@ -90,7 +89,7 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 		)
 	}
 
-	if p.p.CfgPath == "" {
+	if p.p.Cfg.GetPath() == "" {
 		return radioselect.New(
 			p.doConfig,
 			radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", p.p.Name)),
@@ -108,7 +107,7 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 
 func (p *projectInteraction) confirmCreateProjectCallback(resp string) uikit.UIElement {
 	if resp == yes {
-		err := p.p.Create()
+		err := p.p.Build()
 		if err != nil {
 			return label.New(err.Error())
 		}
@@ -125,7 +124,11 @@ func (p *projectInteraction) doConfig(resp string) uikit.UIElement {
 	switch resp {
 	case yes:
 		dir, _ := os.Getwd()
-		p.p.CfgPath = path.Join(dir, config.FileName)
+		var err error
+		p.p.Cfg, err = projectconfig.NewProjectConfig(path.Join(dir, config.FileName))
+		if err != nil {
+			return label.New(err.Error())
+		}
 
 		return newConfigMenu(confirmCreation)
 	case useExistingConfig:
@@ -143,7 +146,11 @@ func (p *projectInteraction) selectExistingConfig(answ string) uikit.UIElement {
 			radioselect.Items(yes, noo, useExistingConfig),
 		)
 	}
-	p.p.CfgPath = answ
+	var err error
+	p.p.Cfg, err = projectconfig.NewProjectConfig(answ)
+	if err != nil {
+		return label.New(err.Error())
+	}
 	return radioselect.New(
 		p.confirmCreateProjectCallback,
 		radioselect.Header(fmt.Sprintf("You wish to create project named %s", p.p.Name)),

@@ -1,11 +1,11 @@
 package cmds
 
 import (
-	"github.com/Red-Sock/rscli/pkg/service/config"
 	"os"
 	"strings"
 
-	"github.com/Red-Sock/rscli/internal/utils"
+	"github.com/Red-Sock/rscli/internal/utils/input"
+	"github.com/Red-Sock/rscli/pkg/service/config"
 
 	"github.com/Red-Sock/rscli/internal/randomizer"
 )
@@ -24,7 +24,7 @@ func RunConfig(args []string) {
 			return
 		}
 
-		answ := utils.GetAnswer("file " + c.GetPath() + " already exists. Do you want to override it? Y(es)/N(o)")
+		answ := input.GetAnswer("file " + c.GetPath() + " already exists. Do you want to override it? Y(es)/N(o)")
 		answ = strings.ToLower(strings.Replace(answ, "\n", "", -1))
 
 		if !strings.HasPrefix(answ, "y") {

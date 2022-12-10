@@ -2,14 +2,15 @@ package ui
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
+
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
-	"github.com/Red-Sock/rscli/internal/utils"
+	"github.com/Red-Sock/rscli/internal/utils/slices"
 	"github.com/Red-Sock/rscli/pkg/service/config"
 	"github.com/Red-Sock/rscli/pkg/service/help"
 	"github.com/Red-Sock/rscli/pkg/service/project"
-	"os"
-	"os/signal"
 )
 
 const Command = "ui"
@@ -28,16 +29,16 @@ func Run(args []string) {
 		qE <- struct{}{}
 	}()
 
-	uikit.NewHandler(selectMenu(utils.Exclude(args, Command))).Start(qE)
+	uikit.NewHandler(selectMenu(slices.Exclude(args, Command))).Start(qE)
 }
 
 func selectMenu(args []string) uikit.UIElement {
 	switch {
 	case len(args) == 0:
 		return newMainMenu()
-	case utils.Contains(config.Command(), args[0]):
+	case slices.Contains(config.Command(), args[0]):
 		return newConfigMenu(nil)
-	case utils.Contains(project.Command(), args[0]):
+	case slices.Contains(project.Command(), args[0]):
 		return newProjectMenu()
 	default:
 		return label.New(fmt.Sprintf("no ui for %s is available", args[0]))

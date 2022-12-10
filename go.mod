@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/Red-Sock/rscli-uikit v0.1.6
+	github.com/pkg/errors v0.9.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -12,4 +13,3 @@ require (
 	github.com/nsf/termbox-go v1.1.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 )
-	

@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/Red-Sock/rscli/pkg/config"
 	"strconv"
+
+	"github.com/Red-Sock/rscli/pkg/config"
 )
 
 func DefaultRdsPattern(args []string) map[string]interface{} {
@@ -59,7 +60,7 @@ func DefaultHTTPPattern(args []string) map[string]interface{} {
 	}
 
 	out["rest_api"] = &config.RestApi{
-		Port: port,
+		Port: strconv.FormatUint(uint64(port), 10),
 	}
 
 	return out
@@ -78,7 +79,7 @@ func DefaultGRPCPattern(args []string) map[string]interface{} {
 	}
 
 	out["grpc"] = &config.RestApi{
-		Port: port,
+		Port: strconv.FormatUint(uint64(port), 10),
 	}
 
 	return out
