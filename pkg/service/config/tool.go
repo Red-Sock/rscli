@@ -2,7 +2,10 @@ package config
 
 import (
 	"errors"
-	"github.com/Red-Sock/rscli/internal/utils"
+
+	"github.com/Red-Sock/rscli/pkg/flag"
+
+	"github.com/Red-Sock/rscli/internal/utils/slices"
 	"github.com/Red-Sock/rscli/pkg/service/help"
 )
 
@@ -13,7 +16,7 @@ func Command() []string {
 }
 
 func Run(args []string) (*Config, error) {
-	if utils.Contains(args, help.Command) {
+	if slices.Contains(args, help.Command) {
 		return nil, HelpMessage()
 	}
 
@@ -24,7 +27,7 @@ func Run(args []string) (*Config, error) {
 	var opts map[string][]string
 	var err error
 
-	opts, err = utils.ParseArgs(args)
+	opts, err = flag.ParseArgs(args)
 	if err != nil {
 		return nil, err
 	}

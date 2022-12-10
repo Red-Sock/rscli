@@ -7,7 +7,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Red-Sock/rscli/pkg/flagbuilder"
+	"github.com/Red-Sock/rscli/pkg/service/project/validators"
+
+	"github.com/Red-Sock/rscli/pkg/flag"
 
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
@@ -17,6 +19,7 @@ import (
 	"github.com/Red-Sock/rscli/pkg/service/config"
 	"github.com/Red-Sock/rscli/pkg/service/help"
 	"github.com/Red-Sock/rscli/pkg/service/project"
+	projectconfig "github.com/Red-Sock/rscli/pkg/service/project/config"
 )
 
 const (
@@ -66,7 +69,7 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 	}
 
 	var err error
-	p.p, err = project.NewProjectWithRowArgs(flagbuilder.BuildFlagArg(project.FlagAppName, resp))
+	p.p, err = project.NewProjectWithRowArgs(flag.BuildFlagArg(project.FlagAppName, resp))
 	if err != nil {
 		if err != nil {
 			return label.New(err.Error())
@@ -74,7 +77,7 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 
 	}
 
-	err = project.ValidateName(p.p)
+	err = validators.ValidateName(p.p)
 	if err != nil {
 		return input.New(
 			p.callBackInputName,
@@ -86,7 +89,7 @@ func (p *projectInteraction) callBackInputName(resp string) uikit.UIElement {
 		)
 	}
 
-	if p.p.Cfg == nil {
+	if p.p.Cfg.GetPath() == "" {
 		return radioselect.New(
 			p.doConfig,
 			radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", p.p.Name)),
@@ -121,7 +124,11 @@ func (p *projectInteraction) doConfig(resp string) uikit.UIElement {
 	switch resp {
 	case yes:
 		dir, _ := os.Getwd()
-		p.p.Cfg = project.NewProjectConfig(path.Join(dir, config.FileName))
+		var err error
+		p.p.Cfg, err = projectconfig.NewProjectConfig(path.Join(dir, config.FileName))
+		if err != nil {
+			return label.New(err.Error())
+		}
 
 		return newConfigMenu(confirmCreation)
 	case useExistingConfig:
@@ -139,7 +146,11 @@ func (p *projectInteraction) selectExistingConfig(answ string) uikit.UIElement {
 			radioselect.Items(yes, noo, useExistingConfig),
 		)
 	}
-	p.p.Cfg = project.NewProjectConfig(answ)
+	var err error
+	p.p.Cfg, err = projectconfig.NewProjectConfig(answ)
+	if err != nil {
+		return label.New(err.Error())
+	}
 	return radioselect.New(
 		p.confirmCreateProjectCallback,
 		radioselect.Header(fmt.Sprintf("You wish to create project named %s", p.p.Name)),

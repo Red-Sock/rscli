@@ -1,4 +1,4 @@
-package project
+package folder
 
 import (
 	"os"
@@ -6,9 +6,13 @@ import (
 )
 
 type Folder struct {
-	name    string
-	inner   []*Folder
-	content []byte
+	Name    string
+	Inner   []*Folder
+	Content []byte
+}
+
+func (f *Folder) Add(folder ...*Folder) {
+	f.Inner = append(f.Inner, folder...)
 }
 
 func (f *Folder) AddWithPath(pths []string, folders ...*Folder) {
@@ -20,30 +24,30 @@ func (f *Folder) AddWithPath(pths []string, folders ...*Folder) {
 	for _, pathPart := range pths {
 		var pathFolder *Folder
 
-		for currentFolderIdx := range folder.inner {
-			if folder.inner[currentFolderIdx].name == pathPart {
-				pathFolder = folder.inner[currentFolderIdx]
+		for currentFolderIdx := range folder.Inner {
+			if folder.Inner[currentFolderIdx].Name == pathPart {
+				pathFolder = folder.Inner[currentFolderIdx]
 				break
 			}
 		}
 		if pathFolder == nil {
 			pathFolder = &Folder{
-				name: pathPart,
+				Name: pathPart,
 			}
-			folder.inner = append(folder.inner, pathFolder)
+			folder.Inner = append(folder.Inner, pathFolder)
 		}
 		folder = pathFolder
 	}
 
-	folder.inner = append(folder.inner, folders...)
+	folder.Inner = append(folder.Inner, folders...)
 }
 
 func (f *Folder) GetByPath(pth ...string) *Folder {
 	currentFolder := f
 	for _, p := range pth {
 		var foundFolder *Folder
-		for _, cf := range currentFolder.inner {
-			if cf.name == p {
+		for _, cf := range currentFolder.Inner {
+			if cf.Name == p {
 				foundFolder = cf
 				break
 			}
@@ -59,15 +63,15 @@ func (f *Folder) GetByPath(pth ...string) *Folder {
 }
 
 func (f *Folder) Build(root string) error {
-	pth := path.Join(root, f.name)
+	pth := path.Join(root, f.Name)
 
-	if len(f.content) != 0 {
+	if len(f.Content) != 0 {
 		fw, err := os.Create(pth)
 		if err != nil {
 			return err
 		}
 		defer fw.Close()
-		_, err = fw.Write(f.content)
+		_, err = fw.Write(f.Content)
 		return err
 	}
 
@@ -76,7 +80,7 @@ func (f *Folder) Build(root string) error {
 		return err
 	}
 
-	for _, d := range f.inner {
+	for _, d := range f.Inner {
 		err = d.Build(pth)
 		if err != nil {
 			return err
