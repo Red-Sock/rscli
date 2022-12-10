@@ -146,7 +146,7 @@ func prepareEnvironmentFolders(p *Project) error {
 			},
 			{
 				name:    "README.md",
-				content: readme,
+				content: bytes.ReplaceAll(readme, []byte("{{PROJECT_NAME}}"), []byte(p.Name)),
 			},
 		}...,
 	)

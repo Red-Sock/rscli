@@ -59,7 +59,7 @@ func NewProject(args CreateArgs) *Project {
 			fixupProject,
 		},
 		f: Folder{
-			name: args.Name, // TODO проверить нужно ли "./" в начале
+			name: args.Name,
 		},
 		validators: append(args.Validators, ValidateName),
 	}
