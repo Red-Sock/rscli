@@ -198,21 +198,21 @@ func extractOneValueFromFlags(flagsArgs map[string][]string, flags ...string) (s
 // generates file with constant config keys
 func generateConfigKeys(prefix, pathToConfig string) ([]byte, error) {
 	envKeys := configKeysFromEnv(prefix)
-	configKeys, err := convertConfigKeysToGoConstName(pathToConfig)
+	cfgKeys, err := convertConfigKeysToGoConstName(pathToConfig)
 	if err != nil {
 		return nil, err
 	}
 	for e, v := range envKeys {
-		if _, ok := configKeys[e]; !ok {
-			configKeys[e] = v
+		if _, ok := cfgKeys[e]; !ok {
+			cfgKeys[e] = v
 		}
 	}
 	sb := &strings.Builder{}
 
-	for key, v := range configKeys {
+	for key, v := range cfgKeys {
 		sb.WriteString(key + "= \"" + v + "\"\n")
 	}
-	
+
 	return []byte(sb.String()), nil
 }
 
