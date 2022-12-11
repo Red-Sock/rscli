@@ -3,7 +3,7 @@ package patterns
 import (
 	_ "embed"
 
-	"github.com/Red-Sock/rscli/pkg/service/project/consts"
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/consts"
 )
 
 var DatasourceClients = map[consts.DataSourcePrefix][]byte{}

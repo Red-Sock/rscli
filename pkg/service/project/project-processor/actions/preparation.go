@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/Red-Sock/rscli/pkg/service/project/interfaces"
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/interfaces"
+	patterns2 "github.com/Red-Sock/rscli/pkg/service/project/project-processor/patterns"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/pkg/service/project/patterns"
 )
 
 func PrepareProjectStructure(p interfaces.Project) error {
@@ -18,7 +18,7 @@ func PrepareProjectStructure(p interfaces.Project) error {
 		Inner: []*folder.Folder{
 			{
 				Name:    "main.go",
-				Content: patterns.MainFile,
+				Content: patterns2.MainFile,
 			},
 		},
 	})
@@ -91,7 +91,7 @@ func PrepareAPIFolders(p interfaces.Project) error {
 
 	serverFolders.Inner = append(serverFolders.Inner, &folder.Folder{
 		Name:    "manager.go",
-		Content: patterns.ServerManagerPattern,
+		Content: patterns2.ServerManagerPattern,
 	})
 
 	if serverFolders != nil {
@@ -107,11 +107,11 @@ func PrepareExamplesFolders(p interfaces.Project) error {
 		Inner: []*folder.Folder{
 			{
 				Name:    "api.http",
-				Content: patterns.ApiHTTP,
+				Content: patterns2.ApiHTTP,
 			},
 			{
 				Name:    "http-client.env.json",
-				Content: patterns.HttpEnvironment,
+				Content: patterns2.HttpEnvironment,
 			},
 		},
 	})
@@ -123,11 +123,11 @@ func PrepareEnvironmentFolders(p interfaces.Project) error {
 		[]*folder.Folder{
 			{
 				Name:    "Dockerfile",
-				Content: patterns.Dockerfile,
+				Content: patterns2.Dockerfile,
 			},
 			{
 				Name:    "README.md",
-				Content: bytes.ReplaceAll(patterns.Readme, []byte("{{PROJECT_NAME}}"), []byte(p.GetName())),
+				Content: bytes.ReplaceAll(patterns2.Readme, []byte("{{PROJECT_NAME}}"), []byte(p.GetName())),
 			},
 		}...,
 	)

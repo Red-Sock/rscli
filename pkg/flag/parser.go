@@ -37,26 +37,23 @@ func ExtractOneValueFromFlags(flagsArgs map[string][]string, flags ...string) (s
 	return name[0], nil
 }
 
-func ParseArgs(args []string) (map[string][]string, error) {
+func ParseArgs(args []string) map[string][]string {
 	flagToArgs := make(map[string][]string)
 
 	key := ""
 
 	for _, item := range args {
 		if strings.HasPrefix(item, "-") {
-			if _, ok := flagToArgs[item]; ok {
-				return nil, fmt.Errorf("%s flag repited", item)
-			}
 			key = strings.ReplaceAll(item, "-", "")
-			flagToArgs[key] = nil
+			continue
+		}
+		if key == "" {
+			flagToArgs[item] = []string{}
 		} else {
 			flagToArgs[key] = append(flagToArgs[key], item)
+			key = ""
 		}
 	}
 
-	if emptyArgs, ok := flagToArgs[""]; ok {
-		return nil, fmt.Errorf("unknown arguments %s", strings.Join(emptyArgs, ";"))
-	}
-
-	return flagToArgs, nil
+	return flagToArgs
 }

@@ -4,10 +4,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Red-Sock/rscli/internal/utils/input"
-	"github.com/Red-Sock/rscli/pkg/service/config"
+	"github.com/Red-Sock/rscli/pkg/service/project/config-processor/config"
 
 	"github.com/Red-Sock/rscli/internal/randomizer"
+	"github.com/Red-Sock/rscli/internal/utils/input"
 )
 
 func RunConfig(args []string) {

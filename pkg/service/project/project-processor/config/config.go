@@ -5,10 +5,12 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Red-Sock/rscli/pkg/service/project/config-processor/config"
+
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/consts"
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/patterns"
+
 	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/pkg/service/config"
-	"github.com/Red-Sock/rscli/pkg/service/project/consts"
-	"github.com/Red-Sock/rscli/pkg/service/project/patterns"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )

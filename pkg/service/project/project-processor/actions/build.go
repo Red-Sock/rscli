@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/Red-Sock/rscli/pkg/service/project/interfaces"
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/interfaces"
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/patterns"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/pkg/service/project/patterns"
 )
 
 func BuildConfigGoFolder(p interfaces.Project) error {
