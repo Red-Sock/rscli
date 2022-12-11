@@ -2,8 +2,8 @@ package processor
 
 import (
 	"github.com/Red-Sock/rscli/pkg/folder"
-	actions2 "github.com/Red-Sock/rscli/pkg/service/project/project-processor/actions"
-	config2 "github.com/Red-Sock/rscli/pkg/service/project/project-processor/config"
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/actions"
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/config"
 	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/interfaces"
 	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/validators"
 	"github.com/pkg/errors"
@@ -39,18 +39,18 @@ func New(args CreateArgs) (*Project, error) {
 	proj := &Project{
 		Name: args.Name,
 		Actions: append([]Action{
-			actions2.PrepareProjectStructure,   // basic project structure
-			actions2.PrepareConfigFolders,      // data sources and other things taken from config
-			actions2.PrepareAPIFolders,         // prepare servers
-			actions2.PrepareExamplesFolders,    // sets up examples
-			actions2.PrepareEnvironmentFolders, // prepares environment files
+			actions.PrepareProjectStructure,   // basic project structure
+			actions.PrepareConfigFolders,      // data sources and other things taken from config
+			actions.PrepareAPIFolders,         // prepare servers
+			actions.PrepareExamplesFolders,    // sets up examples
+			actions.PrepareEnvironmentFolders, // prepares environment files
 
-			actions2.BuildConfigGoFolder, // config driver
-			actions2.BuildProject,        // build project in file system
+			actions.BuildConfigGoFolder, // config driver
+			actions.BuildProject,        // build project in file system
 
-			actions2.InitGoMod,    // executes go mod
-			actions2.MoveCfg,      // moves external used config into project
-			actions2.FixupProject, // fetches dependencies and formats go code
+			actions.InitGoMod,    // executes go mod
+			actions.MoveCfg,      // moves external used config into project
+			actions.FixupProject, // fetches dependencies and formats go code
 		}, args.Actions...),
 		F: folder.Folder{
 			Name: args.Name,
@@ -59,12 +59,12 @@ func New(args CreateArgs) (*Project, error) {
 	}
 	var err error
 	if args.CfgPath != "" {
-		proj.Cfg, err = config2.NewProjectConfig(args.CfgPath)
+		proj.Cfg, err = config.NewProjectConfig(args.CfgPath)
 		if err != nil {
 			return proj, err
 		}
 	} else {
-		proj.Cfg = config2.NewEmptyProjectConfig()
+		proj.Cfg = config.NewEmptyProjectConfig()
 	}
 
 	if args.ProjectPath == "" {
