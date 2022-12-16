@@ -3,21 +3,21 @@ package ui
 import (
 	rscliuitkit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/composit-items/multiselect"
-	"github.com/Red-Sock/rscli/pkg/service/config"
 	"github.com/Red-Sock/rscli/pkg/service/help"
+	"github.com/Red-Sock/rscli/pkg/service/project/config-processor/config"
 )
 
 const (
-	// main config menu items
-	transportTypeMenu = "transport type"
-	dataSourceMenu    = "data source"
-	commitConfig      = "done"
+	// main config menu Items
+	TransportTypeMenu = "transport type"
+	DataSourceMenu    = "data source"
+	CommitConfig      = "done"
 
-	// destination menu items
+	// destination menu Items
 	pgCon    = "pg connection"
 	redisCon = "redis connection"
 
-	// transport layer menu items
+	// transport layer menu Items
 	restHttpType = "HTTP/rest"
 	grpcType     = "grpc"
 )
@@ -38,15 +38,15 @@ func mapToConfig(menuItem string) (args []string) {
 	}
 }
 
-func mainMenuItems() []string {
+func MainMenuItems() []string {
 	return []string{
-		transportTypeMenu,
-		dataSourceMenu,
-		commitConfig,
+		TransportTypeMenu,
+		DataSourceMenu,
+		CommitConfig,
 	}
 }
 
-func transportTypeItems() []string {
+func TransportTypeItems() []string {
 	return []string{
 		restHttpType,
 		grpcType,
@@ -54,32 +54,32 @@ func transportTypeItems() []string {
 
 }
 
-func dataSourcesItems() []string {
+func DataSourcesItems() []string {
 	return []string{
 		pgCon,
 		redisCon,
 	}
 }
 
-type configMenuSubItem struct {
-	items []string
-	flags []string
+type ConfigMenuSubItem struct {
+	Items []string
+	Flags []string
 
-	prevMenu func() rscliuitkit.UIElement
+	PrevMenu func() rscliuitkit.UIElement
 }
 
-func newConfigMenuSubItem(items []string, prevMenu func() rscliuitkit.UIElement) *configMenuSubItem {
-	return &configMenuSubItem{
-		items:    items,
-		prevMenu: prevMenu,
+func NewConfigMenuSubItem(items []string, prevMenu func() rscliuitkit.UIElement) *ConfigMenuSubItem {
+	return &ConfigMenuSubItem{
+		Items:    items,
+		PrevMenu: prevMenu,
 	}
 }
 
-func (c *configMenuSubItem) uiElement() rscliuitkit.UIElement {
+func (c *ConfigMenuSubItem) UiElement() rscliuitkit.UIElement {
 	checked := make([]int, 0, 1)
 
-	for idx, item := range c.items {
-		for _, selectedItem := range c.flags {
+	for idx, item := range c.Items {
+		for _, selectedItem := range c.Flags {
 			if item == selectedItem {
 				checked = append(checked, idx)
 				break
@@ -90,19 +90,19 @@ func (c *configMenuSubItem) uiElement() rscliuitkit.UIElement {
 	return multiselect.New(
 		c.handleResponse,
 		multiselect.Header(help.Header+"DataSources"),
-		multiselect.Items(c.items...),
+		multiselect.Items(c.Items...),
 		multiselect.SeparatorChecked([]rune{'x'}),
 		multiselect.Checked(checked),
 	)
 }
 
-func (c *configMenuSubItem) handleResponse(args []string) rscliuitkit.UIElement {
-	c.flags = args
-	return c.prevMenu()
+func (c *ConfigMenuSubItem) handleResponse(args []string) rscliuitkit.UIElement {
+	c.Flags = args
+	return c.PrevMenu()
 }
 
-func (c *configMenuSubItem) buildFlagsForConfig() (res []string) {
-	for _, item := range c.flags {
+func (c *ConfigMenuSubItem) BuildFlagsForConfig() (res []string) {
+	for _, item := range c.Flags {
 		res = append(res, mapToConfig(item)...)
 	}
 	return res

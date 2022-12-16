@@ -1,37 +1,39 @@
-package ui
+package manager
 
 import (
+	"fmt"
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli/internal/randomizer"
-	"github.com/Red-Sock/rscli/pkg/service/config"
+	"github.com/Red-Sock/rscli/internal/ui"
+	"github.com/Red-Sock/rscli/log"
 	"github.com/Red-Sock/rscli/pkg/service/help"
+	config2 "github.com/Red-Sock/rscli/pkg/service/project/config-processor/config"
 	"os"
 	"path"
 )
 
-// menu itself
-func newConfigMenu(previousSequence uikit.UIElement) uikit.UIElement {
+func Run(elem uikit.UIElement) uikit.UIElement {
 	c := &cfgDialog{
-		previousScreen: previousSequence,
+		previousScreen: elem,
 	}
 
-	c.subMenus = map[string]*configMenuSubItem{
-		transportTypeMenu: newConfigMenuSubItem(transportTypeItems(), c.configMenu),
-		dataSourceMenu:    newConfigMenuSubItem(dataSourcesItems(), c.configMenu),
+	c.subMenus = map[string]*ui.ConfigMenuSubItem{
+		ui.TransportTypeMenu: ui.NewConfigMenuSubItem(ui.TransportTypeItems(), c.configMenu),
+		ui.DataSourceMenu:    ui.NewConfigMenuSubItem(ui.DataSourcesItems(), c.configMenu),
 	}
 
 	return c.configMenu()
 }
 
 type cfgDialog struct {
-	cfg  *config.Config
+	cfg  *config2.Config
 	path string
 
 	previousScreen uikit.UIElement
 
-	subMenus map[string]*configMenuSubItem
+	subMenus map[string]*ui.ConfigMenuSubItem
 }
 
 // main screen of config menu
@@ -39,12 +41,12 @@ func (c *cfgDialog) configMenu() uikit.UIElement {
 	return radioselect.New(
 		c.mainMenuCallback,
 		radioselect.Header(help.Header+"DataSources"),
-		radioselect.Items(mainMenuItems()...),
+		radioselect.Items(ui.MainMenuItems()...),
 	)
 }
 
 func (c *cfgDialog) mainMenuCallback(res string) uikit.UIElement {
-	if res == commitConfig {
+	if res == ui.CommitConfig {
 		return c.commitConfig()
 	}
 
@@ -53,24 +55,25 @@ func (c *cfgDialog) mainMenuCallback(res string) uikit.UIElement {
 		return label.New("something went wrong 0_o")
 	}
 
-	return subMenu.uiElement()
+	return subMenu.UiElement()
 }
 
 func (c *cfgDialog) commitConfig() uikit.UIElement {
 	args := make([]string, 0, len(c.subMenus))
 	for _, a := range c.subMenus {
-		args = append(args, a.buildFlagsForConfig()...)
+		args = append(args, a.BuildFlagsForConfig()...)
 	}
+	log.Add(fmt.Sprintf("args %v", args))
 
-	cfg, err := config.Run(args)
+	cfg, err := config2.Run(args)
 	if err != nil {
 		return label.New("error creating config: " + err.Error())
 	}
-
+	log.Add(fmt.Sprintf(" cfg %v", cfg))
 	c.cfg = cfg
 
 	c.path, _ = os.Getwd()
-	c.path = path.Join(c.path, config.FileName)
+	c.path = path.Join(c.path, config2.FileName)
 
 	err = c.cfg.SetFolderPath(c.path)
 	if err != nil {

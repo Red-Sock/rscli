@@ -24,15 +24,7 @@ func Run(args []string) (*Config, error) {
 		return runDefault()
 	}
 
-	var opts map[string][]string
-	var err error
-
-	opts, err = flag.ParseArgs(args)
-	if err != nil {
-		return nil, err
-	}
-
-	return NewConfig(opts)
+	return NewConfig(flag.ParseArgs(args))
 }
 
 func HelpMessage() error {

@@ -1,30 +1,14 @@
-package project
+package processor
 
 import (
-	"os"
-
-	"github.com/Red-Sock/rscli/pkg/flag"
 	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/pkg/service/project/actions"
-	"github.com/Red-Sock/rscli/pkg/service/project/config"
-	"github.com/Red-Sock/rscli/pkg/service/project/interfaces"
-	"github.com/Red-Sock/rscli/pkg/service/project/validators"
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/actions"
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/config"
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/interfaces"
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/validators"
 	"github.com/pkg/errors"
-)
-
-func Command() []string {
-	return []string{"p", "project"}
-}
-
-const (
-	FlagAppName      = "name"
-	FlagAppNameShort = "n"
-
-	FlagCfgPath      = "cfg"
-	FlagCfgPathShort = "c"
-
-	FlagProjectPath      = "project-path"
-	FlagProjectPathShort = "p"
+	"os"
+	"path"
 )
 
 type Action func(p interfaces.Project) error
@@ -51,10 +35,9 @@ type CreateArgs struct {
 	Actions     []Action
 }
 
-func NewProject(args CreateArgs) (*Project, error) {
+func New(args CreateArgs) (*Project, error) {
 	proj := &Project{
-		Name:        args.Name,
-		ProjectPath: args.ProjectPath,
+		Name: args.Name,
 		Actions: append([]Action{
 			actions.PrepareProjectStructure,   // basic project structure
 			actions.PrepareConfigFolders,      // data sources and other things taken from config
@@ -76,51 +59,26 @@ func NewProject(args CreateArgs) (*Project, error) {
 	}
 	var err error
 	if args.CfgPath != "" {
-
 		proj.Cfg, err = config.NewProjectConfig(args.CfgPath)
-		return proj, err
+		if err != nil {
+			return proj, err
+		}
 	} else {
 		proj.Cfg = config.NewEmptyProjectConfig()
 	}
 
+	if args.ProjectPath == "" {
+		var wd string
+		wd, err = os.Getwd()
+		if err != nil {
+			return proj, errors.Wrapf(err, "error obtaining working dir")
+		}
+		args.ProjectPath = path.Join(wd, args.Name)
+	}
+
+	proj.ProjectPath = args.ProjectPath
+
 	return proj, nil
-}
-
-func NewProjectWithRowArgs(args []string) (*Project, error) {
-	progArgs := CreateArgs{}
-
-	flags, err := flag.ParseArgs(args)
-	if err != nil {
-		return nil, err
-	}
-
-	// Define project name
-	progArgs.Name, err = flag.ExtractOneValueFromFlags(flags, FlagAppName, FlagAppNameShort)
-	if err != nil {
-		return nil, err
-	}
-
-	// Define path to configuration file
-	progArgs.CfgPath, err = flag.ExtractOneValueFromFlags(flags, FlagCfgPath, FlagCfgPathShort)
-	if err != nil {
-		return nil, err
-	}
-	if progArgs.CfgPath == "" {
-		progArgs.CfgPath, err = findConfigPath()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	progArgs.ProjectPath, err = flag.ExtractOneValueFromFlags(flags, FlagProjectPath, FlagProjectPathShort)
-	if progArgs.ProjectPath == "" {
-		progArgs.ProjectPath, err = os.Getwd()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return NewProject(progArgs)
 }
 
 func (p *Project) GetName() string {

@@ -7,12 +7,13 @@ import (
 	"os/exec"
 	"path"
 
-	"github.com/Red-Sock/rscli/pkg/service/project/interfaces"
+	"github.com/Red-Sock/rscli/pkg/service/project/config-processor/config"
+
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/interfaces"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
 
 	configpattern "github.com/Red-Sock/rscli/pkg/config"
-	"github.com/Red-Sock/rscli/pkg/service/config"
 	"gopkg.in/yaml.v3"
 )
 

@@ -4,11 +4,15 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/Red-Sock/rscli/pkg/service/project/interfaces"
+	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/interfaces"
 )
 
 func ValidateName(p interfaces.Project) error {
 	name := p.GetName()
+	return ValidateNameString(name)
+}
+
+func ValidateNameString(name string) error {
 	if name == "" {
 		return errors.New("no name entered")
 	}
@@ -16,5 +20,6 @@ func ValidateName(p interfaces.Project) error {
 	if strings.Contains(name, " ") {
 		return errors.New("name contains space symbols")
 	}
+
 	return nil
 }
