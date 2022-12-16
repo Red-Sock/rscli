@@ -128,6 +128,10 @@ func PrepareEnvironmentFolders(p interfaces.Project) error {
 				Name:    "README.md",
 				Content: bytes.ReplaceAll(patterns.Readme, []byte("{{PROJECT_NAME}}"), []byte(p.GetName())),
 			},
+			{
+				Name:    ".gitignore",
+				Content: patterns.GitIgnore,
+			},
 		}...,
 	)
 	return nil

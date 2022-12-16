@@ -8,6 +8,9 @@ import (
 var (
 	//go:embed pattern_c/Dockerfile
 	Dockerfile []byte
+
+	//go:embed pattern_c/.gitignore
+	GitIgnore []byte
 )
 
 // Documentation
