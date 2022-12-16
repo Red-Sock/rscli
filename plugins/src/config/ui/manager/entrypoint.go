@@ -1,15 +1,13 @@
 package manager
 
 import (
-	"fmt"
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli/internal/randomizer"
 	"github.com/Red-Sock/rscli/internal/ui"
-	"github.com/Red-Sock/rscli/log"
 	"github.com/Red-Sock/rscli/pkg/service/help"
-	config2 "github.com/Red-Sock/rscli/pkg/service/project/config-processor/config"
+	"github.com/Red-Sock/rscli/plugins/src/config/config-processor/config"
 	"os"
 	"path"
 )
@@ -28,7 +26,7 @@ func Run(elem uikit.UIElement) uikit.UIElement {
 }
 
 type cfgDialog struct {
-	cfg  *config2.Config
+	cfg  *config.Config
 	path string
 
 	previousScreen uikit.UIElement
@@ -63,17 +61,15 @@ func (c *cfgDialog) commitConfig() uikit.UIElement {
 	for _, a := range c.subMenus {
 		args = append(args, a.BuildFlagsForConfig()...)
 	}
-	log.Add(fmt.Sprintf("args %v", args))
 
-	cfg, err := config2.Run(args)
+	cfg, err := config.Run(args)
 	if err != nil {
 		return label.New("error creating config: " + err.Error())
 	}
-	log.Add(fmt.Sprintf(" cfg %v", cfg))
 	c.cfg = cfg
 
 	c.path, _ = os.Getwd()
-	c.path = path.Join(c.path, config2.FileName)
+	c.path = path.Join(c.path, config.FileName)
 
 	err = c.cfg.SetFolderPath(c.path)
 	if err != nil {
