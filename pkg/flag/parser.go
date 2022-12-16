@@ -45,8 +45,10 @@ func ParseArgs(args []string) map[string][]string {
 	for _, item := range args {
 		if strings.HasPrefix(item, "-") {
 			key = strings.ReplaceAll(item, "-", "")
+			flagToArgs[item] = []string{}
 			continue
 		}
+
 		if key == "" {
 			flagToArgs[item] = []string{}
 		} else {

@@ -2,7 +2,7 @@ package internal
 
 import (
 	rscliuitkit "github.com/Red-Sock/rscli-uikit"
-	ui "github.com/Red-Sock/rscli/plugins/src/project/ui/manager"
+	ui "github.com/Red-Sock/rscli/plugins/src/config/ui/manager"
 )
 
 // Here you suppose to call a debugging method

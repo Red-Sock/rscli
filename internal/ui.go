@@ -1,8 +1,10 @@
 package internal
 
 import (
+	"github.com/Red-Sock/rscli/internal/commands"
 	"os"
 	"os/signal"
+	"sort"
 
 	"github.com/Red-Sock/rscli-uikit/basic/endscreen"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
@@ -24,7 +26,9 @@ func RunUI(args []string) {
 	go func() {
 		sig := make(chan os.Signal)
 		signal.Notify(sig, os.Interrupt)
+
 		<-sig
+
 		qE <- struct{}{}
 	}()
 
@@ -37,6 +41,11 @@ func mainMenu() uikit.UIElement {
 	for name := range pluginsWithUI {
 		items = append(items, name)
 	}
+
+	sort.Slice(items, func(i, j int) bool {
+		return items[i] < items[j]
+	})
+	items = append(items, commands.Exit)
 
 	if len(items) == 0 {
 		return label.New(help.Header + "no plugins available")
@@ -51,5 +60,8 @@ func mainMenu() uikit.UIElement {
 }
 
 func mainMenuCallback(resp string) uikit.UIElement {
+	if resp == commands.Exit {
+		return nil
+	}
 	return pluginsWithUI[resp].Run(mainMenu())
 }
