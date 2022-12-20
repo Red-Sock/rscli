@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/Red-Sock/rscli/internal/utils/slices"
 	"os"
 	"strings"
 
@@ -28,7 +29,11 @@ func KeysFromConfig(pathToConfig string) (map[string]string, error) {
 	for _, v := range vars {
 		parts := strings.Split(v[1:], "_")
 		for i := range parts {
-			parts[i] = strings.ToUpper(parts[i][:1]) + strings.ToLower(parts[i][1:])
+			if slices.Contains(initialisms, parts[i]) {
+				parts[i] = strings.ToUpper(parts[i])
+			} else {
+				parts[i] = strings.ToUpper(parts[i][:1]) + strings.ToLower(parts[i][1:])
+			}
 		}
 		variables[strings.Join(parts, "")] = v[1:]
 	}
@@ -40,7 +45,7 @@ type cfgKeysBuilder map[string]interface{}
 
 func (c *cfgKeysBuilder) extractVariables(prefix string, in map[string]interface{}) (out []string, err error) {
 	for k, v := range in {
-		if newMap, ok := v.(map[string]interface{}); ok {
+		if newMap, ok := v.(cfgKeysBuilder); ok {
 			values, err := c.extractVariables(prefix+"_"+k, newMap)
 			if err != nil {
 				return nil, err
@@ -52,3 +57,11 @@ func (c *cfgKeysBuilder) extractVariables(prefix string, in map[string]interface
 	}
 	return out, nil
 }
+
+var initialisms = []string{"acl", "api", "ascii", "cpu", "css", "dns",
+	"eof", "guid", "html", "http", "https", "id",
+	"ip", "json", "qps", "ram", "rpc", "sla",
+	"smtp", "sql", "ssh", "tcp", "tls", "ttl",
+	"udp", "ui", "gid", "uid", "uuid", "uri",
+	"url", "utf8", "vm", "xml", "xmpp", "xsrf",
+	"xss", "sip", "rtp", "amqp", "db", "ts"}

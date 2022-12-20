@@ -1,14 +1,14 @@
 package config
 
 type Config struct {
-	AppInfo     AppInfo                `yaml:"app_info,omitempty"`
+	AppInfo     AppInfo                `yaml:"app_info"`
 	Server      map[string]interface{} `yaml:"server"`
 	DataSources map[string]interface{} `yaml:"data_sources"`
 }
 
 type AppInfo struct {
-	Name    string `yaml:"name,omitempty"`
-	Version string `yaml:"version,omitempty"`
+	Name    string `yaml:"name"`
+	Version string `yaml:"version"`
 }
 
 func NewEmptyConfig() *Config {

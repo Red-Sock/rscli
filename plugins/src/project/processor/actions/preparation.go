@@ -132,6 +132,10 @@ func PrepareEnvironmentFolders(p interfaces.Project) error {
 				Name:    ".gitignore",
 				Content: patterns.GitIgnore,
 			},
+			{
+				Name:    ".golangci.yaml",
+				Content: patterns.Linter,
+			},
 		}...,
 	)
 	return nil

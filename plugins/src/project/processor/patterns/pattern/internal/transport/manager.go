@@ -25,35 +25,43 @@ func (m *Manager) AddServer(server Server) {
 
 func (m *Manager) Start(ctx context.Context) error {
 	var errs []error
+
 	for sID := range m.serverPool {
 		err := m.serverPool[sID].Start(ctx)
 		if err != nil {
 			errs = append(errs, err)
 		}
 	}
+
 	if len(errs) == 0 {
 		return nil
 	}
+
 	finalError := errors.New("error starting servers")
+
 	for _, err := range errs {
 		finalError = errors.Wrap(finalError, err.Error())
 	}
+
 	return finalError
 }
 
 func (m *Manager) Stop(ctx context.Context) error {
 	var errs []error
+
 	for sID := range m.serverPool {
 		err := m.serverPool[sID].Stop(ctx)
 		if err != nil {
 			errs = append(errs, err)
 		}
 	}
+
 	if len(errs) == 0 {
 		return nil
 	}
 
 	finalError := errors.New("error stopping servers")
+
 	for _, err := range errs {
 		finalError = errors.Wrap(finalError, err.Error())
 	}

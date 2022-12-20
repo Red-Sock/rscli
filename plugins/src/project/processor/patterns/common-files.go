@@ -11,6 +11,9 @@ var (
 
 	//go:embed pattern_c/.gitignore
 	GitIgnore []byte
+
+	//go:embed pattern_c/.golangci.yaml
+	Linter []byte
 )
 
 // Documentation

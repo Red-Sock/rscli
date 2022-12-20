@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/Red-Sock/rscli/plugins/src/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/src/project/processor/patterns"
+	"sort"
 	"strings"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
@@ -23,6 +24,12 @@ func BuildConfigGoFolder(p interfaces.Project) error {
 	if err != nil {
 		return err
 	}
+
+	keysFromCfg := strings.Split(string(keys), "\n")
+	sort.Slice(keysFromCfg, func(i, j int) bool {
+		return keysFromCfg[i] < keysFromCfg[j]
+	})
+	keys = []byte(strings.Join(keysFromCfg, "\n"))
 	cfgKeysStr := string(patterns.ConfigKeys)
 
 	body := append(patterns.ConfigKeys[:strings.Index(cfgKeysStr, "// _start_of_consts_to_replace")], keys...)

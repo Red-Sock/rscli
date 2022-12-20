@@ -19,7 +19,7 @@ func NewServer(cfg *config.Config) *Server {
 	r := mux.NewRouter()
 	s := &Server{
 		HttpServer: &http.Server{
-			Addr:    "0.0.0.0:" + cfg.GetString(config.ServerRestApiPort),
+			Addr:    "0.0.0.0:" + cfg.GetString(config.ServerRestAPIPort),
 			Handler: r,
 		},
 
