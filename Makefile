@@ -2,7 +2,6 @@
 compile-pattern:
 	go run support/compiler/main.go
 
-
 .PHONY: compile-project-plugin
 compile-project-plugin:
 	go build -buildmode=plugin -o plugins/project.so plugins/src/project/main.go
@@ -20,4 +19,4 @@ compile-config-plugin-ui:
 
 
 .PHONY: .compile-plugins
-.compile-plugins: compile-project-plugin compile-project-plugin-ui compile-config-plugin compile-config-plugin-ui
+.compile-plugins: compile-pattern compile-project-plugin compile-project-plugin-ui compile-config-plugin compile-config-plugin-ui

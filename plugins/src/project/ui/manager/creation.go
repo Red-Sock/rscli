@@ -3,6 +3,7 @@ package manager
 import "C"
 import (
 	"fmt"
+
 	"os"
 	"path"
 	"sort"
@@ -14,10 +15,10 @@ import (
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli-uikit/utils/common"
 	"github.com/Red-Sock/rscli/pkg/service/help"
-	"github.com/Red-Sock/rscli/pkg/service/project/config-processor/config"
-	config_ui "github.com/Red-Sock/rscli/pkg/service/project/config-ui"
-	processor "github.com/Red-Sock/rscli/pkg/service/project/project-processor"
-	"github.com/Red-Sock/rscli/pkg/service/project/project-processor/validators"
+	"github.com/Red-Sock/rscli/plugins/src/config/config-processor/config"
+	"github.com/Red-Sock/rscli/plugins/src/config/ui/manager"
+	"github.com/Red-Sock/rscli/plugins/src/project/processor"
+	"github.com/Red-Sock/rscli/plugins/src/project/processor/validators"
 )
 
 type createArgs struct {
@@ -84,7 +85,7 @@ func (c *createArgs) callbackForConfigSelect(resp string) uikit.UIElement {
 			return label.New(err.Error())
 		}
 
-		return config_ui.NewConfigMenu(confirmCreation)
+		return manager.Run(confirmCreation)
 	case useExistingConfig:
 		return c.handleExistingConfig()
 	default:

@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/Red-Sock/rscli/internal/randomizer"
 	"github.com/Red-Sock/rscli/internal/utils/input"
-	"github.com/Red-Sock/rscli/pkg/service/project/config-processor/config"
+	"github.com/Red-Sock/rscli/plugins/src/config/config-processor/config"
 	"github.com/pkg/errors"
 	"os"
 	"strings"

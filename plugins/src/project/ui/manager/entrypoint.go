@@ -4,7 +4,7 @@ import (
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli/pkg/service/help"
-	processor "github.com/Red-Sock/rscli/pkg/service/project/project-processor"
+	"github.com/Red-Sock/rscli/plugins/src/project/processor"
 )
 
 func Run(element uikit.UIElement) uikit.UIElement {

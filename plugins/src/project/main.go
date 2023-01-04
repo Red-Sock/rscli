@@ -1,15 +1,13 @@
 package main
 
 import (
+	"github.com/Red-Sock/rscli/plugins/src/config/config-processor/config"
+	projectprocessor "github.com/Red-Sock/rscli/plugins/src/project/processor"
 	"os"
 	"path"
 	"strings"
 
-	"github.com/Red-Sock/rscli/pkg/service/project/config-processor/config"
-
 	"github.com/Red-Sock/rscli/pkg/flag"
-
-	projectprocessor "github.com/Red-Sock/rscli/pkg/service/project/project-processor"
 )
 
 const (

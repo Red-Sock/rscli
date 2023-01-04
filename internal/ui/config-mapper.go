@@ -4,7 +4,7 @@ import (
 	rscliuitkit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/composit-items/multiselect"
 	"github.com/Red-Sock/rscli/pkg/service/help"
-	"github.com/Red-Sock/rscli/pkg/service/project/config-processor/config"
+	"github.com/Red-Sock/rscli/plugins/src/config/config-processor/config"
 )
 
 const (
