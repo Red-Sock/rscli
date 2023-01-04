@@ -3,7 +3,8 @@ module github.com/Red-Sock/rscli
 go 1.19
 
 require (
-	github.com/Red-Sock/rscli-uikit v0.0.3
+	github.com/Red-Sock/rscli-uikit v0.1.6
+	github.com/pkg/errors v0.9.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
