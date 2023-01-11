@@ -1,7 +1,9 @@
 package internal
 
 import (
-	uikit "github.com/Red-Sock/rscli-uikit"
+	"fmt"
+	"github.com/Red-Sock/rscli/pkg/commands"
+	"github.com/Red-Sock/rscli/pkg/flag/flags"
 	"os"
 	"path"
 	"plugin"
@@ -9,22 +11,18 @@ import (
 
 	"github.com/pkg/errors"
 
+	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli/pkg/flag"
-
 	"github.com/Red-Sock/rscli/pkg/service/help"
 )
 
 const (
-	pluginsDIR  = "RSCLI_PLUGINS"
-	pluginsFlag = "plugins"
-
-	openUI      = "ui"
-	debugPlugin = "debug"
+	openUI = "ui"
 )
 
 type Plugin interface {
 	GetName() string
-	Run(args []string) error
+	Run(args map[string][]string) error
 }
 
 type PluginWithUi interface {
@@ -33,18 +31,19 @@ type PluginWithUi interface {
 }
 
 func Run(args []string) {
-	if len(args) == 0 {
+	if len(args) == 1 {
 		println(help.Run())
-		return
+		os.Exit(0)
 	}
 	flags := flag.ParseArgs(args)
 
-	if _, ok := flags[debugPlugin]; ok {
-		RunDebug(args)
-		return
+	err := ifBasicCommands(flags)
+	if err != nil {
+		println(err.Error())
+		os.Exit(0)
 	}
 
-	err := fetchPlugins(flags)
+	err = fetchPlugins(flags)
 	if err != nil {
 		println(help.Header + "error fetching plugins: " + err.Error())
 		return
@@ -52,11 +51,26 @@ func Run(args []string) {
 
 	switch {
 	case flags[openUI] != nil:
-		RunUI(args)
+		RunUI(flags)
 	default:
-		RunCMD(args)
+		RunCMD(flags)
 	}
 
+}
+
+func ifBasicCommands(flags map[string][]string) error {
+	for _, b := range basicPlugin {
+		if _, ok := flags[b.GetName()]; ok {
+
+			delete(flags, commands.FixUtil)
+			err := b.Run(flags)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func fetchPlugins(args map[string][]string) error {
@@ -66,7 +80,7 @@ func fetchPlugins(args map[string][]string) error {
 	}
 
 	if pluginsPath == "" {
-		return errors.New("no plugin directory is provided")
+		return fmt.Errorf("plugin directory doesn't exist. %s %s fix to fix", commands.RsCLI, commands.FixUtil)
 	}
 
 	dirs, err := os.ReadDir(pluginsPath)
@@ -109,16 +123,16 @@ func fetchPlugins(args map[string][]string) error {
 }
 
 func findPluginsDir(args map[string][]string) (string, error) {
-	dir, err := flag.ExtractOneValueFromFlags(args, pluginsFlag)
+	dir, err := flag.ExtractOneValueFromFlags(args, flags.PluginsDirFlag)
 	if err != nil {
-		return "", errors.Wrapf(err, "error extracting \"%s\" flag from arguments", pluginsFlag)
+		return "", errors.Wrapf(err, "error extracting \"%s\" flag from arguments", flags.PluginsDirFlag)
 	}
 
 	if dir != "" {
 		return dir, nil
 	}
 
-	pluginsDir, ok := os.LookupEnv(pluginsDIR)
+	pluginsDir, ok := os.LookupEnv(flags.PluginsDirEnv)
 	if !ok {
 		return "", nil
 	}
