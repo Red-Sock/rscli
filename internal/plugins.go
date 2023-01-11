@@ -10,5 +10,6 @@ var (
 
 	basicPlugin = []Plugin{
 		&embeded.FixupPlugin{},
+		&embeded.GetPlugin{},
 	}
 )

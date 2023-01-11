@@ -35,25 +35,25 @@ func Run(args []string) {
 		println(help.Run())
 		os.Exit(0)
 	}
-	flags := flag.ParseArgs(args)
+	flgs := flag.ParseArgs(args)
 
-	err := ifBasicCommands(flags)
+	err := ifBasicCommands(flgs)
 	if err != nil {
 		println(err.Error())
 		os.Exit(0)
 	}
 
-	err = fetchPlugins(flags)
+	err = fetchPlugins(flgs)
 	if err != nil {
 		println(help.Header + "error fetching plugins: " + err.Error())
 		return
 	}
 
 	switch {
-	case flags[openUI] != nil:
-		RunUI(flags)
+	case flgs[openUI] != nil:
+		RunUI(flgs)
 	default:
-		RunCMD(flags)
+		RunCMD(flgs)
 	}
 
 }
@@ -62,7 +62,7 @@ func ifBasicCommands(flags map[string][]string) error {
 	for _, b := range basicPlugin {
 		if _, ok := flags[b.GetName()]; ok {
 
-			delete(flags, commands.FixUtil)
+			delete(flags, b.GetName())
 			err := b.Run(flags)
 			if err != nil {
 				return err

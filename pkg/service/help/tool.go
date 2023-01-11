@@ -2,8 +2,6 @@ package help
 
 import "strings"
 
-const Command = "help"
-
 const (
 	Header = `
 ========================

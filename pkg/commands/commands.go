@@ -6,4 +6,6 @@ const (
 
 const (
 	FixUtil = "fix"
+	GetUtil = "get"
+	Delete  = "delete"
 )

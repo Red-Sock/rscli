@@ -8,6 +8,7 @@ import (
 
 var reader = bufio.NewReader(os.Stdin)
 
+// GetAnswer получение ответа из консоли
 func GetAnswer(s string) string {
 	println(s)
 	answ, _ := reader.ReadString('\n')
