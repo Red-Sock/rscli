@@ -18,7 +18,6 @@ type GetPlugin struct {
 }
 
 func (p *GetPlugin) Run(flgs map[string][]string) error {
-
 	allPluginsDir := shared.GetPluginsDir(flgs)
 	pathToRepo, err := p.clone(allPluginsDir, flgs)
 	if err != nil {
@@ -68,8 +67,8 @@ func (p *GetPlugin) clone(allPluginsDir string, flgs map[string][]string) (strin
 	}
 	repoPluginDir := path.Join(pluginDir, gitRepoTempNameDir)
 	_, err = git.PlainClone(repoPluginDir, false, &git.CloneOptions{
-		URL:      "https://github.com/Red-Sock/config-plugin",
-		Progress: os.Stdout,
+		URL:      repoURL,
+		Progress: os.Stdout, // todo replace with framework stdout
 	})
 	if err != nil {
 		return "", errors.Wrapf(err, "error cloning repository %s", repoURL)
@@ -77,7 +76,7 @@ func (p *GetPlugin) clone(allPluginsDir string, flgs map[string][]string) (strin
 
 	cmd := exec.Command("go", "mod", "tidy")
 	cmd.Dir = repoPluginDir
-	cmd.Stderr = os.Stdout
+	cmd.Stderr = os.Stdout // todo replace with framework stdout
 	err = cmd.Run()
 	if err != nil {
 		return "", err
@@ -89,7 +88,7 @@ func (p *GetPlugin) buildPluginCmd(newPluginDir string) error {
 	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", path.Join(newPluginDir, "cmd.so"), "main.go")
 
 	cmd.Dir = path.Join(newPluginDir, gitRepoTempNameDir)
-	cmd.Stderr = os.Stdout
+	cmd.Stderr = os.Stdout // todo replace with framework stdout
 	err := cmd.Run()
 	if err != nil {
 		return err
@@ -101,7 +100,7 @@ func (p *GetPlugin) buildPluginUI(newPluginDir string) error {
 	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", path.Join(newPluginDir, "ui.so"), "main.go")
 
 	cmd.Dir = path.Join(newPluginDir, gitRepoTempNameDir, "ui")
-	cmd.Stderr = os.Stdout
+	cmd.Stderr = os.Stdout // todo replace with framework stdout
 	err := cmd.Run()
 	if err != nil {
 		return err
