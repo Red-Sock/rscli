@@ -26,7 +26,12 @@ func (p *GetPlugin) Run(flgs map[string][]string) error {
 	}
 	defer p.clean(pathToRepo)
 
-	err = p.buildPlugin(pathToRepo)
+	err = p.buildPluginCmd(pathToRepo)
+	if err != nil {
+		return err
+	}
+
+	err = p.buildPluginUI(pathToRepo)
 	if err != nil {
 		return err
 	}
@@ -80,15 +85,25 @@ func (p *GetPlugin) clone(allPluginsDir string, flgs map[string][]string) (strin
 	return pluginDir, nil
 }
 
-func (p *GetPlugin) buildPlugin(newPluginDir string) error {
+func (p *GetPlugin) buildPluginCmd(newPluginDir string) error {
 	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", path.Join(newPluginDir, "cmd.so"), "main.go")
 
 	cmd.Dir = path.Join(newPluginDir, gitRepoTempNameDir)
 	cmd.Stderr = os.Stdout
 	err := cmd.Run()
 	if err != nil {
-		errStr := err.Error()
-		print(errStr)
+		return err
+	}
+	return nil
+}
+
+func (p *GetPlugin) buildPluginUI(newPluginDir string) error {
+	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", path.Join(newPluginDir, "ui.so"), "main.go")
+
+	cmd.Dir = path.Join(newPluginDir, gitRepoTempNameDir, "ui")
+	cmd.Stderr = os.Stdout
+	err := cmd.Run()
+	if err != nil {
 		return err
 	}
 	return nil
