@@ -19,10 +19,12 @@ type GetPlugin struct {
 
 func (p *GetPlugin) Run(flgs map[string][]string) error {
 	allPluginsDir := shared.GetPluginsDir(flgs)
+
 	pathToRepo, err := p.clone(allPluginsDir, flgs)
 	if err != nil {
 		return err
 	}
+
 	defer p.clean(pathToRepo)
 
 	err = p.buildPluginCmd(pathToRepo)
@@ -61,7 +63,7 @@ func (p *GetPlugin) clone(allPluginsDir string, flgs map[string][]string) (strin
 
 	_, err = os.ReadDir(pluginDir)
 	if err == nil {
-		return "", fmt.Errorf("%s is already installed. Delete it with %s %s and try again", repoURL, commands.RsCLI, commands.Delete)
+		return "", fmt.Errorf("%s is already installed. Delete it with %s %s and try again", repoURL, commands.RsCLI(), commands.Delete)
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return "", errors.Wrapf(err, "error can't perfom ReadDir")
 	}

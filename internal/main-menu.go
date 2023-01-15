@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"github.com/pkg/errors"
 	"os"
 	"os/signal"
 	"sort"
@@ -14,10 +15,9 @@ import (
 	uikit "github.com/Red-Sock/rscli-uikit"
 )
 
-func RunUI(args map[string][]string) {
+func RunUI(args map[string][]string) error {
 	if len(args) == 0 {
-		println("no arguments given")
-		return
+		return errors.New("no arguments given")
 	}
 
 	qE := make(chan struct{})
@@ -32,6 +32,8 @@ func RunUI(args map[string][]string) {
 	}()
 
 	uikit.NewHandler(mainMenu()).Start(qE)
+
+	return nil
 }
 
 func mainMenu() uikit.UIElement {

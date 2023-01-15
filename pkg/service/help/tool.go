@@ -9,8 +9,10 @@ const (
 ========================
 `
 	Options = `
-configure, cfg, c - creates configuration file (by default - API application with PostgresSQL connection)
 ui - opens visual menu
+get {link to plugin} - downloads plugin from git
+fix - sets environment variable for plugins dir
+del {link to plugin} - deletes plugin from plugin dir. "del github.com/SomeUser/* - to delete all packages started with given path"
 `
 )
 

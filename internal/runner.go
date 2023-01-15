@@ -20,6 +20,10 @@ const (
 	openUI = "ui"
 )
 
+const (
+	pluginExtension = ".so"
+)
+
 type Plugin interface {
 	GetName() string
 	Run(args map[string][]string) error
@@ -30,35 +34,35 @@ type PluginWithUi interface {
 	Run(elem uikit.UIElement) uikit.UIElement
 }
 
-func Run(args []string) {
-	if len(args) == 1 {
-		println(help.Run())
-		os.Exit(0)
+func Run(args []string) error {
+	if len(args) == 0 {
+		_, _ = os.Stdout.WriteString(help.Run())
+		return nil
 	}
+
 	flgs := flag.ParseArgs(args)
 
-	err := ifBasicCommands(flgs)
+	err := execIfEmbededCommand(flgs)
 	if err != nil {
-		println(err.Error())
-		os.Exit(0)
+		return err
 	}
 
 	err = fetchPlugins(flgs)
 	if err != nil {
-		println(help.Header + "error fetching plugins: " + err.Error())
-		return
+		return errors.New(help.Header + "error fetching plugins: " + err.Error())
 	}
 
 	switch {
 	case flgs[openUI] != nil:
-		RunUI(flgs)
+		delete(flgs, openUI)
+		err = RunUI(flgs)
 	default:
-		RunCMD(flgs)
+		err = RunCMD(flgs)
 	}
-
+	return nil
 }
 
-func ifBasicCommands(flags map[string][]string) error {
+func execIfEmbededCommand(flags map[string][]string) error {
 	for _, b := range basicPlugin {
 		if _, ok := flags[b.GetName()]; ok {
 
@@ -80,43 +84,12 @@ func fetchPlugins(args map[string][]string) error {
 	}
 
 	if pluginsPath == "" {
-		return fmt.Errorf("plugin directory doesn't exist. %s %s fix to fix", commands.RsCLI, commands.FixUtil)
+		return fmt.Errorf("plugin directory doesn't exist. %s %s to fix", commands.RsCLI(), commands.FixUtil)
 	}
 
-	dirs, err := os.ReadDir(pluginsPath)
+	err = scanPluginsDir(pluginsPath)
 	if err != nil {
-		return errors.Wrap(err, "error reading plugins directory")
-	}
-
-	for _, plugPath := range dirs {
-		plugName := plugPath.Name()
-		if !strings.HasSuffix(plugName, ".so") {
-			continue
-		}
-		var p *plugin.Plugin
-		p, err = plugin.Open(path.Join(pluginsPath, plugName))
-		if err != nil {
-			return errors.Wrapf(err, "error opening plugin %s", plugName)
-		}
-
-		var plug plugin.Symbol
-		plug, err = p.Lookup("Plug")
-		if err != nil {
-			return errors.Wrapf(err, "couldn't find \"Plug\" symbol %s", plugName)
-		}
-
-		ui, ok := plug.(PluginWithUi)
-		if ok {
-			pluginsWithUI[ui.GetName()] = ui
-			continue
-		}
-
-		cli, ok := plug.(Plugin)
-		if ok {
-			plugins[cli.GetName()] = cli
-			continue
-		}
-		return errors.New("error parsing symbol \"Run\" to any runner in plugin " + plugName)
+		return errors.Wrap(err, "error scanning plugins dir")
 	}
 
 	return nil
@@ -137,4 +110,59 @@ func findPluginsDir(args map[string][]string) (string, error) {
 		return "", nil
 	}
 	return pluginsDir, nil
+}
+
+func scanPluginsDir(pluginsPath string) error {
+	dirs, err := os.ReadDir(pluginsPath)
+	if err != nil {
+		return errors.Wrap(err, "error reading plugins directory")
+	}
+
+	for _, item := range dirs {
+		tmpPath := path.Join(pluginsPath, item.Name())
+
+		if strings.HasSuffix(tmpPath, pluginExtension) {
+			err = fetchPlugin(tmpPath)
+		} else {
+			err = scanPluginsDir(tmpPath)
+		}
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func fetchPlugin(plugPath string) (err error) {
+	if !strings.HasSuffix(plugPath, ".so") {
+		return nil
+	}
+
+	var p *plugin.Plugin
+	p, err = plugin.Open(plugPath)
+	if err != nil {
+		return errors.Wrapf(err, "error opening plugin")
+	}
+
+	var plug plugin.Symbol
+	plug, err = p.Lookup("Plug")
+	if err != nil {
+		return errors.Wrapf(err, "couldn't find \"Plug\" symbol %s", plugPath)
+	}
+
+	ui, ok := plug.(PluginWithUi)
+	if ok {
+		pluginsWithUI[ui.GetName()] = ui
+		return nil
+	}
+
+	cli, ok := plug.(Plugin)
+	if ok {
+		plugins[cli.GetName()] = cli
+		return nil
+	}
+
+	return errors.New("error parsing symbol \"Run\" to any runner in plugin " + plugPath)
 }
