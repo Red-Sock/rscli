@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/Red-Sock/rscli/internal/utils/shared"
 	"github.com/Red-Sock/rscli/pkg/commands"
-	"github.com/go-git/go-git/v5"
 	"github.com/pkg/errors"
 	"net/url"
 	"os"
@@ -67,19 +66,18 @@ func (p *GetPlugin) clone(allPluginsDir string, flgs map[string][]string) (strin
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return "", errors.Wrapf(err, "error can't perfom ReadDir")
 	}
+
 	repoPluginDir := path.Join(pluginDir, gitRepoTempNameDir)
-	_, err = git.PlainClone(repoPluginDir, false, &git.CloneOptions{
-		URL:      repoURL,
-		Progress: os.Stdout, // todo replace with framework stdout
-	})
+	err = os.MkdirAll(repoPluginDir, 0755)
 	if err != nil {
-		return "", errors.Wrapf(err, "error cloning repository %s", repoURL)
+		return "", errors.Wrap(err, "error creating directory for plugin repo")
+	}
+	err = p.gitFetch(repoPluginDir, repoURL)
+	if err != nil {
+		return "", err
 	}
 
-	cmd := exec.Command("go", "mod", "tidy")
-	cmd.Dir = repoPluginDir
-	cmd.Stderr = os.Stdout // todo replace with framework stdout
-	err = cmd.Run()
+	err = p.gomod(repoPluginDir)
 	if err != nil {
 		return "", err
 	}
@@ -115,4 +113,26 @@ func (p *GetPlugin) clean(dirPath string) {
 	if err != nil {
 		fmt.Printf("error cleaning up %s: %s\n", dirPath, err)
 	}
+}
+
+func (p *GetPlugin) gitFetch(dirPath, repoURL string) error {
+	cmd := exec.Command("git", "clone", repoURL, ".")
+	cmd.Dir = dirPath
+	cmd.Stderr = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *GetPlugin) gomod(repoPluginDir string) error {
+	cmd := exec.Command("go", "mod", "tidy")
+	cmd.Dir = repoPluginDir
+	cmd.Stderr = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
 }
