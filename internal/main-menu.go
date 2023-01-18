@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
 	"os"
 	"os/signal"
 	"sort"
@@ -16,8 +16,21 @@ import (
 )
 
 func RunUI(args map[string][]string) error {
-	if len(args) == 0 {
-		return errors.New("no arguments given")
+
+	if len(args) > 1 {
+		return fmt.Errorf("too manu arguments. Need 0 or 1, got %d", len(args))
+	}
+
+	mm := mainMenu()
+
+	var startScreen uikit.UIElement
+
+	for item := range args {
+		startScreen = pluginsWithUI[item].Run(mm)
+	}
+
+	if startScreen == nil {
+		startScreen = mm
 	}
 
 	qE := make(chan struct{})
@@ -31,7 +44,7 @@ func RunUI(args map[string][]string) error {
 		qE <- struct{}{}
 	}()
 
-	uikit.NewHandler(mainMenu()).Start(qE)
+	uikit.NewHandler(startScreen).Start(qE)
 
 	return nil
 }
