@@ -1,7 +1,9 @@
 package internal
 
 import (
-	uikit "github.com/Red-Sock/rscli-uikit"
+	"fmt"
+	"github.com/Red-Sock/rscli/pkg/commands"
+	"github.com/Red-Sock/rscli/pkg/flag/flags"
 	"os"
 	"path"
 	"plugin"
@@ -9,22 +11,22 @@ import (
 
 	"github.com/pkg/errors"
 
+	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli/pkg/flag"
-
 	"github.com/Red-Sock/rscli/pkg/service/help"
 )
 
 const (
-	pluginsDIR  = "RSCLI_PLUGINS"
-	pluginsFlag = "plugins"
+	openUI = "ui"
+)
 
-	openUI      = "ui"
-	debugPlugin = "debug"
+const (
+	pluginExtension = ".so"
 )
 
 type Plugin interface {
 	GetName() string
-	Run(args []string) error
+	Run(args map[string][]string) error
 }
 
 type PluginWithUi interface {
@@ -32,31 +34,49 @@ type PluginWithUi interface {
 	Run(elem uikit.UIElement) uikit.UIElement
 }
 
-func Run(args []string) {
+func Run(args []string) error {
+
 	if len(args) == 0 {
 		println(help.Run())
-		return
-	}
-	flags := flag.ParseArgs(args)
-
-	if _, ok := flags[debugPlugin]; ok {
-		RunDebug(args)
-		return
+		return nil
 	}
 
-	err := fetchPlugins(flags)
+	flgs := flag.ParseArgs(args)
+
+	ok, err := execIfEmbededCommand(flgs)
 	if err != nil {
-		println(help.Header + "error fetching plugins: " + err.Error())
-		return
+		return err
+	}
+
+	if ok {
+		return nil
+	}
+
+	err = fetchPlugins(flgs)
+	if err != nil {
+		return errors.New(help.Header + "error fetching plugins: " + err.Error())
 	}
 
 	switch {
-	case flags[openUI] != nil:
-		RunUI(args)
+	case flgs[openUI] != nil:
+		delete(flgs, openUI)
+		err = RunUI(flgs)
 	default:
-		RunCMD(args)
+		err = RunCMD(flgs)
 	}
 
+	return err
+}
+
+func execIfEmbededCommand(flags map[string][]string) (ok bool, err error) {
+	for _, b := range basicPlugin {
+		if _, ok = flags[b.GetName()]; ok {
+			delete(flags, b.GetName())
+			return ok, b.Run(flags)
+		}
+	}
+
+	return ok, nil
 }
 
 func fetchPlugins(args map[string][]string) error {
@@ -66,61 +86,86 @@ func fetchPlugins(args map[string][]string) error {
 	}
 
 	if pluginsPath == "" {
-		return errors.New("no plugin directory is provided")
+		return fmt.Errorf("plugin directory doesn't exist. %s %s to fix", commands.RsCLI(), commands.FixUtil)
 	}
 
-	dirs, err := os.ReadDir(pluginsPath)
+	err = scanPluginsDir(pluginsPath)
 	if err != nil {
-		return errors.Wrap(err, "error reading plugins directory")
-	}
-
-	for _, plugPath := range dirs {
-		plugName := plugPath.Name()
-		if !strings.HasSuffix(plugName, ".so") {
-			continue
-		}
-		var p *plugin.Plugin
-		p, err = plugin.Open(path.Join(pluginsPath, plugName))
-		if err != nil {
-			return errors.Wrapf(err, "error opening plugin %s", plugName)
-		}
-
-		var plug plugin.Symbol
-		plug, err = p.Lookup("Plug")
-		if err != nil {
-			return errors.Wrapf(err, "couldn't find \"Plug\" symbol %s", plugName)
-		}
-
-		ui, ok := plug.(PluginWithUi)
-		if ok {
-			pluginsWithUI[ui.GetName()] = ui
-			continue
-		}
-
-		cli, ok := plug.(Plugin)
-		if ok {
-			plugins[cli.GetName()] = cli
-			continue
-		}
-		return errors.New("error parsing symbol \"Run\" to any runner in plugin " + plugName)
+		return errors.Wrap(err, "error scanning plugins dir")
 	}
 
 	return nil
 }
 
 func findPluginsDir(args map[string][]string) (string, error) {
-	dir, err := flag.ExtractOneValueFromFlags(args, pluginsFlag)
+	dir, err := flag.ExtractOneValueFromFlags(args, flags.PluginsDirFlag)
 	if err != nil {
-		return "", errors.Wrapf(err, "error extracting \"%s\" flag from arguments", pluginsFlag)
+		return "", errors.Wrapf(err, "error extracting \"%s\" flag from arguments", flags.PluginsDirFlag)
 	}
 
 	if dir != "" {
 		return dir, nil
 	}
 
-	pluginsDir, ok := os.LookupEnv(pluginsDIR)
+	pluginsDir, ok := os.LookupEnv(flags.PluginsDirEnv)
 	if !ok {
 		return "", nil
 	}
+
 	return pluginsDir, nil
+}
+
+func scanPluginsDir(pluginsPath string) error {
+	dirs, err := os.ReadDir(pluginsPath)
+	if err != nil {
+		return errors.Wrap(err, "error reading plugins directory")
+	}
+
+	for _, item := range dirs {
+		tmpPath := path.Join(pluginsPath, item.Name())
+
+		if strings.HasSuffix(tmpPath, pluginExtension) {
+			err = fetchPlugin(tmpPath)
+		} else {
+			err = scanPluginsDir(tmpPath)
+		}
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func fetchPlugin(plugPath string) (err error) {
+	if !strings.HasSuffix(plugPath, ".so") {
+		return nil
+	}
+
+	var p *plugin.Plugin
+	p, err = plugin.Open(plugPath)
+	if err != nil {
+		return errors.Wrapf(err, "error opening plugin")
+	}
+
+	var plug plugin.Symbol
+	plug, err = p.Lookup("Plug")
+	if err != nil {
+		return errors.Wrapf(err, "couldn't find \"Plug\" symbol %s", plugPath)
+	}
+
+	ui, ok := plug.(PluginWithUi)
+	if ok {
+		pluginsWithUI[ui.GetName()] = ui
+		return nil
+	}
+
+	cli, ok := plug.(Plugin)
+	if ok {
+		plugins[cli.GetName()] = cli
+		return nil
+	}
+
+	return errors.New("error parsing symbol \"Run\" to any runner in plugin " + plugPath)
 }

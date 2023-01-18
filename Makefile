@@ -1,6 +1,17 @@
+PROJECT_TMP_FOLDER="temp_project"
+PROJECT_PATTERN_SRC_REPO=https://github.com/Red-Sock/project-plugin
+PROJECT_COMPILED_FOLDER=plugins/src/project/processor/patterns/pattern_c
+
 .PHONY: compile-pattern
 compile-pattern:
-	go run support/compiler/main.go
+	echo 'recreating tmp folder $(PROJECT_TMP_FOLDER)'
+	echo off
+	rm -rf $(PROJECT_TMP_FOLDER)
+	mkdir $(PROJECT_TMP_FOLDER)
+	echo 'cloning from $(PROJECT_PATTERN_SRC_REPO) to $(PROJECT_TMP_FOLDER)'
+	cd $(PROJECT_TMP_FOLDER) && git clone $(PROJECT_PATTERN_SRC_REPO) . &&  git pull && git switch go
+	echo 'compiling project to '
+	go run support/project-compiler/main.go $(PROJECT_TMP_FOLDER) $(PROJECT_COMPILED_FOLDER)
 
 .PHONY: compile-project-plugin
 compile-project-plugin:
