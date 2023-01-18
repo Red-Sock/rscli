@@ -1,8 +1,6 @@
 package internal
 
 import (
-	"fmt"
-	"github.com/Red-Sock/rscli/pkg/commands"
 	"github.com/Red-Sock/rscli/pkg/flag/flags"
 	"os"
 	"path"
@@ -85,10 +83,6 @@ func fetchPlugins(args map[string][]string) error {
 		return errors.Wrap(err, "couldn't find plugins dir")
 	}
 
-	if pluginsPath == "" {
-		return fmt.Errorf("plugin directory doesn't exist. %s %s to fix", commands.RsCLI(), commands.FixUtil)
-	}
-
 	err = scanPluginsDir(pluginsPath)
 	if err != nil {
 		return errors.Wrap(err, "error scanning plugins dir")
@@ -112,7 +106,12 @@ func findPluginsDir(args map[string][]string) (string, error) {
 		return "", nil
 	}
 
-	return pluginsDir, nil
+	pluginsDir, err = os.Executable()
+	if err != nil {
+		return "", err
+	}
+
+	return path.Join(pluginsDir, "plugins"), nil
 }
 
 func scanPluginsDir(pluginsPath string) error {
