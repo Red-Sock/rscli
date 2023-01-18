@@ -4,7 +4,10 @@ import (
 	"github.com/Red-Sock/rscli/pkg/flag"
 	"github.com/Red-Sock/rscli/pkg/flag/flags"
 	"os"
+	"path"
 )
+
+const pluginDir = "rscli_plugins"
 
 func GetPluginsDir(flgs map[string][]string) string {
 	if flgs != nil && len(flgs) != 0 {
@@ -18,5 +21,9 @@ func GetPluginsDir(flgs map[string][]string) string {
 		return pluginsDir
 	}
 
-	return ""
+	pluginsDir, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	return path.Join(pluginsDir, pluginDir)
 }
