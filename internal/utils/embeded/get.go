@@ -1,6 +1,7 @@
 package embeded
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/Red-Sock/rscli/internal/utils/shared"
 	"github.com/Red-Sock/rscli/pkg/commands"
@@ -87,9 +88,14 @@ func (p *GetPlugin) clone(allPluginsDir string, flgs map[string][]string) (strin
 		return "", err
 	}
 
-	println("Cloned successfully. Executing go mod...\n")
+	version, err := p.getVersion(repoPluginDir)
+	if err != nil {
+		return "", err
+	}
 
-	err = p.gomod(repoPluginDir)
+	println("Cloned successfully. Current version is " + version + ". Executing go mod...\n")
+
+	err = p.gomod(repoPluginDir, version)
 	if err != nil {
 		return "", err
 	}
@@ -140,13 +146,63 @@ func (p *GetPlugin) gitFetch(dirPath, repoURL string) error {
 	return nil
 }
 
-func (p *GetPlugin) gomod(repoPluginDir string) error {
+func (p *GetPlugin) gomod(repoPluginDir string, rscliVersion string) error {
+	gomodPath := path.Join(repoPluginDir, "go.mod")
+
+	gomod, err := os.ReadFile(gomodPath)
+	if err != nil {
+		return errors.Wrapf(err, "error opening file %s", gomodPath)
+	}
+
+	startIdx := bytes.Index(gomod, []byte("github.com/Red-Sock/rscli"))
+	oldImport := gomod[startIdx:]
+	endIdx := bytes.Index(oldImport, []byte("\n"))
+	oldImport = oldImport[:endIdx]
+
+	bytes.ReplaceAll(gomod, oldImport, []byte("github.com/Red-Sock/rscli "+rscliVersion))
 	cmd := exec.Command("go", "mod", "tidy")
 	cmd.Dir = repoPluginDir
 	cmd.Stderr = os.Stdout
-	err := cmd.Run()
+
+	err = cmd.Run()
 	if err != nil {
 		return err
 	}
+
 	return nil
+}
+
+func (p *GetPlugin) getVersion(repoPluginDir string) (string, error) {
+	hashCommitCmd := exec.Command("git", "rev-parse", "HEAD")
+	hashCommitCmd.Dir = repoPluginDir
+	hashCommitCmd.Stderr = os.Stdout
+
+	commitHash, err := hashCommitCmd.Output()
+	if err != nil {
+		return "", err
+	}
+
+	tagCmd := exec.Command("git", "describe", "--tags", "--abbrev=0")
+	tagCmd.Dir = repoPluginDir
+	tagCmd.Stderr = os.Stdout
+
+	tag, err := tagCmd.Output()
+	if err != nil {
+		return "", err
+	}
+
+	tagHashCmd := exec.Command("git", "show-ref", "-s", string(tag))
+	tagHashCmd.Dir = repoPluginDir
+	tagHashCmd.Stderr = os.Stdout
+
+	tagHash, err := tagHashCmd.Output()
+	if err != nil {
+		return "", err
+	}
+
+	if string(tagHash) == string(commitHash) {
+		return string(tag), nil
+	}
+
+	return string(commitHash), nil
 }
