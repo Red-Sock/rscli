@@ -71,12 +71,8 @@ func Run(args []string) error {
 func execIfEmbededCommand(flags map[string][]string) (ok bool, err error) {
 	for _, b := range basicPlugin {
 		if _, ok = flags[b.GetName()]; ok {
-
 			delete(flags, b.GetName())
-			err = b.Run(flags)
-			if err != nil {
-				return ok, err
-			}
+			return ok, b.Run(flags)
 		}
 	}
 

@@ -26,15 +26,23 @@ func (p *GetPlugin) Run(flgs map[string][]string) error {
 
 	defer p.clean(pathToRepo)
 
+	println("building cmd plugin...")
+
 	err = p.buildPluginCmd(pathToRepo)
 	if err != nil {
 		return err
 	}
 
+	println("cmd plugin built!")
+
+	println("building ui plugin...")
 	err = p.buildPluginUI(pathToRepo)
 	if err != nil {
 		return err
 	}
+	println("ui plugin built!")
+
+	_, _ = os.Stdout.WriteString("plugin is successfully installed")
 
 	return nil
 }
@@ -44,6 +52,7 @@ func (p *GetPlugin) GetName() string {
 }
 
 func (p *GetPlugin) clone(allPluginsDir string, flgs map[string][]string) (string, error) {
+
 	if len(flgs) != 1 {
 		return "", fmt.Errorf("invalid amount of agruments for %s plugins. Expected %d got %d", commands.GetUtil, 1, len(flgs))
 	}
@@ -57,12 +66,13 @@ func (p *GetPlugin) clone(allPluginsDir string, flgs map[string][]string) (strin
 	if err != nil {
 		return "", errors.Wrapf(err, "error parsing url %s", repoURL)
 	}
+	println("Cloning git repository repoURL:\n")
 
 	pluginDir := path.Join(allPluginsDir, URL.Host, URL.Path)
 
 	_, err = os.ReadDir(pluginDir)
 	if err == nil {
-		return "", fmt.Errorf("%s is already installed. Delete it with %s %s and try again", repoURL, commands.RsCLI(), commands.Delete)
+		return "", fmt.Errorf("%s is already installed. Delete it with %s %s %s and try again", repoURL, commands.RsCLI(), commands.Delete, repoURL)
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return "", errors.Wrapf(err, "error can't perfom ReadDir")
 	}
@@ -77,10 +87,14 @@ func (p *GetPlugin) clone(allPluginsDir string, flgs map[string][]string) (strin
 		return "", err
 	}
 
+	println("Cloned successfully. Executing go mod...\n")
+
 	err = p.gomod(repoPluginDir)
 	if err != nil {
 		return "", err
 	}
+
+	println("go mod executed!\n")
 	return pluginDir, nil
 }
 
