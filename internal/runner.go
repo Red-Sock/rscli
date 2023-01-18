@@ -35,16 +35,21 @@ type PluginWithUi interface {
 }
 
 func Run(args []string) error {
+
 	if len(args) == 0 {
-		_, _ = os.Stdout.WriteString(help.Run())
+		println(help.Run())
 		return nil
 	}
 
 	flgs := flag.ParseArgs(args)
 
-	err := execIfEmbededCommand(flgs)
+	ok, err := execIfEmbededCommand(flgs)
 	if err != nil {
 		return err
+	}
+
+	if ok {
+		return nil
 	}
 
 	err = fetchPlugins(flgs)
@@ -59,22 +64,23 @@ func Run(args []string) error {
 	default:
 		err = RunCMD(flgs)
 	}
-	return nil
+
+	return err
 }
 
-func execIfEmbededCommand(flags map[string][]string) error {
+func execIfEmbededCommand(flags map[string][]string) (ok bool, err error) {
 	for _, b := range basicPlugin {
-		if _, ok := flags[b.GetName()]; ok {
+		if _, ok = flags[b.GetName()]; ok {
 
 			delete(flags, b.GetName())
-			err := b.Run(flags)
+			err = b.Run(flags)
 			if err != nil {
-				return err
+				return ok, err
 			}
 		}
 	}
 
-	return nil
+	return ok, nil
 }
 
 func fetchPlugins(args map[string][]string) error {
@@ -109,6 +115,7 @@ func findPluginsDir(args map[string][]string) (string, error) {
 	if !ok {
 		return "", nil
 	}
+
 	return pluginsDir, nil
 }
 

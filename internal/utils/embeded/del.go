@@ -12,7 +12,7 @@ import (
 
 type DeletePlugin struct{}
 
-func (f *DeletePlugin) Run(flgs map[string][]string) error {
+func (d *DeletePlugin) Run(flgs map[string][]string) error {
 
 	if len(flgs) != 1 {
 		return fmt.Errorf("invalid amount of agruments for %s plugins. Expected %d got %d", commands.GetUtil, 1, len(flgs))
@@ -38,6 +38,6 @@ func (f *DeletePlugin) Run(flgs map[string][]string) error {
 	return nil
 }
 
-func (f *DeletePlugin) GetName() string {
+func (d *DeletePlugin) GetName() string {
 	return commands.Delete
 }
