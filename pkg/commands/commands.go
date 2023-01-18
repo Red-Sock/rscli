@@ -21,7 +21,6 @@ func RsCLI() string {
 var rsCLI string
 
 const (
-	FixUtil = "fix"
 	GetUtil = "get"
 	Delete  = "del"
 )

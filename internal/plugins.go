@@ -9,7 +9,6 @@ var (
 	pluginsWithUI = map[string]PluginWithUi{}
 
 	basicPlugin = []Plugin{
-		&embeded.FixupPlugin{},
 		&embeded.GetPlugin{},
 		&embeded.DeletePlugin{},
 	}
