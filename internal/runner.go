@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"github.com/Red-Sock/rscli/internal/utils/shared"
 	"github.com/Red-Sock/rscli/pkg/flag/flags"
 	"os"
 	"path"
@@ -102,16 +103,11 @@ func findPluginsDir(args map[string][]string) (string, error) {
 	}
 
 	pluginsDir, ok := os.LookupEnv(flags.PluginsDirEnv)
-	if !ok {
-		return "", nil
+	if ok {
+		return pluginsDir, nil
 	}
 
-	pluginsDir, err = os.Executable()
-	if err != nil {
-		return "", err
-	}
-
-	return path.Join(pluginsDir, "plugins"), nil
+	return shared.GetPluginsDir(args), nil
 }
 
 func scanPluginsDir(pluginsPath string) error {
