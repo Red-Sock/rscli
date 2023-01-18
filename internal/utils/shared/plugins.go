@@ -25,5 +25,8 @@ func GetPluginsDir(flgs map[string][]string) string {
 	if err != nil {
 		panic(err)
 	}
+
+	pluginsDir, _ = path.Split(pluginsDir)
+
 	return path.Join(pluginsDir, pluginDir)
 }
