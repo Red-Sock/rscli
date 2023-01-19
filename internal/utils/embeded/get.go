@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/Red-Sock/rscli/internal/utils/shared"
 	"github.com/Red-Sock/rscli/pkg/commands"
+	"github.com/Red-Sock/rscli/pkg/rw"
 	"github.com/pkg/errors"
+	"io"
 	"net/url"
 	"os"
 	"os/exec"
@@ -96,7 +98,7 @@ func (p *GetPlugin) clone(allPluginsDir string, flgs map[string][]string) (strin
 
 	println("Cloned successfully. Current version is " + version + ". Executing go mod...\n")
 
-	err = p.gomod(repoPluginDir, version)
+	err = p.gomod(repoPluginDir)
 	if err != nil {
 		return "", err
 	}
@@ -147,7 +149,7 @@ func (p *GetPlugin) gitFetch(dirPath, repoURL string) error {
 	return nil
 }
 
-func (p *GetPlugin) gomod(repoPluginDir string, rscliVersion string) error {
+func (p *GetPlugin) gomod(repoPluginDir string) error {
 	gomodPath := path.Join(repoPluginDir, "go.mod")
 
 	gomod, err := os.ReadFile(gomodPath)
@@ -160,7 +162,7 @@ func (p *GetPlugin) gomod(repoPluginDir string, rscliVersion string) error {
 	endIdx := bytes.Index(oldImport, []byte("\n"))
 	oldImport = oldImport[:endIdx]
 
-	bytes.ReplaceAll(gomod, oldImport, []byte("github.com/Red-Sock/rscli "+rscliVersion))
+	bytes.ReplaceAll(gomod, oldImport, []byte("github.com/Red-Sock/rscli latest"))
 	cmd := exec.Command("go", "mod", "tidy")
 	cmd.Dir = repoPluginDir
 	cmd.Stderr = os.Stdout
@@ -174,9 +176,10 @@ func (p *GetPlugin) gomod(repoPluginDir string, rscliVersion string) error {
 }
 
 func (p *GetPlugin) getVersion(repoPluginDir string) (string, error) {
+	r := &rw.RW{}
 	hashCommitCmd := exec.Command("git", "rev-parse", "HEAD")
 	hashCommitCmd.Dir = repoPluginDir
-	hashCommitCmd.Stderr = os.Stdout
+	hashCommitCmd.Stderr = r
 
 	commitHash, err := hashCommitCmd.Output()
 	if err != nil {
@@ -185,16 +188,24 @@ func (p *GetPlugin) getVersion(repoPluginDir string) (string, error) {
 
 	tagCmd := exec.Command("git", "describe", "--tags", "--abbrev=0")
 	tagCmd.Dir = repoPluginDir
-	tagCmd.Stderr = os.Stdout
+	tagCmd.Stderr = r
 
 	tag, err := tagCmd.Output()
 	if err != nil {
-		return "", err
+		msg, err := io.ReadAll(r)
+		if err != nil {
+			return "", err
+		}
+		if string(msg) == "fatal: No names found, cannot describe anything." {
+			return string(commitHash), nil
+		}
+
+		return "", errors.New(string(msg))
 	}
 
 	tagHashCmd := exec.Command("git", "show-ref", "-s", string(tag))
 	tagHashCmd.Dir = repoPluginDir
-	tagHashCmd.Stderr = os.Stdout
+	tagHashCmd.Stderr = r
 
 	tagHash, err := tagHashCmd.Output()
 	if err != nil {
