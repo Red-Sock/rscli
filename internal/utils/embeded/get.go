@@ -83,6 +83,7 @@ func (p *GetPlugin) clone(allPluginsDir string, flgs map[string][]string) (strin
 	if err != nil {
 		return "", errors.Wrap(err, "error creating directory for plugin repo")
 	}
+
 	err = p.gitFetch(repoPluginDir, repoURL)
 	if err != nil {
 		return "", err
