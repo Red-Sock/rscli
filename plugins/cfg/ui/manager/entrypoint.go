@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"github.com/Red-Sock/rscli-uikit/composit-items/input"
 	"os"
 	"path"
 
@@ -14,14 +15,15 @@ import (
 func Run(elem uikit.UIElement) uikit.UIElement {
 	c := &cfgDialog{
 		previousScreen: elem,
+		flags:          map[string][]string{},
 	}
 
 	c.subMenus = map[string]*ConfigMenuSubItem{
-		TransportTypeMenu: NewConfigMenuSubItem(TransportTypeItems(), c.configMenu),
-		DataSourceMenu:    NewConfigMenuSubItem(DataSourcesItems(), c.configMenu),
+		TransportTypeMenu: NewConfigMenuSubItem(TransportTypeItems(), c.mainMenu),
+		DataSourceMenu:    NewConfigMenuSubItem(DataSourcesItems(), c.mainMenu),
 	}
 
-	return c.configMenu()
+	return c.mainMenu()
 }
 
 type cfgDialog struct {
@@ -31,10 +33,11 @@ type cfgDialog struct {
 	previousScreen uikit.UIElement
 
 	subMenus map[string]*ConfigMenuSubItem
+	flags    map[string][]string
 }
 
 // main screen of config menu
-func (c *cfgDialog) configMenu() uikit.UIElement {
+func (c *cfgDialog) mainMenu() uikit.UIElement {
 	return radioselect.New(
 		c.mainMenuCallback,
 		radioselect.Header("DataSources"),
@@ -44,7 +47,7 @@ func (c *cfgDialog) configMenu() uikit.UIElement {
 
 func (c *cfgDialog) mainMenuCallback(res string) uikit.UIElement {
 	if res == CommitConfig {
-		return c.commitConfig()
+		return c.askName()
 	}
 
 	subMenu, ok := c.subMenus[res]
@@ -55,10 +58,33 @@ func (c *cfgDialog) mainMenuCallback(res string) uikit.UIElement {
 	return subMenu.UiElement()
 }
 
+func (c *cfgDialog) askName() uikit.UIElement {
+	return input.New(
+		c.nameCallback,
+		input.Expandable(),
+		input.TextAbove("Application name:"),
+	)
+}
+
+func (c *cfgDialog) nameCallback(s string) uikit.UIElement {
+	if s == "" {
+		return c.askName()
+	}
+
+	c.flags["-"+processor.AppName] = []string{s}
+
+	return c.commitConfig()
+}
+
 func (c *cfgDialog) commitConfig() uikit.UIElement {
 	args := make([]string, 0, len(c.subMenus))
 	for _, a := range c.subMenus {
 		args = append(args, a.BuildFlagsForConfig()...)
+	}
+
+	for f, arg := range c.flags {
+		args = append(args, f)
+		args = append(args, arg...)
 	}
 
 	cfg, err := processor.Run(flag.ParseArgs(args))
@@ -111,7 +137,8 @@ func (c *cfgDialog) endDialog() uikit.UIElement {
 	if c.previousScreen == nil {
 		return label.New("successfully created file at " + c.cfg.GetPath() + ". ")
 	}
-	return label.New("successfully created file at "+c.cfg.GetPath()+". ",
+
+	return label.New("successfully created file at "+c.cfg.GetPath()+". (press enter to continue)",
 		label.NextScreen(func() uikit.UIElement {
 			return c.previousScreen
 		}))

@@ -23,9 +23,7 @@ func Run(args map[string][]string) (*Config, error) {
 }
 
 func runDefault() (*Config, error) {
-	opts := map[string][]string{
-		SourceNamePg: {"postgres"},
-	}
+	opts := map[string][]string{}
 
 	return NewConfig(opts)
 }
