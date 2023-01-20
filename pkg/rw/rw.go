@@ -1,6 +1,7 @@
 package rw
 
 import (
+	"bytes"
 	"io"
 	"sync"
 )
@@ -19,25 +20,11 @@ func (r *RW) Write(b []byte) (int, error) {
 	return len(b), nil
 }
 
-func (r *RW) Read(b []byte) (int, error) {
+func (r *RW) GetReader() io.Reader {
 	r.l.Lock()
 
-	n := cap(b)
-	if cap(b) > len(r.b) {
-		n = len(r.b)
-	}
-	for i := 0; i < n; i++ {
-		b[i] = r.b[i]
-	}
-	var err error
-	if len(b) >= len(r.b) {
-		r.b = make([]byte, 0, len(b))
-		err = io.EOF
-	} else {
-		r.b = r.b[len(b):]
-	}
-
+	out := bytes.NewReader(r.b)
+	r.b = make([]byte, 0, len(r.b))
 	r.l.Unlock()
-
-	return len(b), err
+	return out
 }

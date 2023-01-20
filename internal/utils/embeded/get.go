@@ -45,7 +45,7 @@ func (p *GetPlugin) Run(flgs map[string][]string) error {
 	}
 	println("ui plugin built!")
 
-	_, _ = os.Stdout.WriteString("plugin is successfully installed")
+	println("plugin is successfully installed")
 
 	return nil
 }
@@ -111,10 +111,17 @@ func (p *GetPlugin) buildPluginCmd(newPluginDir string) error {
 	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", path.Join(newPluginDir, "cmd.so"), "main.go")
 
 	cmd.Dir = path.Join(newPluginDir, gitRepoTempNameDir)
-	cmd.Stderr = os.Stdout // todo replace with framework stdout
+
+	r := &rw.RW{}
+	cmd.Stderr = r
+
 	err := cmd.Run()
 	if err != nil {
-		return err
+		msg, err := io.ReadAll(r.GetReader())
+		if err != nil {
+			return err
+		}
+		return errors.Wrap(err, string(msg))
 	}
 	return nil
 }
@@ -123,10 +130,17 @@ func (p *GetPlugin) buildPluginUI(newPluginDir string) error {
 	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", path.Join(newPluginDir, "ui.so"), "main.go")
 
 	cmd.Dir = path.Join(newPluginDir, gitRepoTempNameDir, "ui")
-	cmd.Stderr = os.Stdout // todo replace with framework stdout
+
+	r := &rw.RW{}
+	cmd.Stderr = r
+
 	err := cmd.Run()
 	if err != nil {
-		return err
+		msg, err := io.ReadAll(r.GetReader())
+		if err != nil {
+			return err
+		}
+		return errors.Wrap(err, string(msg))
 	}
 	return nil
 }
@@ -141,10 +155,17 @@ func (p *GetPlugin) clean(dirPath string) {
 func (p *GetPlugin) gitFetch(dirPath, repoURL string) error {
 	cmd := exec.Command("git", "clone", repoURL, ".")
 	cmd.Dir = dirPath
-	cmd.Stderr = os.Stdout
+
+	r := &rw.RW{}
+	cmd.Stderr = r
+
 	err := cmd.Run()
 	if err != nil {
-		return err
+		msg, err := io.ReadAll(r.GetReader())
+		if err != nil {
+			return err
+		}
+		return errors.Wrap(err, string(msg))
 	}
 	return nil
 }
@@ -165,11 +186,17 @@ func (p *GetPlugin) gomod(repoPluginDir string) error {
 	bytes.ReplaceAll(gomod, oldImport, []byte("github.com/Red-Sock/rscli latest"))
 	cmd := exec.Command("go", "mod", "tidy")
 	cmd.Dir = repoPluginDir
-	cmd.Stderr = os.Stdout
+
+	r := &rw.RW{}
+	cmd.Stderr = r
 
 	err = cmd.Run()
 	if err != nil {
-		return err
+		msg, err := io.ReadAll(r.GetReader())
+		if err != nil {
+			return err
+		}
+		return errors.Wrap(err, string(msg))
 	}
 
 	return nil
@@ -192,14 +219,15 @@ func (p *GetPlugin) getVersion(repoPluginDir string) (string, error) {
 
 	tag, err := tagCmd.Output()
 	if err != nil {
-		msg, err := io.ReadAll(r)
+		msg, err := io.ReadAll(r.GetReader())
 		if err != nil {
 			return "", err
 		}
-		if string(msg) == "fatal: No names found, cannot describe anything." {
+
+		if bytes.Contains(msg, []byte("fatal: No names found, cannot describe anything.")) {
+			println("i am here!!!!!")
 			return string(commitHash), nil
 		}
-
 		return "", errors.New(string(msg))
 	}
 

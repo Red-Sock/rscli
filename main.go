@@ -12,7 +12,6 @@ func main() {
 	err := internal.Run(os.Args[1:])
 	if err != nil {
 		println(colors.TerminalColor(colors.ColorRed) + err.Error())
-		os.Exit(1)
 	}
 	println(help.Header + randomizer.GoodGoodBuy())
 }
