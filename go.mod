@@ -6,6 +6,7 @@ require (
 	github.com/Red-Sock/rscli-uikit v0.1.8
 	github.com/nsf/termbox-go v1.1.1
 	github.com/pkg/errors v0.9.1
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

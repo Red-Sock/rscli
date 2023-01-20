@@ -8,12 +8,7 @@ const (
     RedSock CLI tool
 ========================
 `
-	Options = `
-ui - opens visual menu
-get {link to plugin} - downloads plugin from git
-fix - sets environment variable for plugins dir
-del {link to plugin} - deletes plugin from plugin dir. "del github.com/SomeUser/* - to delete all packages started with given path"
-`
+	Options = `ui - opens visual menu`
 )
 
 func Run() string {

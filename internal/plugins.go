@@ -1,15 +1,15 @@
 package internal
 
 import (
-	"github.com/Red-Sock/rscli/internal/utils/embeded"
+	cfgcmd "github.com/Red-Sock/rscli/plugins/cfg/cmd"
+	cfgui "github.com/Red-Sock/rscli/plugins/cfg/ui"
 )
 
 var (
-	plugins       = map[string]Plugin{}
-	pluginsWithUI = map[string]PluginWithUi{}
-
-	basicPlugin = []Plugin{
-		&embeded.GetPlugin{},
-		&embeded.DeletePlugin{},
+	plugins = map[string]Plugin{
+		cfgcmd.PluginName: &cfgcmd.Plug,
+	}
+	pluginsWithUI = map[string]PluginWithUi{
+		cfgui.PluginName: &cfgui.Plug,
 	}
 )
