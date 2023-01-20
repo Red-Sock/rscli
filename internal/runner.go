@@ -1,8 +1,6 @@
 package internal
 
 import (
-	"github.com/Red-Sock/rscli/internal/utils/shared"
-	"github.com/Red-Sock/rscli/pkg/flag/flags"
 	"os"
 	"path"
 	"plugin"
@@ -11,7 +9,9 @@ import (
 	"github.com/pkg/errors"
 
 	uikit "github.com/Red-Sock/rscli-uikit"
+	"github.com/Red-Sock/rscli/internal/utils/shared"
 	"github.com/Red-Sock/rscli/pkg/flag"
+	"github.com/Red-Sock/rscli/pkg/flag/flags"
 	"github.com/Red-Sock/rscli/pkg/service/help"
 )
 

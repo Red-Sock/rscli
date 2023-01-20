@@ -12,12 +12,19 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"plugin"
+	"strings"
 )
 
-const gitRepoTempNameDir = "temp"
+const (
+	gitRepoTempNameDir = "temp"
+)
 
-type GetPlugin struct {
-}
+var (
+	errPackageVersion = errors.New("more fresh package version required")
+)
+
+type GetPlugin struct{}
 
 func (p *GetPlugin) Run(flgs map[string][]string) error {
 	allPluginsDir := shared.GetPluginsDir(flgs)
@@ -29,23 +36,10 @@ func (p *GetPlugin) Run(flgs map[string][]string) error {
 
 	defer p.clean(pathToRepo)
 
-	println("building cmd plugin...")
-
-	err = p.buildPluginCmd(pathToRepo)
+	err = p.buildPlugin(pathToRepo)
 	if err != nil {
 		return err
 	}
-
-	println("cmd plugin built!")
-
-	println("building ui plugin...")
-	err = p.buildPluginUI(pathToRepo)
-	if err != nil {
-		return err
-	}
-	println("ui plugin built!")
-
-	println("plugin is successfully installed")
 
 	return nil
 }
@@ -96,53 +90,16 @@ func (p *GetPlugin) clone(allPluginsDir string, flgs map[string][]string) (strin
 		return "", err
 	}
 
-	println("Cloned successfully. Current version is " + version + ". Executing go mod...\n")
+	println("Cloned successfully. Current version is " + version)
+	println("Executing go mod...")
 
 	err = p.gomod(repoPluginDir)
 	if err != nil {
 		return "", err
 	}
-
 	println("go mod executed!\n")
+
 	return pluginDir, nil
-}
-
-func (p *GetPlugin) buildPluginCmd(newPluginDir string) error {
-	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", path.Join(newPluginDir, "cmd.so"), "main.go")
-
-	cmd.Dir = path.Join(newPluginDir, gitRepoTempNameDir)
-
-	r := &rw.RW{}
-	cmd.Stderr = r
-
-	err := cmd.Run()
-	if err != nil {
-		msg, err := io.ReadAll(r.GetReader())
-		if err != nil {
-			return err
-		}
-		return errors.Wrap(err, string(msg))
-	}
-	return nil
-}
-
-func (p *GetPlugin) buildPluginUI(newPluginDir string) error {
-	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", path.Join(newPluginDir, "ui.so"), "main.go")
-
-	cmd.Dir = path.Join(newPluginDir, gitRepoTempNameDir, "ui")
-
-	r := &rw.RW{}
-	cmd.Stderr = r
-
-	err := cmd.Run()
-	if err != nil {
-		msg, err := io.ReadAll(r.GetReader())
-		if err != nil {
-			return err
-		}
-		return errors.Wrap(err, string(msg))
-	}
-	return nil
 }
 
 func (p *GetPlugin) clean(dirPath string) {
@@ -161,9 +118,9 @@ func (p *GetPlugin) gitFetch(dirPath, repoURL string) error {
 
 	err := cmd.Run()
 	if err != nil {
-		msg, err := io.ReadAll(r.GetReader())
+		msg, rErr := io.ReadAll(r.GetReader())
 		if err != nil {
-			return err
+			return rErr
 		}
 		return errors.Wrap(err, string(msg))
 	}
@@ -171,30 +128,18 @@ func (p *GetPlugin) gitFetch(dirPath, repoURL string) error {
 }
 
 func (p *GetPlugin) gomod(repoPluginDir string) error {
-	gomodPath := path.Join(repoPluginDir, "go.mod")
-
-	gomod, err := os.ReadFile(gomodPath)
-	if err != nil {
-		return errors.Wrapf(err, "error opening file %s", gomodPath)
-	}
-
-	startIdx := bytes.Index(gomod, []byte("github.com/Red-Sock/rscli"))
-	oldImport := gomod[startIdx:]
-	endIdx := bytes.Index(oldImport, []byte("\n"))
-	oldImport = oldImport[:endIdx]
-
-	bytes.ReplaceAll(gomod, oldImport, []byte("github.com/Red-Sock/rscli latest"))
 	cmd := exec.Command("go", "mod", "tidy")
+
 	cmd.Dir = repoPluginDir
 
 	r := &rw.RW{}
 	cmd.Stderr = r
 
-	err = cmd.Run()
+	err := cmd.Run()
 	if err != nil {
-		msg, err := io.ReadAll(r.GetReader())
+		msg, rErr := io.ReadAll(r.GetReader())
 		if err != nil {
-			return err
+			return rErr
 		}
 		return errors.Wrap(err, string(msg))
 	}
@@ -219,9 +164,9 @@ func (p *GetPlugin) getVersion(repoPluginDir string) (string, error) {
 
 	tag, err := tagCmd.Output()
 	if err != nil {
-		msg, err := io.ReadAll(r.GetReader())
+		msg, rErr := io.ReadAll(r.GetReader())
 		if err != nil {
-			return "", err
+			return "", rErr
 		}
 
 		if bytes.Contains(msg, []byte("fatal: No names found, cannot describe anything.")) {
@@ -245,4 +190,119 @@ func (p *GetPlugin) getVersion(repoPluginDir string) (string, error) {
 	}
 
 	return string(commitHash), nil
+}
+
+func (p *GetPlugin) buildPlugin(pluginDir string) (err error) {
+	pathToGitDir := path.Join(pluginDir, gitRepoTempNameDir)
+	// building main CMD plugin
+	err = p.build(path.Join(pathToGitDir, "cmd"), pluginDir, "cmd.so")
+	if err != nil {
+		return err
+	}
+
+	// building main UI plugin
+	err = p.build(path.Join(pathToGitDir, "ui"), pluginDir, "ui.so")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *GetPlugin) build(gitDir, pluginDir, name string) error {
+	pathToSo := path.Join(pluginDir, name)
+
+	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", pathToSo, "main.go")
+	cmd.Dir = gitDir
+
+	r := &rw.RW{}
+	cmd.Stderr = r
+
+	err := cmd.Run()
+	if err != nil {
+		msg, rErr := io.ReadAll(r.GetReader())
+		if rErr != nil {
+			return rErr
+		}
+		return errors.Wrap(err, string(msg))
+	}
+
+	println("opening " + pathToSo)
+	_, err = plugin.Open(pathToSo)
+	if err == nil {
+		return nil
+	}
+
+	errStr := err.Error()
+	println(errStr)
+	os.Exit(1)
+	const diffVerError = "plugin was built with a different version of package"
+
+	if !strings.Contains(errStr, diffVerError) {
+		return err
+	}
+
+	packageNameIdx := strings.LastIndex(errStr, diffVerError) + len(diffVerError)
+
+	packageName := errStr[packageNameIdx+1:]
+	println("package name is " + packageName)
+	switch {
+	case strings.HasPrefix(packageName, uikitName):
+		err = p.updateDependencies(gitDir, uikitName)
+	case strings.HasPrefix(packageName, rscliName):
+		err = p.updateDependencies(gitDir, rscliName)
+	default:
+		return errors.New("cannot compile plugin: " + errStr)
+	}
+
+	if err != nil {
+		return errors.Wrap(err, "error updating dependency")
+	}
+
+	println("removing unsuccessful plugin compilation " + pathToSo)
+
+	err = os.Remove(pathToSo)
+	if err != nil {
+		return errors.Wrap(err, "error removing unsuccessfully compiled plugin")
+	}
+
+	return p.build(gitDir, pluginDir, name)
+}
+
+const (
+	uikitName = "github.com/Red-Sock/rscli-uikit"
+	rscliName = "github.com/Red-Sock/rscli"
+)
+
+func (p *GetPlugin) updateDependencies(repoPluginDir, depName string) error {
+	println("Updating dependency " + depName)
+
+	repoPluginDir = path.Dir(repoPluginDir)
+
+	gomodPath := path.Join(repoPluginDir, "go.mod")
+
+	println("gomodPath is: " + gomodPath)
+
+	gomod, err := os.ReadFile(gomodPath)
+	if err != nil {
+		return errors.Wrapf(err, "error opening file %s", gomodPath)
+	}
+	gomod = findAndReplaceToLatest(gomod, depName+" ")
+
+	err = os.WriteFile(gomodPath, gomod, 0755)
+	if err != nil {
+		return err
+	}
+
+	return p.gomod(repoPluginDir)
+}
+
+func findAndReplaceToLatest(src []byte, name string) []byte {
+	startIdx := bytes.Index(src, []byte(name))
+	oldImport := src[startIdx:]
+	endIdx := bytes.Index(oldImport, []byte("\n"))
+	oldImport = oldImport[:endIdx]
+	src = bytes.ReplaceAll(src, oldImport, []byte(name+" latest"))
+
+	return src
 }

@@ -3,7 +3,7 @@ module github.com/Red-Sock/rscli
 go 1.19
 
 require (
-	github.com/Red-Sock/rscli-uikit v0.1.7
+	github.com/Red-Sock/rscli-uikit v0.1.8
 	github.com/nsf/termbox-go v1.1.1
 	github.com/pkg/errors v0.9.1
 )
