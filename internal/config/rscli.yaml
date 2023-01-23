@@ -1,0 +1,3 @@
+env:
+  path_to_main: 'cmd/proj_name/main.go'
+  path_to_clients: 'internal/clients'

@@ -1,4 +1,4 @@
-package manager
+package config
 
 import (
 	rscliuitkit "github.com/Red-Sock/rscli-uikit"

@@ -1,15 +1,18 @@
-package manager
+package project
 
 import (
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli/pkg/service/help"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
+	"github.com/Red-Sock/rscli/plugins/project/scripts"
 )
 
-func Run(element uikit.UIElement) uikit.UIElement {
+const PluginName = "project"
+
+func Run(prev uikit.UIElement) uikit.UIElement {
 	pm := projectMenu{
-		previous: element,
+		previous: prev,
 	}
 	sb := radioselect.New(
 		pm.selectAction,
@@ -28,7 +31,7 @@ type projectMenu struct {
 func (pm *projectMenu) selectAction(resp string) uikit.UIElement {
 	switch resp {
 	case projCreate:
-		return StartCreateProj(pm.previous)
+		return scripts.StartCreateProj(pm.previous)
 	}
 
 	return nil

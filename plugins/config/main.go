@@ -1,21 +1,23 @@
-package manager
+package config
 
 import (
-	"github.com/Red-Sock/rscli-uikit/composit-items/input"
-	"os"
-	"path"
-
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
+	"github.com/Red-Sock/rscli-uikit/composit-items/input"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
+	"github.com/Red-Sock/rscli-uikit/utils/common"
 	"github.com/Red-Sock/rscli/pkg/flag"
 	"github.com/Red-Sock/rscli/plugins/config/processor"
+	"os"
+	"path"
 )
 
-func Run(elem uikit.UIElement) uikit.UIElement {
+const PluginName = "config"
+
+func Run(prevousMenu uikit.UIElement) uikit.UIElement {
 	c := &cfgDialog{
-		previousScreen: elem,
-		flags:          map[string][]string{},
+		flags: map[string][]string{},
+		prev:  prevousMenu,
 	}
 
 	c.subMenus = map[string]*ConfigMenuSubItem{
@@ -30,7 +32,7 @@ type cfgDialog struct {
 	cfg  *processor.Config
 	path string
 
-	previousScreen uikit.UIElement
+	prev uikit.UIElement
 
 	subMenus map[string]*ConfigMenuSubItem
 	flags    map[string][]string
@@ -62,6 +64,7 @@ func (c *cfgDialog) askName() uikit.UIElement {
 	return input.New(
 		c.nameCallback,
 		input.Expandable(),
+		input.Position(common.NewRelativePositioning(0.4, 0.5)),
 		input.TextAbove("Application name:"),
 	)
 }
@@ -134,12 +137,9 @@ func (c *cfgDialog) handleOverrideAnswer(answ string) uikit.UIElement {
 }
 
 func (c *cfgDialog) endDialog() uikit.UIElement {
-	if c.previousScreen == nil {
-		return label.New("successfully created file at " + c.cfg.GetPath() + ". ")
-	}
-
 	return label.New("successfully created file at "+c.cfg.GetPath()+". (press enter to continue)",
 		label.NextScreen(func() uikit.UIElement {
-			return c.previousScreen
-		}))
+			return c.prev
+		}),
+	)
 }
