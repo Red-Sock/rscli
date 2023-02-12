@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"os"
 	"path"
-	"strings"
 
 	"github.com/pkg/errors"
 
@@ -13,10 +12,11 @@ import (
 )
 
 const (
-	EnvDir             = "environment"
-	envExampleFile     = ".env.example"
-	composeExampleFile = "docker-compose.yaml.example"
-	makefileFile       = "Makefile"
+	EnvDir              = "environment"
+	EnvFile             = ".env"
+	envExampleFile      = ".env.example"
+	composeExampleFile  = "docker-compose.yaml.example"
+	makefileExampleFile = "Makefile"
 )
 
 const (
@@ -26,13 +26,13 @@ const (
 
 var ErrEnvironmentExists = errors.New("environment already exists")
 
-//go:embed files/.env
+//go:embed patterns/files/.env
 var envFile []byte
 
-//go:embed files/docker-compose.yaml
+//go:embed patterns/files/docker-compose.yaml
 var composeFile []byte
 
-//go:embed files/Makefile
+//go:embed patterns/files/Makefile
 var makefile []byte
 
 func RunCreate() error {
@@ -46,21 +46,28 @@ func RunCreate() error {
 		return err
 	}
 
-	var projs []string
-
-	projs, err = getProjectsFromSubDir("./", cfg)
+	var projects []string
+	projects, err = ListProjects(wd, cfg)
 	if err != nil {
 		return err
 	}
 
-	wd, err := os.Getwd()
+	err = CreateEnvsForProjects(wd, projects)
 	if err != nil {
 		return err
 	}
 
-	err = createProjDirs(wd, projs)
-	if err != nil {
-		return err
+	return RunSetUp(projects)
+}
+
+func CreateEnvsForProjects(projectsPath string, projects []string) error {
+	for _, name := range projects {
+		projDir := path.Join(path.Join(projectsPath, EnvDir), name)
+
+		err := os.Mkdir(projDir, os.ModePerm)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -75,66 +82,23 @@ func createEnvDir() error {
 		return err
 	}
 
-	err = os.Mkdir(EnvDir, 0755)
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile(path.Join(EnvDir, envExampleFile), envFile, 0755)
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile(path.Join(EnvDir, composeExampleFile), composeFile, 0755)
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile(path.Join(EnvDir, makefileFile), selectMakefile(), 0755)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getProjectsFromSubDir(pth string, cfg *config.Config) ([]string, error) {
-	dirs, err := os.ReadDir(pth)
-	if err != nil {
-		return nil, err
-	}
-
-	projs := make([]string, 0, len(dirs))
-
-	for _, d := range dirs {
-		name := d.Name()
-		if d.IsDir() && name != EnvDir {
-
-			_, err = os.ReadFile(path.Join(name, strings.ReplaceAll(cfg.Env.PathToMain, projNamePattern, name)))
-			if err != nil {
-				if err == os.ErrNotExist {
-					continue
-				}
-				return nil, err
-			}
-
-			projs = append(projs, d.Name())
+	{
+		err = os.Mkdir(EnvDir, 0755)
+		if err != nil {
+			return err
 		}
-	}
 
-	return projs, nil
-}
+		err = os.WriteFile(path.Join(EnvDir, envExampleFile), envFile, 0755)
+		if err != nil {
+			return err
+		}
 
-func createProjDirs(projectsPath string, projcs []string) error {
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
+		err = os.WriteFile(path.Join(EnvDir, composeExampleFile), composeFile, 0755)
+		if err != nil {
+			return err
+		}
 
-	wd = path.Join(wd, EnvDir)
-	for _, name := range projcs {
-		projDir := path.Join(path.Join(projectsPath, EnvDir), name)
-		err = os.Mkdir(projDir, 0755)
+		err = os.WriteFile(path.Join(EnvDir, makefileExampleFile), selectMakefile(), 0755)
 		if err != nil {
 			return err
 		}

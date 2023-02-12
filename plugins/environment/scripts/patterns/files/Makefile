@@ -1,4 +1,4 @@
-# SERVICE_NAME - имя сервиса который хотим сбилдить
+# SERVICE_NAME - name of service to build
 .PHONY: build-app
 build-app:
 	cd ../${SERVICE_NAME}/ && HOSTOS=linux HOSTARCH=arm64 make --makefile scratch.mk build
@@ -10,9 +10,11 @@ build-app:
 .PHONY: start-app
 start-app:
 	rm -rf ${SERVICE_NAME}config
+# TODO
 
 
-# ENVIRONMENTS - перечисленные через запятую окружения, которые хотим поднять
+# ENVIRONMENTS - coma separated project names to create environment to
 .PHONY: validate-env
 validate-env:
 	go run v
+	# TODO

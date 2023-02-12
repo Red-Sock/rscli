@@ -74,12 +74,14 @@ func (h *handler) handleSetUpSelectEnvs(item string) uikit.UIElement {
 	if err != nil {
 		return h.handleError(err)
 	}
+
 	menuItems := make([]string, 0, len(dirs))
 	for _, d := range dirs {
 		if d.IsDir() && d.Name() != scripts.EnvDir {
 			menuItems = append(menuItems, d.Name())
 		}
 	}
+
 	if len(menuItems) == 0 {
 		return h.handleError(errors.New("no project imported to set up"))
 	}
@@ -97,6 +99,7 @@ func (h *handler) handleSetUpSelectEnvs(item string) uikit.UIElement {
 	case selectProj:
 		return multiselect.New(
 			h.selectEnvironmentsToSetUp,
+			multiselect.Items(menuItems...),
 		)
 	}
 	return h.prev
