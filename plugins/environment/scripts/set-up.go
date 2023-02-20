@@ -1,7 +1,6 @@
 package scripts
 
 import (
-	"bytes"
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/plugins/environment/scripts/patterns"
 	"os"
@@ -15,34 +14,57 @@ import (
 
 var ErrUnknownSource = errors.New("unknown client")
 
-var lineSkip = []byte("\n")
+var (
+	lineSkip = []byte("\n")
+)
 
-func RunSetUp(envs []string) error {
-	cs, err := patterns.NewComposeService()
-	if err != nil {
-		return err
+type setupCommon struct {
+	config                  *config.Config
+	workDir                 string
+	envPattern              []byte
+	composeFilePattern      []byte
+	composeServicesPatterns map[string]patterns.ComposeService
+	portToService           map[int]string
+}
+
+func RunSetUp(envs []string) (err error) {
+
+	sc := setupCommon{
+		workDir: wd,
 	}
-
-	wd := wd
-
 	subDir, dir := path.Split(wd)
 	if dir == EnvDir {
 		// if current dir is "environment" treat sub dir as WD
-		wd = subDir
+		sc.workDir = subDir
 	}
 
-	m, err := getPortsFromEnv(wd, envs)
+	sc.composeServicesPatterns, err = patterns.NewComposeServices()
 	if err != nil {
 		return err
 	}
 
-	c, err := config.ReadConfig()
+	sc.portToService, err = getPortsFromEnv(wd, envs)
 	if err != nil {
 		return err
+	}
+
+	sc.config, err = config.ReadConfig()
+	if err != nil {
+		return err
+	}
+
+	sc.envPattern, err = os.ReadFile(path.Join(wd, EnvDir, envExampleFile))
+	if err != nil {
+		return errors.Wrapf(err, "can't open %s file", envExampleFile)
+	}
+
+	sc.composeFilePattern, err = os.ReadFile(path.Join(wd, EnvDir, composeExampleFile))
+	if err != nil {
+		return errors.Wrapf(err, "can't open %s file", envExampleFile)
 	}
 
 	for _, name := range envs {
-		err = addEnvironment(c, cs, wd, name, m)
+		err = setUpEnv(name, sc)
 		if err != nil {
 			return err
 		}
@@ -51,93 +73,69 @@ func RunSetUp(envs []string) error {
 	return nil
 }
 
-func addEnvironment(c *config.Config, cs map[string]patterns.ComposeService, wd, pName string, portToService map[int]string) error {
-	envF, err := os.ReadFile(path.Join(wd, EnvDir, envExampleFile))
+func setUpEnv(pName string, setup setupCommon) (err error) {
+	var env *patterns.EnvService
+	env, err = patterns.NewEnvService(envFile)
 	if err != nil {
-		return errors.Wrap(err, "can't open .env.example file")
+		return errors.Wrap(err, "error creating environment service")
 	}
 
-	envF = bytes.ReplaceAll(envF, []byte(projNameCapsPattern), []byte(strings.ToUpper(pName)))
-
-	serverPortString := []byte("SERVER_PORT")
-
-	startIdx := bytes.Index(envF, serverPortString) + len(serverPortString) + 1
-	endIdx := bytes.Index(envF[startIdx:], lineSkip)
-	if endIdx == -1 {
-		endIdx = len(envF)
-	} else {
-		startIdx += endIdx
-	}
-	portBts := envF[startIdx:endIdx]
-	serverPort, err := strconv.Atoi(string(portBts))
+	var composeAssembler *patterns.ComposeAssembler
+	composeAssembler, err = patterns.NewComposeAssembler(replaceProjectName(setup.composeFilePattern, pName), pName)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error creating compose-file assembler")
 	}
 
-	envServerPortNameStart := bytes.LastIndex(envF[:startIdx], lineSkip)
-	if envServerPortNameStart == -1 {
-		envServerPortNameStart = 0
+	var clients []patterns.ComposeService
+	clients, err = getClients(
+		setup.composeServicesPatterns,
+		path.Join(wd, pName, strings.ReplaceAll(setup.config.Env.PathToClients, projNamePattern, pName)))
+	if err != nil {
+		return errors.Wrap(err, "error assembling starting-compose-environment")
 	}
 
-	envServerPortName := string(envF[envServerPortNameStart+1 : startIdx-1])
+	for _, cl := range clients {
 
-	for {
-		_, ok := portToService[serverPort]
-		if !ok {
-			portToService[serverPort] = envServerPortName
-			break
-		}
-		serverPort++
-	}
+		composeEnvs := cl.GetEnvs().Content()
 
-	envF = bytes.Replace(envF, append([]byte(envServerPortName+"="), portBts...), []byte(envServerPortName+"="+strconv.Itoa(serverPort)), 1)
-	{
-
-		projectDir := path.Join(wd, pName, strings.ReplaceAll(c.Env.PathToClients, projNamePattern, pName))
-
-		clients, err := getClients(cs, projectDir)
-		if err != nil {
-			return err
-		}
-
-		// todo
-		for _, cl := range clients {
-			envF = append(envF, lineSkip...)
-
-			envsStrings := strings.Split(cl.GetEnvs(), "\n")
-			ports := cl.GetStartingPorts()
-
-			for idx, p := range ports {
+		for _, envVal := range composeEnvs {
+			var p int
+			p, err = strconv.Atoi(envVal.Value)
+			if err == nil {
 				for {
-					if _, ok := portToService[p]; !ok {
-						portToService[p] = pName
-						envF = append(envF, []byte(envsStrings[idx]+"="+strconv.Itoa(p))...)
+					if _, ok := setup.portToService[p]; !ok {
+						setup.portToService[p] = pName
+						env.Append(envVal.Name, strconv.Itoa(p))
 						break
 					}
 					p++
 				}
-
+				continue
 			}
+
+			env.Append(envVal.Name, envVal.Value)
 		}
+
+		composeAssembler.AppendService(cl.GetName(), cl.GetCompose())
 	}
 
-	pathToEnv := path.Join(wd, EnvDir, pName, ".env")
+	composeAssembler.SetUpNetwork()
 
-	err = os.RemoveAll(pathToEnv)
+	err = rewrite(replaceProjectName(env.MarshalEnv(), pName), path.Join(wd, EnvDir, pName, ".env"))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error writing environment file")
 	}
 
-	err = os.WriteFile(pathToEnv, envF, 0755)
+	bts, err := composeAssembler.Marshal()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error marshalling composer file")
+	}
+	err = rewrite(replaceProjectName(bts, pName), path.Join(wd, EnvDir, pName, dockerComposeFile))
+	if err != nil {
+		return errors.Wrap(err, "error writing environment file")
 	}
 
 	return nil
-}
-
-func addCompose() {
-
 }
 
 func combineEnvFiles(wd string, envs []string) (string, error) {

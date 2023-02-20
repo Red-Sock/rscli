@@ -1,6 +1,7 @@
 package scripts
 
 import (
+	"bytes"
 	"github.com/pkg/errors"
 	"os"
 	"path"
@@ -108,4 +109,24 @@ func getPortsFromEnv(wd string, envs []string) (map[int]string, error) {
 	}
 
 	return nil, err
+}
+
+func replaceProjectName(src []byte, newName string) []byte {
+	b := make([]byte, len(src))
+	copy(b, src)
+	b = bytes.ReplaceAll(b, []byte(projNameCapsPattern), []byte(strings.ToUpper(newName)))
+	b = bytes.ReplaceAll(b, []byte(projNamePattern), []byte(strings.ToLower(newName)))
+	return b
+}
+
+func rewrite(content []byte, pth string) (err error) {
+	err = os.RemoveAll(pth)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(pth, content, 0755)
+	if err != nil {
+		return err
+	}
+	return nil
 }

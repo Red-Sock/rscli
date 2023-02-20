@@ -16,6 +16,7 @@ const (
 	EnvFile             = ".env"
 	envExampleFile      = ".env.example"
 	composeExampleFile  = "docker-compose.yaml.example"
+	dockerComposeFile   = "docker-compose.yaml"
 	makefileExampleFile = "Makefile"
 )
 
