@@ -1,8 +1,9 @@
-package manager
+package scripts
 
 import "C"
 import (
 	"fmt"
+	manager "github.com/Red-Sock/rscli/plugins/config"
 	"os"
 	"path"
 	"sort"
@@ -13,7 +14,6 @@ import (
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli/pkg/service/help"
 	config "github.com/Red-Sock/rscli/plugins/config/processor"
-	"github.com/Red-Sock/rscli/plugins/config/ui/manager"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
 )
 
@@ -35,7 +35,7 @@ func (c *createArgs) configDiag() uikit.UIElement {
 	return radioselect.New(
 		c.callbackForConfigSelect,
 		radioselect.Header(help.Header+"Want to create config or use existing?"),
-		radioselect.Items(yes, useExistingConfig),
+		radioselect.Items(createConfig, useExistingConfig),
 	)
 }
 func (c *createArgs) callbackForConfigSelect(resp string) uikit.UIElement {
@@ -46,7 +46,7 @@ func (c *createArgs) callbackForConfigSelect(resp string) uikit.UIElement {
 	)
 
 	switch resp {
-	case yes:
+	case createConfig:
 		dir, _ := os.Getwd()
 
 		var err error
@@ -58,6 +58,7 @@ func (c *createArgs) callbackForConfigSelect(resp string) uikit.UIElement {
 		return manager.Run(confirmCreation)
 	case useExistingConfig:
 		return c.handleExistingConfig()
+
 	default:
 		return confirmCreation
 	}
@@ -72,7 +73,7 @@ func (c *createArgs) handleExistingConfig() uikit.UIElement {
 				return radioselect.New(
 					c.callbackForConfigSelect,
 					radioselect.Header(help.Header+fmt.Sprintf("Want to create config or use existing?")),
-					radioselect.Items(yes, noo, useExistingConfig),
+					radioselect.Items(createConfig, useExistingConfig),
 				)
 			}))
 	}
@@ -85,7 +86,7 @@ func (c *createArgs) handleExistingConfig() uikit.UIElement {
 				return radioselect.New(
 					c.callbackForConfigSelect,
 					radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", c.p.Name)),
-					radioselect.Items(yes, noo, useExistingConfig),
+					radioselect.Items(createConfig, useExistingConfig),
 				)
 			}))
 	}
@@ -121,7 +122,7 @@ func (c *createArgs) callbackExistingConfig(answ string) uikit.UIElement {
 		return radioselect.New(
 			c.callbackForConfigSelect,
 			radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", c.p.Name)),
-			radioselect.Items(yes, noo, useExistingConfig),
+			radioselect.Items(createConfig, useExistingConfig),
 		)
 	}
 	var err error
@@ -154,6 +155,7 @@ func (c *createArgs) confirmCreateProjectCallback(resp string) uikit.UIElement {
 
 const (
 	useExistingConfig = "use existing config"
+	createConfig      = "create new config"
 	yes               = "yes"
 	noo               = "no"
 	yamlExtension     = ".yaml"

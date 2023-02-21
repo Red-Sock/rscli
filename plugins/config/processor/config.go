@@ -53,17 +53,16 @@ func (c *Config) GetPath() string {
 }
 
 func (c *Config) TryWrite() (err error) {
-
-	var f *os.File
-
 	dir, _ := path.Split(c.pth)
 
-	_ = os.Mkdir(dir, 0775)
+	_ = os.Mkdir(dir, os.ModePerm)
 
 	st, _ := os.Stat(c.pth)
 	if st != nil {
 		return os.ErrExist
 	}
+
+	var f *os.File
 	if f, err = os.Create(c.pth); err != nil {
 		return err
 	}
