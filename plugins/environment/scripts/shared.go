@@ -2,11 +2,12 @@ package scripts
 
 import (
 	"bytes"
-	"github.com/pkg/errors"
 	"os"
 	"path"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/Red-Sock/rscli/internal/config"
 )

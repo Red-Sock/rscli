@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	"financial-microservice/internal/config"
-	"financial-microservice/internal/transport"
 	//_transport_imports
 )
 
@@ -22,30 +21,25 @@ func main() {
 		log.Fatalf("error reading config %s", err.Error())
 	}
 
-	server := apiEntryPoint(ctx, cfg)
+	context.WithTimeout(ctx, cfg.GetDuration(config.AppInfoStartupDuration))
 
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	<-done
+	//server := apiEntryPoint(ctx, cfg)
 
-	err = server.Stop(ctx)
-	if err != nil {
-		log.Printf("error stopping web server %v", err.Error())
-	}
+	waitingForTheEnd()
+
+	//err = server.Stop(ctx)
+	//if err != nil {
+	//	log.Printf("error stopping web server %v", err.Error())
+	//}
 
 	log.Println("shutting down the app")
 }
 
-func apiEntryPoint(ctx context.Context, cfg *config.Config) transport.Server {
-	mngr := transport.NewManager()
-
-	//_initiation_of_servers
-
-	go func() {
-		err := mngr.Start(ctx)
-		if err != nil {
-			log.Fatalf("error starting server %s", err.Error())
-		}
-	}()
-	return mngr
+// rscli comment: an obligatory function for tool to work properly.
+// must be called in the main function above
+// also this is a LP song name reference, so no rules can be applied to the function name
+func waitingForTheEnd() {
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	<-done
 }

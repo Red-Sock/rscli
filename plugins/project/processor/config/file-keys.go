@@ -32,7 +32,7 @@ func KeysFromConfig(pathToConfig string) (map[string]string, error) {
 			if slices.Contains(initialisms, parts[i]) {
 				parts[i] = strings.ToUpper(parts[i])
 			} else {
-				parts[i] = strings.ToUpper(parts[i][:1]) + strings.ToLower(parts[i][1:])
+				parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
 			}
 		}
 		variables[strings.Join(parts, "")] = v[1:]

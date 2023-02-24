@@ -1,9 +1,8 @@
-package scripts
+package ui
 
 import "C"
 import (
 	"fmt"
-	manager "github.com/Red-Sock/rscli/plugins/config"
 	"os"
 	"path"
 	"sort"
@@ -13,6 +12,8 @@ import (
 	"github.com/Red-Sock/rscli-uikit/basic/label"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli/pkg/service/help"
+
+	manager "github.com/Red-Sock/rscli/plugins/config"
 	config "github.com/Red-Sock/rscli/plugins/config/processor"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
 )

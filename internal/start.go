@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"github.com/pkg/errors"
 	"os"
 	"os/signal"
 	"sort"
@@ -16,6 +17,8 @@ import (
 	envui "github.com/Red-Sock/rscli/plugins/environment"
 	projectui "github.com/Red-Sock/rscli/plugins/project"
 )
+
+var ErrUnknownCommand = errors.New("unknown command")
 
 var plugins = map[string]func(uikit.UIElement) uikit.UIElement{
 	cfgui.PluginName:     cfgui.Run,
@@ -35,9 +38,16 @@ func Run() error {
 		qE <- struct{}{}
 	}()
 
-	uikit.NewHandler(mainMenu()).Start(qE)
-
-	return nil
+	if len(os.Args) == 1 {
+		uikit.NewHandler(mainMenu()).Start(qE)
+		return nil
+	} else {
+		hand, ok := h.handles[os.Args[1]]
+		if !ok {
+			return errors.Wrapf(ErrUnknownCommand, "%s is not a defined command", os.Args[1])
+		}
+		return hand.Do(os.Args[2:])
+	}
 }
 
 func mainMenu() uikit.UIElement {

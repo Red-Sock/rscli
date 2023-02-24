@@ -5,7 +5,7 @@ import (
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli/pkg/service/help"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
-	"github.com/Red-Sock/rscli/plugins/project/scripts"
+	"github.com/Red-Sock/rscli/plugins/project/ui"
 )
 
 const PluginName = "project"
@@ -31,7 +31,7 @@ type projectMenu struct {
 func (pm *projectMenu) selectAction(resp string) uikit.UIElement {
 	switch resp {
 	case projCreate:
-		return scripts.StartCreateProj(pm.previous)
+		return ui.StartCreateProj(pm.previous)
 	}
 
 	return nil

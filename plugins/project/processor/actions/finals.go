@@ -3,17 +3,20 @@ package actions
 import (
 	"bytes"
 	"fmt"
-	config "github.com/Red-Sock/rscli/plugins/config/processor"
-	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"os"
 	"os/exec"
 	"path"
 
-	"github.com/Red-Sock/rscli/pkg/folder"
-
-	configpattern "github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 	"gopkg.in/yaml.v3"
+
+	"github.com/Red-Sock/rscli/pkg/cmd"
+	"github.com/Red-Sock/rscli/pkg/folder"
+	configpattern "github.com/Red-Sock/rscli/plugins/config/pkg/structs"
+	config "github.com/Red-Sock/rscli/plugins/config/processor"
+	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
+
+const goBin = "/bin/go"
 
 func InitGoMod(p interfaces.Project) error {
 	pth, ok := os.LookupEnv("GOROOT")
@@ -85,16 +88,20 @@ func FixupProject(p interfaces.Project) error {
 	wd, _ := os.Getwd()
 	wd = path.Join(wd, p.GetName())
 
-	cmd := exec.Command(pth+"/bin/go", "mod", "tidy")
-	cmd.Dir = wd
-	err := cmd.Run()
+	_, err := cmd.Execute(cmd.Request{
+		Tool:    pth + goBin,
+		Args:    []string{"mod", "tidy"},
+		WorkDir: wd,
+	})
 	if err != nil {
 		return err
 	}
 
-	cmd = exec.Command(pth+"/bin/go", "fmt", "./...")
-	cmd.Dir = wd
-	err = cmd.Run()
+	_, err = cmd.Execute(cmd.Request{
+		Tool:    pth + goBin,
+		Args:    []string{"fmt", "./..."},
+		WorkDir: wd,
+	})
 	if err != nil {
 		return err
 	}
