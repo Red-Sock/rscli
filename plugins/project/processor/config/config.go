@@ -1,7 +1,9 @@
 package config
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/Red-Sock/rscli/internal/utils/cases"
 	"os"
 	"strings"
 
@@ -96,7 +98,7 @@ func (c *Config) ExtractDataSources() (*folder.Folder, error) {
 	return out, nil
 }
 
-func (c *Config) ExtractServerOptions() (*folder.Folder, error) {
+func (c *Config) ExtractServerOptions() ([]*folder.Folder, error) {
 	serverOpts, ok := c.Values[config.ServerOptsKey]
 	if !ok {
 		return nil, nil
@@ -107,9 +109,7 @@ func (c *Config) ExtractServerOptions() (*folder.Folder, error) {
 	if !ok {
 		return nil, nil
 	}
-	out := &folder.Folder{
-		Name: "transport",
-	}
+	out := make([]*folder.Folder, 0, len(so))
 
 	for serverName := range so {
 		files := patterns.ServerOptsPatterns[consts.ServerOptsPrefix(strings.Split(serverName, "_")[0])]
@@ -125,13 +125,25 @@ func (c *Config) ExtractServerOptions() (*folder.Folder, error) {
 			Name: serverName,
 		}
 		for name, content := range files {
+			content = bytes.ReplaceAll(
+				content,
+				[]byte("package rest_realisation"),
+				[]byte("package "+serverName),
+			)
+
+			if name == patterns.ServerGoFile {
+				content = bytes.ReplaceAll(
+					content,
+					[]byte("config.ServerRestApiPort"),
+					[]byte("config.Server"+cases.SnakeToCamel(serverName+"_port")))
+			}
 			serverFolder.Inner = append(serverFolder.Inner, &folder.Folder{
 				Name:    name,
 				Content: content,
 			})
 		}
 
-		out.Inner = append(out.Inner, serverFolder)
+		out = append(out, serverFolder)
 	}
 	return out, nil
 }

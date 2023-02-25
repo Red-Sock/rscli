@@ -24,7 +24,7 @@ func (e *EmptyConfig) ExtractDataSources() (*folder.Folder, error) {
 	return nil, nil
 }
 
-func (e *EmptyConfig) ExtractServerOptions() (*folder.Folder, error) {
+func (e *EmptyConfig) ExtractServerOptions() ([]*folder.Folder, error) {
 	return nil, nil
 }
 

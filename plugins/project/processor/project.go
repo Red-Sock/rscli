@@ -43,7 +43,7 @@ func New(args CreateArgs) (*Project, error) {
 		Actions: append([]Action{
 			actions.PrepareProjectStructure,   // basic project structure
 			actions.PrepareConfigFolders,      // data sources and other things taken from config
-			actions.PrepareAPIFolders,         // prepare servers
+			actions.PrepareMainFile,           // prepare main
 			actions.PrepareExamplesFolders,    // sets up examples
 			actions.PrepareEnvironmentFolders, // prepares environment files
 

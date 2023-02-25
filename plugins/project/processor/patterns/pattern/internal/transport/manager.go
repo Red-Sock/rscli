@@ -11,19 +11,19 @@ type Server interface {
 	Stop(ctx context.Context) error
 }
 
-type Manager struct {
+type ServersManager struct {
 	serverPool []Server
 }
 
-func NewManager() *Manager {
-	return &Manager{}
+func NewManager() *ServersManager {
+	return &ServersManager{}
 }
 
-func (m *Manager) AddServer(server Server) {
+func (m *ServersManager) AddServer(server Server) {
 	m.serverPool = append(m.serverPool, server)
 }
 
-func (m *Manager) Start(ctx context.Context) error {
+func (m *ServersManager) Start(ctx context.Context) error {
 	var errs []error
 
 	for sID := range m.serverPool {
@@ -46,7 +46,7 @@ func (m *Manager) Start(ctx context.Context) error {
 	return finalError
 }
 
-func (m *Manager) Stop(ctx context.Context) error {
+func (m *ServersManager) Stop(ctx context.Context) error {
 	var errs []error
 
 	for sID := range m.serverPool {

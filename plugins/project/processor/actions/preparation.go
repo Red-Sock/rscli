@@ -2,8 +2,6 @@ package actions
 
 import (
 	"bytes"
-	"strings"
-
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
@@ -21,6 +19,7 @@ func PrepareProjectStructure(p interfaces.Project) error {
 			},
 		},
 	})
+
 	fldr := p.GetFolder()
 	fldr.Add(cmd)
 
@@ -53,50 +52,6 @@ func PrepareConfigFolders(p interfaces.Project) error {
 	}
 
 	p.GetFolder().AddWithPath([]string{"internal"}, configFolders...)
-	return nil
-}
-
-func PrepareAPIFolders(p interfaces.Project) error {
-	cfg := p.GetConfig()
-
-	serverFolders, err := cfg.ExtractServerOptions()
-	if err != nil {
-		return err
-	}
-
-	if serverFolders == nil {
-		return nil
-	}
-
-	projMainFile := p.GetFolder().GetByPath("cmd", p.GetName(), "main.go")
-
-	importReplace := make([]string, 0, len(serverFolders.Inner))
-	serversInit := make([]string, 0, len(serverFolders.Inner))
-
-	for _, serv := range serverFolders.Inner {
-		importReplace = append(importReplace, serv.Name+" \""+p.GetName()+"/internal/transport/"+serv.Name+"\"")
-		serversInit = append(serversInit, "mngr.AddServer("+serv.Name+".NewServer(cfg))")
-	}
-
-	projMainFile.Content = bytes.ReplaceAll(
-		projMainFile.Content,
-		[]byte("//_transport_imports"),
-		[]byte(strings.Join(importReplace, "\n\t")))
-
-	projMainFile.Content = bytes.ReplaceAll(
-		projMainFile.Content,
-		[]byte("//_initiation_of_servers"),
-		[]byte(strings.Join(serversInit, "\n\t")))
-
-	serverFolders.Inner = append(serverFolders.Inner, &folder.Folder{
-		Name:    "manager.go",
-		Content: patterns.ServerManagerPattern,
-	})
-
-	if serverFolders != nil {
-		p.GetFolder().AddWithPath([]string{"internal"}, serverFolders)
-	}
-
 	return nil
 }
 

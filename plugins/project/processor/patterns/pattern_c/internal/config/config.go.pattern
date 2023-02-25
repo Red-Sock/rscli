@@ -95,8 +95,19 @@ func (c Config) TryGetInt(key configKey) (int, error) {
 	return out, nil
 }
 
-func (c Config) GetDuration(key configKey) (out time.Duration) {
-	return c[key].(time.Duration)
+func (c Config) GetDuration(key configKey) (out time.Duration, err error) {
+	v, ok := c[key]
+	if !ok {
+		return 0, ErrNotFound
+	}
+
+	r, ok := c[key].(string)
+	if !ok {
+		return 0, errors.Wrapf(ErrCannotParse, "%v of type %T to string", v, v)
+	}
+
+	return time.ParseDuration(r)
+
 }
 
 func extractVariables(prefix string, in map[string]interface{}) (out map[configKey]any) {

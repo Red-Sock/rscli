@@ -18,5 +18,5 @@ type Config interface {
 
 	ExtractName() (string, error)
 	ExtractDataSources() (*folder.Folder, error)
-	ExtractServerOptions() (*folder.Folder, error)
+	ExtractServerOptions() ([]*folder.Folder, error)
 }

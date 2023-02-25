@@ -21,17 +21,20 @@ func main() {
 		log.Fatalf("error reading config %s", err.Error())
 	}
 
-	context.WithTimeout(ctx, cfg.GetDuration(config.AppInfoStartupDuration))
+	startupDuration, err := cfg.GetDuration(config.AppInfoStartupDuration)
+	if err != nil {
+		log.Fatalf("error extracting startup duration %s", err)
+	}
+	context.WithTimeout(ctx, startupDuration)
 
-	//server := apiEntryPoint(ctx, cfg)
+	stopFunc := apiEntryPoint(ctx, cfg)
 
 	waitingForTheEnd()
 
-	//err = server.Stop(ctx)
-	//if err != nil {
-	//	log.Printf("error stopping web server %v", err.Error())
-	//}
-
+	err = stopFunc(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Println("shutting down the app")
 }
 

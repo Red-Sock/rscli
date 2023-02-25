@@ -8,11 +8,16 @@ import (
 var DatasourceClients = map[consts.DataSourcePrefix][]byte{}
 var ServerOptsPatterns = map[consts.ServerOptsPrefix]map[string][]byte{}
 
+const (
+	ServerGoFile  = "server.go"
+	versionGoFile = "version.go"
+)
+
 func init() {
 	DatasourceClients[consts.RedisDataSourcePrefix] = RedisConn
 	DatasourceClients[consts.PostgresDataSourcePrefix] = PgConn
 
-	ServerOptsPatterns[consts.RESTServerPrefix] = map[string][]byte{"server.go": RestServ, "version.go": RestServVersion}
+	ServerOptsPatterns[consts.RESTServerPrefix] = map[string][]byte{ServerGoFile: RestServ, versionGoFile: RestServVersion}
 	// TODO
 	ServerOptsPatterns[consts.GRPCServerPrefix] = map[string][]byte{}
 }
@@ -21,6 +26,8 @@ func init() {
 var (
 	//go:embed pattern_c/cmd/financial-microservice/main.go.pattern
 	MainFile []byte
+	//go:embed pattern_c/cmd/financial-microservice/api.go.pattern
+	APISetupFile []byte
 )
 
 // DataStorage connection files
