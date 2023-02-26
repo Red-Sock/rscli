@@ -17,7 +17,9 @@ const (
 	waitingForTheEndFunc = "waitingForTheEnd"
 	// with \n to be sure if correct import
 	// and not a commentary will be recognized as a start point of import
-	importWord = "\nimport"
+	importWord          = "\nimport"
+	goFuncWord          = "go func() {\n"
+	transportNewManager = "transport.NewManager()"
 )
 
 const (
@@ -103,9 +105,23 @@ func tidyMainForAPI(httpFile *folder.Folder, projMainFile *folder.Folder) *folde
 }
 
 func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder, httpFile *folder.Folder) {
+	var apisBytes []byte
+	{
+		goFuncWordBytes := []byte(goFuncWord)
+		startIdx := bytes.Index(httpFile.Content, []byte(transportNewManager)) + len(transportNewManager) + 2
+
+		endIdx := bytes.Index(httpFile.Content, goFuncWordBytes)
+
+		apisBytes = httpFile.Content[startIdx:endIdx]
+
+	}
+
 	var newAPIInsert []byte
 	var newAPIImportInsert []byte
 	for _, serv := range serverFolders {
+		if bytes.Contains(apisBytes, []byte(serv.Name)) {
+			continue
+		}
 		newAPIImportInsert = append(newAPIImportInsert, []byte("\n\t"+serv.Name+" \""+p.GetName()+"/internal/transport/"+serv.Name+"\"\n")...)
 		newAPIInsert = append(newAPIInsert, []byte("mngr.AddServer("+serv.Name+".NewServer(cfg))\n\t")...)
 	}
@@ -117,9 +133,17 @@ func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder, httpFile 
 			importEndIdx = importStartIdx + bytes.Index(httpFile.Content[importStartIdx:], []byte(")"))
 		}
 
-		httpFile.Content = slices.InsertSlice(httpFile.Content, newAPIImportInsert, importEndIdx)
+		httpFile.Content = slices.InsertSlice(
+			httpFile.Content,
+			newAPIImportInsert,
+			importEndIdx,
+		)
 
-		httpFile.Content = slices.InsertSlice(httpFile.Content, newAPIInsert, bytes.Index(httpFile.Content, []byte("go func() {\n")))
+		httpFile.Content = slices.InsertSlice(
+			httpFile.Content,
+			newAPIInsert,
+			bytes.Index(httpFile.Content, []byte(goFuncWord)),
+		)
 	}
 
 	apiMgr := p.GetFolder().GetByPath(internalFolder, apiManagerFileName)
