@@ -1,4 +1,4 @@
-package actions
+package tidy
 
 import (
 	"bytes"
@@ -22,26 +22,15 @@ const (
 	transportNewManager = "transport.NewManager()"
 )
 
-const (
-	cmdFolder              = "cmd"
-	mainFileName           = "main.go"
-	apiConstructorFileName = "http.go"
-
-	internalFolder     = "internal"
-	transportFolder    = "transport"
-	apiManagerFileName = "manager.go"
-)
-
-func PrepareMainFile(p interfaces.Project) error {
+func Api(p interfaces.Project) error {
 	cfg := p.GetConfig()
 
-	projectStartupFolder := p.GetFolder().GetByPath(cmdFolder, p.GetName())
-	projMainFile := projectStartupFolder.GetByPath(mainFileName)
+	projMainFile := p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName(), patterns.MainFileName)
 	if projMainFile == nil {
 		return ErrNoMainFile
 	}
 
-	err := tidyAPI(p, cfg, projMainFile, projectStartupFolder)
+	err := tidyAPI(p, cfg, projMainFile)
 	if err != nil {
 		return errors.Wrap(err, "error tiding API")
 	}
@@ -49,7 +38,7 @@ func PrepareMainFile(p interfaces.Project) error {
 	return nil
 }
 
-func tidyAPI(p interfaces.Project, cfg interfaces.Config, projMainFile, projectStartupFolder *folder.Folder) error {
+func tidyAPI(p interfaces.Project, cfg interfaces.Config, projMainFile *folder.Folder) error {
 	serverFolders, err := cfg.ExtractServerOptions()
 	if err != nil {
 		return err
@@ -59,23 +48,21 @@ func tidyAPI(p interfaces.Project, cfg interfaces.Config, projMainFile, projectS
 		return nil
 	}
 
-	httpFile := p.GetFolder().GetByPath(cmdFolder, p.GetName(), apiConstructorFileName)
-
-	httpFile = tidyMainForAPI(httpFile, projMainFile)
-	projectStartupFolder.Add(httpFile)
+	httpFile := insertApiSetupIfNotExists(p, projMainFile)
 
 	tidyAPIFile(p, serverFolders, httpFile)
 
 	return nil
 }
-
-func tidyMainForAPI(httpFile *folder.Folder, projMainFile *folder.Folder) *folder.Folder {
+func insertApiSetupIfNotExists(p interfaces.Project, projMainFile *folder.Folder) *folder.Folder {
+	httpFile := p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName(), patterns.ApiConstructorFileName)
 
 	if httpFile == nil {
 		httpFile = &folder.Folder{
-			Name:    apiConstructorFileName,
+			Name:    patterns.ApiConstructorFileName,
 			Content: patterns.APISetupFile,
 		}
+		p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName()).Add(httpFile)
 	}
 
 	const (
@@ -89,21 +76,21 @@ func tidyMainForAPI(httpFile *folder.Folder, projMainFile *folder.Folder) *folde
 	if bytes.Index(projMainFile.Content, []byte(apiEntryPointCall)) == -1 {
 		insertBeforeEnd = append(insertBeforeEnd, []byte(apiEntryPointCall)...)
 	}
-	if bytes.Index(projMainFile.Content, []byte(apiEntryPointStop)) == -1 {
-		insertAfterEnd = append(insertAfterEnd, []byte(apiEntryPointStop)...)
-	}
-
 	endFuncIdx := bytes.Index(projMainFile.Content, []byte(waitingForTheEndFunc))
 	if len(insertBeforeEnd) != 0 {
 		projMainFile.Content = slices.InsertSlice(projMainFile.Content, insertBeforeEnd, endFuncIdx)
+		endFuncIdx += len(insertBeforeEnd) + len(waitingForTheEndFunc) + 1
+	}
+
+	if bytes.Index(projMainFile.Content, []byte(apiEntryPointStop)) == -1 {
+		insertAfterEnd = append(insertAfterEnd, []byte(apiEntryPointStop)...)
 	}
 	if len(insertAfterEnd) != 0 {
-		projMainFile.Content = slices.InsertSlice(projMainFile.Content, insertAfterEnd, endFuncIdx+len(insertBeforeEnd)+len(waitingForTheEndFunc)+1)
+		projMainFile.Content = slices.InsertSlice(projMainFile.Content, insertAfterEnd, endFuncIdx)
 	}
 
 	return httpFile
 }
-
 func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder, httpFile *folder.Folder) {
 	var apisBytes []byte
 	{
@@ -113,7 +100,6 @@ func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder, httpFile 
 		endIdx := bytes.Index(httpFile.Content, goFuncWordBytes)
 
 		apisBytes = httpFile.Content[startIdx:endIdx]
-
 	}
 
 	var newAPIInsert []byte
@@ -146,13 +132,13 @@ func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder, httpFile 
 		)
 	}
 
-	apiMgr := p.GetFolder().GetByPath(internalFolder, apiManagerFileName)
+	apiMgr := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.TransportFolder, patterns.ApiManagerFileName)
 	if apiMgr == nil {
 		serverFolders = append(serverFolders, &folder.Folder{
-			Name:    apiManagerFileName,
+			Name:    patterns.ApiManagerFileName,
 			Content: patterns.ServerManagerPattern,
 		})
 	}
 
-	p.GetFolder().AddWithPath([]string{internalFolder, transportFolder}, serverFolders...)
+	p.GetFolder().AddWithPath([]string{patterns.InternalFolder, patterns.TransportFolder}, serverFolders...)
 }

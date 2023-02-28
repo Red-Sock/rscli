@@ -3,11 +3,12 @@ package actions
 import (
 	"bytes"
 	"fmt"
+	"github.com/Red-Sock/rscli/plugins/project/processor/actions/tidy"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 	"os"
 	"os/exec"
 	"path"
-
-	"gopkg.in/yaml.v3"
 
 	"github.com/Red-Sock/rscli/pkg/cmd"
 	"github.com/Red-Sock/rscli/pkg/folder"
@@ -24,13 +25,34 @@ func InitGoMod(p interfaces.Project) error {
 		return fmt.Errorf("no go installed!\nhttps://golangr.com/install/")
 	}
 
-	cmd := exec.Command(pth+"/bin/go", "mod", "init", p.GetName())
-	wd, _ := os.Getwd()
-	cmd.Dir = path.Join(wd, p.GetName())
-	err := cmd.Run()
+	command := exec.Command(pth+"/bin/go", "mod", "init", p.GetName())
+
+	command.Dir = p.GetProjectPath()
+	err := command.Run()
 	if err != nil {
 		return err
 	}
+
+	goMod, err := os.OpenFile(path.Join(p.GetProjectPath(), "go.mod"), os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err2 := goMod.Close()
+		if err2 != nil {
+			if err != nil {
+				err = errors.Wrap(err, "error on closing"+err2.Error())
+			} else {
+				err = err2
+			}
+		}
+	}()
+
+	_, err = goMod.Write([]byte("\n// built via rscli v0.0.0"))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -107,6 +129,22 @@ func FixupProject(p interfaces.Project) error {
 	}
 
 	return nil
+}
+
+func Tidy(p interfaces.Project) error {
+	err := tidy.Api(p)
+	if err != nil {
+		return err
+	}
+
+	ReplaceProjectName(p.GetName(), p.GetFolder())
+
+	err = BuildConfigGoFolder(p)
+	if err != nil {
+		return err
+	}
+
+	return p.GetFolder().Build(path.Dir(p.GetProjectPath()))
 }
 
 // helping functions

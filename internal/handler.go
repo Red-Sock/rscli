@@ -1,7 +1,8 @@
 package internal
 
 import (
-	"github.com/Red-Sock/rscli/internal/handlers/create"
+	"github.com/Red-Sock/rscli/internal/handlers/env"
+	"github.com/Red-Sock/rscli/internal/handlers/project"
 )
 
 type Handle interface {
@@ -10,7 +11,8 @@ type Handle interface {
 
 var h = handler{
 	handles: map[string]Handle{
-		create.Command: create.NewHandler(),
+		env.Command:     env.NewHandler(),
+		project.Command: project.NewHandler(),
 	},
 }
 

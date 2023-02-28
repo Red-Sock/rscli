@@ -1,13 +1,15 @@
-package create
+package project
 
 import (
+	"path"
+
 	"github.com/pkg/errors"
 
 	"github.com/Red-Sock/rscli/pkg/flag"
 	projsctripts "github.com/Red-Sock/rscli/plugins/project/processor"
 )
 
-var ErrProjectNoName = errors.New("I can't create project without name\nAlso, I like when project has git prefix.\nFor example github.com/Red-Sock/rscli whould be a great name,\nbut it is occupied :(\nTry --name or -n next time \nand use \"rscli create proj help\" for more info")
+var ErrProjectNoNameOrConfig = errors.New("I can't create project without name\nAlso, I like when project has git prefix.\nFor example github.com/Red-Sock/rscli whould be a great name,\nbut it is occupied :(\nTry --name or -n next time \nand use \"rscli create proj help\" for more info\n or provide a config via -c" + path.Join("path", "to", "config"))
 
 const (
 	projectHelpMsg = `
@@ -17,6 +19,8 @@ const (
 
 `
 )
+
+const help = "help"
 
 const (
 	projectFlagName      = "name"
@@ -44,9 +48,6 @@ func createProject(args []string) (err error) {
 		if err != nil {
 			return err
 		}
-		if pArgs.Name == "" {
-			return ErrProjectNoName
-		}
 	}
 
 	{
@@ -63,7 +64,11 @@ func createProject(args []string) (err error) {
 		}
 	}
 
-	p, err := projsctripts.New(pArgs)
+	if pArgs.CfgPath == "" && pArgs.Name == "" {
+		return ErrProjectNoNameOrConfig
+	}
+
+	p, err := projsctripts.CreateProject(pArgs)
 	if err != nil {
 		return errors.Wrapf(err, "error creating project")
 	}

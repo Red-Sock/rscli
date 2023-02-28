@@ -10,7 +10,7 @@ import (
 
 const PluginName = "project"
 
-func Run(prev uikit.UIElement) uikit.UIElement {
+func RunCreateProject(prev uikit.UIElement) uikit.UIElement {
 	pm := projectMenu{
 		previous: prev,
 	}

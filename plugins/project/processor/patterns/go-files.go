@@ -22,6 +22,21 @@ func init() {
 	ServerOptsPatterns[consts.GRPCServerPrefix] = map[string][]byte{}
 }
 
+const ()
+
+const (
+	CmdFolder    = "cmd"
+	MainFileName = "main.go"
+
+	ApiConstructorFileName = "http.go"
+
+	InternalFolder     = "internal"
+	TransportFolder    = "transport"
+	ApiManagerFileName = "manager.go"
+
+	ConfigsFolder = "config"
+)
+
 // Basic files
 var (
 	//go:embed pattern_c/cmd/financial-microservice/main.go.pattern

@@ -22,8 +22,8 @@ type Config struct {
 	} `yaml:"env"`
 }
 
-func ReadConfig() (*Config, error) {
-	flags := flag.ParseArgs(os.Args[1:])
+func ReadConfig(args []string) (*Config, error) {
+	flags := flag.ParseArgs(args)
 
 	cfgFile, err := flag.ExtractOneValueFromFlags(flags, customPathToConfig)
 	if err != nil {

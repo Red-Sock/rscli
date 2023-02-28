@@ -141,7 +141,7 @@ func (c *createArgs) callbackExistingConfig(answ string) uikit.UIElement {
 
 func (c *createArgs) confirmCreateProjectCallback(resp string) uikit.UIElement {
 	if resp == yes {
-		proj, err := processor.New(c.p)
+		proj, err := processor.CreateProject(c.p)
 		if err != nil {
 			return label.New(err.Error())
 		}

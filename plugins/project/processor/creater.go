@@ -37,21 +37,21 @@ type CreateArgs struct {
 	Actions     []Action
 }
 
-func New(args CreateArgs) (*Project, error) {
+func CreateProject(args CreateArgs) (*Project, error) {
 	proj := &Project{
 		Name: args.Name,
 		Actions: append([]Action{
 			actions.PrepareProjectStructure,   // basic project structure
 			actions.PrepareConfigFolders,      // data sources and other things taken from config
-			actions.PrepareMainFile,           // prepare main
 			actions.PrepareExamplesFolders,    // sets up examples
 			actions.PrepareEnvironmentFolders, // prepares environment files
 
 			actions.BuildConfigGoFolder, // config driver
 			actions.BuildProject,        // build project in file system
 
-			actions.InitGoMod,    // executes go mod
-			actions.MoveCfg,      // moves external used config into project
+			actions.InitGoMod, // executes go mod
+			actions.MoveCfg,   // moves external used config into project
+			actions.Tidy,
 			actions.FixupProject, // fetches dependencies and formats go code
 		}, args.Actions...),
 		validators: append(args.Validators, validators.ValidateName),
@@ -66,27 +66,28 @@ func New(args CreateArgs) (*Project, error) {
 		proj.Cfg = config.NewEmptyProjectConfig()
 	}
 
+	if args.Name == "" {
+		proj.Name, err = proj.Cfg.ExtractName()
+		if err != nil {
+			return nil, err
+		}
+		args.Name = proj.Name
+	}
+
 	if args.ProjectPath == "" {
 		var wd string
 		wd, err = os.Getwd()
 		if err != nil {
 			return proj, errors.Wrapf(err, "error obtaining working dir")
 		}
-		args.ProjectPath = path.Join(wd, args.Name)
-	}
-
-	if args.Name == "" {
-		proj.Name, err = proj.Cfg.ExtractName()
-		if err != nil {
-			return nil, err
-		}
+		args.ProjectPath = path.Join(wd, proj.Name)
 	}
 
 	proj.F = folder.Folder{
 		Name: proj.Name,
 	}
 
-	proj.ProjectPath = path.Join(args.ProjectPath, proj.Name)
+	proj.ProjectPath = args.ProjectPath
 
 	return proj, nil
 }

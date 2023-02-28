@@ -37,7 +37,7 @@ var composeFile []byte
 var makefile []byte
 
 func RunCreate() error {
-	cfg, err := config.ReadConfig()
+	cfg, err := config.ReadConfig(os.Args[1:])
 	if err != nil {
 		return err
 	}
