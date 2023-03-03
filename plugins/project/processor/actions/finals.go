@@ -20,12 +20,8 @@ import (
 const goBin = "go"
 
 func InitGoMod(p interfaces.Project) error {
-	pth, ok := os.LookupEnv("GOROOT")
-	if !ok {
-		return fmt.Errorf("go is not installed!\nhttps://golangr.com/install/")
-	}
 
-	command := exec.Command(pth+"/bin/go", "mod", "init", p.GetName())
+	command := exec.Command(goBin, "mod", "init", p.GetName())
 
 	command.Dir = p.GetProjectPath()
 	err := command.Run()
