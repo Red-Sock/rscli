@@ -3,6 +3,7 @@ package tidy
 import (
 	"bytes"
 	"github.com/Red-Sock/rscli/internal/utils/slices"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -92,6 +93,21 @@ func insertApiSetupIfNotExists(p interfaces.Project, projMainFile *folder.Folder
 	return httpFile
 }
 func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder, httpFile *folder.Folder) {
+	insertMissingAPI(p, serverFolders, httpFile)
+	removeExtraAPI(serverFolders, httpFile)
+
+	apiMgr := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.TransportFolder, patterns.ApiManagerFileName)
+	if apiMgr == nil {
+		serverFolders = append(serverFolders, &folder.Folder{
+			Name:    patterns.ApiManagerFileName,
+			Content: patterns.ServerManagerPattern,
+		})
+	}
+
+	p.GetFolder().AddWithPath([]string{patterns.InternalFolder, patterns.TransportFolder}, serverFolders...)
+}
+
+func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, httpFile *folder.Folder) {
 	var apisBytes []byte
 	{
 		goFuncWordBytes := []byte(goFuncWord)
@@ -131,14 +147,57 @@ func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder, httpFile 
 			bytes.Index(httpFile.Content, []byte(goFuncWord)),
 		)
 	}
+}
+func removeExtraAPI(serverFolders []*folder.Folder, httpFile *folder.Folder) {
+	var aliasesInFile []string
+	{
+		goFuncWordBytes := []byte(goFuncWord)
+		startIdx := bytes.Index(httpFile.Content, []byte(transportNewManager)) + len(transportNewManager) + 2
 
-	apiMgr := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.TransportFolder, patterns.ApiManagerFileName)
-	if apiMgr == nil {
-		serverFolders = append(serverFolders, &folder.Folder{
-			Name:    patterns.ApiManagerFileName,
-			Content: patterns.ServerManagerPattern,
-		})
+		endIdx := bytes.Index(httpFile.Content, goFuncWordBytes)
+
+		splitedNames := strings.Split(string(httpFile.Content[startIdx:endIdx]), "\n")
+
+		replacer := strings.NewReplacer(
+			"\n", "",
+			"\t", "",
+		)
+
+		for _, item := range splitedNames {
+			item = replacer.Replace(item)
+			if item != "" {
+				aliasesInFile = append(aliasesInFile, item)
+			}
+		}
 	}
 
-	p.GetFolder().AddWithPath([]string{patterns.InternalFolder, patterns.TransportFolder}, serverFolders...)
+	aliasesFromConfig := make([]string, len(serverFolders))
+	{
+		for idx, serv := range serverFolders {
+			aliasesFromConfig[idx] = serv.Name
+		}
+	}
+
+	for _, aliasInFile := range aliasesInFile {
+
+		aliasExistsInConfig := false
+		for _, aliasFromConfig := range aliasesFromConfig {
+			if strings.Contains(aliasInFile, aliasFromConfig) {
+				aliasExistsInConfig = true
+				break
+			}
+		}
+
+		if !aliasExistsInConfig {
+			abbB := []byte(aliasInFile)
+			idx := bytes.Index(httpFile.Content, abbB)
+			for idx != -1 {
+				startIdx := bytes.LastIndexByte(httpFile.Content[:idx], '\n') + 1
+				endIdx := idx + bytes.IndexByte(httpFile.Content[idx:], '\n') + 1
+				httpFile.Content = slices.RemovePart(httpFile.Content, startIdx, endIdx)
+
+				idx = bytes.Index(httpFile.Content, abbB)
+			}
+		}
+	}
 }

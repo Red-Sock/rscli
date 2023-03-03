@@ -98,9 +98,11 @@ func (f *Folder) Build(root string) error {
 			return err
 		}
 
-		err = os.WriteFile(pth, f.Content, 0755)
-		if err != nil {
-			return err
+		if len(f.Content) != 0 && !(len(f.Content) == 1 && f.Content[0] != 0) {
+			err = os.WriteFile(pth, f.Content, 0755)
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
