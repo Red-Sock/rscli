@@ -2,6 +2,7 @@ package actions
 
 import (
 	"bytes"
+	"encoding/json"
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
@@ -43,7 +44,7 @@ func PrepareConfigFolders(p interfaces.Project) error {
 
 	configFolders := make([]*folder.Folder, 0, 1)
 
-	dsFolders, err := cfg.ExtractDataSources()
+	dsFolders, err := cfg.GetDataSourceFolders()
 	if err != nil {
 		return err
 	}
@@ -56,6 +57,35 @@ func PrepareConfigFolders(p interfaces.Project) error {
 }
 
 func PrepareExamplesFolders(p interfaces.Project) error {
+
+	if p.GetFolder().GetByPath("examples", "http-client.env.json") != nil {
+		return nil
+	}
+
+	type envs struct {
+		Dev       map[string]string `json:"dev"`
+		DevDocker map[string]string `json:"dev-docker"`
+	}
+	var e = envs{
+		Dev:       map[string]string{},
+		DevDocker: map[string]string{},
+	}
+
+	servers, err := p.GetConfig().GetServerOptions()
+	if err != nil {
+		return err
+	}
+
+	for _, item := range servers {
+		e.Dev[item.Name] = "0.0.0.0:" + item.Port
+		e.DevDocker[item.Name] = "0.0.0.0:1" + item.Port
+	}
+
+	eB, err := json.Marshal(e)
+	if err != nil {
+		return err
+	}
+
 	p.GetFolder().Add(&folder.Folder{
 		Name: "examples",
 		Inner: []*folder.Folder{
@@ -65,7 +95,7 @@ func PrepareExamplesFolders(p interfaces.Project) error {
 			},
 			{
 				Name:    "http-client.env.json",
-				Content: patterns.HttpEnvironment,
+				Content: eB,
 			},
 		},
 	})

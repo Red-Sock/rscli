@@ -40,7 +40,7 @@ func Api(p interfaces.Project) error {
 }
 
 func tidyAPI(p interfaces.Project, cfg interfaces.Config, projMainFile *folder.Folder) error {
-	serverFolders, err := cfg.ExtractServerOptions()
+	serverFolders, err := cfg.GetServerFolders()
 	if err != nil {
 		return err
 	}
