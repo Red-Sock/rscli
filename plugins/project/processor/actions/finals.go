@@ -17,12 +17,12 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
 
-const goBin = "/bin/go"
+const goBin = "go"
 
 func InitGoMod(p interfaces.Project) error {
 	pth, ok := os.LookupEnv("GOROOT")
 	if !ok {
-		return fmt.Errorf("no go installed!\nhttps://golangr.com/install/")
+		return fmt.Errorf("go is not installed!\nhttps://golangr.com/install/")
 	}
 
 	command := exec.Command(pth+"/bin/go", "mod", "init", p.GetName())
@@ -102,16 +102,12 @@ func MoveCfg(p interfaces.Project) error {
 }
 
 func FixupProject(p interfaces.Project) error {
-	pth, ok := os.LookupEnv("GOROOT")
-	if !ok {
-		return fmt.Errorf("no go installed!\nhttps://golangr.com/install/")
-	}
 
 	wd, _ := os.Getwd()
 	wd = path.Join(wd, p.GetName())
 
 	_, err := cmd.Execute(cmd.Request{
-		Tool:    pth + goBin,
+		Tool:    goBin,
 		Args:    []string{"mod", "tidy"},
 		WorkDir: wd,
 	})
@@ -120,7 +116,7 @@ func FixupProject(p interfaces.Project) error {
 	}
 
 	_, err = cmd.Execute(cmd.Request{
-		Tool:    pth + goBin,
+		Tool:    goBin,
 		Args:    []string{"fmt", "./..."},
 		WorkDir: wd,
 	})
