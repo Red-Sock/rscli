@@ -161,11 +161,13 @@ func removeExtraAPI(serverFolders []*folder.Folder, httpFile *folder.Folder) {
 		replacer := strings.NewReplacer(
 			"\n", "",
 			"\t", "",
+			"mngr.AddServer(", "",
 		)
 
 		for _, item := range splitedNames {
 			item = replacer.Replace(item)
 			if item != "" {
+				item = item[:strings.Index(item, ".NewServer(")]
 				aliasesInFile = append(aliasesInFile, item)
 			}
 		}
@@ -182,7 +184,7 @@ func removeExtraAPI(serverFolders []*folder.Folder, httpFile *folder.Folder) {
 
 		aliasExistsInConfig := false
 		for _, aliasFromConfig := range aliasesFromConfig {
-			if strings.Contains(aliasInFile, aliasFromConfig) {
+			if aliasInFile == aliasFromConfig {
 				aliasExistsInConfig = true
 				break
 			}
@@ -193,7 +195,7 @@ func removeExtraAPI(serverFolders []*folder.Folder, httpFile *folder.Folder) {
 			idx := bytes.Index(httpFile.Content, abbB)
 			for idx != -1 {
 				startIdx := bytes.LastIndexByte(httpFile.Content[:idx], '\n') + 1
-				endIdx := idx + bytes.IndexByte(httpFile.Content[idx:], '\n') + 1
+				endIdx := idx + bytes.IndexByte(httpFile.Content[idx:], '\n')
 				httpFile.Content = slices.RemovePart(httpFile.Content, startIdx, endIdx)
 
 				idx = bytes.Index(httpFile.Content, abbB)
