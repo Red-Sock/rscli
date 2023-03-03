@@ -1,42 +1,39 @@
 # RS CLI
-CLI tool
+CLI tool to handle golang projects
 
-## Configuration
+Allows you to create and manage a Golang project
 
-## Project 
+## Installing
+go install github.com/Red-Sock/rscli@latest
 
-### Project layout
+## Already supported features
 
-1. `/config`
+- Project build
+- Separated configuration build
+- Environment setup
 
-    Holds all configuration files to application:
-   1. local-config.yml - for local testing. Excluded by .gitignore
-   2. config.yml - main file. Default config for app  
-   3. config.yml.example - example to recreate local config
+### Project and configuration build
+can be used to create and configure an application - basically a boilerplate to a fast start
 
-2. `/cmd`
+### Environment setup - in development
+Something quite interesting...
 
-    Holds folders with main files
-    e.g:
-   1. `/cmd/cron/main.go` - some cron job app
-   2. `/cmd/api/grpc/main.go` - some grpc server
-   3. `/cmd/api/web/main.go` - some http server
+For projects in folder "projects-folder-name" structured as:
+- .../projects-folder-name/...
+  - .../web-application-backend
+  - .../web-application-frontend
+  - .../web-application-auth
+  - .../some-useful-microservice
+  - .../another-great-frontend
 
-3. `/transport`
-   
-    Holds all server related stuff:
-   1. grpc server structures
-   2. http server structures
+creates a directory "environment" that contains some basic files to setup and connect all of the above:
+- docker-compose.example.yaml - template to be used when updating or creating new envs
+- .env.example - environment example file that will be placed next to each project
+- Makefile / PowerShell (TODO) - additional scripts to build dev environment
+- folders with projects:
+  - .env - with environment variables to configure project
+  - docker-compose.yaml - with all needed resources
 
-4. `/internal`
 
-    Holds all internal stuff such as:
-   1. client connections (to another services)
-   2. business logic layers
-   3. data source (db, cache, file system)
 
-5. `/pkg`
-
-   Holds all logic that can be exported e.g:
-   1. `/pkg/api/*grpc_generated_files*`
-   2. `/pkg/swagger/*swagger_generated_files*`
+#### Terminal UI is based on [rscli-uikit](https://github.com/Red-Sock/rscli-uikit)
