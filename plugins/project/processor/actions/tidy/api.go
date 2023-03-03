@@ -124,7 +124,8 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 		if bytes.Contains(apisBytes, []byte(serv.Name)) {
 			continue
 		}
-		newAPIImportInsert = append(newAPIImportInsert, []byte("\n\t"+serv.Name+" \""+p.GetName()+"/internal/transport/"+serv.Name+"\"\n")...)
+
+		newAPIImportInsert = append(newAPIImportInsert, []byte("\n\t\""+p.GetName()+"/internal/transport/"+serv.Name+"\"")...)
 		newAPIInsert = append(newAPIInsert, []byte("mngr.AddServer("+serv.Name+".NewServer(cfg))\n\t")...)
 	}
 
