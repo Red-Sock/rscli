@@ -81,7 +81,7 @@ func PrepareExamplesFolders(p interfaces.Project) error {
 		e.DevDocker[item.Name] = "0.0.0.0:1" + item.Port
 	}
 
-	eB, err := json.Marshal(e)
+	eB, err := json.MarshalIndent(e, "", "	")
 	if err != nil {
 		return err
 	}
