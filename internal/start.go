@@ -1,6 +1,7 @@
 package internal
 
 import (
+	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"github.com/pkg/errors"
 	"os"
 	"os/signal"
@@ -8,11 +9,8 @@ import (
 
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/endscreen"
-	"github.com/Red-Sock/rscli-uikit/basic/label"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli/internal/randomizer"
-	"github.com/Red-Sock/rscli/pkg/service/help"
-
 	cfgui "github.com/Red-Sock/rscli/plugins/config"
 	envui "github.com/Red-Sock/rscli/plugins/environment"
 	projectui "github.com/Red-Sock/rscli/plugins/project"
@@ -63,14 +61,18 @@ func mainMenu() uikit.UIElement {
 	items = append(items, "Exit")
 
 	if len(items) == 0 {
-		return label.New(help.Header + "no plugins available")
+		return shared_ui.GetHeaderFromText("no plugins available")
 	}
 
 	return radioselect.New(
 		getMainMenuCallback,
-		radioselect.Header(help.Header+"Main menu"),
+		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Main menu")),
 		radioselect.Items(items...),
-		radioselect.PreviousScreen(&endscreen.EndScreen{UIElement: label.New(randomizer.GoodGoodBuy())}),
+		radioselect.PreviousScreen(
+			&endscreen.EndScreen{
+				UIElement: shared_ui.GetHeaderFromText(randomizer.GoodGoodBuy()),
+			},
+		),
 	)
 }
 

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"os"
 	"path"
 	"sort"
@@ -10,9 +11,7 @@ import (
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
-	"github.com/Red-Sock/rscli/pkg/service/help"
-
-	manager "github.com/Red-Sock/rscli/plugins/config"
+	managerConfig "github.com/Red-Sock/rscli/plugins/config"
 	config "github.com/Red-Sock/rscli/plugins/config/processor"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
 )
@@ -34,14 +33,14 @@ func StartCreateProj(ps uikit.UIElement) uikit.UIElement {
 func (c *createArgs) configDiag() uikit.UIElement {
 	return radioselect.New(
 		c.callbackForConfigSelect,
-		radioselect.Header(help.Header+"Want to create config or use existing?"),
+		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Want to create config or use existing?")),
 		radioselect.Items(createConfig, useExistingConfig),
 	)
 }
 func (c *createArgs) callbackForConfigSelect(resp string) uikit.UIElement {
 	confirmCreation := radioselect.New(
 		c.confirmCreateProjectCallback,
-		radioselect.Header("Confirm creating project"),
+		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Confirm creating project")),
 		radioselect.Items(yes, noo),
 	)
 
@@ -52,10 +51,10 @@ func (c *createArgs) callbackForConfigSelect(resp string) uikit.UIElement {
 		var err error
 		c.p.CfgPath = path.Join(dir, config.FileName)
 		if err != nil {
-			return label.New(err.Error())
+			return shared_ui.GetHeaderFromText(err.Error())
 		}
 
-		return manager.Run(confirmCreation)
+		return managerConfig.Run(confirmCreation)
 	case useExistingConfig:
 		return c.handleExistingConfig()
 
@@ -67,28 +66,26 @@ func (c *createArgs) callbackForConfigSelect(resp string) uikit.UIElement {
 func (c *createArgs) handleExistingConfig() uikit.UIElement {
 	dir, err := os.Getwd()
 	if err != nil {
-		return label.New(
-			err.Error(),
-			label.NextScreen(func() uikit.UIElement {
-				return radioselect.New(
-					c.callbackForConfigSelect,
-					radioselect.Header(help.Header+fmt.Sprintf("Want to create config or use existing?")),
-					radioselect.Items(createConfig, useExistingConfig),
-				)
-			}))
+		return shared_ui.GetHeaderFromLabel(
+			label.New(
+				err.Error(),
+				label.NextScreen(
+					radioselect.New(
+						c.callbackForConfigSelect,
+						radioselect.HeaderLabel(shared_ui.GetHeaderFromText(fmt.Sprintf("Want to create config or use existing?"))),
+						radioselect.Items(createConfig, useExistingConfig)))))
 	}
 
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		return label.New(
+		return shared_ui.GetHeaderFromLabel(label.New(
 			err.Error(),
-			label.NextScreen(func() uikit.UIElement {
-				return radioselect.New(
+			label.NextScreen(
+				radioselect.New(
 					c.callbackForConfigSelect,
-					radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", c.p.Name)),
+					radioselect.HeaderLabel(shared_ui.GetHeaderFromText(fmt.Sprintf("Want to create config to project named \"%s\"?", c.p.Name))),
 					radioselect.Items(createConfig, useExistingConfig),
-				)
-			}))
+				))))
 	}
 
 	potentialConfigs := make([]string, 0, len(files)/2)
@@ -113,7 +110,7 @@ func (c *createArgs) handleExistingConfig() uikit.UIElement {
 
 	return radioselect.New(
 		c.callbackExistingConfig,
-		radioselect.Header("Select one of the files:"),
+		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Select one of the files:")),
 		radioselect.Items(append(potentialConfigs, otherFiles...)...),
 	)
 }
@@ -121,19 +118,19 @@ func (c *createArgs) callbackExistingConfig(answ string) uikit.UIElement {
 	if answ == "" {
 		return radioselect.New(
 			c.callbackForConfigSelect,
-			radioselect.Header(help.Header+fmt.Sprintf("Want to create config to project named \"%s\"?", c.p.Name)),
+			radioselect.HeaderLabel(shared_ui.GetHeaderFromText(fmt.Sprintf("Want to create config to project named \"%s\"?", c.p.Name))),
 			radioselect.Items(createConfig, useExistingConfig),
 		)
 	}
 	var err error
 	c.p.CfgPath = answ
 	if err != nil {
-		return label.New(err.Error())
+		return shared_ui.GetHeaderFromText(err.Error())
 	}
 
 	return radioselect.New(
 		c.confirmCreateProjectCallback,
-		radioselect.Header("Confirm creating project"),
+		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Confirm creating project")),
 		radioselect.Items(yes, noo),
 	)
 }
@@ -142,12 +139,12 @@ func (c *createArgs) confirmCreateProjectCallback(resp string) uikit.UIElement {
 	if resp == yes {
 		proj, err := processor.CreateProject(c.p)
 		if err != nil {
-			return label.New(err.Error())
+			return shared_ui.GetHeaderFromText(err.Error())
 		}
 
 		err = proj.Build()
 		if err != nil {
-			return label.New(err.Error())
+			return shared_ui.GetHeaderFromText(err.Error())
 		}
 	}
 	return c.previousScreen

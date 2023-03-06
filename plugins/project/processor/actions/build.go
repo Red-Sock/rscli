@@ -30,10 +30,10 @@ func BuildConfigGoFolder(p interfaces.Project) error {
 		return keysFromCfg[i] < keysFromCfg[j]
 	})
 	keys = []byte(strings.Join(keysFromCfg, "\n"))
-	cfgKeysStr := string(patterns.ConfigKeys)
-
-	body := append(patterns.ConfigKeys[:strings.Index(cfgKeysStr, "// _start_of_consts_to_replace")], keys...)
-	body = append(body, patterns.ConfigKeys[strings.Index(cfgKeysStr, "// _end_of_consts_to_replace"):]...)
+	cfgKeysFile := make([]byte, len(patterns.ConfigKeys))
+	copy(cfgKeysFile, patterns.ConfigKeys)
+	body := append(cfgKeysFile[:bytes.Index(cfgKeysFile, []byte("// _start_of_consts_to_replace"))], keys...)
+	body = append(body, cfgKeysFile[bytes.Index(cfgKeysFile, []byte("// _end_of_consts_to_replace")):]...)
 	body = bytes.ReplaceAll(body, []byte("// _end_of_consts_to_replace"), []byte(""))
 
 	if len(keys) != 0 {

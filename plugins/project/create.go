@@ -3,7 +3,7 @@ package project
 import (
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
-	"github.com/Red-Sock/rscli/pkg/service/help"
+	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
 	"github.com/Red-Sock/rscli/plugins/project/ui"
 )
@@ -16,7 +16,7 @@ func RunCreateProject(prev uikit.UIElement) uikit.UIElement {
 	}
 	sb := radioselect.New(
 		pm.selectAction,
-		radioselect.Header(help.Header+"Creating project"),
+		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Creating project")),
 		radioselect.Items(projCreate),
 	)
 

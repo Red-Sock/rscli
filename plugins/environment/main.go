@@ -5,6 +5,7 @@ import (
 	"github.com/Red-Sock/rscli-uikit/basic/label"
 	"github.com/Red-Sock/rscli-uikit/composit-items/multiselect"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
+	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"github.com/Red-Sock/rscli/plugins/environment/scripts"
 	"github.com/pkg/errors"
 	"os"
@@ -32,7 +33,7 @@ func Run(prevScreen uikit.UIElement) uikit.UIElement {
 
 	return radioselect.New(
 		h.mainMenuCallback,
-		radioselect.Header("Environment"),
+		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Environment")),
 		radioselect.Items(
 			optionCreate,
 			setUp,
@@ -64,9 +65,9 @@ func (h *handler) mainMenuCallback(arg string) uikit.UIElement {
 }
 
 func (h *handler) handleError(err error) uikit.UIElement {
-	return label.New(err.Error(), label.NextScreen(func() uikit.UIElement {
-		return h.prev
-	}))
+	return shared_ui.GetHeaderFromLabel(
+		label.New(err.Error(),
+			label.NextScreen(h.prev)))
 }
 
 func (h *handler) handleSetUpSelectEnvs(item string) uikit.UIElement {

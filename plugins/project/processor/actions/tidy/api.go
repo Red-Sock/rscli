@@ -19,7 +19,7 @@ const (
 	// with \n to be sure if correct import
 	// and not a commentary will be recognized as a start point of import
 	importWord          = "\nimport"
-	goFuncWord          = "go func() {\n"
+	goFuncWord          = "go func() {"
 	transportNewManager = "transport.NewManager()"
 )
 
@@ -77,10 +77,14 @@ func insertApiSetupIfNotExists(p interfaces.Project, projMainFile *folder.Folder
 	if bytes.Index(projMainFile.Content, []byte(apiEntryPointCall)) == -1 {
 		insertBeforeEnd = append(insertBeforeEnd, []byte(apiEntryPointCall)...)
 	}
-	endFuncIdx := bytes.Index(projMainFile.Content, []byte(waitingForTheEndFunc))
+	wfteBytes := []byte(waitingForTheEndFunc)
+
+	endFuncIdx := bytes.Index(projMainFile.Content, wfteBytes)
+	endFuncIdx = bytes.LastIndex(projMainFile.Content[:endFuncIdx], []byte("\n"))
 	if len(insertBeforeEnd) != 0 {
 		projMainFile.Content = slices.InsertSlice(projMainFile.Content, insertBeforeEnd, endFuncIdx)
-		endFuncIdx += len(insertBeforeEnd) + len(waitingForTheEndFunc) + 1
+		endFuncIdx = bytes.Index(projMainFile.Content, wfteBytes) + len(wfteBytes)
+		endFuncIdx = endFuncIdx + bytes.Index(projMainFile.Content[endFuncIdx:], []byte("\n")) + 1
 	}
 
 	if bytes.Index(projMainFile.Content, []byte(apiEntryPointStop)) == -1 {
@@ -168,8 +172,11 @@ func removeExtraAPI(serverFolders []*folder.Folder, httpFile *folder.Folder) {
 		for _, item := range splitedNames {
 			item = replacer.Replace(item)
 			if item != "" {
-				item = item[:strings.Index(item, ".NewServer(")]
-				aliasesInFile = append(aliasesInFile, item)
+				if idx := strings.Index(item, ".NewServer("); idx != -1 {
+					item = item[:idx]
+					aliasesInFile = append(aliasesInFile, item)
+				}
+
 			}
 		}
 	}

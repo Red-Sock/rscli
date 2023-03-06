@@ -27,14 +27,8 @@ func main() {
 	}
 	context.WithTimeout(ctx, startupDuration)
 
-	stopFunc := apiEntryPoint(ctx, cfg)
-
 	waitingForTheEnd()
 
-	err = stopFunc(context.Background())
-	if err != nil {
-		log.Fatal(err)
-	}
 	log.Println("shutting down the app")
 }
 

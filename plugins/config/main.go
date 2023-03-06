@@ -6,6 +6,7 @@ import (
 	"github.com/Red-Sock/rscli-uikit/composit-items/input"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli-uikit/utils/common"
+	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"github.com/Red-Sock/rscli/pkg/flag"
 	"github.com/Red-Sock/rscli/plugins/config/processor"
 	"os"
@@ -42,7 +43,7 @@ type cfgDialog struct {
 func (c *cfgDialog) mainMenu() uikit.UIElement {
 	return radioselect.New(
 		c.mainMenuCallback,
-		radioselect.Header("DataSources"),
+		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Project configuration")),
 		radioselect.Items(MainMenuItems()...),
 	)
 }
@@ -54,7 +55,7 @@ func (c *cfgDialog) mainMenuCallback(res string) uikit.UIElement {
 
 	subMenu, ok := c.subMenus[res]
 	if !ok {
-		return label.New("something went wrong 0_o")
+		return shared_ui.GetHeaderFromText("something went wrong 0_o")
 	}
 
 	return subMenu.UiElement()
@@ -92,7 +93,7 @@ func (c *cfgDialog) commitConfig() uikit.UIElement {
 
 	cfg, err := processor.Run(flag.ParseArgs(args))
 	if err != nil {
-		return label.New("error creating config: " + err.Error())
+		return shared_ui.GetHeaderFromText("error creating config: " + err.Error())
 	}
 	c.cfg = cfg
 
@@ -105,7 +106,9 @@ func (c *cfgDialog) commitConfig() uikit.UIElement {
 			sb := radioselect.New(
 				c.handleOverrideAnswer,
 				radioselect.Items("yes", "no"),
-				radioselect.Header("file "+c.path+" already exists. Want to override?"),
+				radioselect.HeaderLabel(
+					shared_ui.GetHeaderFromText("file "+c.path+" already exists. Want to override?"),
+				),
 			)
 			return sb
 		}
@@ -117,7 +120,8 @@ func (c *cfgDialog) commitConfig() uikit.UIElement {
 			sb := radioselect.New(
 				c.handleOverrideAnswer,
 				radioselect.Items("yes", "no"),
-				radioselect.Header("file "+c.cfg.GetPath()+" already exists. Want to override?"),
+				radioselect.HeaderLabel(
+					shared_ui.GetHeaderFromText("file "+c.cfg.GetPath()+" already exists. Want to override?")),
 			)
 			return sb
 		}
@@ -129,17 +133,16 @@ func (c *cfgDialog) handleOverrideAnswer(answ string) uikit.UIElement {
 	if answ == "yes" {
 		err := c.cfg.ForceWrite()
 		if err != nil {
-			return label.New(err.Error())
+			return shared_ui.GetHeaderFromText(err.Error())
 		}
 		return c.endDialog()
 	}
-	return label.New("aborting config creation. ")
+	return shared_ui.GetHeaderFromText("aborting config creation. ")
 }
 
 func (c *cfgDialog) endDialog() uikit.UIElement {
-	return label.New("successfully created file at "+c.cfg.GetPath()+". (press enter to continue)",
-		label.NextScreen(func() uikit.UIElement {
-			return c.prev
-		}),
-	)
+	return shared_ui.GetHeaderFromLabel(
+		label.New("successfully created file at "+c.cfg.GetPath()+". (press enter to continue)",
+			label.NextScreen(c.prev),
+		))
 }
