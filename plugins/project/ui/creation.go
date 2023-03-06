@@ -1,6 +1,5 @@
 package ui
 
-import "C"
 import (
 	"fmt"
 	"os"
