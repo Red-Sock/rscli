@@ -3,20 +3,20 @@ package project
 import (
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
-	"github.com/Red-Sock/rscli/pkg/service/help"
+	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
-	"github.com/Red-Sock/rscli/plugins/project/scripts"
+	"github.com/Red-Sock/rscli/plugins/project/ui"
 )
 
 const PluginName = "project"
 
-func Run(prev uikit.UIElement) uikit.UIElement {
+func RunCreateProject(prev uikit.UIElement) uikit.UIElement {
 	pm := projectMenu{
 		previous: prev,
 	}
 	sb := radioselect.New(
 		pm.selectAction,
-		radioselect.Header(help.Header+"Creating project"),
+		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Creating project")),
 		radioselect.Items(projCreate),
 	)
 
@@ -31,7 +31,7 @@ type projectMenu struct {
 func (pm *projectMenu) selectAction(resp string) uikit.UIElement {
 	switch resp {
 	case projCreate:
-		return scripts.StartCreateProj(pm.previous)
+		return ui.StartCreateProj(pm.previous)
 	}
 
 	return nil

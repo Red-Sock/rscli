@@ -3,31 +3,52 @@ package actions
 import (
 	"bytes"
 	"fmt"
-	config "github.com/Red-Sock/rscli/plugins/config/processor"
-	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/processor/actions/tidy"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 	"os"
 	"os/exec"
 	"path"
 
+	"github.com/Red-Sock/rscli/pkg/cmd"
 	"github.com/Red-Sock/rscli/pkg/folder"
-
 	configpattern "github.com/Red-Sock/rscli/plugins/config/pkg/structs"
-	"gopkg.in/yaml.v3"
+	config "github.com/Red-Sock/rscli/plugins/config/processor"
+	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
 
-func InitGoMod(p interfaces.Project) error {
-	pth, ok := os.LookupEnv("GOROOT")
-	if !ok {
-		return fmt.Errorf("no go installed!\nhttps://golangr.com/install/")
-	}
+const goBin = "go"
 
-	cmd := exec.Command(pth+"/bin/go", "mod", "init", p.GetName())
-	wd, _ := os.Getwd()
-	cmd.Dir = path.Join(wd, p.GetName())
-	err := cmd.Run()
+func InitGoMod(p interfaces.Project) error {
+
+	command := exec.Command(goBin, "mod", "init", p.GetName())
+
+	command.Dir = p.GetProjectPath()
+	err := command.Run()
 	if err != nil {
 		return err
 	}
+
+	goMod, err := os.OpenFile(path.Join(p.GetProjectPath(), "go.mod"), os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err2 := goMod.Close()
+		if err2 != nil {
+			if err != nil {
+				err = errors.Wrap(err, "error on closing"+err2.Error())
+			} else {
+				err = err2
+			}
+		}
+	}()
+
+	_, err = goMod.Write([]byte("\n// built via rscli v0.0.0"))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -77,29 +98,45 @@ func MoveCfg(p interfaces.Project) error {
 }
 
 func FixupProject(p interfaces.Project) error {
-	pth, ok := os.LookupEnv("GOROOT")
-	if !ok {
-		return fmt.Errorf("no go installed!\nhttps://golangr.com/install/")
-	}
 
 	wd, _ := os.Getwd()
 	wd = path.Join(wd, p.GetName())
 
-	cmd := exec.Command(pth+"/bin/go", "mod", "tidy")
-	cmd.Dir = wd
-	err := cmd.Run()
+	_, err := cmd.Execute(cmd.Request{
+		Tool:    goBin,
+		Args:    []string{"mod", "tidy"},
+		WorkDir: wd,
+	})
 	if err != nil {
 		return err
 	}
 
-	cmd = exec.Command(pth+"/bin/go", "fmt", "./...")
-	cmd.Dir = wd
-	err = cmd.Run()
+	_, err = cmd.Execute(cmd.Request{
+		Tool:    goBin,
+		Args:    []string{"fmt", "./..."},
+		WorkDir: wd,
+	})
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func Tidy(p interfaces.Project) error {
+	err := tidy.Api(p)
+	if err != nil {
+		return err
+	}
+
+	ReplaceProjectName(p.GetName(), p.GetFolder())
+
+	err = BuildConfigGoFolder(p)
+	if err != nil {
+		return err
+	}
+
+	return p.GetFolder().Build(path.Dir(p.GetProjectPath()))
 }
 
 // helping functions

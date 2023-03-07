@@ -36,3 +36,21 @@ func Exclude[T comparable](slice []T, elems ...T) []T {
 	}
 	return slice
 }
+
+func InsertSlice[T any](src []T, insert []T, idx int) []T {
+	afterSlice := make([]T, len(src[idx:]))
+	copy(afterSlice, src[idx:])
+
+	beforeSlice := make([]T, len(src[:idx]))
+	copy(beforeSlice, src[:idx])
+
+	return append(append(beforeSlice, insert...), afterSlice...)
+}
+
+func RemovePart[T any](src []T, start, end int) []T {
+	end++
+	out := make([]T, len(src[:start])+len(src[end:]))
+	copy(out[:start], src[:start])
+	copy(out[start:], src[end:])
+	return out
+}

@@ -9,6 +9,8 @@ type Folder struct {
 	Name    string
 	Inner   []*Folder
 	Content []byte
+
+	olderVersion []byte
 }
 
 func (f *Folder) Add(folder ...*Folder) {
@@ -38,8 +40,21 @@ func (f *Folder) AddWithPath(pths []string, folders ...*Folder) {
 		}
 		folder = pathFolder
 	}
+	for _, folderToAdd := range folders {
+		var isAdded bool
 
-	folder.Inner = append(folder.Inner, folders...)
+		for idx, existingItem := range folder.Inner {
+			if existingItem.Name == folderToAdd.Name {
+				folder.Inner[idx] = folderToAdd
+				isAdded = true
+				break
+			}
+		}
+
+		if !isAdded {
+			folder.Inner = append(folder.Inner, folderToAdd)
+		}
+	}
 }
 
 func (f *Folder) GetByPath(pth ...string) *Folder {
@@ -66,13 +81,31 @@ func (f *Folder) Build(root string) error {
 	pth := path.Join(root, f.Name)
 
 	if len(f.Content) != 0 {
-		fw, err := os.Create(pth)
+
+		if len(f.olderVersion) == len(f.Content) {
+			var idx int
+			for idx = range f.olderVersion {
+				if f.olderVersion[idx] != f.Content[idx] {
+					break
+				}
+			}
+			if len(f.olderVersion) != idx-1 {
+				return nil
+			}
+		}
+		err := os.RemoveAll(pth)
 		if err != nil {
 			return err
 		}
-		defer fw.Close()
-		_, err = fw.Write(f.Content)
-		return err
+
+		if len(f.Content) != 0 && !(len(f.Content) == 1 && f.Content[0] != 0) {
+			err = os.WriteFile(pth, f.Content, 0755)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
 	}
 
 	err := os.MkdirAll(pth, 0755)

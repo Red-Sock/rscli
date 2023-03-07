@@ -1,7 +1,10 @@
 package config
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/Red-Sock/rscli/internal/utils/cases"
 	"os"
 	"strings"
 
@@ -59,7 +62,7 @@ func (c *Config) ParseSelf() error {
 }
 
 // ExtractDataSources extracts data sources information from config file and parses it as folders in project
-func (c *Config) ExtractDataSources() (*folder.Folder, error) {
+func (c *Config) GetDataSourceFolders() (*folder.Folder, error) {
 	dataSources, ok := c.Values[config.DataSourceKey]
 	if !ok {
 		return nil, nil
@@ -96,7 +99,7 @@ func (c *Config) ExtractDataSources() (*folder.Folder, error) {
 	return out, nil
 }
 
-func (c *Config) ExtractServerOptions() (*folder.Folder, error) {
+func (c *Config) GetServerFolders() ([]*folder.Folder, error) {
 	serverOpts, ok := c.Values[config.ServerOptsKey]
 	if !ok {
 		return nil, nil
@@ -107,9 +110,7 @@ func (c *Config) ExtractServerOptions() (*folder.Folder, error) {
 	if !ok {
 		return nil, nil
 	}
-	out := &folder.Folder{
-		Name: "transport",
-	}
+	out := make([]*folder.Folder, 0, len(so))
 
 	for serverName := range so {
 		files := patterns.ServerOptsPatterns[consts.ServerOptsPrefix(strings.Split(serverName, "_")[0])]
@@ -125,14 +126,65 @@ func (c *Config) ExtractServerOptions() (*folder.Folder, error) {
 			Name: serverName,
 		}
 		for name, content := range files {
+			content = bytes.ReplaceAll(
+				content,
+				[]byte("package rest_realisation"),
+				[]byte("package "+serverName),
+			)
+
+			if name == patterns.ServerGoFile {
+				content = bytes.ReplaceAll(
+					content,
+					[]byte("config.ServerRestApiPort"),
+					[]byte("config.Server"+cases.SnakeToCamel(serverName+"_port")))
+			}
 			serverFolder.Inner = append(serverFolder.Inner, &folder.Folder{
 				Name:    name,
 				Content: content,
 			})
 		}
 
-		out.Inner = append(out.Inner, serverFolder)
+		out = append(out, serverFolder)
 	}
+	return out, nil
+}
+
+type ServerOptions struct {
+	Name string
+	Port string `json:"port"`
+}
+
+func (c *Config) GetServerOptions() ([]ServerOptions, error) {
+	serverOpts, ok := c.Values[config.ServerOptsKey]
+	if !ok {
+		return nil, nil
+	}
+
+	var so map[string]interface{}
+	so, ok = serverOpts.(map[string]interface{})
+	if !ok {
+		return nil, nil
+	}
+
+	out := make([]ServerOptions, 0, len(so))
+
+	for key, item := range so {
+		servOpt := ServerOptions{
+			Name: key,
+		}
+		bts, err := json.Marshal(item)
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal(bts, &servOpt)
+		if err != nil {
+			return nil, err
+		}
+
+		out = append(out, servOpt)
+	}
+
 	return out, nil
 }
 

@@ -5,7 +5,7 @@ import "strings"
 const (
 	Header = `
 ========================
-    RedSock CLI tool
+    RedSock CLI tool    
 ========================
 `
 	Options = `ui - opens visual menu`

@@ -1,6 +1,9 @@
 package interfaces
 
-import "github.com/Red-Sock/rscli/pkg/folder"
+import (
+	"github.com/Red-Sock/rscli/pkg/folder"
+	"github.com/Red-Sock/rscli/plugins/project/processor/config"
+)
 
 type Project interface {
 	GetName() string
@@ -17,6 +20,7 @@ type Config interface {
 	GenerateGoConfigKeys(projName string) ([]byte, error)
 
 	ExtractName() (string, error)
-	ExtractDataSources() (*folder.Folder, error)
-	ExtractServerOptions() (*folder.Folder, error)
+	GetDataSourceFolders() (*folder.Folder, error)
+	GetServerFolders() ([]*folder.Folder, error)
+	GetServerOptions() ([]config.ServerOptions, error)
 }

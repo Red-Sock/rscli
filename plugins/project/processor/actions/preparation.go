@@ -2,8 +2,7 @@ package actions
 
 import (
 	"bytes"
-	"strings"
-
+	"encoding/json"
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
@@ -21,6 +20,7 @@ func PrepareProjectStructure(p interfaces.Project) error {
 			},
 		},
 	})
+
 	fldr := p.GetFolder()
 	fldr.Add(cmd)
 
@@ -44,7 +44,7 @@ func PrepareConfigFolders(p interfaces.Project) error {
 
 	configFolders := make([]*folder.Folder, 0, 1)
 
-	dsFolders, err := cfg.ExtractDataSources()
+	dsFolders, err := cfg.GetDataSourceFolders()
 	if err != nil {
 		return err
 	}
@@ -56,51 +56,36 @@ func PrepareConfigFolders(p interfaces.Project) error {
 	return nil
 }
 
-func PrepareAPIFolders(p interfaces.Project) error {
-	cfg := p.GetConfig()
+func PrepareExamplesFolders(p interfaces.Project) error {
 
-	serverFolders, err := cfg.ExtractServerOptions()
+	if p.GetFolder().GetByPath("examples", "http-client.env.json") != nil {
+		return nil
+	}
+
+	type envs struct {
+		Dev       map[string]string `json:"dev"`
+		DevDocker map[string]string `json:"dev-docker"`
+	}
+	var e = envs{
+		Dev:       map[string]string{},
+		DevDocker: map[string]string{},
+	}
+
+	servers, err := p.GetConfig().GetServerOptions()
 	if err != nil {
 		return err
 	}
 
-	if serverFolders == nil {
-		return nil
+	for _, item := range servers {
+		e.Dev[item.Name] = "0.0.0.0:" + item.Port
+		e.DevDocker[item.Name] = "0.0.0.0:1" + item.Port
 	}
 
-	projMainFile := p.GetFolder().GetByPath("cmd", p.GetName(), "main.go")
-
-	importReplace := make([]string, 0, len(serverFolders.Inner))
-	serversInit := make([]string, 0, len(serverFolders.Inner))
-
-	for _, serv := range serverFolders.Inner {
-		importReplace = append(importReplace, serv.Name+" \""+p.GetName()+"/internal/transport/"+serv.Name+"\"")
-		serversInit = append(serversInit, "mngr.AddServer("+serv.Name+".NewServer(cfg))")
+	eB, err := json.MarshalIndent(e, "", "	")
+	if err != nil {
+		return err
 	}
 
-	projMainFile.Content = bytes.ReplaceAll(
-		projMainFile.Content,
-		[]byte("//_transport_imports"),
-		[]byte(strings.Join(importReplace, "\n\t")))
-
-	projMainFile.Content = bytes.ReplaceAll(
-		projMainFile.Content,
-		[]byte("//_initiation_of_servers"),
-		[]byte(strings.Join(serversInit, "\n\t")))
-
-	serverFolders.Inner = append(serverFolders.Inner, &folder.Folder{
-		Name:    "manager.go",
-		Content: patterns.ServerManagerPattern,
-	})
-
-	if serverFolders != nil {
-		p.GetFolder().AddWithPath([]string{"internal"}, serverFolders)
-	}
-
-	return nil
-}
-
-func PrepareExamplesFolders(p interfaces.Project) error {
 	p.GetFolder().Add(&folder.Folder{
 		Name: "examples",
 		Inner: []*folder.Folder{
@@ -110,7 +95,7 @@ func PrepareExamplesFolders(p interfaces.Project) error {
 			},
 			{
 				Name:    "http-client.env.json",
-				Content: patterns.HttpEnvironment,
+				Content: eB,
 			},
 		},
 	})

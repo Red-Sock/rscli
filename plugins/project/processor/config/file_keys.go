@@ -1,11 +1,9 @@
 package config
 
 import (
-	"github.com/Red-Sock/rscli/internal/utils/slices"
-	"os"
-	"strings"
-
+	"github.com/Red-Sock/rscli/internal/utils/cases"
 	"gopkg.in/yaml.v3"
+	"os"
 )
 
 func KeysFromConfig(pathToConfig string) (map[string]string, error) {
@@ -27,15 +25,7 @@ func KeysFromConfig(pathToConfig string) (map[string]string, error) {
 
 	variables := make(map[string]string, len(cfg))
 	for _, v := range vars {
-		parts := strings.Split(v[1:], "_")
-		for i := range parts {
-			if slices.Contains(initialisms, parts[i]) {
-				parts[i] = strings.ToUpper(parts[i])
-			} else {
-				parts[i] = strings.ToUpper(parts[i][:1]) + strings.ToLower(parts[i][1:])
-			}
-		}
-		variables[strings.Join(parts, "")] = v[1:]
+		variables[cases.SnakeToCamel(v)] = v
 	}
 
 	return variables, nil
@@ -52,16 +42,10 @@ func (c *cfgKeysBuilder) extractVariables(prefix string, in map[string]interface
 			}
 			out = append(out, values...)
 		} else {
-			out = append(out, prefix+"_"+k)
+			k = prefix + "_" + k
+
+			out = append(out, k[1:])
 		}
 	}
 	return out, nil
 }
-
-var initialisms = []string{"acl", "api", "ascii", "cpu", "css", "dns",
-	"eof", "guid", "html", "http", "https", "id",
-	"ip", "json", "qps", "ram", "rpc", "sla",
-	"smtp", "sql", "ssh", "tcp", "tls", "ttl",
-	"udp", "ui", "gid", "uid", "uuid", "uri",
-	"url", "utf8", "vm", "xml", "xmpp", "xsrf",
-	"xss", "sip", "rtp", "amqp", "db", "ts"}

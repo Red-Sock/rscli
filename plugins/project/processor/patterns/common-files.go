@@ -26,7 +26,4 @@ var (
 var (
 	//go:embed pattern_c/examples/api.http
 	ApiHTTP []byte
-
-	//go:embed pattern_c/examples/http-client.env.json
-	HttpEnvironment []byte
 )

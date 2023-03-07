@@ -1,10 +1,13 @@
 package processor
 
 import (
-	"errors"
-	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
+	"github.com/pkg/errors"
 	"strings"
+
+	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 )
+
+var ErrPatternExists = errors.New("pattern exists")
 
 func parseFlag(f string, args []string, cfg *structs.Config) error {
 
@@ -46,7 +49,7 @@ func parseFlag(f string, args []string, cfg *structs.Config) error {
 func addPattern(src, tgt map[string]interface{}) error {
 	for k := range src {
 		if _, ok := tgt[k]; ok {
-			return errors.New("")
+			return errors.Wrapf(ErrPatternExists, "pattern with name %s exists", k)
 		}
 	}
 

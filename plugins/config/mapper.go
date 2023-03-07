@@ -3,6 +3,7 @@ package config
 import (
 	rscliuitkit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/composit-items/multiselect"
+	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	config "github.com/Red-Sock/rscli/plugins/config/processor"
 )
 
@@ -88,7 +89,7 @@ func (c *ConfigMenuSubItem) UiElement() rscliuitkit.UIElement {
 
 	return multiselect.New(
 		c.handleResponse,
-		multiselect.Header("DataSources"),
+		multiselect.HeaderLabel(shared_ui.GetHeaderFromText("Data sources")),
 		multiselect.Items(c.Items...),
 		multiselect.SeparatorChecked([]rune{'x'}),
 		multiselect.Checked(checked),

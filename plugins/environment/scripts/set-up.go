@@ -1,8 +1,6 @@
 package scripts
 
 import (
-	"github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/plugins/environment/scripts/patterns"
 	"os"
 	"path"
 	"runtime"
@@ -10,6 +8,9 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+
+	"github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/plugins/environment/scripts/patterns"
 )
 
 var ErrUnknownSource = errors.New("unknown client")
@@ -48,7 +49,7 @@ func RunSetUp(envs []string) (err error) {
 		return err
 	}
 
-	sc.config, err = config.ReadConfig()
+	sc.config, err = config.ReadConfig(os.Args[1:])
 	if err != nil {
 		return err
 	}

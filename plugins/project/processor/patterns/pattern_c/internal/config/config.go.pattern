@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"os"
 	"strings"
+	"time"
 
 	"golang.org/x/exp/maps"
 	"gopkg.in/yaml.v3"
@@ -53,7 +54,6 @@ func (c Config) GetString(key configKey) string {
 
 	return out
 }
-
 func (c Config) TryGetString(key configKey) (string, error) {
 	v := c[key]
 	if v == nil {
@@ -81,7 +81,6 @@ func (c Config) GetInt(key configKey) int {
 
 	return out
 }
-
 func (c Config) TryGetInt(key configKey) (int, error) {
 	v := c[key]
 	if v == nil {
@@ -94,6 +93,21 @@ func (c Config) TryGetInt(key configKey) (int, error) {
 	}
 
 	return out, nil
+}
+
+func (c Config) GetDuration(key configKey) (out time.Duration, err error) {
+	v, ok := c[key]
+	if !ok {
+		return 0, ErrNotFound
+	}
+
+	r, ok := c[key].(string)
+	if !ok {
+		return 0, errors.Wrapf(ErrCannotParse, "%v of type %T to string", v, v)
+	}
+
+	return time.ParseDuration(r)
+
 }
 
 func extractVariables(prefix string, in map[string]interface{}) (out map[configKey]any) {
