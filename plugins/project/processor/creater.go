@@ -26,7 +26,7 @@ type Project struct {
 
 	F folder.Folder
 
-	RscliVersion string
+	RscliVersion Version
 
 	validators []Validator
 }
