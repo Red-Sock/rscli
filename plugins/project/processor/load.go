@@ -1,6 +1,7 @@
 package processor
 
 import (
+	"github.com/Red-Sock/rscli/pkg/cmd"
 	"os"
 	"path"
 	"strings"
@@ -61,10 +62,29 @@ func LoadProject(pth string) (*Project, error) {
 		return nil, err
 	}
 
+	version, err := GetProjectVersion(pth)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Project{
-		Name:        name,
-		ProjectPath: pth,
-		Cfg:         c,
-		F:           f,
+		Name:         name,
+		ProjectPath:  pth,
+		Cfg:          c,
+		F:            f,
+		RscliVersion: version,
 	}, nil
+}
+
+func GetProjectVersion(wd string) (string, error) {
+	out, err := cmd.Execute(cmd.Request{
+		Tool:    "make",
+		Args:    []string{"-f", patterns.RsCliMkFileName, "rscli-version"},
+		WorkDir: wd,
+	})
+	if err != nil {
+		return "", errors.Wrap(err, "error executing make rscli-version")
+	}
+
+	return out, nil
 }

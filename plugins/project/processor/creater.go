@@ -24,9 +24,11 @@ type Project struct {
 
 	Actions []Action
 
-	validators []Validator
-
 	F folder.Folder
+
+	RscliVersion string
+
+	validators []Validator
 }
 
 type CreateArgs struct {

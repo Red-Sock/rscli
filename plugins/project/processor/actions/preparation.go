@@ -121,6 +121,10 @@ func PrepareEnvironmentFolders(p interfaces.Project) error {
 				Name:    ".golangci.yaml",
 				Content: patterns.Linter,
 			},
+			{
+				Name:    "rscli.mk",
+				Content: patterns.RscliMK,
+			},
 		}...,
 	)
 	return nil
