@@ -10,7 +10,8 @@ type Folder struct {
 	Inner   []*Folder
 	Content []byte
 
-	olderVersion []byte
+	olderVersion  []byte
+	isToBeDeleted bool
 }
 
 func (f *Folder) Add(folder ...*Folder) {
@@ -80,6 +81,14 @@ func (f *Folder) GetByPath(pth ...string) *Folder {
 func (f *Folder) Build(root string) error {
 	pth := path.Join(root, f.Name)
 
+	if f.isToBeDeleted {
+		err := os.RemoveAll(pth)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
 	if len(f.Content) != 0 {
 
 		if len(f.olderVersion) == len(f.Content) {
@@ -121,4 +130,8 @@ func (f *Folder) Build(root string) error {
 	}
 
 	return nil
+}
+
+func (f *Folder) Delete() {
+	f.isToBeDeleted = true
 }
