@@ -1,11 +1,11 @@
 package update
 
-import "github.com/Red-Sock/rscli/plugins/project/processor"
+import (
+	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
+)
 
-func Do(p processor.Project) error {
-
+func Do(p interfaces.Project) error {
+	return nil
 }
 
-var updates = []func(p processor.Project) error{
-	v009
-}
+var updates = []func(p interfaces.Project) error{}

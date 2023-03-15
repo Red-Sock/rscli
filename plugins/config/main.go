@@ -64,7 +64,7 @@ func (c *cfgDialog) mainMenuCallback(res string) uikit.UIElement {
 func (c *cfgDialog) askName() uikit.UIElement {
 	return input.New(
 		c.nameCallback,
-		input.Expandable(),
+		input.ExpandableWithMaxWidth(20),
 		input.Position(common.NewRelativePositioning(0.4, 0.5)),
 		input.TextAbove("Application name:"),
 	)
