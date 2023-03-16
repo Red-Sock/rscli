@@ -61,10 +61,17 @@ func LoadProject(pth string) (*Project, error) {
 		return nil, err
 	}
 
-	return &Project{
+	p := &Project{
 		Name:        name,
 		ProjectPath: pth,
 		Cfg:         c,
 		F:           f,
-	}, nil
+	}
+
+	err = LoadProjectVersion(p)
+	if err != nil {
+		return p, errors.Wrap(err, "error loading project version")
+	}
+
+	return p, nil
 }

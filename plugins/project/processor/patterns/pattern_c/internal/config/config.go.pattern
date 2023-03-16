@@ -2,10 +2,11 @@ package config
 
 import (
 	"flag"
-	"github.com/pkg/errors"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"golang.org/x/exp/maps"
 	"gopkg.in/yaml.v3"

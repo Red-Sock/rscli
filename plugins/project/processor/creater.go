@@ -24,9 +24,11 @@ type Project struct {
 
 	Actions []Action
 
-	validators []Validator
-
 	F folder.Folder
+
+	RscliVersion Version
+
+	validators []Validator
 }
 
 type CreateArgs struct {
@@ -49,10 +51,11 @@ func CreateProject(args CreateArgs) (*Project, error) {
 			actions.BuildConfigGoFolder, // config driver
 			actions.BuildProject,        // build project in file system
 
-			actions.InitGoMod, // executes go mod
-			actions.MoveCfg,   // moves external used config into project
-			actions.Tidy,
+			actions.InitGoMod,    // executes go mod
+			actions.MoveCfg,      // moves external used config into project
+			actions.Tidy,         // adds/clears project initialization(api, resources) and replaces project name template with actual project name
 			actions.FixupProject, // fetches dependencies and formats go code
+			actions.InitGit,      // initializing and committing project as git repo
 		}, args.Actions...),
 		validators: append(args.Validators, validators.ValidateName),
 	}
