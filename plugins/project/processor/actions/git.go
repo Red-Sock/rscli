@@ -73,8 +73,12 @@ type Status []GitChanges
 func (s Status) GetFilesListed() string {
 	sb := strings.Builder{}
 	for _, item := range s {
+		if len(item.Changelist) == 0 {
+			continue
+		}
 		sb.WriteString(item.Type.Msg())
 		sb.WriteString("\n")
+
 		changeTypeToFile := map[string][]string{}
 		for _, line := range item.Changelist {
 			splited := strings.Split(line, ":")
@@ -86,7 +90,7 @@ func (s Status) GetFilesListed() string {
 
 		for k, v := range changeTypeToFile {
 			sb.WriteString(k + ": \n\t")
-			sb.WriteString(strings.Join(v, "\n"))
+			sb.WriteString(strings.Join(v, "; "))
 			sb.WriteString("\n")
 		}
 	}
@@ -96,6 +100,9 @@ func (s Status) GetFilesListed() string {
 func (s Status) String() string {
 	sb := strings.Builder{}
 	for _, item := range s {
+		if len(item.Changelist) == 0 {
+			continue
+		}
 		sb.WriteString(item.Type.Msg())
 		sb.WriteString("\n\t")
 		sb.WriteString(strings.Join(item.Changelist, "\n\t"))
