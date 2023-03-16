@@ -2,8 +2,9 @@ package tidy
 
 import (
 	"bytes"
-	"github.com/Red-Sock/rscli/internal/utils/slices"
 	"strings"
+
+	"github.com/Red-Sock/rscli/internal/utils/slices"
 
 	"github.com/pkg/errors"
 
@@ -204,6 +205,9 @@ func removeExtraAPI(p interfaces.Project, serverFolders []*folder.Folder, httpFi
 	}
 
 	transports := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.TransportFolder)
+	if transports == nil {
+		return
+	}
 	for idx := range transports.Inner {
 		if _, ok := aliasesFromConfig[transports.Inner[idx].Name]; !ok && len(transports.Inner[idx].Content) == 0 {
 			transports.Inner[idx].Delete()

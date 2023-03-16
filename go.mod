@@ -1,6 +1,6 @@
 module github.com/Red-Sock/rscli
 
-go 1.19
+go 1.20
 
 require (
 	github.com/Red-Sock/rscli-uikit v1.0.0

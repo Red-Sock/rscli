@@ -2,12 +2,12 @@ package actions
 
 import (
 	"bytes"
-	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 	"sort"
 	"strings"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
+	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
 func BuildConfigGoFolder(p interfaces.Project) error {
@@ -26,10 +26,11 @@ func BuildConfigGoFolder(p interfaces.Project) error {
 	}
 
 	keysFromCfg := strings.Split(string(keys), "\n")
+	keysFromCfg = keysFromCfg[:len(keysFromCfg)-1]
 	sort.Slice(keysFromCfg, func(i, j int) bool {
 		return keysFromCfg[i] < keysFromCfg[j]
 	})
-	keys = []byte(strings.Join(keysFromCfg, "\n"))
+	keys = []byte(strings.Join(keysFromCfg, "\n\t"))
 	cfgKeysFile := make([]byte, 0, len(patterns.ConfigKeys))
 
 	cfgKeysFile = append(cfgKeysFile, patterns.ConfigKeys[:bytes.Index(patterns.ConfigKeys, []byte("// _start_of_consts_to_replace"))]...)
@@ -45,7 +46,7 @@ func BuildConfigGoFolder(p interfaces.Project) error {
 			})
 	}
 
-	p.GetFolder().AddWithPath(
+	p.GetFolder().ForceAddWithPath(
 		[]string{
 			"internal",
 			"config",

@@ -1,11 +1,13 @@
 package project
 
 import (
+	"os"
+
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
+
 	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
-	"os"
 )
 
 func Tidy(prev uikit.UIElement) uikit.UIElement {
