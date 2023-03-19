@@ -1,17 +1,13 @@
-name: master-actions
-run-name: release
-on:
-  pull_request_target:
-    branches:
-      - main
+name: learn-github-actions
+run-name: ${{ github.actor }} is learning GitHub Actions
+on: [push]
 jobs:
-  tag-change:
+  check-bats-version:
+    runs-on: ubuntu-latest
     steps:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - uses: actions/setup-node@v3
-          with:
-            node-version: '14'
-        - run: npm install -g bats
-        - run: bats -v
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+      - run: npm install -g bats
+      - run: bats -v
