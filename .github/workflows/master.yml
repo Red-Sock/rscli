@@ -1,0 +1,15 @@
+name: master-actions
+run-name: release
+on:
+  pull_request_target:
+#    types:
+#      - closed
+    branches:
+      - main
+jobs:
+  tag-change:
+    steps:
+      runs-on: alpine
+      steps:
+        - run: ls
+        - run: echo 42
