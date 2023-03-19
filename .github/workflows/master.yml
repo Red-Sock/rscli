@@ -7,12 +7,12 @@ on:
       - main
 jobs:
   change-tag:
-    runs-on: alpine-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - run: ls
       - run: echo 42
-      - run: GITHUB_REF
+      - run: $GITHUB_REF
 
 
 #
