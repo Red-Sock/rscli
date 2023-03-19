@@ -1,21 +1,19 @@
 name: master-actions
 run-name: RELEASE
 on:
+  # change to pull_request_target
   pull_request:
     branches:
       - main
 jobs:
   change-tag:
-    runs-on: ubuntu-latest
+    runs-on: alpine-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '14'
-      - run: npm install -g bats
-      - run: bats -v
       - run: ls
       - run: echo 42
+      - run: GITHUB_REF
+
 
 #
 #jobs:
