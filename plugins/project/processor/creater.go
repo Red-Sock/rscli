@@ -26,7 +26,7 @@ type Project struct {
 
 	F folder.Folder
 
-	RscliVersion Version
+	RscliVersion interfaces.Version
 
 	validators []Validator
 }
@@ -138,4 +138,12 @@ func (p *Project) Validate() error {
 	}
 
 	return globalErr
+}
+
+func (p *Project) GetVersion() interfaces.Version {
+	return p.RscliVersion
+}
+
+func (p *Project) SetVersion(version interfaces.Version) {
+	p.RscliVersion = version
 }

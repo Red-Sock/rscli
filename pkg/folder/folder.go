@@ -5,6 +5,8 @@ import (
 	"path"
 )
 
+var foldersIgnore = []string{".git", ".idea"}
+
 type Folder struct {
 	Name    string
 	Inner   []*Folder
@@ -92,7 +94,22 @@ func (f *Folder) GetByPath(pth ...string) *Folder {
 	return currentFolder
 }
 
-func (f *Folder) Build(root string) error {
+func (f *Folder) Build() error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	wholePath, dir := path.Split(wd)
+	if dir != f.Name {
+		wholePath = wd
+	}
+
+	return f.build(wholePath)
+}
+
+func (f *Folder) build(root string) error {
+
 	pth := path.Join(root, f.Name)
 
 	if f.isToBeDeleted {
@@ -133,7 +150,7 @@ func (f *Folder) Build(root string) error {
 	}
 
 	for _, d := range f.Inner {
-		err = d.Build(pth)
+		err = d.build(pth)
 		if err != nil {
 			return err
 		}

@@ -138,7 +138,7 @@ func Tidy(p interfaces.Project) error {
 		return err
 	}
 
-	return p.GetFolder().Build(path.Dir(p.GetProjectPath()))
+	return p.GetFolder().Build()
 }
 
 // helping functions

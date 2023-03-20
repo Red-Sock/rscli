@@ -61,7 +61,7 @@ func BuildProject(p interfaces.Project) error {
 
 	ReplaceProjectName(p.GetName(), p.GetFolder())
 
-	err := p.GetFolder().Build("")
+	err := p.GetFolder().Build()
 	if err != nil {
 		return err
 	}
