@@ -1,8 +1,8 @@
 name: master-actions
 run-name: RELEASE
 on:
-  # change to pull_request_target
-  pull_request:
+  # change to
+  pull_request_target:
     branches:
       - main
 jobs:
