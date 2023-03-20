@@ -32,11 +32,9 @@ func Tidy(pathToProject string) error {
 		return errs.Wrap(err, "error while tiding")
 	}
 
-	if p.RscliVersion.IsOlderThan(GetCurrentVersion()) {
-		err = update.Do(p)
-		if err != nil {
-			return err
-		}
+	err = update.Do(p)
+	if err != nil {
+		return err
 	}
 
 	status, err = actions.GitStatus(p)
