@@ -17,4 +17,6 @@ jobs:
           destination_branch: "main"
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pr_label: "new-version, automated pr"
-          pr_title: "Feature release [${{ github.REF_NAME }}](https://redsock.youtrack.cloud/issue/${{ github.REF_NAME }})"
+          pr_title: "Feature release ${{ github.REF_NAME }}"
+
+#          [${{ github.REF_NAME }}](https://redsock.youtrack.cloud/issue/${{ github.REF_NAME }})
