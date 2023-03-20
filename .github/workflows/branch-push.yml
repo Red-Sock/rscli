@@ -1,5 +1,5 @@
 name: branch-push
-run-name: $GITHUB_REF_NAME
+run-name: ${{ github.REF_NAME }}
 on:
   push:
     branches:
