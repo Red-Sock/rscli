@@ -29,7 +29,8 @@ jobs:
           if ((prs > 0)); then
               echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
-
+      - name: echo prev step
+        run: echo ${{ steps.check.outputs.skip }}
       - name: Pull request creation
         if: '!steps.check.outputs.skip'
         run: >
