@@ -1,5 +1,5 @@
 name: branch-push
-run-name: ${{ github.REF_NAME }}
+run-name: ${{ github.REF_NAME }} pull request
 on:
   push:
     branches:
@@ -31,5 +31,5 @@ jobs:
                 -B main \
                 -H ${{ github.REF }} \
                 --title 'RELEASE OF ${{ github.REF }}' \
-                --body 'Created by Github action' \
+                --body 'Created by Github action'
           fi
