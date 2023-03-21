@@ -23,10 +23,10 @@ jobs:
               --repo "$GITHUB_REPOSITORY" \
               --json baseRefName,headRefName \
               --jq '
-                  map(select(.baseRefName == "master" and .headRefName == "dev"))
+                  map(select(.baseRefName == "main" and .headRefName == "${{ github.ref }}"))
                   | length
               ')
-          echo $(prs)
+
           if ((prs > 0)); then
               echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
