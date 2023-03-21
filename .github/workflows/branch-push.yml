@@ -14,31 +14,24 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - name: Check if PR exists
-        id: check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          prs=$(gh pr list \
-              --repo "$GITHUB_REPOSITORY" \
-              --json baseRefName,headRefName \
-              --jq '
-                  map(select(.baseRefName == "main" and .headRefName == "${{ github.REF_NAME }}"))
-                  | length
-              ')
-          if ((prs > 0)); then
-              echo "skip=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: echo prev step
-        run: echo ${{ steps.check.outputs.skip }}
       - name: Pull request creation
         if: '!steps.check.outputs.skip'
-        run: >
-          gh pr create
-          -B main
-          -H ${{ github.REF }}
-          --title 'RELEASE OF ${{ github.REF }}'
-          --body 'Created by Github action'
+        run: |
+          prs=$(gh pr list \
+             --repo "$GITHUB_REPOSITORY" \
+             --json baseRefName,headRefName \
+             --jq '
+                 map(select(.baseRefName == "${{ github.base_ref }}" and .headRefName == "${{ github.REF_NAME }}"))
+                 | length
+             ')
+          if ((prs > 0)); then
+            gh pr create \
+              -B main \
+              -H ${{ github.REF }} \
+              --title 'RELEASE OF ${{ github.REF }}' \
+              --body 'Created by Github action'
+          fi
+          
+
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
