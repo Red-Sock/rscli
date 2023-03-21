@@ -27,9 +27,9 @@ jobs:
                   | length
               ')
           if ((prs = 0)); then
-              gh pr create
-                -B main
-                -H ${{ github.REF }}
-                --title 'RELEASE OF ${{ github.REF }}'
-                --body 'Created by Github action'
+              gh pr create \
+                -B main \
+                -H ${{ github.REF }} \
+                --title 'RELEASE OF ${{ github.REF }}' \
+                --body 'Created by Github action' \
           fi
