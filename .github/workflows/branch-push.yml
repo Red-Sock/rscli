@@ -9,10 +9,15 @@ jobs:
   main-create-pull-request:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
-
-      - run: gh pr create -B main -H ${{ github.REF }} --title 'RELEASE OF ${{ github.REF }}' --body 'Created by Github action'
+      - name: Pull request creation
+      - run: gh pr create \
+          -B main \
+          -H ${{ github.REF }} \
+          --title 'RELEASE OF ${{ github.REF }}' \
+          --body 'Created by Github action'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
