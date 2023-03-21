@@ -31,7 +31,5 @@ jobs:
               --title 'RELEASE OF ${{ github.REF }}' \
               --body 'Created by Github action'
           fi
-          
-
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
