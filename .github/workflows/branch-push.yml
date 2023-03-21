@@ -14,7 +14,29 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
+      - name: Check weather PR exists
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          prs=$(gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --json baseRefName,headRefName \
+              --jq '
+                  map(select(.baseRefName == "master" and .headRefName == "dev"))
+                  | length
+              ')
+          
+          if ((prs > 0)); then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+
       - name: Pull request creation
-        run:  gh pr create -B main -H ${{ github.REF }} --title 'RELEASE OF ${{ github.REF }}' --body 'Created by Github action'
+        run: >
+          gh pr create
+          -B main
+          -H ${{ github.REF }}
+          --title 'RELEASE OF ${{ github.REF }}'
+          --body 'Created by Github action'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
