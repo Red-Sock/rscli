@@ -9,5 +9,7 @@ jobs:
   main-create-pull-request:
     runs-on: ubuntu-latest
     steps:
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+      - name: create pull request
+        run: gh pr create -B main -H ${{ GITHUB_REF }} --title 'RELEASE OF ${{ GITHUB_REF }}' --body 'Created by Github action'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
