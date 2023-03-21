@@ -23,7 +23,7 @@ jobs:
               --repo "$GITHUB_REPOSITORY" \
               --json baseRefName,headRefName \
               --jq '
-                  map(select(.baseRefName == "main" and .headRefName == "${{ github.REF }}"))
+                  map(select(.baseRefName == "main" and .headRefName == "${{ github.REF_NAME }}"))
                   | length
               ')
           if ((prs > 0)); then
