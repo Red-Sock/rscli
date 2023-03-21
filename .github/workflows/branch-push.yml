@@ -28,6 +28,7 @@ jobs:
               ')
           echo "$prs"
           if ((prs = 0)); then
+              echo "$prs"
               gh pr create \
                 -B main \
                 -H ${{ github.REF }} \
