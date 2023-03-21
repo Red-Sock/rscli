@@ -14,7 +14,7 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - name: Check if PR exists
+      - name: Creating PR
         id: check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -27,7 +27,7 @@ jobs:
                   | length
               ')
           echo "$prs"
-          if ((prs = 0)); then
+          if [["$prs" -eq 0]]; then
               echo "$prs"
               gh pr create \
                 -B main \
