@@ -14,8 +14,7 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - name: Check if PR exists
-        id: check
+      - name: Create pull request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -27,16 +26,9 @@ jobs:
                   | length
               ')
           if ((prs > 0)); then
-              echo "skip=true" >> "$GITHUB_OUTPUT"
+               gh pr create \
+                -B main \
+                -H ${{ github.REF }} \
+                --title 'RELEASE OF ${{ github.REF }}' \
+                --body 'Created by Github action'
           fi
-
-      - name: Pull request creation
-        if: '!steps.check.outputs.skip'
-        run: >
-          gh pr create
-          -B main
-          -H ${{ github.REF }}
-          --title 'RELEASE OF ${{ github.REF }}'
-          --body 'Created by Github action'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
