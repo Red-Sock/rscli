@@ -26,6 +26,7 @@ jobs:
                   map(select(.baseRefName == "${{ github.base_ref }}" and .headRefName == "${{ github.REF_NAME }}"))
                   | length
               ')
+          echo $(prs)
           if ((prs = 0)); then
               gh pr create \
                 -B main \
