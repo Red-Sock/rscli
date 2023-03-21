@@ -26,17 +26,10 @@ jobs:
                   map(select(.baseRefName == "${{ github.base_ref }}" and .headRefName == "${{ github.REF_NAME }}"))
                   | length
               ')
-          if ((prs > 0)); then
-              echo "skip=true" >> "$GITHUB_OUTPUT"
+          if ((prs = 0)); then
+              gh pr create
+                -B main
+                -H ${{ github.REF }}
+                --title 'RELEASE OF ${{ github.REF }}'
+                --body 'Created by Github action'
           fi
-
-      - name: Pull request creation
-        if: '!steps.check.outputs.skip'
-        run: >
-          gh pr create
-          -B main
-          -H ${{ github.REF }}
-          --title 'RELEASE OF ${{ github.REF }}'
-          --body 'Created by Github action'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
