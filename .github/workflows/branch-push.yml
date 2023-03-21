@@ -31,6 +31,7 @@ jobs:
           fi
 
       - name: Pull request creation
+        if: '!steps.check.outputs.skip'
         run: >
           gh pr create
           -B main
