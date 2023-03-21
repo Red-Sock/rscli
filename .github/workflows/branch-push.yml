@@ -10,6 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: create pull request
-        run: gh pr create -B main -H ${{ GITHUB_REF }} --title 'RELEASE OF ${{ GITHUB_REF }}' --body 'Created by Github action'
+        run: gh pr create -B main -H ${{ github.REF }} --title 'RELEASE OF ${{ github.REF }}' --body 'Created by Github action'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
