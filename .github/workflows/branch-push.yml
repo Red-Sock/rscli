@@ -26,6 +26,7 @@ jobs:
                   map(select(.baseRefName == "master" and .headRefName == "dev"))
                   | length
               ')
+          echo $(prs)
           if ((prs > 0)); then
               echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
