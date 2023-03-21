@@ -17,9 +17,9 @@ jobs:
       - name: Pull request creation
       - run: > 
           gh pr create
-            -B main
-            -H ${{ github.REF }}
-            --title 'RELEASE OF ${{ github.REF }}'
-            --body 'Created by Github action'
+          -B main
+          -H ${{ github.REF }}
+          --title 'RELEASE OF ${{ github.REF }}'
+          --body 'Created by Github action'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
