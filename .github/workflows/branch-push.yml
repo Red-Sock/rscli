@@ -32,8 +32,7 @@ jobs:
 
       - name: Pull request creation
         if: '!steps.check.outputs.skip'
-        run: |
-          
+        run: >
           gh pr create
           -B main
           -H ${{ github.REF }}
