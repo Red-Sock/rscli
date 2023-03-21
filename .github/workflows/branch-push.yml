@@ -26,7 +26,9 @@ jobs:
                   map(select(.baseRefName == "main" and .headRefName == "${{ github.ref }}"))
                   | length
               ')
-          prs = 2
+          
+          echo "skip=true" >> "$GITHUB_OUTPUT"
+          
           if ((prs > 0)); then
               echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
