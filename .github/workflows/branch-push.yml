@@ -9,6 +9,9 @@ jobs:
   main-create-pull-request:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
       - name: create pull request
         run: gh pr create -B main -H ${{ github.REF }} --title 'RELEASE OF ${{ github.REF }}' --body 'Created by Github action'
         env:
