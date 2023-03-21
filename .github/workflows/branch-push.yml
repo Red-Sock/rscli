@@ -20,12 +20,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           prs=$(gh pr list \
-              --repo "$GITHUB_REPOSITORY" \
-              --json baseRefName,headRefName \
-              --jq '
-                  map(select(.baseRefName == "main" and .headRefName == "${{ github.ref }}"))
-                  | length
-              ')
+              --repo "${{ github.repository }}" \
+              -B ${{ github.ref_name }}')
           
           echo "skip=true" >> "$GITHUB_OUTPUT"
           
