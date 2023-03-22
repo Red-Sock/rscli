@@ -8,14 +8,14 @@ on:
 #      - main
 
 jobs:
-  tag-validation:
+  project-plugin-tag-validation:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Obtaining tag
-        id: tag
+      - name: Obtaining current release tag
+        id: release
         run: |
           # obtaining latest stable release
           latestRelease=$(gh release list \
@@ -29,14 +29,26 @@ jobs:
           
           read -a latestReleaseArr <<< "$latestRelease"
           
-          echo "latestRelease=$latestReleaseArr" >> $GITHUB_OUTPUT
+          echo "tag=${latestReleaseArr[0]}" >> $GITHUB_OUTPUT
+          echo "latest github release is ${latestReleaseArr[0]}"
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - name: Validating tag
+      - name: Obtaining tag from pattern
+        id: project
         run: |
           patternMKfilePth="plugins/project/processor/patterns/pattern/rscli.mk"
           
           tagFromPattern=`head -n 1 $patternMKfilePth`
-          echo "Latest release ${{ steps.tag.outputs.latestRelease }}"
-          echo "Release in $patternMKfilePth is $tagFromPattern"
+          
+          IFS='='
+          read -a patternTagArr <<< "$tagFromPattern"
+
+          echo "Current pattern tag is ${patternTagArr}"
+          echo "tag=${patternTagArr[0]}" >> $GITHUB_OUTPUT
+
+      - name: Validating tag
+        run: |
+          
+          echo "Latest release: ${{ steps.release.outputs.tag }}"
+          echo "Project tag: ${{ steps.project.outputs.tag }}"
