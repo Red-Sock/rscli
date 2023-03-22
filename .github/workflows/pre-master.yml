@@ -1,11 +1,9 @@
 name: master-actions
 run-name: RELEASE
 on:
-#  pull_request:
-  push:
+  pull_request:
     branches:
-      - RSI-*
-#      - main
+      - main
 env:
   PATTERN_MK_FILE_PTH: plugins/project/processor/patterns/pattern/rscli.mk
   
@@ -54,8 +52,10 @@ jobs:
           
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
               echo "
-                  Releases are equal.
-                  Update rscli version in $PATTERN_MK_FILE_PTH before creating release and recompile project-pattern
+                  Release tags are equal.
+                  Update rscli version in $PATTERN_MK_FILE_PTH
+                  before creating release 
+                  and recompile project-pattern
           "
               exit 1
           fi
