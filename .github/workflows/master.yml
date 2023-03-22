@@ -22,7 +22,7 @@ jobs:
           IFS='	'
           read -a latestReleaseArr <<< "$latestRelease"
           
-          echo "Latest release is $latestRelease[0]"
+          echo "Latest release is $latestReleaseArr[0]"
         env:
           GH_TOKEN: ${{ github.token }}
 
