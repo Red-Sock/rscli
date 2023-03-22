@@ -39,8 +39,6 @@ jobs:
       - name: Obtaining tag from pattern
         id: project
         run: |
-          
-          
           tagFromPattern=`head -n 1 $PATTERN_MK_FILE_PTH`
           
           IFS='='
@@ -55,6 +53,9 @@ jobs:
           echo "Project tag: ${{ steps.project.outputs.tag }}"
           
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
-              echo "Releases are equal. Update rscli version in $PATTERN_MK_FILE_PTH and recompile project-pattern"
+              echo "
+                  Releases are equal.
+                  Update rscli version in $PATTERN_MK_FILE_PTH and recompile project-pattern
+          "
               exit 1
           fi
