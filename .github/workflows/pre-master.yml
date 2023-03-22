@@ -1,9 +1,13 @@
 name: master-actions
 run-name: RELEASE
 on:
+#  push:
+#    branches:
+#      - *
   pull_request:
     branches:
       - main
+
 env:
   PATTERN_MK_FILE_PTH: plugins/project/processor/patterns/pattern/rscli.mk
   
