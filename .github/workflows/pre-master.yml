@@ -5,9 +5,10 @@ on:
   push:
     branches:
       - RSI-*
+#      - main
 
 jobs:
-  check-tag:
+  tag-validation:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,4 +35,8 @@ jobs:
 
       - name: Validating tag
         run: |
-          echo ${{ steps.tag.outputs.latestRelease }}
+          patternMKfilePth="plugins/project/processor/patterns/pattern/rscli.mk"
+          
+          tagFromPattern=`head -n 1 $patternMKfilePth`
+          echo "Latest release ${{ steps.tag.outputs.latestRelease }}"
+          echo "Release in $patternMKfilePth is $tagFromPattern"
