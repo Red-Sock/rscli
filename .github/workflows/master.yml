@@ -4,8 +4,7 @@ on:
   push:
 #  pull_request_target:
     branches:
-      - main
-      - *
+      - RSI-*
 jobs:
   change-tag:
     runs-on: ubuntu-latest
