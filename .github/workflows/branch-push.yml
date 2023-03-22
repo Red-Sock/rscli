@@ -26,13 +26,14 @@ jobs:
                   map(select(.baseRefName == "${{ github.base_ref }}" and .headRefName == "${{ github.REF_NAME }}"))
                   | length
               ')
-          echo "$prs"
           
+          echo "found $prs pull requests"
           if (($prs == 0)); then
-              echo "$prs"
+              echo "creating pull request from ${{ github.REF }} to dev branch"
+              
               gh pr create \
-                -B main \
+                -B dev \
                 -H ${{ github.REF }} \
-                --title 'RELEASE OF ${{ github.REF }}' \
-                --body 'Created by Github action'
+                --title 'RELEASE OF ${{ github.REF_NAME }}' \
+                --body 'Created by Github action\n(${{ github.REF_NAME }})[https://redsock.youtrack.cloud/issue/${{ github.REF_NAME }}]'
           fi
