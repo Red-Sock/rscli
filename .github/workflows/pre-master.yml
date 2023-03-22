@@ -6,7 +6,9 @@ on:
     branches:
       - RSI-*
 #      - main
-
+env:
+  PATTERN_MK_FILE_PTH: plugins/project/processor/patterns/pattern/rscli.mk
+  
 jobs:
   project-plugin-tag-validation:
     runs-on: ubuntu-latest
@@ -37,13 +39,13 @@ jobs:
       - name: Obtaining tag from pattern
         id: project
         run: |
-          patternMKfilePth="plugins/project/processor/patterns/pattern/rscli.mk"
           
-          tagFromPattern=`head -n 1 $patternMKfilePth`
+          
+          tagFromPattern=`head -n 1 $PATTERN_MK_FILE_PTH`
           
           IFS='='
           read -a patternTagArr <<< "$tagFromPattern"
-
+          
           echo "Current pattern tag is ${patternTagArr[1]}"
           echo "tag=${patternTagArr[1]}" >> $GITHUB_OUTPUT
 
@@ -53,6 +55,6 @@ jobs:
           echo "Project tag: ${{ steps.project.outputs.tag }}"
           
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
-              echo "releases are equal"
-          
+              echo "Releases are equal. Update rscli version in $PATTERN_MK_FILE_PTH and recompile project-pattern"
+              exit 1
           fi
