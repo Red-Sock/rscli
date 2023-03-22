@@ -52,8 +52,7 @@ jobs:
           echo "Latest release: ${{ steps.release.outputs.tag }}"
           echo "Project tag: ${{ steps.project.outputs.tag }}"
           
-          if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}"]];
-            then
+          if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
               echo "releases are equal"
           
           fi
