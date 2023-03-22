@@ -2,11 +2,11 @@ package tidy
 
 import (
 	"bytes"
-	"github.com/Red-Sock/rscli/internal/utils/slices"
 	"strings"
 
 	"github.com/pkg/errors"
 
+	"github.com/Red-Sock/rscli/internal/utils/slices"
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
@@ -98,7 +98,7 @@ func insertApiSetupIfNotExists(p interfaces.Project, projMainFile *folder.Folder
 }
 func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder, httpFile *folder.Folder) {
 	insertMissingAPI(p, serverFolders, httpFile)
-	removeExtraAPI(serverFolders, httpFile)
+	removeExtraAPI(p, serverFolders, httpFile)
 
 	apiMgr := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.TransportFolder, patterns.ApiManagerFileName)
 	if apiMgr == nil {
@@ -153,7 +153,7 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 		)
 	}
 }
-func removeExtraAPI(serverFolders []*folder.Folder, httpFile *folder.Folder) {
+func removeExtraAPI(p interfaces.Project, serverFolders []*folder.Folder, httpFile *folder.Folder) {
 	var aliasesInFile []string
 	{
 		goFuncWordBytes := []byte(goFuncWord)
@@ -181,24 +181,16 @@ func removeExtraAPI(serverFolders []*folder.Folder, httpFile *folder.Folder) {
 		}
 	}
 
-	aliasesFromConfig := make([]string, len(serverFolders))
+	aliasesFromConfig := make(map[string]struct{}, len(serverFolders))
 	{
-		for idx, serv := range serverFolders {
-			aliasesFromConfig[idx] = serv.Name
+		for _, serv := range serverFolders {
+			aliasesFromConfig[serv.Name] = struct{}{}
 		}
 	}
 
 	for _, aliasInFile := range aliasesInFile {
 
-		aliasExistsInConfig := false
-		for _, aliasFromConfig := range aliasesFromConfig {
-			if aliasInFile == aliasFromConfig {
-				aliasExistsInConfig = true
-				break
-			}
-		}
-
-		if !aliasExistsInConfig {
+		if _, ok := aliasesFromConfig[aliasInFile]; !ok {
 			abbB := []byte(aliasInFile)
 			idx := bytes.Index(httpFile.Content, abbB)
 			for idx != -1 {
@@ -208,6 +200,16 @@ func removeExtraAPI(serverFolders []*folder.Folder, httpFile *folder.Folder) {
 
 				idx = bytes.Index(httpFile.Content, abbB)
 			}
+		}
+	}
+
+	transports := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.TransportFolder)
+	if transports == nil {
+		return
+	}
+	for idx := range transports.Inner {
+		if _, ok := aliasesFromConfig[transports.Inner[idx].Name]; !ok && len(transports.Inner[idx].Content) == 0 {
+			transports.Inner[idx].Delete()
 		}
 	}
 }

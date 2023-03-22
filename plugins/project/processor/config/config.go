@@ -4,15 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/Red-Sock/rscli/internal/utils/cases"
 	"os"
 	"strings"
+
+	"github.com/Red-Sock/rscli/internal/utils/cases"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
-	structs "github.com/Red-Sock/rscli/plugins/config/pkg/structs"
+	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 	config "github.com/Red-Sock/rscli/plugins/config/processor"
 	"github.com/Red-Sock/rscli/plugins/project/processor/consts"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
@@ -219,7 +220,7 @@ func (c *Config) GenerateGoConfigKeys(prefix string) ([]byte, error) {
 	sb := &strings.Builder{}
 
 	for key, v := range keysFromCfg {
-		sb.WriteString(key + "= \"" + v + "\"\n")
+		sb.WriteString(key + " = \"" + v + "\"\n")
 	}
 
 	return []byte(sb.String()), nil

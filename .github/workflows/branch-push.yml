@@ -1,0 +1,40 @@
+name: branch-push
+run-name: ${{ github.REF_NAME }} pull request
+on:
+  push:
+    branches:
+      - RSI-*
+
+jobs:
+  main-create-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Creating PR
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          prs=$(gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --json baseRefName,headRefName \
+              --jq '
+                  map(select(.baseRefName == "${{ github.base_ref }}" and .headRefName == "${{ github.REF_NAME }}"))
+                  | length
+              ')
+          
+          echo "found $prs pull requests"
+          if (($prs == 0)); then
+              echo "creating pull request from ${{ github.REF }} to dev branch"
+              
+              gh pr create \
+                -B dev \
+                -H ${{ github.REF }} \
+                --title 'RELEASE OF ${{ github.REF_NAME }}' \
+                --body 'Created by Github action. \
+                [${{ github.REF_NAME }}](https://redsock.youtrack.cloud/issue/${{ github.REF_NAME }})'
+          fi

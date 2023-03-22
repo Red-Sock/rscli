@@ -10,14 +10,14 @@ import (
 
 const PluginName = "project"
 
-func RunCreateProject(prev uikit.UIElement) uikit.UIElement {
+func RunProjectCMD(prev uikit.UIElement) uikit.UIElement {
 	pm := projectMenu{
 		previous: prev,
 	}
 	sb := radioselect.New(
 		pm.selectAction,
 		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Creating project")),
-		radioselect.Items(projCreate),
+		radioselect.Items(projCreate, projTidy),
 	)
 
 	return sb
@@ -32,6 +32,8 @@ func (pm *projectMenu) selectAction(resp string) uikit.UIElement {
 	switch resp {
 	case projCreate:
 		return ui.StartCreateProj(pm.previous)
+	case projTidy:
+		return Tidy(pm.previous)
 	}
 
 	return nil
@@ -39,4 +41,5 @@ func (pm *projectMenu) selectAction(resp string) uikit.UIElement {
 
 const (
 	projCreate = "create"
+	projTidy   = "tidy"
 )

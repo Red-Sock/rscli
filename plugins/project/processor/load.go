@@ -9,6 +9,7 @@ import (
 
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/config"
+	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
@@ -61,10 +62,17 @@ func LoadProject(pth string) (*Project, error) {
 		return nil, err
 	}
 
-	return &Project{
+	p := &Project{
 		Name:        name,
 		ProjectPath: pth,
 		Cfg:         c,
 		F:           f,
-	}, nil
+	}
+
+	err = interfaces.LoadProjectVersion(p)
+	if err != nil {
+		return p, errors.Wrap(err, "error loading project version")
+	}
+
+	return p, nil
 }

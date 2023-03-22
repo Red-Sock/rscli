@@ -2,9 +2,7 @@ package project
 
 import (
 	"github.com/Red-Sock/rscli/internal/handlers/shared"
-	"github.com/Red-Sock/rscli/plugins/project/processor"
 	"github.com/pkg/errors"
-	"os"
 )
 
 const Command = "project"
@@ -17,19 +15,7 @@ func NewHandler() *Handler {
 	return &Handler{
 		progs: map[string]func(args []string) error{
 			"create": createProject,
-			"tidy": func(_ []string) error {
-				wd, err := os.Getwd()
-				if err != nil {
-					return err
-				}
-
-				p, err := processor.LoadProject(wd)
-				if err != nil {
-					return err
-				}
-
-				return processor.Tidy(p)
-			},
+			"tidy":   tidyProject,
 		},
 	}
 }

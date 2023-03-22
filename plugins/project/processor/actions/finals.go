@@ -3,12 +3,14 @@ package actions
 import (
 	"bytes"
 	"fmt"
-	"github.com/Red-Sock/rscli/plugins/project/processor/actions/tidy"
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 	"os"
 	"os/exec"
 	"path"
+
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
+
+	"github.com/Red-Sock/rscli/plugins/project/processor/actions/tidy"
 
 	"github.com/Red-Sock/rscli/pkg/cmd"
 	"github.com/Red-Sock/rscli/pkg/folder"
@@ -136,7 +138,7 @@ func Tidy(p interfaces.Project) error {
 		return err
 	}
 
-	return p.GetFolder().Build(path.Dir(p.GetProjectPath()))
+	return p.GetFolder().Build()
 }
 
 // helping functions
@@ -145,8 +147,10 @@ const ProjectNamePattern = "financial-microservice"
 
 func ReplaceProjectName(name string, f *folder.Folder) {
 	if f.Content != nil {
-		f.Content = bytes.ReplaceAll(f.Content, []byte(ProjectNamePattern), []byte(name))
-		return
+		if idx := bytes.Index(f.Content, []byte(ProjectNamePattern)); idx != -1 {
+			f.Content = bytes.ReplaceAll(f.Content, []byte(ProjectNamePattern), []byte(name))
+			return
+		}
 	}
 	for _, innerFolder := range f.Inner {
 		ReplaceProjectName(name, innerFolder)

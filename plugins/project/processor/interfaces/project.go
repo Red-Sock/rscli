@@ -11,6 +11,8 @@ type Project interface {
 	GetProjectPath() string
 
 	GetFolder() *folder.Folder
+	GetVersion() Version
+	SetVersion(Version)
 }
 
 type Config interface {

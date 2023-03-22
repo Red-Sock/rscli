@@ -5,12 +5,15 @@ import (
 	"path"
 )
 
+var foldersIgnore = []string{".git", ".idea"}
+
 type Folder struct {
 	Name    string
 	Inner   []*Folder
 	Content []byte
 
-	olderVersion []byte
+	olderVersion  []byte
+	isToBeDeleted bool
 }
 
 func (f *Folder) Add(folder ...*Folder) {
@@ -18,17 +21,25 @@ func (f *Folder) Add(folder ...*Folder) {
 }
 
 func (f *Folder) AddWithPath(pths []string, folders ...*Folder) {
+	f.addWithPath(pths, false, folders)
+}
+
+func (f *Folder) ForceAddWithPath(pths []string, folders ...*Folder) {
+	f.addWithPath(pths, true, folders)
+}
+
+func (f *Folder) addWithPath(pths []string, needToReplace bool, folders []*Folder) {
 	if len(folders) == 0 {
 		return
 	}
 
-	folder := f
+	currentFolder := f
 	for _, pathPart := range pths {
 		var pathFolder *Folder
 
-		for currentFolderIdx := range folder.Inner {
-			if folder.Inner[currentFolderIdx].Name == pathPart {
-				pathFolder = folder.Inner[currentFolderIdx]
+		for currentFolderIdx := range currentFolder.Inner {
+			if currentFolder.Inner[currentFolderIdx].Name == pathPart {
+				pathFolder = currentFolder.Inner[currentFolderIdx]
 				break
 			}
 		}
@@ -36,23 +47,29 @@ func (f *Folder) AddWithPath(pths []string, folders ...*Folder) {
 			pathFolder = &Folder{
 				Name: pathPart,
 			}
-			folder.Inner = append(folder.Inner, pathFolder)
+			currentFolder.Inner = append(currentFolder.Inner, pathFolder)
 		}
-		folder = pathFolder
+		currentFolder = pathFolder
 	}
 	for _, folderToAdd := range folders {
 		var isAdded bool
 
-		for idx, existingItem := range folder.Inner {
-			if existingItem.Name == folderToAdd.Name {
-				folder.Inner[idx] = folderToAdd
+		for idx, itemInCurrentFolder := range currentFolder.Inner {
+			if itemInCurrentFolder.Name == folderToAdd.Name {
+				if needToReplace {
+					if len(currentFolder.Inner[idx].Content) != 0 && len(folderToAdd.Content) != 0 {
+						currentFolder.Inner[idx].Content = folderToAdd.Content
+					} else {
+						currentFolder.Inner[idx] = folderToAdd
+					}
+				}
 				isAdded = true
 				break
 			}
 		}
 
 		if !isAdded {
-			folder.Inner = append(folder.Inner, folderToAdd)
+			currentFolder.Inner = append(currentFolder.Inner, folderToAdd)
 		}
 	}
 }
@@ -77,8 +94,31 @@ func (f *Folder) GetByPath(pth ...string) *Folder {
 	return currentFolder
 }
 
-func (f *Folder) Build(root string) error {
+func (f *Folder) Build() error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	wholePath, dir := path.Split(wd)
+	if dir != f.Name {
+		wholePath = wd
+	}
+
+	return f.build(wholePath)
+}
+
+func (f *Folder) build(root string) error {
+
 	pth := path.Join(root, f.Name)
+
+	if f.isToBeDeleted {
+		err := os.RemoveAll(pth)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 
 	if len(f.Content) != 0 {
 
@@ -93,13 +133,9 @@ func (f *Folder) Build(root string) error {
 				return nil
 			}
 		}
-		err := os.RemoveAll(pth)
-		if err != nil {
-			return err
-		}
 
 		if len(f.Content) != 0 && !(len(f.Content) == 1 && f.Content[0] != 0) {
-			err = os.WriteFile(pth, f.Content, 0755)
+			err := os.WriteFile(pth, f.Content, 0755)
 			if err != nil {
 				return err
 			}
@@ -114,11 +150,15 @@ func (f *Folder) Build(root string) error {
 	}
 
 	for _, d := range f.Inner {
-		err = d.Build(pth)
+		err = d.build(pth)
 		if err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (f *Folder) Delete() {
+	f.isToBeDeleted = true
 }

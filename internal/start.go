@@ -20,7 +20,7 @@ var ErrUnknownCommand = errors.New("unknown command")
 
 var plugins = map[string]func(uikit.UIElement) uikit.UIElement{
 	cfgui.PluginName:     cfgui.Run,
-	projectui.PluginName: projectui.RunCreateProject,
+	projectui.PluginName: projectui.RunProjectCMD,
 	envui.PluginName:     envui.Run,
 }
 
@@ -81,7 +81,7 @@ func getMainMenuCallback(resp string) uikit.UIElement {
 	case cfgui.PluginName:
 		return cfgui.Run(mainMenu())
 	case projectui.PluginName:
-		return projectui.RunCreateProject(mainMenu())
+		return projectui.RunProjectCMD(mainMenu())
 	case envui.PluginName:
 		return envui.Run(mainMenu())
 	case "exit":

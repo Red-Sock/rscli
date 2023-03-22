@@ -4,6 +4,10 @@ import (
 	_ "embed"
 )
 
+const (
+	RsCliMkFileName = "rscli.mk"
+)
+
 // Build and deploy
 var (
 	//go:embed pattern_c/Dockerfile
@@ -26,4 +30,10 @@ var (
 var (
 	//go:embed pattern_c/examples/api.http
 	ApiHTTP []byte
+)
+
+var (
+	//go:embed pattern_c/rscli.mk
+
+	RscliMK []byte
 )

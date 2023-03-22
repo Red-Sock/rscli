@@ -13,7 +13,7 @@ import (
 // where all *.go files are renamed to *.go.pattern
 // due to inability of go:embed to obtain project's *.go files
 
-// !!! MUST BE EXECUTED FROM MAKEFILE IN ROOT OF PROJECT !!!
+// !!! MUST BE EXECUTED FROM MAKEFILE FROM ROOT OF THIS PROJECT !!!
 
 func main() {
 	var oldPath, newPath string
