@@ -44,8 +44,8 @@ jobs:
           IFS='='
           read -a patternTagArr <<< "$tagFromPattern"
 
-          echo "Current pattern tag is ${patternTagArr}"
-          echo "tag=${patternTagArr[0]}" >> $GITHUB_OUTPUT
+          echo "Current pattern tag is ${patternTagArr[1]}"
+          echo "tag=${patternTagArr[1]}" >> $GITHUB_OUTPUT
 
       - name: Validating tag
         run: |
