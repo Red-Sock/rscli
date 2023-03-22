@@ -3,7 +3,7 @@ run-name: ${{ github.REF_NAME }} pull request
 on:
   push:
     branches:
-      - RSI-*
+      - TERMPORARY-DELETED
 
 jobs:
   main-create-pull-request:
