@@ -1,15 +1,24 @@
 name: master-actions
 run-name: RELEASE
 on:
-  # change to
-  pull_request_target:
+  push:
+#  pull_request_target:
     branches:
       - main
+      - *
 jobs:
   change-tag:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - run: ls
-      - run: echo 42
-      - run: echo $GITHUB_REF
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Updating tag
+        run: |
+          latestRelease=$(gh release list \
+          -R https://github.com/Red-Sock/rscli \
+          --exclude-drafts \
+          --exclude-pre-releases \
+          -L 1)
+          echo "$latestRelease"
+
+
