@@ -27,7 +27,7 @@ jobs:
                   | length
               ')
           echo "$prs"
-          if ["$prs" -eq 0]; then
+          if (([$prs -eq 0)); then
               echo "$prs"
               gh pr create \
                 -B main \
