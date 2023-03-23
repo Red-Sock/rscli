@@ -63,6 +63,7 @@ jobs:
           fi
 
   project-plugin-compiled:
+    needs: project-plugin-tag-validation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -75,11 +76,10 @@ jobs:
       - name: Compiling pattern
         run: |
           make compile-pattern
-          echo "${{ github.event.number }}"
           diffs=`git diff`
           if ((${#diffs} != 0)); then 
             
-          #  gh pr comment 
+            gh pr comment ${{ github.event.number }} -b "Recompile project before merge to " 
             echo "Recompile project and push"
             exit 1
           fi
