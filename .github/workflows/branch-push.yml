@@ -27,7 +27,7 @@ jobs:
                   | length
               ')
           
-          echo "found $prs pull requests"
+          echo "Found $prs pull requests"
           if (($prs == 0)); then
               echo "creating pull request from ${{ github.REF }} to dev branch"
               
