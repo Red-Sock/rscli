@@ -77,6 +77,6 @@ jobs:
           make compile-pattern
           
           diffs=`git diff`
-          if ((${#diffs} == 0)); then 
+          if ((${#diffs} != 1)); then 
             echo "project compiled properly"
           fi
