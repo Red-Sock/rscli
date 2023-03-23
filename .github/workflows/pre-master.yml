@@ -75,10 +75,10 @@ jobs:
       - name: Compiling pattern
         run: |
           make compile-pattern
-          
+          echo "${{ github.event.number }}"
           diffs=`git diff`
           if ((${#diffs} != 0)); then 
-            echo "${{ github.event.number }}"
+            
           #  gh pr comment 
             echo "Recompile project and push"
             exit 1
