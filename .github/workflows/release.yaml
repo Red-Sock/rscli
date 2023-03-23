@@ -58,5 +58,6 @@ jobs:
                   before creating release 
                   and recompile project-pattern
           "
+              # TODO add comment to git pr
               exit 1
           fi

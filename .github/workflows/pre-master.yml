@@ -77,6 +77,9 @@ jobs:
           make compile-pattern
           
           diffs=`git diff`
-          if ((${#diffs} != 1)); then 
-            echo "project compiled properly"
+          if ((${#diffs} != 0)); then 
+            echo "${{ github.event.number }}"
+          #  gh pr comment 
+            echo "Recompile project and push"
+            exit 1
           fi
