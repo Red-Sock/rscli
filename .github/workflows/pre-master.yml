@@ -61,6 +61,7 @@ jobs:
           "
               exit 1
           fi
+
   project-plugin-compiled:
     runs-on: ubuntu-latest
     steps:
@@ -73,6 +74,7 @@ jobs:
           go-version: 1.20
       - name: Compiling pattern
         run: |
+          go version
           make compile-pattern
           
           diffs=`git diff`
