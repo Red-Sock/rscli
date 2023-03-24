@@ -56,7 +56,8 @@ jobs:
               
               gh pr comment ${{ github.event.number }} -b "$OUTPUT_MESSAGE" > /dev/null 
               
-              {echo "$OUTPUT_MESSAGE"; exit 1}
+              echo "$OUTPUT_MESSAGE"
+              exit 1
           fi
 
   project-plugin-compiled:
