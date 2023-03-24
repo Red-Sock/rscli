@@ -25,5 +25,5 @@ jobs:
           read -a patternTagArr <<< `head -n 1 $PATTERN_MK_FILE_PTH`
           echo "Current pattern tag is ${patternTagArr[1]}"
           echo "${patternTagArr[1]} 12 ${GITHUB_HEAD_REF}"
-         
+        
           #gh release create "${patternTagArr[1]}" --latest --target "${GITHUB_HEAD_REF}"
