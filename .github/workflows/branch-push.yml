@@ -6,7 +6,7 @@ on:
       - RSI-*
 
 jobs:
-  main-create-pull-request:
+  create-pull-request-to-dev:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
