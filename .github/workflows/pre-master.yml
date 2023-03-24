@@ -56,7 +56,7 @@ jobs:
           echo "Latest release: ${{ steps.release.outputs.tag }}"
           echo "Project tag: ${{ steps.project.outputs.tag }}"
           
-          OUTPUT_MESSAGE = 'Release tags are equal. Update rscli version in $PATTERN_MK_FILE_PTH before creating release and recompile project-pattern'
+          OUTPUT_MESSAGE='Release tags are equal. Update rscli version in $PATTERN_MK_FILE_PTH before creating release and recompile project-pattern'
           echo $OUTPUT_MESSAGE
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
               
