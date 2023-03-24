@@ -49,6 +49,10 @@ jobs:
 
       - name: Validating tag
         run: |
+          
+          MY_MESSAGE="Hello World"
+          echo $MY_MESSAGE
+  
           echo "Latest release: ${{ steps.release.outputs.tag }}"
           echo "Project tag: ${{ steps.project.outputs.tag }}"
           
