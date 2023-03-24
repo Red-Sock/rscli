@@ -20,7 +20,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           
-          echo "${{ github.base_ref }} ${{#github.base_ref}}"
+          echo "${{ github.base_ref }} ${{#GITHUB_BASE_REF}}"
           prs=$(gh pr list \
               --repo "$GITHUB_REPOSITORY" \
               --json baseRefName,headRefName \
