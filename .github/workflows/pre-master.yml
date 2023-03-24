@@ -61,7 +61,7 @@ jobs:
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
               
               echo "${{msg}}"
-              gh pr comment ${{ github.event.number }} -b "$(msg)" 
+              gh pr comment ${{ github.event.number }} -b "$outputMessage" 
               exit 1
           fi
 
