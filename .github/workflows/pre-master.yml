@@ -52,8 +52,9 @@ jobs:
           echo "Project tag is ${{ steps.project.outputs.tag }}"
           
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
-              git branch
-              echo "$SRC_BRANCH"
+              GIT_BRANCH=${GITHUB_BASE_REF:-${GITHUB_REF#refs/heads/}}
+              echo "GIT_BRANCH=$GIT_BRANCH" >> $GITHUB_ENV
+              
               OUTPUT_MESSAGE="Release tags are equal. **Update** rscli version in [$PATTERN_MK_FILE_PTH](https://github.com/Red-Sock/rscli/blob/`git rev-parse --abbrev-ref HEAD`/plugins/project/processor/patterns/pattern/rscli.mk) before creating release and **recompile** project-pattern"
               
               gh pr comment ${{ github.event.number }} -b "$OUTPUT_MESSAGE" > /dev/null 
