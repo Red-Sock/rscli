@@ -56,12 +56,12 @@ jobs:
           echo "Latest release: ${{ steps.release.outputs.tag }}"
           echo "Project tag: ${{ steps.project.outputs.tag }}"
           
-          outputMessage = 'Release tags are equal. Update rscli version in $PATTERN_MK_FILE_PTH before creating release and recompile project-pattern'
-          echo $outputMessage
+          OUTPUT_MESSAGE = 'Release tags are equal. Update rscli version in $PATTERN_MK_FILE_PTH before creating release and recompile project-pattern'
+          echo $OUTPUT_MESSAGE
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
               
-              echo "$outputMessage"
-              gh pr comment ${{ github.event.number }} -b "$outputMessage" 
+              echo "$OUTPUT_MESSAGE"
+              gh pr comment ${{ github.event.number }} -b "$OUTPUT_MESSAGE" 
               exit 1
           fi
 
