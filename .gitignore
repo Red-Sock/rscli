@@ -8,6 +8,8 @@
 # Test binary, built with `go test -c`
 *.test
 
+./pattern_compiler
+
 # Configs
 config/*
 

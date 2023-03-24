@@ -1,3 +1,5 @@
+PATTERN_COMPILER_NAME=pattern_compiler
+
 .PHONY: compile-pattern
 compile-pattern:
 	@echo Compiling project pattern...
