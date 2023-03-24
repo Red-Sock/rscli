@@ -1,9 +1,9 @@
 name: master-actions
 run-name: RELEASE
 on:
-  pull_request_target:
-    branches:
-      - main
+  pull_request_review:
+    types:
+      - submitted
 
 env:
   PATTERN_MK_FILE_PTH: plugins/project/processor/patterns/pattern/rscli.mk
@@ -23,5 +23,6 @@ jobs:
           IFS='='
           read -a patternTagArr <<< `head -n 1 $PATTERN_MK_FILE_PTH`
           echo "Current pattern tag is ${patternTagArr[1]}"
+          echo "${patternTagArr[1]} 12 ${GITHUB_HEAD_REF}"
           
-          gh release create "${patternTagArr[1]}" --latest --target "${GITHUB_HEAD_REF}"
+          #gh release create "${patternTagArr[1]}" --latest --target "${GITHUB_HEAD_REF}"

@@ -19,14 +19,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if ((${#GITHUB_BASE_REF} == 0)); then
-            exit 0
-          fi
           prs=$(gh pr list \
               --repo "$GITHUB_REPOSITORY" \
-              --json baseRefName,headRefName \
+              --json headRefName \
               --jq '
-                  map(select(.baseRefName == "${{ github.base_ref }}" and .headRefName == "${{ github.REF_NAME }}"))
+                  map(select(.headRefName == "${{ github.REF_NAME }}"))
                   | length
               ')
           
