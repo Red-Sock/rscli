@@ -55,8 +55,8 @@ jobs:
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
               OUTPUT_MESSAGE="Release tags are equal. Update rscli version in $PATTERN_MK_FILE_PTH before creating release and recompile project-pattern"
               
-              gh pr comment ${{ github.event.number }} -b "$OUTPUT_MESSAGE" 
               echo "$OUTPUT_MESSAGE"
+              @gh pr comment ${{ github.event.number }} -b "$OUTPUT_MESSAGE" 
               exit 1
           fi
       
