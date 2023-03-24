@@ -1,16 +1,17 @@
 name: master-actions
 run-name: RELEASE
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - main
-    types:
-      - closed
+    types: [closed]
+
 env:
   PATTERN_MK_FILE_PTH: plugins/project/processor/patterns/pattern/rscli.mk
 
 jobs:
   tag-release:
+    if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
