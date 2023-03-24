@@ -1,3 +1,3 @@
-RSCLI_VERSION=v0.0.10-alpha
+RSCLI_VERSION=v0.0.9-alpha
 rscli-version:
 	 @echo $(RSCLI_VERSION)
