@@ -19,7 +19,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [[${#GITHUB_BASE_REF} == 0]]; then
+          if ((${#GITHUB_BASE_REF} == 0)); then
             exit 0
           fi
           prs=$(gh pr list \
