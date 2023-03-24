@@ -52,6 +52,7 @@ jobs:
           echo "Project tag is ${{ steps.project.outputs.tag }}"
           
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
+              
               GIT_BRANCH=${GITHUB_BASE_REF:-${GITHUB_REF#refs/heads/}}
               echo "GIT_BRANCH=$GIT_BRANCH" >> $GITHUB_ENV
               
