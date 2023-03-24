@@ -20,7 +20,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           
-          echo "${{ github.base_ref }} ${#GITHUB_BASE_REF}"
+          if [[${#GITHUB_BASE_REF} -eq 0]]; then
+            exit 0
+          fi
           prs=$(gh pr list \
               --repo "$GITHUB_REPOSITORY" \
               --json baseRefName,headRefName \
