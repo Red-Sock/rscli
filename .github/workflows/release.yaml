@@ -15,51 +15,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Obtaining current release tag
-        id: release
-        run: |
-          # obtaining latest stable release
-          latestRelease=$(gh release list \
-            -R https://github.com/Red-Sock/rscli \
-            --exclude-drafts \
-            --exclude-pre-releases \
-            -L 1)
-          
-          # predefined variable for splitting strings
-          IFS='	'
-          
-          read -a latestReleaseArr <<< "$latestRelease"
-          
-          echo "tag=${latestReleaseArr[0]}" >> $GITHUB_OUTPUT
-          echo "latest github release is ${latestReleaseArr[0]}"
-        env:
-          GH_TOKEN: ${{ github.token }}
-
       - name: Obtaining tag from pattern
         id: project
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          tagFromPattern=`head -n 1 $PATTERN_MK_FILE_PTH`
-          
           IFS='='
-          read -a patternTagArr <<< "$tagFromPattern"
-          
+          read -a patternTagArr <<< `head -n 1 $PATTERN_MK_FILE_PTH`
           echo "Current pattern tag is ${patternTagArr[1]}"
-          echo "tag=${patternTagArr[1]}" >> $GITHUB_OUTPUT
-
-      - name: Validating tag
-        run: |
-          echo "Latest release: ${{ steps.release.outputs.tag }}"
-          echo "Project tag: ${{ steps.project.outputs.tag }}"
           
-          if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
-              ERR_MESSAGE="
-                  Release tags are equal.
-                  Update rscli version in $PATTERN_MK_FILE_PTH
-                  before creating release 
-                  and recompile project-pattern
-              "
-              gh pr comment ${{ github.event.number }} -b  "$ERR_MESSAGE" >/dev/null
-              
-              echo "$ERR_MESSAGE"
-              exit 1
-          fi
+          gh release create "${patternTagArr[1]}"
