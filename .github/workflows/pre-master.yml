@@ -48,15 +48,13 @@ jobs:
 
 
       - name: Validating tag
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          
-          MY_MESSAGE="Hello World"
-          echo $MY_MESSAGE
-  
           echo "Latest release: ${{ steps.release.outputs.tag }}"
           echo "Project tag: ${{ steps.project.outputs.tag }}"
           
-          OUTPUT_MESSAGE='Release tags are equal. Update rscli version in $PATTERN_MK_FILE_PTH before creating release and recompile project-pattern'
+          OUTPUT_MESSAGE=$(echo 'Release tags are equal. Update rscli version in $PATTERN_MK_FILE_PTH before creating release and recompile project-pattern')
           echo $OUTPUT_MESSAGE
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
               
@@ -64,6 +62,7 @@ jobs:
               gh pr comment ${{ github.event.number }} -b "$OUTPUT_MESSAGE" 
               exit 1
           fi
+      
 
   project-plugin-compiled:
     needs: project-plugin-tag-validation
