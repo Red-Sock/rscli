@@ -14,8 +14,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Obtaining current release tag
         id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           # obtaining latest stable release
           latestRelease=$(gh release list \
@@ -31,8 +34,7 @@ jobs:
           
           echo "tag=${latestReleaseArr[0]}" >> $GITHUB_OUTPUT
           echo "latest github release is ${latestReleaseArr[0]}"
-        env:
-          GH_TOKEN: ${{ github.token }}
+
       - name: Obtaining tag from pattern
         id: project
         run: |
@@ -41,7 +43,6 @@ jobs:
           
           echo "Current pattern tag is ${patternTagArr[1]}"
           echo "tag=${patternTagArr[1]}" >> $GITHUB_OUTPUT
-
 
       - name: Validating tag
         env:
@@ -53,9 +54,9 @@ jobs:
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
               OUTPUT_MESSAGE="Release tags are equal. Update rscli version in $PATTERN_MK_FILE_PTH before creating release and recompile project-pattern"
               
-              echo "$OUTPUT_MESSAGE"
               gh pr comment ${{ github.event.number }} -b "$OUTPUT_MESSAGE" > /dev/null 
-              exit 1
+              
+              {echo "$OUTPUT_MESSAGE"; exit 1}
           fi
 
   project-plugin-compiled:
@@ -78,7 +79,7 @@ jobs:
           
           if ((${#diffs} != 0)); then
             ERR_MESSAGE="Recompile project-pattern before merge to master"
-            gh pr comment ${{ github.event.number }} -b  "$ERR_MESSAGE"
+            gh pr comment ${{ github.event.number }} -b  "$ERR_MESSAGE" >> /dev/null
             echo "$ERR_MESSAGE"
             exit 1
           fi

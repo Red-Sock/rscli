@@ -52,12 +52,14 @@ jobs:
           echo "Project tag: ${{ steps.project.outputs.tag }}"
           
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
-              echo "
+              ERR_MESSAGE="
                   Release tags are equal.
                   Update rscli version in $PATTERN_MK_FILE_PTH
                   before creating release 
                   and recompile project-pattern
-          "
-              # TODO add comment to git pr
+              "
+              gh pr comment ${{ github.event.number }} -b  "$ERR_MESSAGE" >/dev/null
+              
+              echo "$ERR_MESSAGE"
               exit 1
           fi
