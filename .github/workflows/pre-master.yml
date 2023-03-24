@@ -14,7 +14,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
       - name: Obtaining current release tag
         id: release
         run: |
@@ -34,7 +33,6 @@ jobs:
           echo "latest github release is ${latestReleaseArr[0]}"
         env:
           GH_TOKEN: ${{ github.token }}
-
       - name: Obtaining tag from pattern
         id: project
         run: |
@@ -49,17 +47,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "Latest release: ${{ steps.release.outputs.tag }}"
-          echo "Project tag: ${{ steps.project.outputs.tag }}"
+          echo "Latest release is ${{ steps.release.outputs.tag }}"
+          echo "Project tag is ${{ steps.project.outputs.tag }}"
           
           if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
               OUTPUT_MESSAGE="Release tags are equal. Update rscli version in $PATTERN_MK_FILE_PTH before creating release and recompile project-pattern"
               
               echo "$OUTPUT_MESSAGE"
-              gh pr comment ${{ github.event.number }} -b "$OUTPUT_MESSAGE" >/dev/null 
+              gh pr comment ${{ github.event.number }} -b "$OUTPUT_MESSAGE" > /dev/null 
               exit 1
           fi
-      
+
   project-plugin-compiled:
     needs: project-plugin-tag-validation
     runs-on: ubuntu-latest
@@ -71,6 +69,7 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: 1.19
+
       - name: Compiling pattern
         run: |
           make compile-pattern
