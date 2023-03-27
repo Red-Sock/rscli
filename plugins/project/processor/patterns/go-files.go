@@ -2,6 +2,7 @@ package patterns
 
 import (
 	_ "embed"
+
 	"github.com/Red-Sock/rscli/plugins/project/processor/consts"
 )
 
@@ -28,7 +29,7 @@ const (
 	CmdFolder    = "cmd"
 	MainFileName = "main.go"
 
-	ApiConstructorFileName = "http.go"
+	ApiConstructorFileName = "api.go"
 
 	InternalFolder     = "internal"
 	TransportFolder    = "transport"
