@@ -25,4 +25,4 @@ jobs:
           echo "Current pattern tag is ${patternTagArr[1]}"
           echo "new tag is ${patternTagArr[1]}"
           
-          #gh release create "${patternTagArr[1]}" --latest --target "${GITHUB_HEAD_REF}"
+          gh release create "${patternTagArr[1]}" --latest --target "${GITHUB_HEAD_REF}"
