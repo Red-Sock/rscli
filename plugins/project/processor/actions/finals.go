@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -10,10 +9,10 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
+	"github.com/Red-Sock/rscli/plugins/project/processor/actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/tidy"
 
 	"github.com/Red-Sock/rscli/pkg/cmd"
-	"github.com/Red-Sock/rscli/pkg/folder"
 	configpattern "github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 	config "github.com/Red-Sock/rscli/plugins/config/processor"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
@@ -131,7 +130,7 @@ func Tidy(p interfaces.Project) error {
 		return err
 	}
 
-	ReplaceProjectName(p.GetName(), p.GetFolder())
+	renamer.ReplaceProjectName(p.GetName(), p.GetFolder())
 
 	err = BuildConfigGoFolder(p)
 	if err != nil {
@@ -142,20 +141,3 @@ func Tidy(p interfaces.Project) error {
 }
 
 // helping functions
-
-const ProjectNamePattern = "financial-microservice"
-
-func ReplaceProjectName(name string, f *folder.Folder) {
-	if f.Content != nil {
-		if idx := bytes.Index(f.Content, []byte(ProjectNamePattern)); idx != -1 {
-			f.Content = bytes.ReplaceAll(f.Content, []byte(ProjectNamePattern), []byte(name))
-			return
-		}
-	}
-	for _, innerFolder := range f.Inner {
-		ReplaceProjectName(name, innerFolder)
-		if f.Name == ProjectNamePattern && len(f.Inner) == 0 {
-			f.Name = name
-		}
-	}
-}

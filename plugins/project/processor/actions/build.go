@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
+	"github.com/Red-Sock/rscli/plugins/project/processor/actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
@@ -59,7 +60,7 @@ func BuildConfigGoFolder(p interfaces.Project) error {
 
 func BuildProject(p interfaces.Project) error {
 
-	ReplaceProjectName(p.GetName(), p.GetFolder())
+	renamer.ReplaceProjectName(p.GetName(), p.GetFolder())
 
 	err := p.GetFolder().Build()
 	if err != nil {
