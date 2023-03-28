@@ -1,4 +1,4 @@
-package v0_0_14_alpha
+package v0_0_15_alpha
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ import (
 var Version = interfaces.Version{
 	Major:      0,
 	Minor:      0,
-	Negligible: 13,
+	Negligible: 15,
 	Additional: interfaces.TagVersionAlpha,
 }
 
