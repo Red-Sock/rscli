@@ -1,4 +1,4 @@
-package v0_0_15_alpha
+package v0_0_17_alpha
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 var Version = interfaces.Version{
 	Major:      0,
 	Minor:      0,
-	Negligible: 16,
+	Negligible: 17,
 	Additional: interfaces.TagVersionAlpha,
 }
 
@@ -49,7 +49,7 @@ func Do(p interfaces.Project) (err error) {
 		return err
 	}
 
-	p.GetFolder().AddWithPath([]string{patterns.TransportFolder, patterns.UtilsFolder, patterns.CloserFolder}, &folder.Folder{
+	p.GetFolder().AddWithPath([]string{patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder}, &folder.Folder{
 		Name:    patterns.CloserFile,
 		Content: patterns.UtilsCloser,
 	})
