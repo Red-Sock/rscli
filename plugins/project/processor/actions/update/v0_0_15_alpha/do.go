@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/Red-Sock/rscli/pkg/cmd"
+	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
@@ -12,7 +13,7 @@ import (
 var Version = interfaces.Version{
 	Major:      0,
 	Minor:      0,
-	Negligible: 15,
+	Negligible: 16,
 	Additional: interfaces.TagVersionAlpha,
 }
 
@@ -47,6 +48,11 @@ func Do(p interfaces.Project) (err error) {
 	if err != nil {
 		return err
 	}
+
+	p.GetFolder().AddWithPath([]string{patterns.TransportFolder, patterns.UtilsFolder, patterns.CloserFolder}, &folder.Folder{
+		Name:    patterns.CloserFile,
+		Content: patterns.UtilsCloser,
+	})
 
 	return p.GetFolder().Build()
 }
