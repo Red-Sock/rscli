@@ -45,11 +45,6 @@ func InitGoMod(p interfaces.Project) error {
 		}
 	}()
 
-	_, err = goMod.Write([]byte("\n// built via rscli v0.0.0"))
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
