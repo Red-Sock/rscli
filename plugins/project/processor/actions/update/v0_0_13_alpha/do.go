@@ -3,6 +3,7 @@ package v0_0_13_alpha
 import (
 	"errors"
 
+	"github.com/Red-Sock/rscli/plugins/project/processor/actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
@@ -35,6 +36,7 @@ func Do(p interfaces.Project) (err error) {
 
 	connFile := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.ClientsFolder, patterns.PostgresFolder, patterns.ConnFile)
 	connFile.Content = patterns.PgConn
+	renamer.ReplaceProjectName(p.GetName(), connFile)
 
 	return p.GetFolder().Build()
 }
