@@ -31,10 +31,15 @@ const (
 
 	ApiConstructorFileName = "api.go"
 
-	InternalFolder     = "internal"
-	ClientsFolder      = "clients"
-	PostgresFolder     = "postgres"
-	ConnFile           = "conn.go"
+	InternalFolder = "internal"
+	ClientsFolder  = "clients"
+	PostgresFolder = "postgres"
+	ConnFile       = "conn.go"
+
+	UtilsFolder  = "utils"
+	CloserFolder = "closer"
+	CloserFile   = "closer.go"
+
 	TransportFolder    = "transport"
 	ApiManagerFileName = "manager.go"
 
@@ -77,4 +82,10 @@ var (
 
 	// TODO
 	GrpcServ []byte
+)
+
+// Utils
+var (
+	//go:embed pattern_c/internal/utils/closer/closer.go.pattern
+	UtilsCloser []byte
 )
