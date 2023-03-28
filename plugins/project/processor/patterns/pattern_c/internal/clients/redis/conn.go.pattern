@@ -3,6 +3,8 @@ package redis
 import (
 	"github.com/go-redis/redis"
 	"github.com/pkg/errors"
+
+	"financial-microservice/internal/utils/closer"
 )
 
 var ErrUnexpectedPing = errors.New("error pinging redis")
@@ -18,6 +20,8 @@ func New(opts *redis.Options) (*redis.Client, error) {
 	if res != "pong" {
 		return nil, errors.Wrapf(ErrUnexpectedPing, "not a pong has returned but %s", res)
 	}
+
+	closer.Add(c.Close)
 
 	return c, nil
 }

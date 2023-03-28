@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"financial-microservice/internal/config"
+	"financial-microservice/internal/utils/closer"
 	//_transport_imports
 )
 
@@ -30,6 +31,10 @@ func main() {
 	waitingForTheEnd()
 
 	log.Println("shutting down the app")
+
+	if err = closer.Close(); err != nil {
+		log.Fatalf("errors while shutting down application %s", err.Error())
+	}
 }
 
 // rscli comment: an obligatory function for tool to work properly.
