@@ -32,6 +32,9 @@ const (
 	ApiConstructorFileName = "api.go"
 
 	InternalFolder     = "internal"
+	ClientsFolder      = "clients"
+	PostgresFolder     = "postgres"
+	ConnFile           = "conn.go"
 	TransportFolder    = "transport"
 	ApiManagerFileName = "manager.go"
 
