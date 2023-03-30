@@ -93,8 +93,8 @@ func (v *Version) UpdateProjectVersion(p Project) error {
 
 	out := make([]byte, len(mkFile.Content[:startIdx])+len(newVersion)+len(mkFile.Content[endIdx:]))
 	copy(out[:startIdx], mkFile.Content[:startIdx])
-	copy(out[startIdx:endIdx+1], newVersion)
-	copy(out[endIdx+1:], mkFile.Content[endIdx:])
+	copy(out[startIdx:endIdx], newVersion)
+	copy(out[endIdx:], mkFile.Content[endIdx:])
 
 	mkFile.Content = out
 

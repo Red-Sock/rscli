@@ -1,9 +1,11 @@
 package env
 
 import (
-	"github.com/Red-Sock/rscli/internal/handlers/shared"
-	envscripts "github.com/Red-Sock/rscli/plugins/environment/scripts"
 	"github.com/pkg/errors"
+
+	"github.com/Red-Sock/rscli/internal/handlers/shared"
+	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
+	envscripts "github.com/Red-Sock/rscli/plugins/environment/scripts"
 )
 
 const Command = "env"
@@ -13,10 +15,24 @@ type Handler struct {
 }
 
 func NewHandler() *Handler {
+	const (
+		create = "create"
+		setup  = "set-up"
+	)
+
 	return &Handler{
 		progs: map[string]func(args []string) error{
-			"create": func(_ []string) error {
+			create: func(_ []string) error {
 				return envscripts.RunCreate()
+			},
+			setup: func(_ []string) error {
+				return envscripts.RunSetUp(nil)
+			},
+			"help": func(_ []string) error {
+				println(shared_ui.Header +
+					create + "- create new environment. Run this in root directory where projects are stored\n" +
+					setup + " - setting up and update environment for projects\n")
+				return nil
 			},
 		},
 	}

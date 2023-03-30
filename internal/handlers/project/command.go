@@ -1,8 +1,10 @@
 package project
 
 import (
-	"github.com/Red-Sock/rscli/internal/handlers/shared"
 	"github.com/pkg/errors"
+
+	"github.com/Red-Sock/rscli/internal/handlers/shared"
+	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 )
 
 const Command = "project"
@@ -12,10 +14,20 @@ type Handler struct {
 }
 
 func NewHandler() *Handler {
+	const (
+		create = "create"
+		tidy   = "tidy"
+	)
 	return &Handler{
 		progs: map[string]func(args []string) error{
-			"create": createProject,
-			"tidy":   tidyProject,
+			create: createProject,
+			tidy:   tidyProject,
+			"help": func(_ []string) error {
+				println(shared_ui.Header +
+					create + " - creates new project\n" +
+					tidy + " - clears project and updates it to a newer version of RSCLI\n")
+				return nil
+			},
 		},
 	}
 }
