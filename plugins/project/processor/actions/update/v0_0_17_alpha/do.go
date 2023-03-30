@@ -35,10 +35,18 @@ func Do(p interfaces.Project) (err error) {
 
 		err = errors.Join(err, updErr)
 	}()
+	p.GetFolder().AddWithPath([]string{patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder}, &folder.Folder{
+		Name:    patterns.CloserFile,
+		Content: patterns.UtilsCloser,
+	})
 
 	connFile := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.ClientsFolder, patterns.PostgresFolder, patterns.ConnFile)
 	connFile.Content = patterns.PgConn
 	renamer.ReplaceProjectName(p.GetName(), connFile)
+	err = p.GetFolder().Build()
+	if err != nil {
+		return err
+	}
 
 	_, err = cmd.Execute(cmd.Request{
 		Tool:    "go",
@@ -48,11 +56,6 @@ func Do(p interfaces.Project) (err error) {
 	if err != nil {
 		return err
 	}
-
-	p.GetFolder().AddWithPath([]string{patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder}, &folder.Folder{
-		Name:    patterns.CloserFile,
-		Content: patterns.UtilsCloser,
-	})
 
 	return p.GetFolder().Build()
 }

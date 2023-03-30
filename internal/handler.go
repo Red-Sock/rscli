@@ -2,6 +2,7 @@ package internal
 
 import (
 	"github.com/Red-Sock/rscli/internal/handlers/env"
+	"github.com/Red-Sock/rscli/internal/handlers/help"
 	"github.com/Red-Sock/rscli/internal/handlers/project"
 	"github.com/Red-Sock/rscli/internal/handlers/version"
 )
@@ -16,6 +17,8 @@ var h = handler{
 		project.Command: project.NewHandler(),
 
 		version.Command: &version.Handler{},
+
+		help.Command: &help.Handler{},
 	},
 }
 
