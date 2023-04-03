@@ -36,7 +36,7 @@ func ListProjects(pth string, cfg *config.Config) (projectNames []string, err er
 			// validate whether this directory contains main file in specified location
 			_, err = os.ReadFile(path.Join(pth, name, strings.ReplaceAll(cfg.Env.PathToMain, projNamePattern, name)))
 			if err != nil {
-				if err == os.ErrNotExist {
+				if errors.Is(err, os.ErrNotExist) {
 					continue
 				}
 				return nil, err
