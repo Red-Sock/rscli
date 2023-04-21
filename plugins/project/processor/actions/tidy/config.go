@@ -13,15 +13,10 @@ func Config(p interfaces.Project) error {
 		return err
 	}
 
-	tmplt := p.GetFolder().GetByPath(patterns.ConfigsFolder, patterns.ConfigTemplate)
-	if tmplt == nil {
-		p.GetFolder().AddWithPath([]string{patterns.ConfigsFolder}, &folder.Folder{
-			Name:    patterns.ConfigTemplate,
-			Content: b,
-		})
-	} else {
-		tmplt.Content = b
-	}
+	p.GetFolder().ForceAddWithPath([]string{patterns.ConfigsFolder}, &folder.Folder{
+		Name:    patterns.ConfigTemplate,
+		Content: b,
+	})
 
 	return nil
 }
