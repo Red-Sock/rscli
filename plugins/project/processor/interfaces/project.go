@@ -7,7 +7,7 @@ import (
 
 type Project interface {
 	GetName() string
-	GetConfig() Config
+	GetConfig() ProjectConfig
 	GetProjectPath() string
 
 	GetFolder() *folder.Folder
@@ -15,9 +15,11 @@ type Project interface {
 	SetVersion(Version)
 }
 
-type Config interface {
+type ProjectConfig interface {
 	GetPath() string
 	SetPath(pth string)
+
+	GetTemplate() ([]byte, error)
 
 	GenerateGoConfigKeys(projName string) ([]byte, error)
 

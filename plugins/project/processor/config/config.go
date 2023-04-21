@@ -19,15 +19,15 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
-type Config struct {
+type ProjectConfig struct {
 	Path string
 
 	Values map[string]interface{}
 }
 
 // NewProjectConfig - constructor for configuration of project
-func NewProjectConfig(p string) (*Config, error) {
-	c := &Config{
+func NewProjectConfig(p string) (*ProjectConfig, error) {
+	c := &ProjectConfig{
 		Path: p,
 	}
 	err := c.ParseSelf()
@@ -35,16 +35,16 @@ func NewProjectConfig(p string) (*Config, error) {
 	return c, err
 }
 
-func (c *Config) SetPath(pth string) {
+func (c *ProjectConfig) SetPath(pth string) {
 	c.Path = pth
 }
 
-func (c *Config) GetPath() string {
+func (c *ProjectConfig) GetPath() string {
 	return c.Path
 }
 
 // ParseSelf prepares self to be worked on
-func (c *Config) ParseSelf() error {
+func (c *ProjectConfig) ParseSelf() error {
 	if c.Values != nil {
 		return nil
 	}
@@ -63,7 +63,7 @@ func (c *Config) ParseSelf() error {
 }
 
 // ExtractDataSources extracts data sources information from config file and parses it as folders in project
-func (c *Config) GetDataSourceFolders() (*folder.Folder, error) {
+func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 	dataSources, ok := c.Values[config.DataSourceKey]
 	if !ok {
 		return nil, nil
@@ -100,7 +100,7 @@ func (c *Config) GetDataSourceFolders() (*folder.Folder, error) {
 	return out, nil
 }
 
-func (c *Config) GetServerFolders() ([]*folder.Folder, error) {
+func (c *ProjectConfig) GetServerFolders() ([]*folder.Folder, error) {
 	serverOpts, ok := c.Values[config.ServerOptsKey]
 	if !ok {
 		return nil, nil
@@ -155,7 +155,7 @@ type ServerOptions struct {
 	Port string `json:"port"`
 }
 
-func (c *Config) GetServerOptions() ([]ServerOptions, error) {
+func (c *ProjectConfig) GetServerOptions() ([]ServerOptions, error) {
 	serverOpts, ok := c.Values[config.ServerOptsKey]
 	if !ok {
 		return nil, nil
@@ -189,7 +189,7 @@ func (c *Config) GetServerOptions() ([]ServerOptions, error) {
 	return out, nil
 }
 
-func (c *Config) ExtractName() (string, error) {
+func (c *ProjectConfig) ExtractName() (string, error) {
 	var cfg structs.Config
 	bytes, err := yaml.Marshal(c.Values)
 	if err != nil {
@@ -204,7 +204,7 @@ func (c *Config) ExtractName() (string, error) {
 	return cfg.AppInfo.Name, nil
 }
 
-func (c *Config) GenerateGoConfigKeys(prefix string) ([]byte, error) {
+func (c *ProjectConfig) GenerateGoConfigKeys(prefix string) ([]byte, error) {
 	envKeys := KeysFromEnv(prefix)
 
 	keysFromCfg, err := KeysFromConfig(c.Path)
@@ -224,4 +224,13 @@ func (c *Config) GenerateGoConfigKeys(prefix string) ([]byte, error) {
 	}
 
 	return []byte(sb.String()), nil
+}
+
+func (c *ProjectConfig) GetTemplate() ([]byte, error) {
+	b, err := yaml.Marshal(c.Values)
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
 }
