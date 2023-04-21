@@ -7,6 +7,10 @@ import (
 type EmptyConfig struct {
 }
 
+func (e *EmptyConfig) GetTemplate() ([]byte, error) {
+	return nil, nil
+}
+
 func NewEmptyProjectConfig() *EmptyConfig {
 	return &EmptyConfig{}
 }

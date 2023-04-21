@@ -43,7 +43,8 @@ const (
 	TransportFolder    = "transport"
 	ApiManagerFileName = "manager.go"
 
-	ConfigsFolder = "config"
+	ConfigsFolder  = "config"
+	ConfigTemplate = "config.yaml.template"
 )
 
 // Basic files

@@ -125,6 +125,11 @@ func Tidy(p interfaces.Project) error {
 		return err
 	}
 
+	err = tidy.Config(p)
+	if err != nil {
+		return err
+	}
+
 	renamer.ReplaceProjectName(p.GetName(), p.GetFolder())
 
 	err = BuildConfigGoFolder(p)

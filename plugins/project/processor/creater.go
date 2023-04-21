@@ -20,7 +20,7 @@ type Validator func(p interfaces.Project) error
 type Project struct {
 	Name        string
 	ProjectPath string
-	Cfg         interfaces.Config
+	Cfg         interfaces.ProjectConfig
 
 	Actions []Action
 
@@ -103,7 +103,7 @@ func (p *Project) GetFolder() *folder.Folder {
 	return &p.F
 }
 
-func (p *Project) GetConfig() interfaces.Config {
+func (p *Project) GetConfig() interfaces.ProjectConfig {
 	return p.Cfg
 }
 

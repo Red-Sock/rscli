@@ -3,6 +3,7 @@ package actions
 import (
 	"bytes"
 	"encoding/json"
+
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
@@ -34,6 +35,11 @@ func PrepareProjectStructure(p interfaces.Project) error {
 			{Name: "swagger"},
 			{Name: "api"},
 		},
+	})
+
+	fldr.AddWithPath([]string{patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder}, &folder.Folder{
+		Name:    patterns.CloserFile,
+		Content: patterns.UtilsCloser,
 	})
 
 	return nil
