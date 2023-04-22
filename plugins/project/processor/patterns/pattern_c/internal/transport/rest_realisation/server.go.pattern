@@ -3,8 +3,10 @@ package rest_realisation
 import (
 	"context"
 	"encoding/json"
-	"financial-microservice/internal/config"
+	"log"
 	"net/http"
+
+	"financial-microservice/internal/config"
 
 	"github.com/gorilla/mux"
 )
@@ -32,7 +34,14 @@ func NewServer(cfg *config.Config) *Server {
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	return s.HttpServer.ListenAndServe()
+	go func() {
+		err := s.HttpServer.ListenAndServe()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	return nil
 }
 
 func (s *Server) Stop(ctx context.Context) error {
