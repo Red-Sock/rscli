@@ -40,6 +40,21 @@ func Api(p interfaces.Project) error {
 }
 
 func tidyAPI(p interfaces.Project, cfg interfaces.ProjectConfig, projMainFile *folder.Folder) error {
+
+	{
+		// add import on boostrap if doesn't exists
+		importBootstrap := []byte("\"" + p.GetName() + "/cmd/" + p.GetName() + "/bootstrap\"\n")
+		if bytes.Index(projMainFile.Content, importBootstrap) == -1 {
+			importStartIdx := bytes.Index(projMainFile.Content, []byte(importWord))
+			importEndIdx := importStartIdx + bytes.Index(projMainFile.Content[importStartIdx:], []byte(")"))
+			projMainFile.Content = slices.InsertSlice(
+				projMainFile.Content,
+				importBootstrap,
+				importEndIdx,
+			)
+		}
+	}
+
 	serverFolders, err := cfg.GetServerFolders()
 	if err != nil {
 		return err
@@ -56,18 +71,20 @@ func tidyAPI(p interfaces.Project, cfg interfaces.ProjectConfig, projMainFile *f
 	return nil
 }
 func insertApiSetupIfNotExists(p interfaces.Project, projMainFile *folder.Folder) *folder.Folder {
-	httpFile := p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName(), patterns.BootStrapFolder, patterns.ApiConstructorFileName)
+	apiFile := p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName(), patterns.BootStrapFolder, patterns.ApiConstructorFileName)
 
-	if httpFile == nil {
-		httpFile = &folder.Folder{
+	// if bootstrap for server doesn't exist - adding it
+	if apiFile == nil {
+		apiFile = &folder.Folder{
 			Name:    patterns.ApiConstructorFileName,
 			Content: patterns.APISetupFile,
 		}
-		p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName()).Add(httpFile)
+		p.GetFolder().ForceAddWithPath([]string{patterns.CmdFolder, p.GetName(), patterns.BootStrapFolder}, apiFile)
 	}
 
 	const (
-		apiEntryPointCall = "stopFunc := apiEntryPoint(ctx, cfg)\n\n\t"
+		// key lines for starting and stopping servers
+		apiEntryPointCall = "stopFunc := bootstrap.ApiEntryPoint(ctx, cfg)\n\n\t"
 		apiEntryPointStop = "\n\n\terr = stopFunc(context.Background())\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}"
 	)
 
@@ -94,7 +111,7 @@ func insertApiSetupIfNotExists(p interfaces.Project, projMainFile *folder.Folder
 		projMainFile.Content = slices.InsertSlice(projMainFile.Content, insertAfterEnd, endFuncIdx)
 	}
 
-	return httpFile
+	return apiFile
 }
 func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder, httpFile *folder.Folder) {
 	insertMissingAPI(p, serverFolders, httpFile)
