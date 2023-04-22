@@ -6,6 +6,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/Red-Sock/rscli/plugins/config/pkg/const"
 	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 )
 
@@ -21,14 +22,14 @@ func NewConfig(opts map[string][]string) (*Config, error) {
 		return nil, err
 	}
 
-	_, isForceOverride := opts[forceOverride]
+	_, isForceOverride := opts[_const.ForceOverride]
 
 	var defaultPath string
 
-	if p, ok := opts[configPath]; ok && len(p) > 0 {
+	if p, ok := opts[_const.ConfigPath]; ok && len(p) > 0 {
 		defaultPath = p[0]
 	} else {
-		defaultPath = path.Join("./", DefaultDir, FileName)
+		defaultPath = path.Join("./", _const.DefaultDir, _const.FileName)
 	}
 
 	return &Config{
@@ -39,7 +40,7 @@ func NewConfig(opts map[string][]string) (*Config, error) {
 }
 
 func (c *Config) SetFolderPath(pth string) (err error) {
-	st, _ := os.Stat(path.Join(pth, FileName))
+	st, _ := os.Stat(path.Join(pth, _const.FileName))
 	if st != nil {
 		return os.ErrExist
 	}

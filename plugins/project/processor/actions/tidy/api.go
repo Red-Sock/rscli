@@ -56,7 +56,7 @@ func tidyAPI(p interfaces.Project, cfg interfaces.ProjectConfig, projMainFile *f
 	return nil
 }
 func insertApiSetupIfNotExists(p interfaces.Project, projMainFile *folder.Folder) *folder.Folder {
-	httpFile := p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName(), patterns.ApiConstructorFileName)
+	httpFile := p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName(), patterns.BootStrapFolder, patterns.ApiConstructorFileName)
 
 	if httpFile == nil {
 		httpFile = &folder.Folder{

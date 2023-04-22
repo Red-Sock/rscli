@@ -1,21 +1,18 @@
 package config
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 
-	"github.com/Red-Sock/rscli/internal/utils/cases"
+	config "github.com/Red-Sock/rscli/plugins/config/pkg/const"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
-	config "github.com/Red-Sock/rscli/plugins/config/processor"
-	"github.com/Red-Sock/rscli/plugins/project/processor/consts"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
@@ -79,7 +76,7 @@ func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 	}
 
 	for dsn := range ds {
-		file := patterns.DatasourceClients[consts.DataSourcePrefix(strings.Split(dsn, "_")[0])]
+		file := patterns.DatasourceClients[strings.Split(dsn, "_")[0]]
 		if file == nil {
 			return nil, errors.New(fmt.Sprintf("unknown data source %s. "+
 				"DataSource should start with name of source (e.g redis, postgres)"+
@@ -114,38 +111,33 @@ func (c *ProjectConfig) GetServerFolders() ([]*folder.Folder, error) {
 	out := make([]*folder.Folder, 0, len(so))
 
 	for serverName := range so {
-		files := patterns.ServerOptsPatterns[consts.ServerOptsPrefix(strings.Split(serverName, "_")[0])]
-		if files == nil {
+		ptrn, ok := patterns.ServerOptsPatterns[strings.Split(serverName, "_")[0]]
+		if !ok {
 			return nil, errors.New(fmt.Sprintf("unknown server option %s. "+
 				"Server Option should start with type of server (e.g rest, grpc)"+
 				"and (or) be followed by \"_\" symbol if needed (e.g rest_v1, grpc_proxy)", serverName))
 		}
-		if len(files) == 0 {
+
+		// it must be a file of folder with files|folders
+		if len(ptrn.F.Inner)+len(ptrn.F.Content) == 0 {
 			continue
 		}
-		serverFolder := &folder.Folder{
-			Name: serverName,
-		}
-		for name, content := range files {
-			content = bytes.ReplaceAll(
-				content,
-				[]byte("package rest_realisation"),
-				[]byte("package "+serverName),
-			)
 
-			if name == patterns.ServerGoFile {
-				content = bytes.ReplaceAll(
-					content,
-					[]byte("config.ServerRestApiPort"),
-					[]byte("config.Server"+cases.SnakeToCamel(serverName+"_port")))
-			}
-			serverFolder.Inner = append(serverFolder.Inner, &folder.Folder{
-				Name:    name,
-				Content: content,
-			})
+		// copy pattern
+		var serverF folder.Folder
+		mb, err := json.Marshal(ptrn.F)
+		if err != nil {
+			return nil, errors.Wrap(err, "error marshalling folder pattern")
+		}
+		err = json.Unmarshal(mb, &serverF)
+		if err != nil {
+			return nil, errors.Wrap(err, "error unmarshalling copy of folder pattern")
 		}
 
-		out = append(out, serverFolder)
+		ptrn.Validators(&serverF, serverName)
+		serverF.Name = serverName
+
+		out = append(out, &serverF)
 	}
 	return out, nil
 }
