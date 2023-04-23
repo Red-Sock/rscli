@@ -25,7 +25,7 @@ func New(ctx context.Context, cfg *config.Config) (*pgx.Conn, error) {
 }
 
 func createConnectionString(cfg *config.Config) string {
-	sslMode := cfg.GetString(config.DataSourcesPostgresSSLMode)
+	sslMode := cfg.GetString(config.DataSourcesPostgresSslmode)
 
 	if sslMode == "" {
 		sslMode = "disable"

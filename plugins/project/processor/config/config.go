@@ -59,7 +59,7 @@ func (c *ProjectConfig) ParseSelf() error {
 	return nil
 }
 
-// ExtractDataSources extracts data sources information from config file and parses it as folders in project
+// GetDataSourceFolders extracts data sources information from config file and parses it as folders in project
 func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 	dataSources, ok := c.Values[config.DataSourceKey]
 	if !ok {
@@ -72,19 +72,28 @@ func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 		return nil, nil
 	}
 	out := &folder.Folder{
-		Name: "clients",
+		Name: patterns.ClientsFolder,
 	}
 
+	connTypeAdded := map[string]struct{}{}
+
 	for dsn := range ds {
-		file := patterns.DatasourceClients[strings.Split(dsn, "_")[0]]
+		dataSourceType := strings.Split(dsn, "_")[0]
+		file := patterns.DatasourceClients[dataSourceType]
 		if file == nil {
 			return nil, errors.New(fmt.Sprintf("unknown data source %s. "+
 				"DataSource should start with name of source (e.g redis, postgres)"+
 				"and (or) be followed by \"_\" symbol if needed (e.g redis_shard1, postgres_replica2)", dsn))
 		}
 
+		if _, ok := connTypeAdded[dataSourceType]; ok {
+			continue
+		}
+
+		connTypeAdded[dataSourceType] = struct{}{}
+
 		out.Inner = append(out.Inner, &folder.Folder{
-			Name: dsn,
+			Name: dataSourceType,
 			Inner: []*folder.Folder{
 				{
 					Name:    "conn.go",
@@ -134,7 +143,10 @@ func (c *ProjectConfig) GetServerFolders() ([]*folder.Folder, error) {
 			return nil, errors.Wrap(err, "error unmarshalling copy of folder pattern")
 		}
 
-		ptrn.Validators(&serverF, serverName)
+		if ptrn.Validators != nil {
+			ptrn.Validators(&serverF, serverName)
+		}
+
 		serverF.Name = serverName
 
 		out = append(out, &serverF)
@@ -144,7 +156,7 @@ func (c *ProjectConfig) GetServerFolders() ([]*folder.Folder, error) {
 
 type ServerOptions struct {
 	Name string
-	Port string `json:"port"`
+	Port uint16 `json:"port"`
 }
 
 func (c *ProjectConfig) GetServerOptions() ([]ServerOptions, error) {
