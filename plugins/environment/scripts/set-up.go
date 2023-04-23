@@ -95,6 +95,10 @@ func setUpEnv(pName string, setup setupCommon) (err error) {
 		return errors.Wrap(err, "error assembling starting-compose-environment")
 	}
 
+	if clients == nil {
+		return nil
+	}
+
 	for _, cl := range clients {
 
 		composeEnvs := cl.GetEnvs().Content()
@@ -120,8 +124,6 @@ func setUpEnv(pName string, setup setupCommon) (err error) {
 		composeAssembler.AppendService(cl.GetName(), cl.GetCompose())
 	}
 
-	composeAssembler.SetUpNetwork()
-
 	err = rewrite(replaceProjectName(env.MarshalEnv(), pName), path.Join(wd, EnvDir, pName, ".env"))
 	if err != nil {
 		return errors.Wrap(err, "error writing environment file")
@@ -131,7 +133,12 @@ func setUpEnv(pName string, setup setupCommon) (err error) {
 	if err != nil {
 		return errors.Wrap(err, "error marshalling composer file")
 	}
-	err = rewrite(replaceProjectName(bts, pName), path.Join(wd, EnvDir, pName, dockerComposeFile))
+
+	bts = append([]byte("version: \"3.9\"\n\n"), bts...)
+	err = rewrite(
+		replaceProjectName(bts, pName),
+		path.Join(wd, EnvDir, pName, dockerComposeFile),
+	)
 	if err != nil {
 		return errors.Wrap(err, "error writing environment file")
 	}
@@ -158,9 +165,11 @@ func combineEnvFiles(wd string, envs []string) (string, error) {
 }
 
 func getClients(cs map[string]patterns.ComposeService, pathToClients string) ([]patterns.ComposeService, error) {
-
 	dirs, err := os.ReadDir(pathToClients)
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

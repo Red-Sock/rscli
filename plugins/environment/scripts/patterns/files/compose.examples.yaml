@@ -8,16 +8,16 @@ services:
       POSTGRES_PASSWORD: POSTGRESPWD
       POSTGRES_DB: POSTGRES
     ports:
-      - ${PROJ_NAME_CAPS_POSTGRES_PORT}:5432
+      - "${PROJ_NAME_CAPS_POSTGRES_PORT}:5432"
     networks:
-      proj_name_net:
+      - net
 
   redis:
     image: redis:6
     ports:
       - "${PROJ_NAME_CAPS_REDIS_PORT}:6379"
     networks:
-      proj_name_net:
+      - net
 
   elastic:
     image: elasticsearch:8.5.1
@@ -28,7 +28,7 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
     networks:
-      proj_name_net:
+      - net
 
   kafka-zookeeper:
     image: confluentinc/cp-zookeeper:7.2.1
@@ -40,7 +40,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     networks:
-      proj_name_net:
+      - net
 
   kafka:
     image: confluentinc/cp-server:7.2.1
@@ -65,7 +65,7 @@ services:
       KAFKA_JMX_PORT: 9997
       KAFKA_JMX_HOSTNAME: kafka
     networks:
-      proj_name_net:
+      - net
 
   kafka-init-topics:
     image: confluentinc/cp-kafka:7.2.1
@@ -79,7 +79,7 @@ services:
                kafka-topics --create --topic messages --partitions 2 --replication-factor 1 --if-not-exists --bootstrap-server kafka:29092 && \
                kafka-console-producer --bootstrap-server kafka:29092 --topic topic_proj_name < /data/message.json'"
     networks:
-      proj_name_net:
+      - net
 
   kafka-ui:
     container_name: kafka-ui
@@ -92,4 +92,4 @@ services:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
     networks:
-      proj_name_net:
+      - net
