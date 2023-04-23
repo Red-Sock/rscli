@@ -6,12 +6,12 @@ import (
 	"os"
 	"strings"
 
-	config "github.com/Red-Sock/rscli/plugins/config/pkg/const"
-
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
+	"github.com/Red-Sock/rscli/internal/utils/copier"
 	"github.com/Red-Sock/rscli/pkg/folder"
+	_consts "github.com/Red-Sock/rscli/plugins/config/pkg/const"
 	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
@@ -59,9 +59,9 @@ func (c *ProjectConfig) ParseSelf() error {
 	return nil
 }
 
-// GetDataSourceFolders extracts data sources information from config file and parses it as folders in project
+// GetDataSourceFolders extracts data sources information from _consts file and parses it as folders in project
 func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
-	dataSources, ok := c.Values[config.DataSourceKey]
+	dataSources, ok := c.Values[_consts.DataSourceKey]
 	if !ok {
 		return nil, nil
 	}
@@ -107,7 +107,7 @@ func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 }
 
 func (c *ProjectConfig) GetServerFolders() ([]*folder.Folder, error) {
-	serverOpts, ok := c.Values[config.ServerOptsKey]
+	serverOpts, ok := c.Values[_consts.ServerOptsKey]
 	if !ok {
 		return nil, nil
 	}
@@ -160,7 +160,7 @@ type ServerOptions struct {
 }
 
 func (c *ProjectConfig) GetServerOptions() ([]ServerOptions, error) {
-	serverOpts, ok := c.Values[config.ServerOptsKey]
+	serverOpts, ok := c.Values[_consts.ServerOptsKey]
 	if !ok {
 		return nil, nil
 	}
@@ -188,6 +188,45 @@ func (c *ProjectConfig) GetServerOptions() ([]ServerOptions, error) {
 		}
 
 		out = append(out, servOpt)
+	}
+
+	return out, nil
+}
+
+type ConnectionOptions struct {
+	Type             string
+	Name             string
+	ConnectionString string
+}
+
+func (c *ProjectConfig) GetDataSourceOptions() (out []ConnectionOptions, err error) {
+	dataSources, ok := c.Values[_consts.DataSourceKey]
+	if !ok {
+		return nil, nil
+	}
+
+	var ds map[string]interface{}
+	ds, ok = dataSources.(map[string]interface{})
+	if !ok {
+		return nil, nil
+	}
+
+	for dsn, data := range ds {
+		dataSourceType := strings.Split(dsn, "_")[0]
+		switch dataSourceType {
+		case _consts.SourceNamePostgres:
+			var pgDSN structs.Postgres
+			err = copier.Copy(data, &pgDSN)
+			if err != nil {
+				return nil, err
+			}
+
+			out = append(out, ConnectionOptions{
+				Type:             _consts.SourceNamePostgres,
+				Name:             dsn,
+				ConnectionString: fmt.Sprintf("postgresql://%s:%s@%s:%d/%s", pgDSN.User, pgDSN.Pwd, pgDSN.Host, pgDSN.Port, pgDSN.Name),
+			})
+		}
 	}
 
 	return out, nil

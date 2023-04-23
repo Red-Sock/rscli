@@ -41,6 +41,15 @@ func Api(p interfaces.Project) error {
 
 func tidyAPI(p interfaces.Project, cfg interfaces.ProjectConfig, projMainFile *folder.Folder) error {
 
+	serverFolders, err := cfg.GetServerFolders()
+	if err != nil {
+		return err
+	}
+
+	if serverFolders == nil {
+		return nil
+	}
+
 	{
 		// add import on boostrap if doesn't exists
 		importBootstrap := []byte("\"" + p.GetName() + "/cmd/" + p.GetName() + "/bootstrap\"\n")
@@ -53,15 +62,6 @@ func tidyAPI(p interfaces.Project, cfg interfaces.ProjectConfig, projMainFile *f
 				importEndIdx,
 			)
 		}
-	}
-
-	serverFolders, err := cfg.GetServerFolders()
-	if err != nil {
-		return err
-	}
-
-	if serverFolders == nil {
-		return nil
 	}
 
 	httpFile := insertApiSetupIfNotExists(p, projMainFile)

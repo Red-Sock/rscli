@@ -7,6 +7,10 @@ import (
 type EmptyConfig struct {
 }
 
+func (e *EmptyConfig) GetDataSourceOptions() (out []ConnectionOptions, err error) {
+	return nil, nil
+}
+
 func (e *EmptyConfig) GetTemplate() ([]byte, error) {
 	return nil, nil
 }
