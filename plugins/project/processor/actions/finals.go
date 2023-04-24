@@ -9,12 +9,12 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
+	config "github.com/Red-Sock/rscli/plugins/config/pkg/const"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/tidy"
 
 	"github.com/Red-Sock/rscli/pkg/cmd"
 	configpattern "github.com/Red-Sock/rscli/plugins/config/pkg/structs"
-	config "github.com/Red-Sock/rscli/plugins/config/processor"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
 

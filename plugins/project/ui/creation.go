@@ -2,17 +2,19 @@ package ui
 
 import (
 	"fmt"
-	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"os"
 	"path"
 	"sort"
 	"strings"
 
+	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
+	config "github.com/Red-Sock/rscli/plugins/config/pkg/const"
+
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
+
 	managerConfig "github.com/Red-Sock/rscli/plugins/config"
-	config "github.com/Red-Sock/rscli/plugins/config/processor"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
 )
 

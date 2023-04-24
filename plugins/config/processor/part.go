@@ -1,9 +1,11 @@
 package processor
 
 import (
-	"github.com/pkg/errors"
 	"strings"
 
+	"github.com/pkg/errors"
+
+	"github.com/Red-Sock/rscli/plugins/config/pkg/const"
 	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 )
 
@@ -17,27 +19,29 @@ func parseFlag(f string, args []string, cfg *structs.Config) error {
 
 	switch f {
 	// data sources
-	case SourceNamePg:
+	case _const.SourceNamePostgres:
 		return addPattern(DefaultPgPattern(args), cfg.DataSources)
-	case SourceNameRds:
+	case _const.SourceNameRedis:
 		return addPattern(DefaultRdsPattern(args), cfg.DataSources)
 
 	// transport layer
-	case RESTHTTPServer:
+	case _const.RESTHTTPServer:
 		return addPattern(DefaultHTTPPattern(args), cfg.Server)
-	case GRPCServer:
+	case _const.GRPCServer:
 		return addPattern(DefaultGRPCPattern(args), cfg.Server)
+	case _const.TelegramServer:
+		return addPattern(DefaultTelegramPattern(args), cfg.Server)
 
 	// app info
-	case AppName:
+	case _const.AppName:
 		if len(args) != 1 {
-			return errors.New("INVALID ARGUMENTS AMOUNT FOR FLAG " + AppName)
+			return errors.New("INVALID ARGUMENTS AMOUNT FOR FLAG " + _const.AppName)
 		}
 		cfg.AppInfo.Name = args[0]
 		return nil
-	case AppVersion:
+	case _const.AppVersion:
 		if len(args) != 1 {
-			return errors.New("INVALID ARGUMENTS AMOUNT FOR FLAG " + AppVersion)
+			return errors.New("INVALID ARGUMENTS AMOUNT FOR FLAG " + _const.AppVersion)
 		}
 		cfg.AppInfo.Version = args[0]
 		return nil

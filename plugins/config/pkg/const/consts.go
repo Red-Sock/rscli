@@ -1,4 +1,4 @@
-package processor
+package _const
 
 // names of core items in final config
 const (
@@ -9,14 +9,15 @@ const (
 
 // data sources (sub-keys) flags
 const (
-	SourceNamePg  = "pg"
-	SourceNameRds = "rds"
+	SourceNamePostgres = "postgres"
+	SourceNameRedis    = "redis"
 )
 
 // server type flags
 const (
 	RESTHTTPServer = "rest"
 	GRPCServer     = "grpc"
+	TelegramServer = "tg"
 )
 
 const (
@@ -26,8 +27,8 @@ const (
 
 // additional flags
 const (
-	forceOverride = "fo"
-	configPath    = "path"
+	ForceOverride = "fo"
+	ConfigPath    = "path"
 )
 
 // default values

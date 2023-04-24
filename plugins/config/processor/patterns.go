@@ -1,8 +1,9 @@
 package processor
 
 import (
-	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 	"strconv"
+
+	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 )
 
 func DefaultRdsPattern(args []string) map[string]interface{} {
@@ -84,6 +85,19 @@ func DefaultGRPCPattern(args []string) map[string]interface{} {
 
 	out["grpc"] = &structs.RestApi{
 		Port: strconv.FormatUint(uint64(port), 10),
+	}
+
+	return out
+}
+
+func DefaultTelegramPattern(args []string) map[string]interface{} {
+	out := make(map[string]interface{})
+
+	tg := &structs.Telegram{}
+	out["tg"] = tg
+
+	if len(args) != 0 {
+		tg.ApiKey = args[0]
 	}
 
 	return out

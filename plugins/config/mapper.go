@@ -3,8 +3,9 @@ package config
 import (
 	rscliuitkit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/composit-items/multiselect"
+
 	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
-	config "github.com/Red-Sock/rscli/plugins/config/processor"
+	config "github.com/Red-Sock/rscli/plugins/config/pkg/const"
 )
 
 const (
@@ -20,6 +21,7 @@ const (
 	// transport layer menu Items
 	restHttpType = "HTTP/rest"
 	grpcType     = "grpc"
+	telegramType = "telegram bot"
 )
 
 func mapToConfig(menuItem string) (args []string) {
@@ -28,11 +30,12 @@ func mapToConfig(menuItem string) (args []string) {
 		return []string{"-" + config.RESTHTTPServer}
 	case grpcType:
 		return []string{"-" + config.GRPCServer}
-
+	case telegramType:
+		return []string{"-" + config.TelegramServer}
 	case pgCon:
-		return []string{"-" + config.SourceNamePg}
+		return []string{"-" + config.SourceNamePostgres}
 	case redisCon:
-		return []string{"-" + config.SourceNameRds}
+		return []string{"-" + config.SourceNameRedis}
 	default:
 		return nil
 	}
@@ -50,6 +53,7 @@ func TransportTypeItems() []string {
 	return []string{
 		restHttpType,
 		grpcType,
+		telegramType,
 	}
 
 }

@@ -21,3 +21,7 @@ type Redis struct {
 type RestApi struct {
 	Port string
 }
+
+type Telegram struct {
+	ApiKey string
+}
