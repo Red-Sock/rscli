@@ -7,14 +7,14 @@ import (
 
 	"financial-microservice/internal/config"
 	"financial-microservice/internal/transport/tg/handlers/version"
-	"financial-microservice/internal/transport/tg/menu/mainmenu"
+	"financial-microservice/internal/transport/tg/menus/mainmenu"
 )
 
 type Server struct {
 	bot *client.Bot
 }
 
-func New(cfg *config.Config) (s *Server) {
+func NewServer(cfg *config.Config) (s *Server) {
 	s = &Server{}
 	s.bot = client.NewBot(cfg.GetString(config.ServerTgApikey))
 

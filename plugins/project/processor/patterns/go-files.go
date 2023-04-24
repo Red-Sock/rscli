@@ -109,8 +109,8 @@ func init() {
 			)
 			server.Content = bytes.ReplaceAll(
 				server.Content,
-				[]byte("config.ServerTgApiKey"),
-				[]byte("config.Server"+cases.SnakeToCamel(serverName+"ApiKey")))
+				[]byte("config.ServerTgApikey"),
+				[]byte("config.Server"+cases.SnakeToCamel(serverName+"Apikey")))
 		},
 	}
 }
@@ -143,7 +143,7 @@ const (
 var (
 	//go:embed pattern_c/cmd/financial-microservice/main.go.pattern
 	MainFile []byte
-	//go:embed pattern_c/cmd/financial-microservice/api.go.pattern
+	//go:embed pattern_c/cmd/financial-microservice/bootstrap/api.go.pattern
 	APISetupFile []byte
 )
 
@@ -175,7 +175,7 @@ var (
 
 	//go:embed pattern_c/internal/transport/tg/listener.go.pattern
 	TgServ []byte
-	//go:embed pattern_c/internal/transport/tg/menu/mainmenu/main-menu.go.pattern
+	//go:embed pattern_c/internal/transport/tg/menus/mainmenu/main-menu.go.pattern
 	TgMainMenu []byte
 	//go:embed pattern_c/internal/transport/tg/handlers/version/handler.go.pattern
 	TgVersionHandler []byte
