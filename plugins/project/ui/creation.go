@@ -2,17 +2,19 @@ package ui
 
 import (
 	"fmt"
-	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"os"
 	"path"
 	"sort"
 	"strings"
 
+	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
+	config "github.com/Red-Sock/rscli/plugins/config/pkg/const"
+
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
+
 	managerConfig "github.com/Red-Sock/rscli/plugins/config"
-	config "github.com/Red-Sock/rscli/plugins/config/processor"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
 )
 
@@ -89,14 +91,11 @@ func (c *createArgs) handleExistingConfig() uikit.UIElement {
 	}
 
 	potentialConfigs := make([]string, 0, len(files)/2)
-	otherFiles := make([]string, 0, len(files)/2)
 
 	for _, item := range files {
 		name := item.Name()
-		if strings.HasPrefix(name, yamlExtension) {
+		if strings.HasSuffix(name, yamlExtension) {
 			potentialConfigs = append(potentialConfigs, path.Join(dir, name))
-		} else {
-			otherFiles = append(otherFiles, path.Join(dir, name))
 		}
 	}
 
@@ -104,14 +103,10 @@ func (c *createArgs) handleExistingConfig() uikit.UIElement {
 		return potentialConfigs[i] > potentialConfigs[j]
 	})
 
-	sort.Slice(otherFiles, func(i, j int) bool {
-		return otherFiles[i] > otherFiles[j]
-	})
-
 	return radioselect.New(
 		c.callbackExistingConfig,
 		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Select one of the files:")),
-		radioselect.Items(append(potentialConfigs, otherFiles...)...),
+		radioselect.Items(potentialConfigs...),
 	)
 }
 func (c *createArgs) callbackExistingConfig(answ string) uikit.UIElement {

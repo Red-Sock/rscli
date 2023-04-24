@@ -2,6 +2,7 @@ package update
 
 import (
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/update/v0_0_18_alpha"
+	"github.com/Red-Sock/rscli/plugins/project/processor/actions/update/v0_0_20_alpha"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/update/v0_0_10_alpha"
@@ -44,5 +45,9 @@ var updates = []Version{
 	{
 		Version: v0_0_18_alpha.Version,
 		do:      v0_0_18_alpha.Do,
+	},
+	{
+		Version: v0_0_20_alpha.Version,
+		do:      v0_0_20_alpha.Do,
 	},
 }

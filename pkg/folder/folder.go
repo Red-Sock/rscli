@@ -3,6 +3,7 @@ package folder
 import (
 	"os"
 	"path"
+	"strings"
 )
 
 var foldersIgnore = []string{".git", ".idea"}
@@ -16,8 +17,15 @@ type Folder struct {
 	isToBeDeleted bool
 }
 
-func (f *Folder) Add(folder ...*Folder) {
-	f.Inner = append(f.Inner, folder...)
+func (f *Folder) Add(folders ...*Folder) {
+	for _, fl := range folders {
+		if splited := strings.Split(fl.Name, string(os.PathSeparator)); len(splited) > 1 {
+			fl.Name = splited[len(splited)-1]
+			f.AddWithPath(splited[:len(splited)-1], fl)
+		} else {
+			f.Inner = append(f.Inner, fl)
+		}
+	}
 }
 
 func (f *Folder) AddWithPath(pths []string, folders ...*Folder) {

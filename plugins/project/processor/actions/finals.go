@@ -9,12 +9,12 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
+	config "github.com/Red-Sock/rscli/plugins/config/pkg/const"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/tidy"
 
 	"github.com/Red-Sock/rscli/pkg/cmd"
 	configpattern "github.com/Red-Sock/rscli/plugins/config/pkg/structs"
-	config "github.com/Red-Sock/rscli/plugins/config/processor"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
 
@@ -121,6 +121,16 @@ func FixupProject(p interfaces.Project) error {
 
 func Tidy(p interfaces.Project) error {
 	err := tidy.Api(p)
+	if err != nil {
+		return err
+	}
+
+	err = tidy.Config(p)
+	if err != nil {
+		return err
+	}
+
+	err = tidy.DataSources(p)
 	if err != nil {
 		return err
 	}

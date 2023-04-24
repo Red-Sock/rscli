@@ -3,8 +3,9 @@ package config
 import (
 	rscliuitkit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/composit-items/multiselect"
+
 	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
-	config "github.com/Red-Sock/rscli/plugins/config/processor"
+	config "github.com/Red-Sock/rscli/plugins/config/pkg/const"
 )
 
 const (
@@ -20,22 +21,15 @@ const (
 	// transport layer menu Items
 	restHttpType = "HTTP/rest"
 	grpcType     = "grpc"
+	telegramType = "telegram bot"
 )
 
-func mapToConfig(menuItem string) (args []string) {
-	switch menuItem {
-	case restHttpType:
-		return []string{"-" + config.RESTHTTPServer}
-	case grpcType:
-		return []string{"-" + config.GRPCServer}
-
-	case pgCon:
-		return []string{"-" + config.SourceNamePg}
-	case redisCon:
-		return []string{"-" + config.SourceNameRds}
-	default:
-		return nil
-	}
+var mapToConfig = map[string][]string{
+	restHttpType: {"-" + config.RESTHTTPServer},
+	grpcType:     {"-" + config.GRPCServer},
+	telegramType: {"-" + config.TelegramServer},
+	pgCon:        {"-" + config.SourceNamePostgres},
+	redisCon:     {"-" + config.SourceNameRedis},
 }
 
 func MainMenuItems() []string {
@@ -50,6 +44,7 @@ func TransportTypeItems() []string {
 	return []string{
 		restHttpType,
 		grpcType,
+		telegramType,
 	}
 
 }
@@ -103,7 +98,7 @@ func (c *ConfigMenuSubItem) handleResponse(args []string) rscliuitkit.UIElement 
 
 func (c *ConfigMenuSubItem) BuildFlagsForConfig() (res []string) {
 	for _, item := range c.Flags {
-		res = append(res, mapToConfig(item)...)
+		res = append(res, mapToConfig[item]...)
 	}
 	return res
 }

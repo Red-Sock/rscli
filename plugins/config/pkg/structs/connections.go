@@ -2,16 +2,17 @@ package structs
 
 type Postgres struct {
 	Host string
-	Port string
+	Port uint16
 
-	Name string
-	User string
-	Pwd  string
+	Name    string
+	User    string
+	Pwd     string
+	SSLMode string
 }
 
 type Redis struct {
 	Host string
-	Port string
+	Port uint16
 
 	User string
 	Pwd  string
@@ -19,5 +20,9 @@ type Redis struct {
 }
 
 type RestApi struct {
-	Port string
+	Port uint16
+}
+
+type Telegram struct {
+	ApiKey string
 }

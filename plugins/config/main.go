@@ -1,16 +1,19 @@
 package config
 
 import (
+	"os"
+	"path"
+
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
 	"github.com/Red-Sock/rscli-uikit/composit-items/input"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli-uikit/utils/common"
+
 	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"github.com/Red-Sock/rscli/pkg/flag"
+	"github.com/Red-Sock/rscli/plugins/config/pkg/const"
 	"github.com/Red-Sock/rscli/plugins/config/processor"
-	"os"
-	"path"
 )
 
 const PluginName = "config"
@@ -75,7 +78,7 @@ func (c *cfgDialog) nameCallback(s string) uikit.UIElement {
 		return c.askName()
 	}
 
-	c.flags["-"+processor.AppName] = []string{s}
+	c.flags["-"+_const.AppName] = []string{s}
 
 	return c.commitConfig()
 }
@@ -98,7 +101,7 @@ func (c *cfgDialog) commitConfig() uikit.UIElement {
 	c.cfg = cfg
 
 	c.path, _ = os.Getwd()
-	c.path = path.Join(c.path, processor.FileName)
+	c.path = path.Join(c.path, _const.FileName)
 
 	err = c.cfg.SetFolderPath(c.path)
 	if err != nil {

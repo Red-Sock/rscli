@@ -1,8 +1,9 @@
 package processor
 
 import (
-	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 	"strconv"
+
+	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 )
 
 func DefaultRdsPattern(args []string) map[string]interface{} {
@@ -11,12 +12,12 @@ func DefaultRdsPattern(args []string) map[string]interface{} {
 		args = append(args, "redis")
 	}
 
-	port := 6379
+	port := uint16(6379)
 
 	for _, name := range args {
 		out[name] = &structs.Redis{
 			Host: "0.0.0.0",
-			Port: strconv.Itoa(port),
+			Port: port,
 		}
 		port++
 	}
@@ -30,15 +31,16 @@ func DefaultPgPattern(args []string) map[string]interface{} {
 		args = append(args, "postgres")
 	}
 
-	port := 5432
+	port := uint16(5432)
 
 	for _, name := range args {
 		out[name] = &structs.Postgres{
-			Name: name,
-			User: name,
-			Pwd:  name,
-			Host: "0.0.0.0",
-			Port: strconv.Itoa(port),
+			Name:    name,
+			User:    name,
+			Pwd:     name,
+			Host:    "0.0.0.0",
+			Port:    port,
+			SSLMode: "disabled",
 		}
 		port++
 	}
@@ -64,7 +66,7 @@ func DefaultHTTPPattern(args []string) map[string]interface{} {
 	}
 
 	out[name] = &structs.RestApi{
-		Port: strconv.FormatUint(uint64(port), 10),
+		Port: port,
 	}
 
 	return out
@@ -83,7 +85,20 @@ func DefaultGRPCPattern(args []string) map[string]interface{} {
 	}
 
 	out["grpc"] = &structs.RestApi{
-		Port: strconv.FormatUint(uint64(port), 10),
+		Port: port,
+	}
+
+	return out
+}
+
+func DefaultTelegramPattern(args []string) map[string]interface{} {
+	out := make(map[string]interface{})
+
+	tg := &structs.Telegram{}
+	out["tg"] = tg
+
+	if len(args) != 0 {
+		tg.ApiKey = args[0]
 	}
 
 	return out

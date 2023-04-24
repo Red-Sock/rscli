@@ -3,6 +3,8 @@ package actions
 import (
 	"bytes"
 	"encoding/json"
+	"strconv"
+
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
@@ -34,6 +36,11 @@ func PrepareProjectStructure(p interfaces.Project) error {
 			{Name: "swagger"},
 			{Name: "api"},
 		},
+	})
+
+	fldr.AddWithPath([]string{patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder}, &folder.Folder{
+		Name:    patterns.CloserFile,
+		Content: patterns.UtilsCloser,
 	})
 
 	return nil
@@ -77,8 +84,8 @@ func PrepareExamplesFolders(p interfaces.Project) error {
 	}
 
 	for _, item := range servers {
-		e.Dev[item.Name] = "0.0.0.0:" + item.Port
-		e.DevDocker[item.Name] = "0.0.0.0:1" + item.Port
+		e.Dev[item.Name] = "0.0.0.0:" + strconv.FormatUint(uint64(item.Port), 10)
+		e.DevDocker[item.Name] = "0.0.0.0:1" + strconv.FormatUint(uint64(item.Port), 10)
 	}
 
 	eB, err := json.MarshalIndent(e, "", "	")

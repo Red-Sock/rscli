@@ -1,11 +1,12 @@
 package config
 
 import (
-	"github.com/Red-Sock/rscli/pkg/flag"
-	"gopkg.in/yaml.v3"
+	_ "embed"
 	"os"
 
-	_ "embed"
+	"gopkg.in/yaml.v3"
+
+	"github.com/Red-Sock/rscli/pkg/flag"
 )
 
 const configFilename = "rscli.yaml"
@@ -15,14 +16,14 @@ const customPathToConfig = "-cfg"
 //go:embed rscli.yaml
 var example []byte
 
-type Config struct {
+type RsCliConfig struct {
 	Env struct {
-		PathToMain    string `yaml:"path_to_main"`
-		PathToClients string `yaml:"path_to_clients"`
+		PathToMain   string `yaml:"path_to_main"`
+		PathToConfig string `yaml:"path_to_config"`
 	} `yaml:"env"`
 }
 
-func ReadConfig(args []string) (*Config, error) {
+func ReadConfig(args []string) (*RsCliConfig, error) {
 	flags := flag.ParseArgs(args)
 
 	cfgFile, err := flag.ExtractOneValueFromFlags(flags, customPathToConfig)
@@ -39,7 +40,7 @@ func ReadConfig(args []string) (*Config, error) {
 		file = example
 	}
 
-	var c Config
+	var c RsCliConfig
 
 	err = yaml.Unmarshal(file, &c)
 	if err != nil {

@@ -1,4 +1,4 @@
-package main
+package bootstrap
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"financial-microservice/internal/transport"
 )
 
-func apiEntryPoint(ctx context.Context, cfg *config.Config) func(context.Context) error {
+func ApiEntryPoint(ctx context.Context, cfg *config.Config) func(context.Context) error {
 	mngr := transport.NewManager()
 
 	go func() {
