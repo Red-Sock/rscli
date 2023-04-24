@@ -194,8 +194,9 @@ func (c *ProjectConfig) GetServerOptions() ([]ServerOptions, error) {
 }
 
 type ConnectionOptions struct {
-	Type             string
-	Name             string
+	Type string
+	Name string
+
 	ConnectionString string
 }
 
@@ -224,7 +225,7 @@ func (c *ProjectConfig) GetDataSourceOptions() (out []ConnectionOptions, err err
 			out = append(out, ConnectionOptions{
 				Type:             _consts.SourceNamePostgres,
 				Name:             dsn,
-				ConnectionString: fmt.Sprintf("postgresql://%s:%s@%s:%d/%s", pgDSN.User, pgDSN.Pwd, pgDSN.Host, pgDSN.Port, pgDSN.Name),
+				ConnectionString: fmt.Sprintf(_consts.PostgresConnectionString, pgDSN.User, pgDSN.Pwd, pgDSN.Host, pgDSN.Port, pgDSN.Name),
 			})
 		}
 	}

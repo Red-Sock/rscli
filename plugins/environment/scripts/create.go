@@ -21,8 +21,9 @@ const (
 )
 
 const (
-	projNamePattern     = "proj_name"
-	projNameCapsPattern = "PROJ_NAME_CAPS"
+	projNamePattern               = "proj_name"
+	projNameCapsPattern           = "PROJ_NAME_CAPS"
+	datasourceCapsPostgresPattern = "DS_POSTGRES_NAME_CAPS"
 )
 
 var ErrEnvironmentExists = errors.New("environment already exists")

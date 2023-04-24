@@ -5,6 +5,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	EnvironmentPostgresUser     = "POSTGRES_USER"
+	EnvironmentPostgresPassword = "POSTGRES_PASSWORD"
+	EnvironmentPostgresDb       = "POSTGRES_DB"
+)
+
 type ComposeAssembler struct {
 	Name     string                        `yaml:"-"`
 	Services map[string]*ContainerSettings `yaml:"services"`
@@ -12,11 +18,12 @@ type ComposeAssembler struct {
 }
 
 type ContainerSettings struct {
-	Image    string   `yaml:"image"`
-	WorkDir  string   `yaml:"working_dir,omitempty"`
-	Volumes  []string `yaml:"volumes"`
-	Ports    []string `yaml:"ports"`
-	Networks []string `yaml:"networks,omitempty"`
+	Image       string            `yaml:"image"`
+	WorkDir     string            `yaml:"working_dir,omitempty"`
+	Environment map[string]string `yaml:"environment"`
+	Volumes     []string          `yaml:"volumes"`
+	Ports       []string          `yaml:"ports"`
+	Networks    []string          `yaml:"networks,omitempty"`
 }
 
 func NewComposeAssembler(src []byte, pName string) (*ComposeAssembler, error) {
