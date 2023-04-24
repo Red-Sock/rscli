@@ -24,21 +24,12 @@ const (
 	telegramType = "telegram bot"
 )
 
-func mapToConfig(menuItem string) (args []string) {
-	switch menuItem {
-	case restHttpType:
-		return []string{"-" + config.RESTHTTPServer}
-	case grpcType:
-		return []string{"-" + config.GRPCServer}
-	case telegramType:
-		return []string{"-" + config.TelegramServer}
-	case pgCon:
-		return []string{"-" + config.SourceNamePostgres}
-	case redisCon:
-		return []string{"-" + config.SourceNameRedis}
-	default:
-		return nil
-	}
+var mapToConfig = map[string][]string{
+	restHttpType: {"-" + config.RESTHTTPServer},
+	grpcType:     {"-" + config.GRPCServer},
+	telegramType: {"-" + config.TelegramServer},
+	pgCon:        {"-" + config.SourceNamePostgres},
+	redisCon:     {"-" + config.SourceNameRedis},
 }
 
 func MainMenuItems() []string {
@@ -107,7 +98,7 @@ func (c *ConfigMenuSubItem) handleResponse(args []string) rscliuitkit.UIElement 
 
 func (c *ConfigMenuSubItem) BuildFlagsForConfig() (res []string) {
 	for _, item := range c.Flags {
-		res = append(res, mapToConfig(item)...)
+		res = append(res, mapToConfig[item]...)
 	}
 	return res
 }
