@@ -6,12 +6,12 @@ import (
 	"os"
 	"strings"
 
-	config "github.com/Red-Sock/rscli/plugins/config/pkg/const"
-
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
+	"github.com/Red-Sock/rscli/internal/utils/copier"
 	"github.com/Red-Sock/rscli/pkg/folder"
+	_consts "github.com/Red-Sock/rscli/plugins/config/pkg/const"
 	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
@@ -59,9 +59,9 @@ func (c *ProjectConfig) ParseSelf() error {
 	return nil
 }
 
-// ExtractDataSources extracts data sources information from config file and parses it as folders in project
+// GetDataSourceFolders extracts data sources information from _consts file and parses it as folders in project
 func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
-	dataSources, ok := c.Values[config.DataSourceKey]
+	dataSources, ok := c.Values[_consts.DataSourceKey]
 	if !ok {
 		return nil, nil
 	}
@@ -72,19 +72,28 @@ func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 		return nil, nil
 	}
 	out := &folder.Folder{
-		Name: "clients",
+		Name: patterns.ClientsFolder,
 	}
 
+	connTypeAdded := map[string]struct{}{}
+
 	for dsn := range ds {
-		file := patterns.DatasourceClients[strings.Split(dsn, "_")[0]]
+		dataSourceType := strings.Split(dsn, "_")[0]
+		file := patterns.DatasourceClients[dataSourceType]
 		if file == nil {
 			return nil, errors.New(fmt.Sprintf("unknown data source %s. "+
 				"DataSource should start with name of source (e.g redis, postgres)"+
 				"and (or) be followed by \"_\" symbol if needed (e.g redis_shard1, postgres_replica2)", dsn))
 		}
 
+		if _, ok := connTypeAdded[dataSourceType]; ok {
+			continue
+		}
+
+		connTypeAdded[dataSourceType] = struct{}{}
+
 		out.Inner = append(out.Inner, &folder.Folder{
-			Name: dsn,
+			Name: dataSourceType,
 			Inner: []*folder.Folder{
 				{
 					Name:    "conn.go",
@@ -98,7 +107,7 @@ func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 }
 
 func (c *ProjectConfig) GetServerFolders() ([]*folder.Folder, error) {
-	serverOpts, ok := c.Values[config.ServerOptsKey]
+	serverOpts, ok := c.Values[_consts.ServerOptsKey]
 	if !ok {
 		return nil, nil
 	}
@@ -134,7 +143,10 @@ func (c *ProjectConfig) GetServerFolders() ([]*folder.Folder, error) {
 			return nil, errors.Wrap(err, "error unmarshalling copy of folder pattern")
 		}
 
-		ptrn.Validators(&serverF, serverName)
+		if ptrn.Validators != nil {
+			ptrn.Validators(&serverF, serverName)
+		}
+
 		serverF.Name = serverName
 
 		out = append(out, &serverF)
@@ -144,11 +156,11 @@ func (c *ProjectConfig) GetServerFolders() ([]*folder.Folder, error) {
 
 type ServerOptions struct {
 	Name string
-	Port string `json:"port"`
+	Port uint16 `json:"port"`
 }
 
 func (c *ProjectConfig) GetServerOptions() ([]ServerOptions, error) {
-	serverOpts, ok := c.Values[config.ServerOptsKey]
+	serverOpts, ok := c.Values[_consts.ServerOptsKey]
 	if !ok {
 		return nil, nil
 	}
@@ -176,6 +188,46 @@ func (c *ProjectConfig) GetServerOptions() ([]ServerOptions, error) {
 		}
 
 		out = append(out, servOpt)
+	}
+
+	return out, nil
+}
+
+type ConnectionOptions struct {
+	Type string
+	Name string
+
+	ConnectionString string
+}
+
+func (c *ProjectConfig) GetDataSourceOptions() (out []ConnectionOptions, err error) {
+	dataSources, ok := c.Values[_consts.DataSourceKey]
+	if !ok {
+		return nil, nil
+	}
+
+	var ds map[string]interface{}
+	ds, ok = dataSources.(map[string]interface{})
+	if !ok {
+		return nil, nil
+	}
+
+	for dsn, data := range ds {
+		dataSourceType := strings.Split(dsn, "_")[0]
+		switch dataSourceType {
+		case _consts.SourceNamePostgres:
+			var pgDSN structs.Postgres
+			err = copier.Copy(data, &pgDSN)
+			if err != nil {
+				return nil, err
+			}
+
+			out = append(out, ConnectionOptions{
+				Type:             _consts.SourceNamePostgres,
+				Name:             dsn,
+				ConnectionString: fmt.Sprintf(_consts.PostgresConnectionString, pgDSN.User, pgDSN.Pwd, pgDSN.Host, pgDSN.Port, pgDSN.Name),
+			})
+		}
 	}
 
 	return out, nil

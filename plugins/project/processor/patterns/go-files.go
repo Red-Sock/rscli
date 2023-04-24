@@ -56,7 +56,7 @@ func init() {
 					innerFolder.Content = bytes.ReplaceAll(
 						innerFolder.Content,
 						[]byte("config.ServerRestApiPort"),
-						[]byte("config.Server"+cases.SnakeToCamel(serverName+"_port")))
+						[]byte("config.Server"+cases.SnakeToCamel(serverName)+"Port"))
 				}
 			}
 		},
@@ -110,9 +110,11 @@ func init() {
 			server.Content = bytes.ReplaceAll(
 				server.Content,
 				[]byte("config.ServerTgApikey"),
-				[]byte("config.Server"+cases.SnakeToCamel(serverName+"Apikey")))
+				[]byte("config.Server"+cases.SnakeToCamel(serverName)+"Apikey"))
 		},
 	}
+
+	ServerOptsPatterns[_const.GRPCServer] = serverPattern{}
 }
 
 const (

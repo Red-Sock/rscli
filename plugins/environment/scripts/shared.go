@@ -22,7 +22,7 @@ func init() {
 	}
 }
 
-func ListProjects(pth string, cfg *config.Config) (projectNames []string, err error) {
+func ListProjects(pth string, cfg *config.RsCliConfig) (projectNames []string, err error) {
 	dirs, err := os.ReadDir(pth)
 	if err != nil {
 		return nil, err

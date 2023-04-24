@@ -21,8 +21,9 @@ const (
 )
 
 const (
-	projNamePattern     = "proj_name"
-	projNameCapsPattern = "PROJ_NAME_CAPS"
+	projNamePattern               = "proj_name"
+	projNameCapsPattern           = "PROJ_NAME_CAPS"
+	datasourceCapsPostgresPattern = "DS_POSTGRES_NAME_CAPS"
 )
 
 var ErrEnvironmentExists = errors.New("environment already exists")
@@ -53,7 +54,7 @@ func RunCreate() error {
 		return err
 	}
 
-	err = CreateEnvsForProjects(wd, projects)
+	err = CreateEnvFoldersForProjects(wd, projects)
 	if err != nil {
 		return err
 	}
@@ -61,7 +62,7 @@ func RunCreate() error {
 	return RunSetUp(projects)
 }
 
-func CreateEnvsForProjects(projectsPath string, projects []string) error {
+func CreateEnvFoldersForProjects(projectsPath string, projects []string) error {
 	for _, name := range projects {
 		projDir := path.Join(path.Join(projectsPath, EnvDir), name)
 

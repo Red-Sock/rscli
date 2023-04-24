@@ -3,9 +3,11 @@ package patterns
 import (
 	"bytes"
 	_ "embed"
-	"github.com/Red-Sock/rscli/internal/utils/nums"
+
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
+
+	"github.com/Red-Sock/rscli/internal/utils/nums"
 )
 
 const (
@@ -25,7 +27,7 @@ var (
 var composeExamples []byte
 
 type ComposeService struct {
-	name    string
+	Name    string
 	content ContainerSettings
 	envs    *EnvService
 }
@@ -62,7 +64,7 @@ func NewComposeServices(src ...[]byte) (services map[string]ComposeService, err 
 
 	for serviceName, content := range examples {
 		cs := ComposeService{
-			name: serviceName,
+			Name: serviceName,
 		}
 		var bts []byte
 		bts, err = yaml.Marshal(content)
@@ -82,9 +84,6 @@ func NewComposeServices(src ...[]byte) (services map[string]ComposeService, err 
 	return services, nil
 }
 
-func (c *ComposeService) GetName() string {
-	return c.name
-}
 func (c *ComposeService) GetEnvs() *EnvService {
 	return c.envs
 }
@@ -119,11 +118,14 @@ func extractEnvs(b []byte) (*EnvService, error) {
 		var val []byte
 		if b[endIdx+1] == 58 {
 			val = b[endIdx+2:][:bytes.IndexByte(b[endIdx+1:], byte('\n'))]
+			if val[len(val)-1] == '\n' {
+				val = val[:len(val)-1]
+			}
 		}
 
 		out.Append(string(b[startIdx+1:endIdx]), string(val))
 
-		startIdx = bytes.Index(b[endIdx+1:], []byte{36, 123}) // "${"
+		startIdx = bytes.Index(b[endIdx:], []byte{36, 123}) // "${"
 
 	}
 

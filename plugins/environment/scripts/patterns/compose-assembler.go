@@ -5,6 +5,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	EnvironmentPostgresUser     = "POSTGRES_USER"
+	EnvironmentPostgresPassword = "POSTGRES_PASSWORD"
+	EnvironmentPostgresDb       = "POSTGRES_DB"
+)
+
 type ComposeAssembler struct {
 	Name     string                        `yaml:"-"`
 	Services map[string]*ContainerSettings `yaml:"services"`
@@ -12,11 +18,12 @@ type ComposeAssembler struct {
 }
 
 type ContainerSettings struct {
-	Image    string            `yaml:"image"`
-	WorkDir  string            `yaml:"working_dir,omitempty"`
-	Volumes  []string          `yaml:"volumes"`
-	Ports    []string          `yaml:"ports"`
-	Networks map[string]string `yaml:"networks,omitempty"`
+	Image       string            `yaml:"image"`
+	WorkDir     string            `yaml:"working_dir,omitempty"`
+	Environment map[string]string `yaml:"environment"`
+	Volumes     []string          `yaml:"volumes"`
+	Ports       []string          `yaml:"ports"`
+	Networks    []string          `yaml:"networks,omitempty"`
 }
 
 func NewComposeAssembler(src []byte, pName string) (*ComposeAssembler, error) {
@@ -36,19 +43,6 @@ func NewComposeAssembler(src []byte, pName string) (*ComposeAssembler, error) {
 
 func (c *ComposeAssembler) AppendService(name string, service ContainerSettings) {
 	c.Services[name] = &service
-}
-
-func (c *ComposeAssembler) SetUpNetwork() {
-	for sName, service := range c.Services {
-		for k := range service.Networks {
-			if c.Name == sName {
-				service.Networks[k] = c.Name
-			} else {
-				service.Networks[k] = c.Name + "_" + sName
-			}
-		}
-	}
-
 }
 
 func (c *ComposeAssembler) Marshal() ([]byte, error) {

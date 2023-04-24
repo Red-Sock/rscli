@@ -27,4 +27,5 @@ type ProjectConfig interface {
 	GetDataSourceFolders() (*folder.Folder, error)
 	GetServerFolders() ([]*folder.Folder, error)
 	GetServerOptions() ([]config.ServerOptions, error)
+	GetDataSourceOptions() (out []config.ConnectionOptions, err error)
 }
