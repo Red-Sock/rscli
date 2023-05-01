@@ -12,6 +12,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	devConfigPath  = "./config/dev.yaml"
+	prodConfigPath = "./config/config.yaml"
+)
+
 var (
 	ErrNotFound    = errors.New("no such key")
 	ErrCannotParse = errors.New("couldn't parse value")
@@ -20,12 +25,22 @@ var (
 type Config map[configKey]any
 
 func ReadConfig() (*Config, error) {
-	var pth string
+	var cfgPath string
+	var isDevBuild bool
 
-	flag.StringVar(&pth, "config", "./config/dev.yaml", "Path to configuration file")
+	flag.StringVar(&cfgPath, "config", "", "Path to configuration file")
+	flag.BoolVar(&isDevBuild, "dev", false, "Flag turns on a dev config at ./config/dev.yaml")
 	flag.Parse()
 
-	r, err := os.Open(pth)
+	if cfgPath == "" {
+		if isDevBuild {
+			cfgPath = devConfigPath
+		} else {
+			cfgPath = prodConfigPath
+		}
+	}
+
+	r, err := os.Open(cfgPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "os.Open")
 	}

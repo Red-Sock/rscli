@@ -3,8 +3,9 @@ package rest_realisation
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
+
+	"github.com/sirupsen/logrus"
 
 	"financial-microservice/internal/config"
 
@@ -36,8 +37,8 @@ func NewServer(cfg *config.Config) *Server {
 func (s *Server) Start(ctx context.Context) error {
 	go func() {
 		err := s.HttpServer.ListenAndServe()
-		if err != nil {
-			log.Fatal(err)
+		if err != nil && err != http.ErrServerClosed {
+			logrus.Fatal(err)
 		}
 	}()
 

@@ -131,7 +131,6 @@ func insertApiSetupIfNotExists(p interfaces.Project, projMainFile *folder.Folder
 }
 func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder, httpFile *folder.Folder) {
 	insertMissingAPI(p, serverFolders, httpFile)
-	removeExtraAPI(p, serverFolders, httpFile)
 
 	apiMgr := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.TransportFolder, patterns.ApiManagerFileName)
 	if apiMgr == nil {
@@ -145,20 +144,12 @@ func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder, httpFile 
 }
 
 func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, httpFile *folder.Folder) {
-	var apisBytes []byte
-	{
-		goFuncWordBytes := []byte(goFuncWord)
-		startIdx := bytes.Index(httpFile.Content, []byte(transportNewManager)) + len(transportNewManager) + 2
-
-		endIdx := bytes.Index(httpFile.Content, goFuncWordBytes)
-
-		apisBytes = httpFile.Content[startIdx:endIdx]
-	}
+	serverInit := extractInitApi(httpFile.Content)
 
 	var newAPIInsert []byte
 	var newAPIImportInsert []byte
 	for _, serv := range serverFolders {
-		if bytes.Contains(apisBytes, []byte(serv.Name)) {
+		if bytes.Contains(serverInit, []byte(serv.Name)) {
 			continue
 		}
 
@@ -186,63 +177,16 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 		)
 	}
 }
-func removeExtraAPI(p interfaces.Project, serverFolders []*folder.Folder, httpFile *folder.Folder) {
-	var aliasesInFile []string
-	{
-		goFuncWordBytes := []byte(goFuncWord)
-		startIdx := bytes.Index(httpFile.Content, []byte(transportNewManager)) + len(transportNewManager) + 2
 
-		endIdx := bytes.Index(httpFile.Content, goFuncWordBytes)
+func extractInitApi(httpFile []byte) (out []byte) {
+	goFuncWordBytes := []byte(goFuncWord)
+	// indexes between creation of transport manager
+	// and starting it in goroutine
+	startIdx := bytes.Index(httpFile, []byte(transportNewManager)) + len(transportNewManager) + 2
+	endIdx := bytes.Index(httpFile, goFuncWordBytes)
 
-		splitedNames := strings.Split(string(httpFile.Content[startIdx:endIdx]), "\n")
+	out = make([]byte, endIdx-startIdx)
+	copy(out, httpFile[startIdx:endIdx])
 
-		replacer := strings.NewReplacer(
-			"\n", "",
-			"\t", "",
-			"mngr.AddServer(", "",
-		)
-
-		for _, item := range splitedNames {
-			item = replacer.Replace(item)
-			if item != "" {
-				if idx := strings.Index(item, ".NewServer("); idx != -1 {
-					item = item[:idx]
-					aliasesInFile = append(aliasesInFile, item)
-				}
-
-			}
-		}
-	}
-
-	aliasesFromConfig := make(map[string]struct{}, len(serverFolders))
-	{
-		for _, serv := range serverFolders {
-			aliasesFromConfig[serv.Name] = struct{}{}
-		}
-	}
-
-	for _, aliasInFile := range aliasesInFile {
-
-		if _, ok := aliasesFromConfig[aliasInFile]; !ok {
-			abbB := []byte(aliasInFile)
-			idx := bytes.Index(httpFile.Content, abbB)
-			for idx != -1 {
-				startIdx := bytes.LastIndexByte(httpFile.Content[:idx], '\n') + 1
-				endIdx := idx + bytes.IndexByte(httpFile.Content[idx:], '\n')
-				httpFile.Content = slices.RemovePart(httpFile.Content, startIdx, endIdx)
-
-				idx = bytes.Index(httpFile.Content, abbB)
-			}
-		}
-	}
-
-	transports := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.TransportFolder)
-	if transports == nil {
-		return
-	}
-	for idx := range transports.Inner {
-		if _, ok := aliasesFromConfig[transports.Inner[idx].Name]; !ok && len(transports.Inner[idx].Content) == 0 {
-			transports.Inner[idx].Delete()
-		}
-	}
+	return out
 }
