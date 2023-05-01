@@ -3,10 +3,18 @@ package folder
 import (
 	"os"
 	"path"
+
+	"github.com/Red-Sock/rscli/internal/utils/slices"
 )
 
-func Load(pth string) (Folder, error) {
+var ignoredFolders = []string{
+	".idea",
+}
+
+func Load(root, projPath string) (Folder, error) {
 	f := Folder{}
+
+	pth := path.Join(root, projPath)
 
 	_, f.Name = path.Split(pth)
 
@@ -16,21 +24,30 @@ func Load(pth string) (Folder, error) {
 	}
 
 	for _, d := range dir {
+		if slices.Contains(ignoredFolders, path.Join(pth, d.Name())) {
+			continue
+		}
+
+		nodeName := d.Name()
+
+		if slices.Contains(ignoredFolders, path.Join(projPath, nodeName)) {
+			continue
+		}
+
 		if d.IsDir() {
 			var innerDir Folder
-			innerDir, err = Load(path.Join(pth, d.Name()))
+			innerDir, err = Load(root, path.Join(projPath, nodeName))
 			if err != nil {
 				return Folder{}, err
 			}
 
 			f.Inner = append(f.Inner, &innerDir)
 		} else {
-			fileName := d.Name()
 
 			var innerFile []byte
-			innerFile, err = os.ReadFile(path.Join(pth, fileName))
+			innerFile, err = os.ReadFile(path.Join(pth, nodeName))
 			folder := &Folder{
-				Name:    fileName,
+				Name:    nodeName,
 				Content: innerFile,
 			}
 			folder.olderVersion = make([]byte, len(folder.Content))

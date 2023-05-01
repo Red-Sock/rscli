@@ -1,5 +1,11 @@
 package slices
 
+import (
+	"errors"
+)
+
+var ErrSrcLarger = errors.New("source larger that destination")
+
 func Contains[T comparable](slice []T, a T) bool {
 	for _, item := range slice {
 		if item == a {

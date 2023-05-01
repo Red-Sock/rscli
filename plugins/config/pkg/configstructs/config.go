@@ -1,4 +1,4 @@
-package structs
+package configstructs
 
 import "time"
 
@@ -11,7 +11,7 @@ type Config struct {
 type AppInfo struct {
 	Name            string        `yaml:"name"`
 	Version         string        `yaml:"version"`
-	StartupDuration time.Duration `yaml:"startupDuration"`
+	StartupDuration time.Duration `yaml:"startup_duration"`
 }
 
 func NewEmptyConfig() *Config {
@@ -19,4 +19,16 @@ func NewEmptyConfig() *Config {
 		Server:      map[string]interface{}{},
 		DataSources: map[string]interface{}{},
 	}
+}
+
+type ServerOptions struct {
+	Name string
+	Port uint16 `json:"port"`
+}
+
+type ConnectionOptions struct {
+	Type string
+	Name string
+
+	ConnectionString string
 }

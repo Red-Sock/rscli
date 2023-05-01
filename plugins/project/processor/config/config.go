@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -11,15 +12,20 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/utils/copier"
 	"github.com/Red-Sock/rscli/pkg/folder"
+	"github.com/Red-Sock/rscli/plugins/config/pkg/configstructs"
 	_consts "github.com/Red-Sock/rscli/plugins/config/pkg/const"
-	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
+	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
+
+const apiInfoKey = _consts.AppKey + "_info"
 
 type ProjectConfig struct {
 	Path string
 
 	Values map[string]interface{}
+
+	appInfo *configstructs.AppInfo
 }
 
 // NewProjectConfig - constructor for configuration of project
@@ -38,6 +44,40 @@ func (c *ProjectConfig) SetPath(pth string) {
 
 func (c *ProjectConfig) GetPath() string {
 	return c.Path
+}
+
+func (c *ProjectConfig) Rebuild(p interfaces.Project) error {
+	{
+		// App info
+		bts, err := json.Marshal(c.appInfo)
+		if err != nil {
+			return err
+		}
+
+		trg := map[string]interface{}{}
+
+		err = json.Unmarshal(bts, &trg)
+		if err != nil {
+			return err
+		}
+
+		c.Values[apiInfoKey] = trg
+	}
+
+	separatedPath := strings.Split(c.GetPath(), string(filepath.Separator))
+
+	cfgFile := p.GetFolder().GetByPath(patterns.ConfigsFolder, separatedPath[len(separatedPath)-1])
+	if cfgFile == nil {
+		return errors.New("cannot find config at " + c.GetPath())
+	}
+
+	var err error
+	cfgFile.Content, err = yaml.Marshal(c.Values)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // ParseSelf prepares self to be worked on
@@ -154,12 +194,38 @@ func (c *ProjectConfig) GetServerFolders() ([]*folder.Folder, error) {
 	return out, nil
 }
 
-type ServerOptions struct {
-	Name string
-	Port uint16 `json:"port"`
+func (c *ProjectConfig) GetProjInfo() (*configstructs.AppInfo, error) {
+	if c.appInfo != nil {
+		return c.appInfo, nil
+	}
+
+	appInfoMap, ok := c.Values[apiInfoKey]
+	if !ok {
+		return nil, nil
+	}
+
+	var so map[string]interface{}
+	so, ok = appInfoMap.(map[string]interface{})
+	if !ok {
+		return nil, nil
+	}
+
+	bts, err := yaml.Marshal(so)
+	if err != nil {
+		return nil, err
+	}
+
+	c.appInfo = &configstructs.AppInfo{}
+
+	err = yaml.Unmarshal(bts, c.appInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.appInfo, nil
 }
 
-func (c *ProjectConfig) GetServerOptions() ([]ServerOptions, error) {
+func (c *ProjectConfig) GetServerOptions() ([]configstructs.ServerOptions, error) {
 	serverOpts, ok := c.Values[_consts.ServerOptsKey]
 	if !ok {
 		return nil, nil
@@ -171,10 +237,10 @@ func (c *ProjectConfig) GetServerOptions() ([]ServerOptions, error) {
 		return nil, nil
 	}
 
-	out := make([]ServerOptions, 0, len(so))
+	out := make([]configstructs.ServerOptions, 0, len(so))
 
 	for key, item := range so {
-		servOpt := ServerOptions{
+		servOpt := configstructs.ServerOptions{
 			Name: key,
 		}
 		bts, err := json.Marshal(item)
@@ -193,14 +259,7 @@ func (c *ProjectConfig) GetServerOptions() ([]ServerOptions, error) {
 	return out, nil
 }
 
-type ConnectionOptions struct {
-	Type string
-	Name string
-
-	ConnectionString string
-}
-
-func (c *ProjectConfig) GetDataSourceOptions() (out []ConnectionOptions, err error) {
+func (c *ProjectConfig) GetDataSourceOptions() (out []configstructs.ConnectionOptions, err error) {
 	dataSources, ok := c.Values[_consts.DataSourceKey]
 	if !ok {
 		return nil, nil
@@ -216,13 +275,13 @@ func (c *ProjectConfig) GetDataSourceOptions() (out []ConnectionOptions, err err
 		dataSourceType := strings.Split(dsn, "_")[0]
 		switch dataSourceType {
 		case _consts.SourceNamePostgres:
-			var pgDSN structs.Postgres
+			var pgDSN configstructs.Postgres
 			err = copier.Copy(data, &pgDSN)
 			if err != nil {
 				return nil, err
 			}
 
-			out = append(out, ConnectionOptions{
+			out = append(out, configstructs.ConnectionOptions{
 				Type:             _consts.SourceNamePostgres,
 				Name:             dsn,
 				ConnectionString: fmt.Sprintf(_consts.PostgresConnectionString, pgDSN.User, pgDSN.Pwd, pgDSN.Host, pgDSN.Port, pgDSN.Name),
@@ -234,7 +293,7 @@ func (c *ProjectConfig) GetDataSourceOptions() (out []ConnectionOptions, err err
 }
 
 func (c *ProjectConfig) ExtractName() (string, error) {
-	var cfg structs.Config
+	var cfg configstructs.Config
 	bytes, err := yaml.Marshal(c.Values)
 	if err != nil {
 		return "", err

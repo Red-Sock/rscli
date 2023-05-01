@@ -3,6 +3,7 @@ package processor
 import (
 	"os"
 	"path"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -19,6 +20,7 @@ type Validator func(p interfaces.Project) error
 
 type Project struct {
 	Name        string
+	ModName     string
 	ProjectPath string
 	Cfg         interfaces.ProjectConfig
 
@@ -70,11 +72,17 @@ func CreateProject(args CreateArgs) (*Project, error) {
 	}
 
 	if args.Name == "" {
-		proj.Name, err = proj.Cfg.ExtractName()
+		proj.ModName, err = proj.Cfg.ExtractName()
 		if err != nil {
 			return nil, err
 		}
 		args.Name = proj.Name
+	}
+
+	proj.Name = proj.ModName
+
+	if projectNameStartIdx := strings.LastIndex(proj.ModName, "/"); projectNameStartIdx != -1 {
+		proj.Name = proj.Name[projectNameStartIdx+1:]
 	}
 
 	if args.ProjectPath == "" {
@@ -97,6 +105,10 @@ func CreateProject(args CreateArgs) (*Project, error) {
 
 func (p *Project) GetName() string {
 	return p.Name
+}
+
+func (p *Project) GetProjectModName() string {
+	return p.ModName
 }
 
 func (p *Project) GetFolder() *folder.Folder {

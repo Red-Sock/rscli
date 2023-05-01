@@ -42,7 +42,9 @@ func Do(p interfaces.Project) (err error) {
 
 	connFile := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.ClientsFolder, patterns.PostgresFolder, patterns.ConnFile)
 	connFile.Content = patterns.PgConn
-	renamer.ReplaceProjectName(p.GetName(), connFile)
+
+	renamer.ReplaceProjectName(p.GetProjectModName(), connFile)
+
 	err = p.GetFolder().Build()
 	if err != nil {
 		return err

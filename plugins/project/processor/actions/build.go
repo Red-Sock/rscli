@@ -60,7 +60,7 @@ func BuildConfigGoFolder(p interfaces.Project) error {
 
 func BuildProject(p interfaces.Project) error {
 
-	renamer.ReplaceProjectName(p.GetName(), p.GetFolder())
+	renamer.ReplaceProjectName(p.GetProjectModName(), p.GetFolder())
 
 	err := p.GetFolder().Build()
 	if err != nil {

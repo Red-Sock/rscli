@@ -2,6 +2,7 @@ package tidy
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -28,7 +29,7 @@ func Api(p interfaces.Project) error {
 
 	projMainFile := p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName(), patterns.MainFileName)
 	if projMainFile == nil {
-		return ErrNoMainFile
+		return errors.Wrap(ErrNoMainFile, strings.Join([]string{patterns.CmdFolder, p.GetName(), patterns.MainFileName}, "/"))
 	}
 
 	err := tidyAPI(p, cfg, projMainFile)
@@ -52,7 +53,7 @@ func tidyAPI(p interfaces.Project, cfg interfaces.ProjectConfig, projMainFile *f
 
 	{
 		// add import on boostrap if doesn't exists
-		importBootstrap := []byte("\"" + p.GetName() + "/cmd/" + p.GetName() + "/bootstrap\"\n")
+		importBootstrap := []byte("\"" + p.GetProjectModName() + "/cmd/" + p.GetName() + "/bootstrap\"\n")
 		if bytes.Index(projMainFile.Content, importBootstrap) == -1 {
 			importStartIdx := bytes.Index(projMainFile.Content, []byte(importWord))
 			importEndIdx := importStartIdx + bytes.Index(projMainFile.Content[importStartIdx:], []byte(")"))
@@ -84,15 +85,28 @@ func insertApiSetupIfNotExists(p interfaces.Project, projMainFile *folder.Folder
 
 	const (
 		// key lines for starting and stopping servers
-		apiEntryPointCall = "stopFunc := bootstrap.ApiEntryPoint(ctx, cfg)\n\n\t"
-		apiEntryPointStop = "\n\n\terr = stopFunc(context.Background())\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}"
+		apiEntryPointStopFunc = `stopFunc := `
+		apiEntryPointCall     = `bootstrap.ApiEntryPoint`
+		apiEntryPointArgs     = `(ctx, cfg)`
+
+		apiEntryPointStop         = `stopFunc(context.Background())`
+		apiEntryPointStopFuncCall = `
+	err = %s
+	if err != nil {
+		logrus.Fatal(err)
+	}
+`
 	)
 
 	var insertBeforeEnd []byte
 	var insertAfterEnd []byte
 
 	if bytes.Index(projMainFile.Content, []byte(apiEntryPointCall)) == -1 {
+
+		insertBeforeEnd = append(insertBeforeEnd, []byte(apiEntryPointStopFunc)...)
 		insertBeforeEnd = append(insertBeforeEnd, []byte(apiEntryPointCall)...)
+		insertBeforeEnd = append(insertBeforeEnd, []byte(apiEntryPointArgs)...)
+
 	}
 	wfteBytes := []byte(waitingForTheEndFunc)
 
@@ -105,7 +119,9 @@ func insertApiSetupIfNotExists(p interfaces.Project, projMainFile *folder.Folder
 	}
 
 	if bytes.Index(projMainFile.Content, []byte(apiEntryPointStop)) == -1 {
-		insertAfterEnd = append(insertAfterEnd, []byte(apiEntryPointStop)...)
+		insertAfterEnd = append(
+			insertAfterEnd,
+			[]byte(fmt.Sprintf(apiEntryPointStopFuncCall, apiEntryPointStop))...)
 	}
 	if len(insertAfterEnd) != 0 {
 		projMainFile.Content = slices.InsertSlice(projMainFile.Content, insertAfterEnd, endFuncIdx)
@@ -146,7 +162,7 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 			continue
 		}
 
-		newAPIImportInsert = append(newAPIImportInsert, []byte("\n\t\""+p.GetName()+"/internal/transport/"+serv.Name+"\"")...)
+		newAPIImportInsert = append(newAPIImportInsert, []byte("\n\t\""+p.GetProjectModName()+"/internal/transport/"+serv.Name+"\"")...)
 		newAPIInsert = append(newAPIInsert, []byte("mngr.AddServer("+serv.Name+".NewServer(cfg))\n\t")...)
 	}
 

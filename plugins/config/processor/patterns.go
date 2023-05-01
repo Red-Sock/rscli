@@ -3,7 +3,7 @@ package processor
 import (
 	"strconv"
 
-	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
+	"github.com/Red-Sock/rscli/plugins/config/pkg/configstructs"
 )
 
 func DefaultRdsPattern(args []string) map[string]interface{} {
@@ -15,7 +15,7 @@ func DefaultRdsPattern(args []string) map[string]interface{} {
 	port := uint16(6379)
 
 	for _, name := range args {
-		out[name] = &structs.Redis{
+		out[name] = &configstructs.Redis{
 			Host: "0.0.0.0",
 			Port: port,
 		}
@@ -34,7 +34,7 @@ func DefaultPgPattern(args []string) map[string]interface{} {
 	port := uint16(5432)
 
 	for _, name := range args {
-		out[name] = &structs.Postgres{
+		out[name] = &configstructs.Postgres{
 			Name:    name,
 			User:    name,
 			Pwd:     name,
@@ -65,7 +65,7 @@ func DefaultHTTPPattern(args []string) map[string]interface{} {
 		}
 	}
 
-	out[name] = &structs.RestApi{
+	out[name] = &configstructs.RestApi{
 		Port: port,
 	}
 
@@ -84,7 +84,7 @@ func DefaultGRPCPattern(args []string) map[string]interface{} {
 		}
 	}
 
-	out["grpc"] = &structs.RestApi{
+	out["grpc"] = &configstructs.RestApi{
 		Port: port,
 	}
 
@@ -94,7 +94,7 @@ func DefaultGRPCPattern(args []string) map[string]interface{} {
 func DefaultTelegramPattern(args []string) map[string]interface{} {
 	out := make(map[string]interface{})
 
-	tg := &structs.Telegram{}
+	tg := &configstructs.Telegram{}
 	out["tg"] = tg
 
 	if len(args) != 0 {

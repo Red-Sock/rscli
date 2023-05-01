@@ -1,6 +1,7 @@
 package processor
 
 import (
+	"bytes"
 	"os"
 	"path"
 	"strings"
@@ -52,18 +53,33 @@ func LoadProject(pth string) (*Project, error) {
 		return nil, err
 	}
 
-	name, err := c.ExtractName()
+	f, err := folder.Load(pth, "")
 	if err != nil {
 		return nil, err
 	}
 
-	f, err := folder.Load(pth)
+	modName, err := c.ExtractName()
 	if err != nil {
 		return nil, err
+	}
+
+	gomodF := f.GetByPath(patterns.GoMod)
+	moduleBts := gomodF.Content[:bytes.IndexByte(gomodF.Content, '\n')]
+	moduleBts = moduleBts[1+bytes.IndexByte(moduleBts, ' '):]
+
+	if modName != string(moduleBts) {
+		modName = string(moduleBts)
+	}
+
+	name := modName
+
+	if nameStartIdx := strings.LastIndex(modName, "/"); nameStartIdx != -1 {
+		name = modName[nameStartIdx+1:]
 	}
 
 	p := &Project{
 		Name:        name,
+		ModName:     modName,
 		ProjectPath: pth,
 		Cfg:         c,
 		F:           f,

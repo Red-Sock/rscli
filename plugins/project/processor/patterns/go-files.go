@@ -139,6 +139,8 @@ const (
 
 	ConfigsFolder  = "config"
 	ConfigTemplate = "config.yaml.template"
+
+	GoMod = "go.mod"
 )
 
 // Basic files
