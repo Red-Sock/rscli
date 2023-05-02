@@ -22,8 +22,11 @@ func NewEmptyConfig() *Config {
 }
 
 type ServerOptions struct {
-	Name string
-	Port uint16 `json:"port"`
+	Name        string
+	Port        uint16 `yaml:"port"`
+	CertPath    string `yaml:"cert_path"`
+	KeyPath     string `yaml:"key_path"`
+	ForceUseTLS bool   `yaml:"force_use_tls"`
 }
 
 type ConnectionOptions struct {

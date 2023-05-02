@@ -59,14 +59,16 @@ func DefaultHTTPPattern(args []string) map[string]interface{} {
 			p, err := strconv.ParseUint(item, 10, 16)
 			if err == nil {
 				port = uint16(p)
-			} else {
-				name = item
 			}
 		}
 	}
 
-	out[name] = &configstructs.RestApi{
-		Port: port,
+	out[name] = &configstructs.ServerOptions{
+		Name:        name,
+		Port:        port,
+		CertPath:    "path/to/cert.crt",
+		KeyPath:     "path/to/key.pem",
+		ForceUseTLS: false,
 	}
 
 	return out
@@ -83,9 +85,13 @@ func DefaultGRPCPattern(args []string) map[string]interface{} {
 			port = uint16(p)
 		}
 	}
-
-	out["grpc"] = &configstructs.RestApi{
-		Port: port,
+	name := "grpc"
+	out[name] = &configstructs.ServerOptions{
+		Name:        name,
+		Port:        port,
+		CertPath:    "path/to/cert.crt",
+		KeyPath:     "path/to/key.pem",
+		ForceUseTLS: false,
 	}
 
 	return out

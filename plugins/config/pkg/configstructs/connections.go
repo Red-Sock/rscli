@@ -19,10 +19,6 @@ type Redis struct {
 	Db   int
 }
 
-type RestApi struct {
-	Port uint16
-}
-
 type Telegram struct {
 	ApiKey string
 }
