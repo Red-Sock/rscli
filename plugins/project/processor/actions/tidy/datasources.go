@@ -17,6 +17,10 @@ func DataSources(p interfaces.Project) error {
 		return errors.Wrap(err, "error extracting data sources from config")
 	}
 
+	if len(dataSources) == 0 {
+		return nil
+	}
+
 	makeFile := p.GetFolder().GetByPath(patterns.RsCliMkFileName)
 	if makeFile == nil {
 		return ErrNoMakeFile
