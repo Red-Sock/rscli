@@ -10,6 +10,7 @@ const (
 	AppInfoVersion             = "app_info_version"
 	AppInfoStartupDuration     = "app_info_startup_deadline"
 	ServerRestApiPort          = "server_rest_api_port"
+	ServerGRPCApiPort          = "server_grpc_api_port"
 	ServerTgApikey             = "server_tg_api_key"
 	DataSourcesPostgresUser    = "data_sources_postgres_user"
 	DataSourcesPostgresPwd     = "data_sources_postgres_pwd"

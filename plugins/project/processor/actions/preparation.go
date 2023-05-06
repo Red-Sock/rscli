@@ -40,7 +40,7 @@ func PrepareProjectStructure(p interfaces.Project) error {
 
 	fldr.AddWithPath([]string{patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder}, &folder.Folder{
 		Name:    patterns.CloserFile,
-		Content: patterns.UtilsCloser,
+		Content: patterns.UtilsCloserFile,
 	})
 
 	return nil

@@ -9,6 +9,7 @@ import (
 
 var ignoredFolders = []string{
 	".idea",
+	".git",
 }
 
 func Load(root, projPath string) (Folder, error) {
