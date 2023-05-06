@@ -270,6 +270,7 @@ func insertGRPCInMakefile(p interfaces.Project) error {
 		patterns.GRPCInstallGolangProtoc,
 		patterns.GRPCGenerateGoCode,
 		patterns.GRPCGatewayDependency,
+		patterns.SectionSeparator,
 	},
 		[]byte{})
 
