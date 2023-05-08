@@ -46,23 +46,6 @@ func PrepareProjectStructure(p interfaces.Project) error {
 	return nil
 }
 
-func PrepareConfigFolders(p interfaces.Project) error {
-	cfg := p.GetConfig()
-
-	configFolders := make([]*folder.Folder, 0, 1)
-
-	dsFolders, err := cfg.GetDataSourceFolders()
-	if err != nil {
-		return err
-	}
-	if dsFolders != nil {
-		configFolders = append(configFolders, dsFolders)
-	}
-
-	p.GetFolder().AddWithPath([]string{"internal"}, configFolders...)
-	return nil
-}
-
 func PrepareExamplesFolders(p interfaces.Project) error {
 
 	if p.GetFolder().GetByPath("examples", "http-client.env.json") != nil {

@@ -46,7 +46,6 @@ func CreateProject(args CreateArgs) (*Project, error) {
 		Name: args.Name,
 		Actions: append([]Action{
 			actions.PrepareProjectStructure,   // basic project structure
-			actions.PrepareConfigFolders,      // data sources and other things taken from config
 			actions.PrepareExamplesFolders,    // sets up examples
 			actions.PrepareEnvironmentFolders, // prepares environment files
 
