@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package financial_microservice;
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+option go_package = "pkg/proto/client/grpc_realisation/";
+
+service FinancialAPI {
+  rpc Version(PingRequest) returns (PingResponse) {
+    option (google.api.http) = {
+      post: "/v1/version"
+      body: "*"
+    };
+  };
+}
+
+message PingRequest {
+  google.protobuf.Timestamp client_timestamp = 1;
+}
+
+message PingResponse {
+   uint32 took = 1;
+}

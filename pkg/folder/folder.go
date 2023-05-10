@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-var foldersIgnore = []string{".git", ".idea"}
-
 type Folder struct {
 	Name    string
 	Inner   []*Folder

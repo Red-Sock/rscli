@@ -5,13 +5,13 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/Red-Sock/rscli/plugins/config/pkg/configstructs"
 	"github.com/Red-Sock/rscli/plugins/config/pkg/const"
-	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 )
 
 var ErrPatternExists = errors.New("pattern exists")
 
-func parseFlag(f string, args []string, cfg *structs.Config) error {
+func parseFlag(f string, args []string, cfg *configstructs.Config) error {
 
 	if strings.HasPrefix(f, "-") {
 		f = f[1:]

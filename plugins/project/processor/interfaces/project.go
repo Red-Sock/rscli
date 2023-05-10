@@ -2,11 +2,12 @@ package interfaces
 
 import (
 	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/plugins/project/processor/config"
+	"github.com/Red-Sock/rscli/plugins/config/pkg/configstructs"
 )
 
 type Project interface {
 	GetName() string
+	GetProjectModName() string
 	GetConfig() ProjectConfig
 	GetProjectPath() string
 
@@ -16,8 +17,11 @@ type Project interface {
 }
 
 type ProjectConfig interface {
+	Rebuild(p Project) error
+
 	GetPath() string
 	SetPath(pth string)
+	GetProjInfo() (*configstructs.AppInfo, error)
 
 	GetTemplate() ([]byte, error)
 
@@ -26,6 +30,6 @@ type ProjectConfig interface {
 	ExtractName() (string, error)
 	GetDataSourceFolders() (*folder.Folder, error)
 	GetServerFolders() ([]*folder.Folder, error)
-	GetServerOptions() ([]config.ServerOptions, error)
-	GetDataSourceOptions() (out []config.ConnectionOptions, err error)
+	GetServerOptions() ([]configstructs.ServerOptions, error)
+	GetDataSourceOptions() (out []configstructs.ConnectionOptions, err error)
 }

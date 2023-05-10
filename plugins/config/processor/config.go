@@ -6,12 +6,12 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/Red-Sock/rscli/plugins/config/pkg/configstructs"
 	"github.com/Red-Sock/rscli/plugins/config/pkg/const"
-	"github.com/Red-Sock/rscli/plugins/config/pkg/structs"
 )
 
 type Config struct {
-	content         *structs.Config
+	content         *configstructs.Config
 	pth             string
 	isForceOverride bool
 }
@@ -90,8 +90,8 @@ func (c *Config) ForceWrite() (err error) {
 	return nil
 }
 
-func buildConfig(opts map[string][]string) (*structs.Config, error) {
-	out := structs.NewEmptyConfig()
+func buildConfig(opts map[string][]string) (*configstructs.Config, error) {
+	out := configstructs.NewEmptyConfig()
 
 	for f, args := range opts {
 		err := parseFlag(f, args, out)

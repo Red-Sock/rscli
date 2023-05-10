@@ -37,12 +37,14 @@ func Do(p interfaces.Project) (err error) {
 	}()
 	p.GetFolder().AddWithPath([]string{patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder}, &folder.Folder{
 		Name:    patterns.CloserFile,
-		Content: patterns.UtilsCloser,
+		Content: patterns.UtilsCloserFile,
 	})
 
 	connFile := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.ClientsFolder, patterns.PostgresFolder, patterns.ConnFile)
-	connFile.Content = patterns.PgConn
-	renamer.ReplaceProjectName(p.GetName(), connFile)
+	connFile.Content = patterns.PgConnFile
+
+	renamer.ReplaceProjectName(p.GetProjectModName(), connFile)
+
 	err = p.GetFolder().Build()
 	if err != nil {
 		return err

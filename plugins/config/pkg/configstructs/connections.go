@@ -1,4 +1,4 @@
-package structs
+package configstructs
 
 type Postgres struct {
 	Host string
@@ -17,10 +17,6 @@ type Redis struct {
 	User string
 	Pwd  string
 	Db   int
-}
-
-type RestApi struct {
-	Port uint16
 }
 
 type Telegram struct {

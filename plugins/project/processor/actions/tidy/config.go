@@ -22,5 +22,22 @@ func Config(p interfaces.Project) error {
 		Content: b,
 	})
 
+	appInfo, err := config.GetProjInfo()
+	if err != nil {
+		return errors.Wrap(err, "error obtaining project info")
+	}
+
+	if appInfo != nil {
+		modName := p.GetProjectModName()
+
+		if modName != appInfo.Name {
+			appInfo.Name = modName
+			err = config.Rebuild(p)
+			if err != nil {
+				return errors.Wrap(err, "error during rebuilding")
+			}
+		}
+	}
+
 	return nil
 }

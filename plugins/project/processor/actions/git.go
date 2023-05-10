@@ -144,9 +144,9 @@ func GitStatus(p interfaces.Project) (uncommitted Status, err error) {
 				if len(item) == 0 {
 					continue
 				}
-				if strings.HasPrefix(item, "\n") {
+				if strings.HasPrefix(item, "\t") {
 
-					gitChanges.Changelist = append(gitChanges.Changelist, item)
+					gitChanges.Changelist = append(gitChanges.Changelist, item[1:])
 				}
 
 			}
