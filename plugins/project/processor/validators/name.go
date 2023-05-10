@@ -7,7 +7,7 @@ import (
 )
 
 func ValidateName(p interfaces.Project) error {
-	name := p.GetName()
+	name := p.GetProjectModName()
 	return ValidateNameString(name)
 }
 
@@ -18,7 +18,7 @@ func ValidateNameString(name string) error {
 
 	// starting and ending ascii symbols ranges that are applicable to project name
 	availableRanges := [][]int32{
-		{45, 45},
+		{45, 47},
 		{48, 57},
 		{65, 90},
 		{97, 122},

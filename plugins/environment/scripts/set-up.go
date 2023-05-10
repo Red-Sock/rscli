@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/plugins/config/pkg/configstructs"
 	_consts "github.com/Red-Sock/rscli/plugins/config/pkg/const"
 	"github.com/Red-Sock/rscli/plugins/environment/scripts/patterns"
 	pconfig "github.com/Red-Sock/rscli/plugins/project/processor/config"
@@ -200,7 +201,7 @@ func selectMakefile() []byte {
 	}
 }
 
-func changeStartupParameters(pattern *patterns.ComposeService, conn pconfig.ConnectionOptions) error {
+func changeStartupParameters(pattern *patterns.ComposeService, conn configstructs.ConnectionOptions) error {
 	switch conn.Type {
 	case _consts.SourceNamePostgres:
 		pattern.GetCompose().Environment[patterns.EnvironmentPostgresUser],

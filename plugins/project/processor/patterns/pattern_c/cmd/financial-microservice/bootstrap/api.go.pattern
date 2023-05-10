@@ -2,7 +2,8 @@ package bootstrap
 
 import (
 	"context"
-	"log"
+
+	"github.com/sirupsen/logrus"
 
 	"financial-microservice/internal/config"
 	"financial-microservice/internal/transport"
@@ -14,7 +15,7 @@ func ApiEntryPoint(ctx context.Context, cfg *config.Config) func(context.Context
 	go func() {
 		err := mngr.Start(ctx)
 		if err != nil {
-			log.Fatalf("error starting server %s", err.Error())
+			logrus.Fatalf("error starting server %s", err.Error())
 		}
 	}()
 	return mngr.Stop

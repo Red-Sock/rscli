@@ -40,26 +40,9 @@ func PrepareProjectStructure(p interfaces.Project) error {
 
 	fldr.AddWithPath([]string{patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder}, &folder.Folder{
 		Name:    patterns.CloserFile,
-		Content: patterns.UtilsCloser,
+		Content: patterns.UtilsCloserFile,
 	})
 
-	return nil
-}
-
-func PrepareConfigFolders(p interfaces.Project) error {
-	cfg := p.GetConfig()
-
-	configFolders := make([]*folder.Folder, 0, 1)
-
-	dsFolders, err := cfg.GetDataSourceFolders()
-	if err != nil {
-		return err
-	}
-	if dsFolders != nil {
-		configFolders = append(configFolders, dsFolders)
-	}
-
-	p.GetFolder().AddWithPath([]string{"internal"}, configFolders...)
 	return nil
 }
 
@@ -118,7 +101,7 @@ func PrepareEnvironmentFolders(p interfaces.Project) error {
 			},
 			{
 				Name:    "README.md",
-				Content: bytes.ReplaceAll(patterns.Readme, []byte("{{PROJECT_NAME}}"), []byte(p.GetName())),
+				Content: bytes.ReplaceAll(patterns.Readme, []byte("{{PROJECT_NAME}}"), []byte(p.GetProjectModName())),
 			},
 			{
 				Name:    ".gitignore",

@@ -9,6 +9,13 @@ import (
 	_const "github.com/Red-Sock/rscli/plugins/config/pkg/const"
 )
 
+// Constants naming: Purpose+Type (File)
+
+const (
+	ImportProjectNamePatternKebabCase = "financial-microservice"
+	ImportProjectNamePatternSnakeCase = "financial_microservice"
+)
+
 var DatasourceClients = map[string][]byte{}
 var ServerOptsPatterns = map[string]serverPattern{}
 
@@ -20,6 +27,7 @@ type serverPattern struct {
 const (
 	ServerGoFile  = "server.go"
 	versionGoFile = "version.go"
+	pingerGoFile  = "pinger.go"
 
 	MenuFolder    = "menus"
 	MenuGoFile    = "menu.go"
@@ -28,19 +36,19 @@ const (
 )
 
 func init() {
-	DatasourceClients[_const.SourceNameRedis] = RedisConn
-	DatasourceClients[_const.SourceNamePostgres] = PgConn
+	DatasourceClients[_const.SourceNameRedis] = RedisConnFile
+	DatasourceClients[_const.SourceNamePostgres] = PgConnFile
 
 	ServerOptsPatterns[_const.RESTHTTPServer] = serverPattern{
 		F: folder.Folder{
 			Inner: []*folder.Folder{
 				{
 					Name:    ServerGoFile,
-					Content: RestServ,
+					Content: RestServFile,
 				},
 				{
 					Name:    versionGoFile,
-					Content: RestServVersion,
+					Content: RestServHandlerExampleFile,
 				},
 			},
 		},
@@ -67,7 +75,7 @@ func init() {
 			Inner: []*folder.Folder{
 				{
 					Name:    ServerGoFile,
-					Content: TgServ,
+					Content: TgServFile,
 				},
 				{
 					Name: MenuFolder,
@@ -77,7 +85,7 @@ func init() {
 							Inner: []*folder.Folder{
 								{
 									Name:    MenuGoFile,
-									Content: TgMainMenu,
+									Content: TgMainMenuExampleFile,
 								},
 							},
 						},
@@ -91,7 +99,7 @@ func init() {
 							Inner: []*folder.Folder{
 								{
 									Name:    HandlerGoFile,
-									Content: TgVersionHandler,
+									Content: TgHandlerExampleFile,
 								},
 							},
 						},
@@ -114,7 +122,42 @@ func init() {
 		},
 	}
 
-	ServerOptsPatterns[_const.GRPCServer] = serverPattern{}
+	ServerOptsPatterns[_const.GRPCServer] = serverPattern{
+		F: folder.Folder{
+			Inner: []*folder.Folder{
+				{
+					Name:    ServerGoFile,
+					Content: GrpcServFile,
+				},
+				{
+					Name:    pingerGoFile,
+					Content: GrpcServExampleFile,
+				},
+			},
+		},
+		Validators: func(f *folder.Folder, serverName string) {
+			for _, innerFolder := range f.Inner {
+				innerFolder.Content = bytes.ReplaceAll(
+					innerFolder.Content,
+					[]byte("package grpc_realisation"),
+					[]byte("package "+serverName),
+				)
+
+				innerFolder.Content = bytes.ReplaceAll(
+					innerFolder.Content,
+					[]byte("/pkg/grpc-realisation\""),
+					[]byte("/pkg/"+serverName+"\""),
+				)
+
+				if innerFolder.Name == ServerGoFile {
+					innerFolder.Content = bytes.ReplaceAll(
+						innerFolder.Content,
+						[]byte("config.ServerGRPCApiPort"),
+						[]byte("config.Server"+cases.SnakeToCamel(serverName)+"Port"))
+				}
+			}
+		},
+	}
 }
 
 const (
@@ -130,6 +173,10 @@ const (
 	PostgresFolder = "postgres"
 	ConnFile       = "conn.go"
 
+	PkgFolder          = "pkg"
+	ProtoFolder        = "proto"
+	ProtoFileExtension = ".proto"
+
 	UtilsFolder  = "utils"
 	CloserFolder = "closer"
 	CloserFile   = "closer.go"
@@ -139,6 +186,8 @@ const (
 
 	ConfigsFolder  = "config"
 	ConfigTemplate = "config.yaml.template"
+
+	GoMod = "go.mod"
 )
 
 // Basic files
@@ -152,42 +201,46 @@ var (
 // DataStorage connection files
 var (
 	//go:embed pattern_c/internal/clients/redis/conn.go.pattern
-	RedisConn []byte
+	RedisConnFile []byte
 	//go:embed pattern_c/internal/clients/postgres/conn.go.pattern
-	PgConn []byte
+	PgConnFile []byte
 )
 
 // Config parser files
 var (
 	//go:embed pattern_c/internal/config/config.go.pattern
-	Configurator string
+	ConfiguratorFile string
 	//go:embed pattern_c/internal/config/keys.go.pattern
-	ConfigKeys []byte
+	ConfigKeysFile []byte
 )
 
 // Server files
 var (
 	//go:embed pattern_c/internal/transport/manager.go.pattern
-	ServerManagerPattern []byte
+	ServerManagerPatternFile []byte
 
 	//go:embed pattern_c/internal/transport/rest_realisation/server.go.pattern
-	RestServ []byte
+	RestServFile []byte
 	//go:embed pattern_c/internal/transport/rest_realisation/version.go.pattern
-	RestServVersion []byte
+	RestServHandlerExampleFile []byte
 
 	//go:embed pattern_c/internal/transport/tg/listener.go.pattern
-	TgServ []byte
+	TgServFile []byte
 	//go:embed pattern_c/internal/transport/tg/menus/mainmenu/main-menu.go.pattern
-	TgMainMenu []byte
+	TgMainMenuExampleFile []byte
 	//go:embed pattern_c/internal/transport/tg/handlers/version/handler.go.pattern
-	TgVersionHandler []byte
+	TgHandlerExampleFile []byte
 
-	// TODO
-	GrpcServ []byte
+	//go:embed pattern_c/internal/transport/grpc_realisation/server.go.pattern
+	GrpcServFile []byte
+	//go:embed pattern_c/internal/transport/grpc_realisation/pinger.go.pattern
+	GrpcServExampleFile []byte
+	//go:embed pattern_c/pkg/proto/grpc_realisation/financial-microservice.proto
+	GrpcProtoExampleFile []byte
 )
 
 // Utils
 var (
 	//go:embed pattern_c/internal/utils/closer/closer.go.pattern
-	UtilsCloser []byte
+	UtilsCloserFile []byte
 )

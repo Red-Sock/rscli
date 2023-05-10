@@ -45,7 +45,7 @@ func Tidy(pathToProject string) error {
 		return nil
 	}
 
-	err = actions.GitCommit(p.GetProjectPath(), "tidy commit:\n"+status.GetFilesListed())
+	err = actions.GitCommit(p.GetProjectPath(), "[RSCLI]: tidy commit:\n"+status.GetFilesListed())
 	if err != nil {
 		return errs.Wrap(err, "error executing commit")
 	}

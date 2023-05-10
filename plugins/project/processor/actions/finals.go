@@ -14,7 +14,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/tidy"
 
 	"github.com/Red-Sock/rscli/pkg/cmd"
-	configpattern "github.com/Red-Sock/rscli/plugins/config/pkg/structs"
+	configpattern "github.com/Red-Sock/rscli/plugins/config/pkg/configstructs"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
 
@@ -22,7 +22,7 @@ const goBin = "go"
 
 func InitGoMod(p interfaces.Project) error {
 
-	command := exec.Command(goBin, "mod", "init", p.GetName())
+	command := exec.Command(goBin, "mod", "init", p.GetProjectModName())
 
 	command.Dir = p.GetProjectPath()
 	err := command.Run()
@@ -75,7 +75,7 @@ func MoveCfg(p interfaces.Project) error {
 		return fmt.Errorf("error unmarshalling config from file %w", err)
 	}
 
-	cfg.AppInfo.Name = p.GetName()
+	cfg.AppInfo.Name = p.GetProjectModName()
 	cfg.AppInfo.Version = "0.0.1"
 
 	content, err = yaml.Marshal(cfg)
@@ -122,27 +122,27 @@ func FixupProject(p interfaces.Project) error {
 func Tidy(p interfaces.Project) error {
 	err := tidy.Api(p)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error during api tiding")
 	}
 
 	err = tidy.Config(p)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error during config tiding")
 	}
 
 	err = tidy.DataSources(p)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error during data source tiding")
 	}
 
-	renamer.ReplaceProjectName(p.GetName(), p.GetFolder())
+	renamer.ReplaceProjectName(p.GetProjectModName(), p.GetFolder())
 
 	err = BuildConfigGoFolder(p)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error building go config folder")
 	}
 
-	return p.GetFolder().Build()
+	return errors.Wrap(p.GetFolder().Build(), "error building project")
 }
 
 // helping functions

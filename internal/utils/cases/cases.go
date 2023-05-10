@@ -1,8 +1,9 @@
 package cases
 
 import (
-	"github.com/Red-Sock/rscli/internal/utils/slices"
 	"strings"
+
+	"github.com/Red-Sock/rscli/internal/utils/slices"
 )
 
 func SnakeToCamel(v string) string {
@@ -16,6 +17,12 @@ func SnakeToCamel(v string) string {
 	}
 
 	return strings.Join(parts, "")
+}
+
+func KebabToSnake(v string) string {
+	parts := strings.Split(v, "-")
+
+	return strings.ToLower(strings.Join(parts, "_"))
 }
 
 var initialisms = []string{"acl", "api", "ascii", "cpu", "css", "dns",
