@@ -1,17 +1,16 @@
 package copier
 
 import (
-	"encoding/json"
+	"gopkg.in/yaml.v3"
 )
 
 func Copy(src, dst interface{}) error {
-
-	bts, err := json.Marshal(src)
+	bts, err := yaml.Marshal(src)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(bts, dst)
+	err = yaml.Unmarshal(bts, dst)
 	if err != nil {
 		return err
 	}
