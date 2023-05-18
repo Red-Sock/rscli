@@ -1,0 +1,10 @@
+# testing environment
+version: '3'
+
+services:
+  vps:
+    image: ubuntu
+    volumes:
+      - './scripts/:/scripts/'
+    command: ["sleep","infinity"]
+
