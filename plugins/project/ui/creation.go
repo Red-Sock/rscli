@@ -7,6 +7,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Red-Sock/rscli-uikit/basic/loader"
+
 	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	config "github.com/Red-Sock/rscli/plugins/config/pkg/const"
 
@@ -137,10 +139,20 @@ func (c *createArgs) confirmCreateProjectCallback(resp string) uikit.UIElement {
 			return shared_ui.GetHeaderFromText(err.Error())
 		}
 
-		err = proj.Build()
-		if err != nil {
-			return shared_ui.GetHeaderFromText(err.Error())
-		}
+		cancelLoader := make(chan loader.LoadState)
+		ldr := loader.NewLoader(cancelLoader)
+		go func() {
+			err = proj.Build()
+			if err != nil {
+				ldr.SetPreviousScreen(shared_ui.GetHeaderFromText(err.Error()))
+				cancelLoader <- loader.LoadedWithFailure
+			} else {
+				ldr.SetPreviousScreen(c.previousScreen)
+				cancelLoader <- loader.LoadedSuccessful
+			}
+		}()
+
+		return ldr
 	}
 	return c.previousScreen
 }
