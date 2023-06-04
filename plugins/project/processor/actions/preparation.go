@@ -52,8 +52,7 @@ func (a PrepareProjectStructureAction) NameInAction() string {
 	return "Preparing project structure"
 }
 
-type PrepareExamplesFoldersAction struct {
-}
+type PrepareExamplesFoldersAction struct{}
 
 func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 

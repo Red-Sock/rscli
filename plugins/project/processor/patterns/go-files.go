@@ -16,7 +16,7 @@ const (
 	ImportProjectNamePatternSnakeCase = "financial_microservice"
 )
 
-var DatasourceClients = map[string][]byte{}
+var DatasourceClients = map[string]*folder.Folder{}
 var ServerOptsPatterns = map[string]serverPattern{}
 
 type serverPattern struct {
@@ -35,8 +35,9 @@ const (
 )
 
 func init() {
-	DatasourceClients[_const.SourceNameRedis] = RedisConnFile
-	DatasourceClients[_const.SourceNamePostgres] = PgConnFile
+	DatasourceClients[_const.SourceNameRedis] = &folder.Folder{Name: ConnFile, Content: RedisConnFile}
+	DatasourceClients[_const.SourceNamePostgres] = &folder.Folder{Name: ConnFile, Content: PgConnFile}
+	DatasourceClients[_const.TelegramServer] = &folder.Folder{Name: ConnFile, Content: TgConnFile}
 
 	ServerOptsPatterns[_const.RESTHTTPServer] = serverPattern{
 		F: folder.Folder{
@@ -76,7 +77,6 @@ func init() {
 					Name:    ServerGoFile,
 					Content: TgServFile,
 				},
-
 				{
 					Name: HandlerFolder,
 					Inner: []*folder.Folder{
@@ -190,6 +190,8 @@ var (
 	RedisConnFile []byte
 	//go:embed pattern_c/internal/clients/postgres/conn.go.pattern
 	PgConnFile []byte
+	//go:embed pattern_c/internal/clients/tg/conn.go.pattern
+	TgConnFile []byte
 )
 
 // Config parser files

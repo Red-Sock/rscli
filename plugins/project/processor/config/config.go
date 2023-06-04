@@ -101,13 +101,14 @@ func (c *ProjectConfig) ParseSelf() error {
 
 // GetDataSourceFolders extracts data sources information from _consts file and parses it as folders in project
 func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
-	dataSources, ok := c.Values[_consts.DataSourceKey]
+	// extract connections from data source part
+	connectionSettings, ok := c.Values[_consts.DataSourceKey]
 	if !ok {
 		return nil, nil
 	}
 
 	var ds map[string]interface{}
-	ds, ok = dataSources.(map[string]interface{})
+	ds, ok = connectionSettings.(map[string]interface{})
 	if !ok {
 		return nil, nil
 	}
@@ -119,8 +120,8 @@ func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 
 	for dsn := range ds {
 		dataSourceType := strings.Split(dsn, "_")[0]
-		file := patterns.DatasourceClients[dataSourceType]
-		if file == nil {
+		connFile := patterns.DatasourceClients[dataSourceType]
+		if connFile == nil {
 			return nil, errors.New(fmt.Sprintf("unknown data source %s. "+
 				"DataSource should start with name of source (e.g redis, postgres)"+
 				"and (or) be followed by \"_\" symbol if needed (e.g redis_shard1, postgres_replica2)", dsn))
@@ -132,15 +133,33 @@ func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 
 		connTypeAdded[dataSourceType] = struct{}{}
 
-		out.Inner = append(out.Inner, &folder.Folder{
-			Name: dataSourceType,
-			Inner: []*folder.Folder{
-				{
-					Name:    "conn.go",
-					Content: file,
-				},
-			},
-		})
+		out.Inner = append(out.Inner, &folder.Folder{Name: dsn, Inner: []*folder.Folder{connFile}})
+	}
+
+	// extract connections from server part
+	connectionSettings, ok = c.Values[_consts.ServerOptsKey]
+	if !ok {
+		return nil, nil
+	}
+
+	ds, ok = connectionSettings.(map[string]interface{})
+	if !ok {
+		return nil, nil
+	}
+
+	for dsn := range ds {
+		connFile, ok := patterns.DatasourceClients[dsn]
+		if !ok {
+			continue
+		}
+
+		if _, ok := connTypeAdded[dsn]; ok {
+			continue
+		}
+
+		connTypeAdded[dsn] = struct{}{}
+
+		out.Inner = append(out.Inner, &folder.Folder{Name: dsn, Inner: []*folder.Folder{connFile}})
 	}
 
 	return out, nil
