@@ -35,7 +35,7 @@ func New(ctx context.Context, cfg *config.Config) (TxManager, error) {
 		return nil, errors.Wrap(err, "error checking migrations")
 	}
 
-	return &tx{Conn:conn}, nil
+	return &tx{Conn: conn}, nil
 }
 
 func createConnectionString(cfg *config.Config) string {
