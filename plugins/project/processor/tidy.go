@@ -27,7 +27,7 @@ func Tidy(pathToProject string) error {
 		return errors.Join(ErrHasUncommittedChangesDuringTidy, errors.New(status.String()))
 	}
 
-	err = actions.Tidy(p)
+	err = actions.TidyAction{}.Do(p)
 	if err != nil {
 		return errs.Wrap(err, "error while tiding")
 	}

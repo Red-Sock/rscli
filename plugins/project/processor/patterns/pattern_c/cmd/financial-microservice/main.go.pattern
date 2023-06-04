@@ -27,7 +27,11 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("error extracting startup duration %s", err)
 	}
-	context.WithTimeout(ctx, startupDuration)
+	ctx, cancel := context.WithTimeout(ctx, startupDuration)
+	closer.Add(func() error {
+		cancel()
+		return nil
+	})
 
 	waitingForTheEnd()
 

@@ -3,6 +3,7 @@ package config
 import (
 	rscliuitkit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/composit-items/multiselect"
+	"github.com/Red-Sock/rscli-uikit/utils/common"
 
 	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	config "github.com/Red-Sock/rscli/plugins/config/pkg/const"
@@ -88,6 +89,7 @@ func (c *ConfigMenuSubItem) UiElement() rscliuitkit.UIElement {
 		multiselect.Items(c.Items...),
 		multiselect.SeparatorChecked([]rune{'x'}),
 		multiselect.Checked(checked),
+		multiselect.Position(common.NewRelativePositioning(common.NewFillSpacePositioning(), common.NewFillSpacePositioning(), 0.4, 0.4)),
 	)
 }
 

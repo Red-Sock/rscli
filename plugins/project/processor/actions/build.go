@@ -11,7 +11,10 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
-func BuildConfigGoFolder(p interfaces.Project) error {
+type BuildConfigGoFolderAction struct {
+}
+
+func (a BuildConfigGoFolderAction) Do(p interfaces.Project) error {
 	out := []*folder.Folder{
 		{
 			Name: "config.go",
@@ -57,8 +60,14 @@ func BuildConfigGoFolder(p interfaces.Project) error {
 
 	return nil
 }
+func (a BuildConfigGoFolderAction) NameInAction() string {
+	return "Building config folder"
+}
 
-func BuildProject(p interfaces.Project) error {
+type BuildProjectAction struct {
+}
+
+func (a BuildProjectAction) Do(p interfaces.Project) error {
 
 	renamer.ReplaceProjectName(p.GetProjectModName(), p.GetFolder())
 
@@ -67,4 +76,7 @@ func BuildProject(p interfaces.Project) error {
 		return err
 	}
 	return nil
+}
+func (a BuildProjectAction) NameInAction() string {
+	return "Building project"
 }

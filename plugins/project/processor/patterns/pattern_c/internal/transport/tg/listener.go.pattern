@@ -7,26 +7,21 @@ import (
 
 	"financial-microservice/internal/config"
 	"financial-microservice/internal/transport/tg/handlers/version"
-	"financial-microservice/internal/transport/tg/menus/mainmenu"
 )
 
 type Server struct {
 	bot *client.Bot
 }
 
-func NewServer(cfg *config.Config) (s *Server) {
-	s = &Server{}
-	s.bot = client.NewBot(cfg.GetString(config.ServerTgApikey))
-
-	{
-		// Add handlers here
-		s.bot.AddCommandHandler(version.New(cfg), version.Command)
-
+func NewServer(cfg *config.Config, bot *client.Bot) (s *Server) {
+	s = &Server{
+		bot: bot,
 	}
 
 	{
-		// Add pre-rendered  menus
-		s.bot.AddMenu(mainmenu.NewMainMenu())
+		// Add handlers here
+		s.bot.AddCommandHandler(version.New(cfg))
+
 	}
 
 	return s

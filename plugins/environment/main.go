@@ -1,14 +1,17 @@
 package environment
 
 import (
+	"os"
+
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
 	"github.com/Red-Sock/rscli-uikit/composit-items/multiselect"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
+	"github.com/Red-Sock/rscli-uikit/utils/common"
+	"github.com/pkg/errors"
+
 	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"github.com/Red-Sock/rscli/plugins/environment/scripts"
-	"github.com/pkg/errors"
-	"os"
 )
 
 const PluginName = "environment"
@@ -38,6 +41,7 @@ func Run(prevScreen uikit.UIElement) uikit.UIElement {
 			optionCreate,
 			setUp,
 		),
+		radioselect.Position(common.NewRelativePositioning(common.NewFillSpacePositioning(), common.NewFillSpacePositioning(), 0.4, 0.4)),
 	)
 }
 
@@ -53,12 +57,13 @@ func (h *handler) mainMenuCallback(arg string) uikit.UIElement {
 	case setUp:
 		return radioselect.New(
 			h.handleSetUpSelectEnvs,
+			radioselect.HeaderLabel(shared_ui.GetHeaderFromText("What environment to set up ?")),
 			radioselect.Items(
 				all,
 				selectProj,
 			),
+			radioselect.Position(common.NewRelativePositioning(common.NewFillSpacePositioning(), common.NewFillSpacePositioning(), 0.4, 0.4)),
 		)
-
 	}
 
 	return nil
@@ -100,7 +105,9 @@ func (h *handler) handleSetUpSelectEnvs(item string) uikit.UIElement {
 	case selectProj:
 		return multiselect.New(
 			h.selectEnvironmentsToSetUp,
+			multiselect.HeaderLabel(shared_ui.GetHeaderFromText("Found this RSCLI compatible projects:")),
 			multiselect.Items(menuItems...),
+			multiselect.Position(common.NewRelativePositioning(common.NewFillSpacePositioning(), common.NewFillSpacePositioning(), 0.4, 0.4)),
 		)
 	}
 	return h.prev

@@ -1,5 +1,5 @@
-github.com/Red-Sock/rscli-uikit v1.0.1 h1:+JQpLo8tYG/KJbNRgVYSnbCjKDCYOlMtFjnI8h+bPdI=
-github.com/Red-Sock/rscli-uikit v1.0.1/go.mod h1:7saG2idzB8j/JpEDP+z9ylSa4ttWbNMzsliDlPqhfzM=
+github.com/Red-Sock/rscli-uikit v1.1.4 h1:O4dLXC30r75ONXg1m7R4AU1j/of2+11GUUQEM0AF+iw=
+github.com/Red-Sock/rscli-uikit v1.1.4/go.mod h1:7saG2idzB8j/JpEDP+z9ylSa4ttWbNMzsliDlPqhfzM=
 github.com/mattn/go-runewidth v0.0.9/go.mod h1:H031xJmbD/WCDINGzjvQ9THkh0rPKHF+m2gUSrubnMI=
 github.com/mattn/go-runewidth v0.0.13 h1:lTGmDsbAYt5DmK6OnoV7EuIF1wEIFAcxld6ypU4OSgU=
 github.com/mattn/go-runewidth v0.0.13/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=

@@ -20,7 +20,9 @@ import (
 
 const goBin = "go"
 
-func InitGoMod(p interfaces.Project) error {
+type InitGoModAction struct{}
+
+func (a InitGoModAction) Do(p interfaces.Project) error {
 
 	command := exec.Command(goBin, "mod", "init", p.GetProjectModName())
 
@@ -47,8 +49,13 @@ func InitGoMod(p interfaces.Project) error {
 
 	return nil
 }
+func (a InitGoModAction) NameInAction() string {
+	return "Initiating go project"
+}
 
-func MoveCfg(p interfaces.Project) error {
+type MoveCfgAction struct{}
+
+func (a MoveCfgAction) Do(p interfaces.Project) error {
 
 	var content []byte
 
@@ -92,8 +99,13 @@ func MoveCfg(p interfaces.Project) error {
 
 	return os.RemoveAll(sourceConfPath)
 }
+func (a MoveCfgAction) NameInAction() string {
+	return "Moving config"
+}
 
-func FixupProject(p interfaces.Project) error {
+type FixupProjectAction struct{}
+
+func (a FixupProjectAction) Do(p interfaces.Project) error {
 
 	wd, _ := os.Getwd()
 	wd = path.Join(wd, p.GetName())
@@ -118,8 +130,13 @@ func FixupProject(p interfaces.Project) error {
 
 	return nil
 }
+func (a FixupProjectAction) NameInAction() string {
+	return "Performing project fix up"
+}
 
-func Tidy(p interfaces.Project) error {
+type TidyAction struct{}
+
+func (a TidyAction) Do(p interfaces.Project) error {
 	err := tidy.Api(p)
 	if err != nil {
 		return errors.Wrap(err, "error during api tiding")
@@ -137,12 +154,15 @@ func Tidy(p interfaces.Project) error {
 
 	renamer.ReplaceProjectName(p.GetProjectModName(), p.GetFolder())
 
-	err = BuildConfigGoFolder(p)
+	err = BuildConfigGoFolderAction{}.Do(p)
 	if err != nil {
 		return errors.Wrap(err, "error building go config folder")
 	}
 
 	return errors.Wrap(p.GetFolder().Build(), "error building project")
+}
+func (a TidyAction) NameInAction() string {
+	return "Cleaning up the project"
 }
 
 // helping functions

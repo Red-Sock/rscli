@@ -16,7 +16,7 @@ const (
 	ImportProjectNamePatternSnakeCase = "financial_microservice"
 )
 
-var DatasourceClients = map[string][]byte{}
+var DatasourceClients = map[string][]*folder.Folder{}
 var ServerOptsPatterns = map[string]serverPattern{}
 
 type serverPattern struct {
@@ -29,15 +29,14 @@ const (
 	versionGoFile = "version.go"
 	pingerGoFile  = "pinger.go"
 
-	MenuFolder    = "menus"
-	MenuGoFile    = "menu.go"
 	HandlerFolder = "handlers"
 	HandlerGoFile = "handler.go"
 )
 
 func init() {
-	DatasourceClients[_const.SourceNameRedis] = RedisConnFile
-	DatasourceClients[_const.SourceNamePostgres] = PgConnFile
+	DatasourceClients[_const.SourceNameRedis] = []*folder.Folder{{Name: ConnFile, Content: RedisConnFile}}
+	DatasourceClients[_const.SourceNamePostgres] = []*folder.Folder{{Name: ConnFile, Content: PgConnFile}, {Name: PgTxFileName, Content: PgTxFile}}
+	DatasourceClients[_const.TelegramServer] = []*folder.Folder{{Name: ConnFile, Content: TgConnFile}}
 
 	ServerOptsPatterns[_const.RESTHTTPServer] = serverPattern{
 		F: folder.Folder{
@@ -76,20 +75,6 @@ func init() {
 				{
 					Name:    ServerGoFile,
 					Content: TgServFile,
-				},
-				{
-					Name: MenuFolder,
-					Inner: []*folder.Folder{
-						{
-							Name: "mainmenu",
-							Inner: []*folder.Folder{
-								{
-									Name:    MenuGoFile,
-									Content: TgMainMenuExampleFile,
-								},
-							},
-						},
-					},
 				},
 				{
 					Name: HandlerFolder,
@@ -172,6 +157,7 @@ const (
 	ClientsFolder  = "clients"
 	PostgresFolder = "postgres"
 	ConnFile       = "conn.go"
+	PgTxFileName   = "tx.go"
 
 	PkgFolder          = "pkg"
 	ProtoFolder        = "proto"
@@ -204,6 +190,10 @@ var (
 	RedisConnFile []byte
 	//go:embed pattern_c/internal/clients/postgres/conn.go.pattern
 	PgConnFile []byte
+	//go:embed pattern_c/internal/clients/postgres/tx.go.pattern
+	PgTxFile []byte
+	//go:embed pattern_c/internal/clients/telegram/conn.go.pattern
+	TgConnFile []byte
 )
 
 // Config parser files
@@ -226,8 +216,6 @@ var (
 
 	//go:embed pattern_c/internal/transport/tg/listener.go.pattern
 	TgServFile []byte
-	//go:embed pattern_c/internal/transport/tg/menus/mainmenu/main-menu.go.pattern
-	TgMainMenuExampleFile []byte
 	//go:embed pattern_c/internal/transport/tg/handlers/version/handler.go.pattern
 	TgHandlerExampleFile []byte
 

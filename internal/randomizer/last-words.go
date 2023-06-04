@@ -3,8 +3,8 @@ package randomizer
 import "math/rand"
 
 var goodbuys = []string{
-	`was a pleasure to work with you!`,
-	`see ya!`,
+	`Was a pleasure to work with you!`,
+	`See ya!`,
 }
 
 func GoodGoodBuy() string {

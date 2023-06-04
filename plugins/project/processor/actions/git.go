@@ -9,7 +9,10 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
 
-func InitGit(p interfaces.Project) error {
+type InitGit struct {
+}
+
+func (a InitGit) Do(p interfaces.Project) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    "git",
 		Args:    []string{"init"},
@@ -25,6 +28,9 @@ func InitGit(p interfaces.Project) error {
 	}
 
 	return nil
+}
+func (a InitGit) NameInAction() string {
+	return "Initiating git"
 }
 
 func GitCommit(pth, msg string) error {
