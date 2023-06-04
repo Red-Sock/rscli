@@ -73,8 +73,9 @@ func createProject(args []string) (err error) {
 		return errors.Wrapf(err, "error creating project")
 	}
 
-	err = p.Build()
-	if err != nil {
+	_, errCh := p.Build()
+	err, ok = <-errCh
+	if ok && err != nil {
 		return errors.Wrapf(err, "error building project")
 	}
 

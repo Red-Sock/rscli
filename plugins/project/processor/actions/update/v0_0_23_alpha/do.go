@@ -3,6 +3,7 @@ package v0_0_23_alpha
 import (
 	"errors"
 
+	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
@@ -10,7 +11,7 @@ import (
 var Version = interfaces.Version{
 	Major:      0,
 	Minor:      0,
-	Negligible: 21,
+	Negligible: 23,
 	Additional: interfaces.TagVersionAlpha,
 }
 
@@ -42,6 +43,23 @@ func Do(p interfaces.Project) (err error) {
 		)
 		if connFile != nil {
 			connFile.Content = patterns.PgConnFile
+		}
+	}
+
+	{
+		// add new way handling tx
+		pgFolder := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.ClientsFolder, patterns.PostgresFolder)
+		if pgFolder != nil {
+			pgFolder.Inner = []*folder.Folder{
+				{
+					Name:    patterns.ConnFile,
+					Content: patterns.PgConnFile,
+				},
+				{
+					Name:    patterns.PgTxFileName,
+					Content: patterns.PgTxFile,
+				},
+			}
 		}
 	}
 

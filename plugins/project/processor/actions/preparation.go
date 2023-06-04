@@ -10,7 +10,10 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
-func PrepareProjectStructure(p interfaces.Project) error {
+type PrepareProjectStructureAction struct {
+}
+
+func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 	cmd := &folder.Folder{Name: "cmd"}
 
 	cmd.Inner = append(cmd.Inner, &folder.Folder{
@@ -45,8 +48,13 @@ func PrepareProjectStructure(p interfaces.Project) error {
 
 	return nil
 }
+func (a PrepareProjectStructureAction) NameInAction() string {
+	return "Preparing project structure"
+}
 
-func PrepareExamplesFolders(p interfaces.Project) error {
+type PrepareExamplesFoldersAction struct{}
+
+func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 
 	if p.GetFolder().GetByPath("examples", "http-client.env.json") != nil {
 		return nil
@@ -91,8 +99,13 @@ func PrepareExamplesFolders(p interfaces.Project) error {
 	})
 	return nil
 }
+func (a PrepareExamplesFoldersAction) NameInAction() string {
+	return "Preparing examples folders"
+}
 
-func PrepareEnvironmentFolders(p interfaces.Project) error {
+type PrepareEnvironmentFoldersAction struct{}
+
+func (a PrepareEnvironmentFoldersAction) Do(p interfaces.Project) error {
 	p.GetFolder().Add(
 		[]*folder.Folder{
 			{
@@ -118,4 +131,7 @@ func PrepareEnvironmentFolders(p interfaces.Project) error {
 		}...,
 	)
 	return nil
+}
+func (a PrepareEnvironmentFoldersAction) NameInAction() string {
+	return "Preparing environment folder"
 }

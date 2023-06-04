@@ -9,7 +9,7 @@ import (
 	"financial-microservice/internal/transport"
 )
 
-func ApiEntryPoint(ctx context.Context, cfg *config.Config) func(context.Context) error {
+func ApiEntryPoint(ctx context.Context, cfg *config.Config) (func(context.Context) error, error) {
 	mngr := transport.NewManager()
 
 	go func() {
@@ -18,5 +18,6 @@ func ApiEntryPoint(ctx context.Context, cfg *config.Config) func(context.Context
 			logrus.Fatalf("error starting server %s", err.Error())
 		}
 	}()
-	return mngr.Stop
+
+	return mngr.Stop, nil
 }

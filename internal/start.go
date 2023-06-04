@@ -1,15 +1,19 @@
 package internal
 
 import (
-	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
-	"github.com/pkg/errors"
 	"os"
 	"os/signal"
 	"sort"
 
+	"github.com/Red-Sock/rscli-uikit/utils/common"
+	"github.com/pkg/errors"
+
+	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
+
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/endscreen"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
+
 	"github.com/Red-Sock/rscli/internal/randomizer"
 	cfgui "github.com/Red-Sock/rscli/plugins/config"
 	envui "github.com/Red-Sock/rscli/plugins/environment"
@@ -73,6 +77,7 @@ func mainMenu() uikit.UIElement {
 				UIElement: shared_ui.GetHeaderFromText(randomizer.GoodGoodBuy()),
 			},
 		),
+		radioselect.Position(common.NewRelativePositioning(common.NewFillSpacePositioning(), common.NewFillSpacePositioning(), 0.4, 0.4)),
 	)
 }
 

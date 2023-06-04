@@ -125,6 +125,8 @@ github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migc
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 h1:TngWCqHvy9oXAN6lEVMRuU21PR1EtLVZJmdB18Gu3Rw=
 github.com/Red-Sock/go_tg v0.0.11 h1:57oApUrNpJsDyDLA1iX1GTEFan6bfmMWetWdwBS3gr4=
 github.com/Red-Sock/go_tg v0.0.11/go.mod h1:zOQ7l6ymmkFEKMVADRTYF7Ed0oGnlBUsH3MDZmnbeH8=
+github.com/Red-Sock/go_tg v0.0.16 h1:ZLD28ts9q50S6PfpNlbrP3W2+oMjKTdzrA11tW6UzcU=
+github.com/Red-Sock/go_tg v0.0.16/go.mod h1:zOQ7l6ymmkFEKMVADRTYF7Ed0oGnlBUsH3MDZmnbeH8=
 github.com/andybalholm/brotli v1.0.5 h1:8uQZIdzKmjc/iuPu7O2ioW48L81FgatrcpfFmiq/cCs=
 github.com/cenkalti/backoff/v4 v4.2.1 h1:y4OZtCnogmCPw98Zjyt5a6+QwPLGkiQsYW5oUqylYbM=
 github.com/census-instrumentation/opencensus-proto v0.4.1 h1:iKLQ0xPNFxR/2hzXZMrBo8f1j86j5WHzznCCQxV/b8g=

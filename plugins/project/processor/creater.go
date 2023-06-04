@@ -14,7 +14,10 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/processor/validators"
 )
 
-type Action func(p interfaces.Project) error
+type Action interface {
+	Do(p interfaces.Project) error
+	NameInAction() string
+}
 
 type Validator func(p interfaces.Project) error
 
@@ -45,18 +48,18 @@ func CreateProject(args CreateArgs) (*Project, error) {
 	proj := &Project{
 		Name: args.Name,
 		Actions: append([]Action{
-			actions.PrepareProjectStructure,   // basic project structure
-			actions.PrepareExamplesFolders,    // sets up examples
-			actions.PrepareEnvironmentFolders, // prepares environment files
+			actions.PrepareProjectStructureAction{},   // basic project structure
+			actions.PrepareExamplesFoldersAction{},    // sets up examples
+			actions.PrepareEnvironmentFoldersAction{}, // prepares environment files
 
-			actions.BuildConfigGoFolder, // config driver
-			actions.BuildProject,        // build project in file system
+			actions.BuildConfigGoFolderAction{}, // config driver
+			actions.BuildProjectAction{},        // build project in file system
 
-			actions.InitGoMod,    // executes go mod
-			actions.MoveCfg,      // moves external used config into project
-			actions.Tidy,         // adds/clears project initialization(api, resources) and replaces project name template with actual project name
-			actions.FixupProject, // fetches dependencies and formats go code
-			actions.InitGit,      // initializing and committing project as git repo
+			actions.InitGoModAction{},    // executes go mod
+			actions.MoveCfgAction{},      // moves external used config into project
+			actions.TidyAction{},         // adds/clears project initialization(api, resources) and replaces project name template with actual project name
+			actions.FixupProjectAction{}, // fetches dependencies and formats go code
+			actions.InitGit{},            // initializing and committing project as git repo
 		}, args.Actions...),
 		validators: append(args.Validators, validators.ValidateName),
 	}
@@ -122,13 +125,25 @@ func (p *Project) GetProjectPath() string {
 	return p.ProjectPath
 }
 
-func (p *Project) Build() (err error) {
-	for _, a := range p.Actions {
-		if err = a(p); err != nil {
-			return err
+func (p *Project) Build() (<-chan string, <-chan error) {
+	progressCh := make(chan string, len(p.Actions))
+	errCh := make(chan error)
+
+	go func() {
+		for _, a := range p.Actions {
+			progressCh <- a.NameInAction()
+			if err := a.Do(p); err != nil {
+				close(progressCh)
+				errCh <- err
+				close(errCh)
+				return
+			}
 		}
-	}
-	return nil
+		close(progressCh)
+		close(errCh)
+	}()
+
+	return progressCh, errCh
 }
 
 func (p *Project) Validate() error {
