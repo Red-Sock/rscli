@@ -29,7 +29,6 @@ const (
 	versionGoFile = "version.go"
 	pingerGoFile  = "pinger.go"
 
-	MenuFolder    = "menus"
 	MenuGoFile    = "menu.go"
 	HandlerFolder = "handlers"
 	HandlerGoFile = "handler.go"
@@ -77,20 +76,7 @@ func init() {
 					Name:    ServerGoFile,
 					Content: TgServFile,
 				},
-				{
-					Name: MenuFolder,
-					Inner: []*folder.Folder{
-						{
-							Name: "mainmenu",
-							Inner: []*folder.Folder{
-								{
-									Name:    MenuGoFile,
-									Content: TgMainMenuExampleFile,
-								},
-							},
-						},
-					},
-				},
+
 				{
 					Name: HandlerFolder,
 					Inner: []*folder.Folder{
@@ -226,8 +212,6 @@ var (
 
 	//go:embed pattern_c/internal/transport/tg/listener.go.pattern
 	TgServFile []byte
-	//go:embed pattern_c/internal/transport/tg/menus/mainmenu/main-menu.go.pattern
-	TgMainMenuExampleFile []byte
 	//go:embed pattern_c/internal/transport/tg/handlers/version/handler.go.pattern
 	TgHandlerExampleFile []byte
 

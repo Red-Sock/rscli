@@ -48,6 +48,7 @@ func (c *cfgDialog) mainMenu() uikit.UIElement {
 		c.mainMenuCallback,
 		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Project configuration")),
 		radioselect.Items(MainMenuItems()...),
+		radioselect.Position(common.NewRelativePositioning(common.NewFillSpacePositioning(), common.NewFillSpacePositioning(), 0.4, 0.4)),
 	)
 }
 
@@ -70,6 +71,7 @@ func (c *cfgDialog) askName() uikit.UIElement {
 		input.Position(common.NewRelativePositioning(common.NewFillSpacePositioning(), common.NewFillSpacePositioning(), 0.5, 0.5)),
 		input.Header(label.New("Application name:", label.Anchor(label.CenterAnchor))),
 		input.HeaderRelativePos(0.5),
+		input.Position(common.NewRelativePositioning(common.NewFillSpacePositioning(), common.NewFillSpacePositioning(), 0.4, 0.4)),
 	)
 }
 
@@ -110,8 +112,9 @@ func (c *cfgDialog) commitConfig() uikit.UIElement {
 				c.handleOverrideAnswer,
 				radioselect.Items("yes", "no"),
 				radioselect.HeaderLabel(
-					shared_ui.GetHeaderFromText("file "+c.path+" already exists. Want to override?"),
+					shared_ui.GetHeaderFromText("file "+c.path+" already exists.\n Want to override?"),
 				),
+				radioselect.Position(common.NewRelativePositioning(common.NewFillSpacePositioning(), common.NewFillSpacePositioning(), 0.4, 0.4)),
 			)
 			return sb
 		}
@@ -124,7 +127,11 @@ func (c *cfgDialog) commitConfig() uikit.UIElement {
 				c.handleOverrideAnswer,
 				radioselect.Items("yes", "no"),
 				radioselect.HeaderLabel(
-					shared_ui.GetHeaderFromText("file "+c.cfg.GetPath()+" already exists. Want to override?")),
+					shared_ui.GetHeaderFromText(`file:
+`+c.cfg.GetPath()+`
+already exists. 
+Want to override?`)),
+				radioselect.Position(common.NewRelativePositioning(common.NewFillSpacePositioning(), common.NewFillSpacePositioning(), 0.4, 0.4)),
 			)
 			return sb
 		}
@@ -147,5 +154,6 @@ func (c *cfgDialog) endDialog() uikit.UIElement {
 	return shared_ui.GetHeaderFromLabel(
 		label.New("successfully created file at "+c.cfg.GetPath()+". (press enter to continue)",
 			label.NextScreen(c.prev),
+			label.WordsHyphenation(24),
 		))
 }
