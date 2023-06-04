@@ -18,7 +18,7 @@ import (
 	"financial-microservice/internal/utils/closer"
 )
 
-func New(ctx context.Context, cfg *config.Config) (*pgx.Conn, error) {
+func New(ctx context.Context, cfg *config.Config) (TxManager, error) {
 	conbStr := createConnectionString(cfg)
 
 	conn, err := pgx.Connect(ctx, conbStr)
@@ -35,7 +35,7 @@ func New(ctx context.Context, cfg *config.Config) (*pgx.Conn, error) {
 		return nil, errors.Wrap(err, "error checking migrations")
 	}
 
-	return conn, nil
+	return &tx{Conn:conn}, nil
 }
 
 func createConnectionString(cfg *config.Config) string {

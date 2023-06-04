@@ -133,7 +133,7 @@ func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 
 		connTypeAdded[dataSourceType] = struct{}{}
 
-		out.Inner = append(out.Inner, &folder.Folder{Name: dsn, Inner: []*folder.Folder{connFile}})
+		out.Inner = append(out.Inner, &folder.Folder{Name: dsn, Inner: connFile})
 	}
 
 	// extract connections from server part
@@ -159,7 +159,7 @@ func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 
 		connTypeAdded[dsn] = struct{}{}
 
-		out.Inner = append(out.Inner, &folder.Folder{Name: dsn, Inner: []*folder.Folder{connFile}})
+		out.Inner = append(out.Inner, &folder.Folder{Name: dsn, Inner: connFile})
 	}
 
 	return out, nil
