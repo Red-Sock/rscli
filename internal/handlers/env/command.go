@@ -16,21 +16,17 @@ type Handler struct {
 
 func NewHandler() *Handler {
 	const (
-		create = "create"
-		setup  = "set-up"
+		setup = "set-up"
 	)
 
 	return &Handler{
 		progs: map[string]func(args []string) error{
-			create: func(_ []string) error {
-				return envscripts.RunCreate()
-			},
+
 			setup: func(_ []string) error {
 				return envscripts.RunSetUp(nil)
 			},
 			"help": func(_ []string) error {
 				println(shared_ui.Header +
-					create + "- create new environment. Run this in root directory where projects are stored\n" +
 					setup + " - setting up and update environment for projects\n")
 				return nil
 			},

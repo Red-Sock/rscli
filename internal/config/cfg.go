@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"os"
 
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
 	"github.com/Red-Sock/rscli/pkg/flag"
@@ -11,7 +12,7 @@ import (
 
 const configFilename = "rscli.yaml"
 
-const customPathToConfig = "-cfg"
+const customPathToConfig = "--rscli-cfg"
 
 //go:embed rscli.yaml
 var example []byte
@@ -23,18 +24,19 @@ type RsCliConfig struct {
 	} `yaml:"env"`
 }
 
-func ReadConfig(args []string) (*RsCliConfig, error) {
-	flags := flag.ParseArgs(args)
+func GetConfig() (*RsCliConfig, error) {
+	flags := flag.ParseArgs(os.Args[1:])
 
-	cfgFile, err := flag.ExtractOneValueFromFlags(flags, customPathToConfig)
+	cfgFilePath, err := flag.ExtractOneValueFromFlags(flags, customPathToConfig)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error extracting config value from arguments")
 	}
+
 	var file []byte
-	if cfgFile != "" {
-		file, err = os.ReadFile(cfgFile)
+	if cfgFilePath != "" {
+		file, err = os.ReadFile(cfgFilePath)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "error reading file from FS")
 		}
 	} else {
 		file = example
@@ -44,7 +46,7 @@ func ReadConfig(args []string) (*RsCliConfig, error) {
 
 	err = yaml.Unmarshal(file, &c)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error parsing config file")
 	}
 
 	return &c, nil

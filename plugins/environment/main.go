@@ -12,13 +12,13 @@ import (
 
 	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"github.com/Red-Sock/rscli/plugins/environment/scripts"
+	"github.com/Red-Sock/rscli/plugins/environment/scripts/patterns"
 )
 
 const PluginName = "environment"
 
 const (
-	optionCreate = "create"
-	setUp        = "set up environment"
+	setUp = "set up environment"
 )
 
 const (
@@ -31,14 +31,12 @@ type handler struct {
 }
 
 func Run(prevScreen uikit.UIElement) uikit.UIElement {
-
 	h := handler{prev: prevScreen}
 
 	return radioselect.New(
 		h.mainMenuCallback,
 		radioselect.HeaderLabel(shared_ui.GetHeaderFromText("Environment")),
 		radioselect.Items(
-			optionCreate,
 			setUp,
 		),
 		radioselect.Position(common.NewRelativePositioning(common.NewFillSpacePositioning(), common.NewFillSpacePositioning(), 0.4, 0.4)),
@@ -47,13 +45,7 @@ func Run(prevScreen uikit.UIElement) uikit.UIElement {
 
 func (h *handler) mainMenuCallback(arg string) uikit.UIElement {
 	switch arg {
-	case optionCreate:
-		err := scripts.RunCreate()
-		if err != nil {
-			return h.handleError(err)
-		}
 
-		return h.prev
 	case setUp:
 		return radioselect.New(
 			h.handleSetUpSelectEnvs,
@@ -83,7 +75,7 @@ func (h *handler) handleSetUpSelectEnvs(item string) uikit.UIElement {
 
 	menuItems := make([]string, 0, len(dirs))
 	for _, d := range dirs {
-		if d.IsDir() && d.Name() != scripts.EnvDir {
+		if d.IsDir() && d.Name() != patterns.EnvDir {
 			menuItems = append(menuItems, d.Name())
 		}
 	}
