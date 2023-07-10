@@ -1,7 +1,6 @@
 package scripts
 
 import (
-	_ "embed"
 	"io/fs"
 	"os"
 	"path"
@@ -9,41 +8,11 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/plugins/environment/scripts/patterns"
 )
 
-const (
-	EnvDir              = "environment"
-	EnvFile             = ".env"
-	envExampleFile      = ".env.example"
-	composeExampleFile  = "docker-compose.example.yaml"
-	dockerComposeFile   = "docker-compose.yaml"
-	makefileExampleFile = "Makefile"
-)
-
-const (
-	projNamePattern               = "proj_name"
-	projNameCapsPattern           = "PROJ_NAME_CAPS"
-	datasourceCapsPostgresPattern = "DS_POSTGRES_NAME_CAPS"
-)
-
-var ErrEnvironmentExists = errors.New("environment already exists")
-
-//go:embed patterns/files/.env
-var envFile []byte
-
-//go:embed patterns/files/docker-compose.yaml
-var composeFile []byte
-
-//go:embed patterns/files/Makefile
-var makefile []byte
-
-func RunCreate() error {
-	cfg, err := config.ReadConfig(os.Args[1:])
-	if err != nil {
-		return err
-	}
-
-	err = createEnvDir()
+func createEnvFolders(wd string, cfg *config.RsCliConfig) (err error) {
+	err = prepareEnvDirBasic(wd)
 	if err != nil {
 		return err
 	}
@@ -51,58 +20,49 @@ func RunCreate() error {
 	var projects []string
 	projects, err = ListProjects(wd, cfg)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error obtaining projects list")
 	}
 
-	err = CreateEnvFoldersForProjects(wd, projects)
+	err = createEnvFoldersForProjects(wd, projects)
 	if err != nil {
-		return err
-	}
-
-	return RunSetUp(projects)
-}
-
-func CreateEnvFoldersForProjects(projectsPath string, projects []string) error {
-	for _, name := range projects {
-		projDir := path.Join(path.Join(projectsPath, EnvDir), name)
-
-		err := os.Mkdir(projDir, os.ModePerm)
-		if err != nil {
-			return err
-		}
+		return errors.Wrap(err, "error creating env folders for projects")
 	}
 
 	return nil
 }
+func prepareEnvDirBasic(wd string) (err error) {
+	envDir := path.Join(wd, patterns.EnvDir)
 
-func createEnvDir() error {
-	_, err := os.ReadDir(EnvDir)
-	if err == nil {
-		return ErrEnvironmentExists
+	_, err = os.ReadDir(envDir)
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			err = os.Mkdir(envDir, 0755)
+			if err != nil {
+				return errors.Wrap(err, "error making dir")
+			}
+		} else {
+			return errors.Wrap(err, "error reading env directory: "+envDir)
+		}
 	}
-	if !errors.Is(err, fs.ErrNotExist) {
-		return err
+
+	for _, f := range []patterns.File{patterns.EnvFile, patterns.DockerComposeFile, selectMakefile()} {
+		err = createFileIfNotExists(path.Join(envDir, f.Name), f.Content)
+		if err != nil {
+			return errors.Wrap(err, "error writing "+f.Name+" file")
+		}
 	}
+	return nil
+}
 
-	{
-		err = os.Mkdir(EnvDir, 0755)
-		if err != nil {
-			return err
-		}
+func createEnvFoldersForProjects(wd string, projectsNames []string) error {
+	envDir := path.Join(wd, patterns.EnvDir)
+	for _, name := range projectsNames {
 
-		err = os.WriteFile(path.Join(EnvDir, envExampleFile), envFile, 0755)
+		err := os.Mkdir(path.Join(envDir, name), os.ModePerm)
 		if err != nil {
-			return err
-		}
-
-		err = os.WriteFile(path.Join(EnvDir, composeExampleFile), composeFile, 0755)
-		if err != nil {
-			return err
-		}
-
-		err = os.WriteFile(path.Join(EnvDir, makefileExampleFile), selectMakefile(), 0755)
-		if err != nil {
-			return err
+			if !errors.Is(err, os.ErrExist) {
+				return errors.Wrap(err, "error creating folder for project "+name)
+			}
 		}
 	}
 
