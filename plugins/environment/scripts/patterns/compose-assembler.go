@@ -20,9 +20,9 @@ type ComposeAssembler struct {
 type ContainerSettings struct {
 	Image       string            `yaml:"image"`
 	WorkDir     string            `yaml:"working_dir,omitempty"`
-	Environment map[string]string `yaml:"environment"`
-	Volumes     []string          `yaml:"volumes"`
-	Ports       []string          `yaml:"ports"`
+	Environment map[string]string `yaml:"environment,omitempty"`
+	Volumes     []string          `yaml:"volumes,omitempty"`
+	Ports       []string          `yaml:"ports,omitempty"`
 	Networks    []string          `yaml:"networks,omitempty"`
 }
 

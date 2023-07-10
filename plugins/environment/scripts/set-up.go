@@ -25,7 +25,7 @@ type environmentSetupConfig struct {
 	workDir                 string
 	envPattern              []byte
 	composeServicesPatterns map[string]patterns.ComposePatterns
-	portToService           map[int]string
+	portToService           portManager
 }
 
 // RunSetUp - runs actual environment setup.
@@ -96,43 +96,50 @@ func setUpEnvForProject(pName string, setup environmentSetupConfig) (err error) 
 		return errors.Wrap(err, "error opening project configuration")
 	}
 
-	clients, err := getClients(setup.composeServicesPatterns, projConf)
-	if err != nil {
-		return errors.Wrap(err, "error assembling starting-compose-environment")
-	}
-
-	if clients == nil {
-		return nil
-	}
-
-	for _, resource := range clients {
-
-		composeEnvs := resource.GetEnvs().Content()
-
-		for _, envRow := range composeEnvs {
-			if strings.HasSuffix(envRow.Name, PortSuffix) {
-				var p int
-				p, err = strconv.Atoi(envRow.Value)
-				if err != nil {
-					return errors.Wrap(err, "error parsing .env file: port value for "+envRow.Name+" must be int but it is "+envRow.Value)
-				}
-
-				for {
-					// if such port already exists - increment it
-					if _, ok := setup.portToService[p]; !ok {
-						setup.portToService[p] = pName
-						envAssembler.Append(envRow.Name, strconv.Itoa(p))
-						break
-					}
-					p++
-				}
-			}
-
-			envAssembler.Append(envRow.Name, envRow.Value)
+	{
+		clients, err := getClients(setup.composeServicesPatterns, projConf)
+		if err != nil {
+			return errors.Wrap(err, "error assembling starting-compose-environment")
 		}
 
-		{
-			composeAssembler.AppendService(resource.Name, resource.GetCompose())
+		for _, resource := range clients {
+
+			composeEnvs := resource.GetEnvs().Content()
+
+			for _, envRow := range composeEnvs {
+				if strings.HasSuffix(envRow.Name, PortSuffix) {
+					var p int
+					p, err = strconv.Atoi(envRow.Value)
+					if err != nil {
+						return errors.Wrap(err, "error parsing .env file: port value for "+envRow.Name+" must be int but it is "+envRow.Value)
+					}
+
+					p = setup.portToService.GetNextPort(p, pName)
+
+					envAssembler.Append(envRow.Name, strconv.Itoa(p))
+				}
+
+				envAssembler.Append(envRow.Name, envRow.Value)
+			}
+
+			{
+				composeAssembler.AppendService(resource.Name, resource.GetCompose())
+			}
+		}
+	}
+
+	{
+		opts, err := projConf.GetServerOptions()
+		if err != nil {
+			return errors.Wrap(err, "error obtaining server options")
+		}
+		for _, srvOpt := range opts {
+			if srvOpt.Port == 0 {
+				continue
+			}
+			portName := patterns.ProjNameCapsPattern + "_" + strings.ToUpper(srvOpt.Name) + "_" + PortSuffix
+			composeAssembler.Services[pName].Ports = append(composeAssembler.Services[pName].Ports, addEnvironmentBrackets(portName)+":"+strconv.Itoa(int(srvOpt.Port)))
+			envAssembler.Append(portName, strconv.Itoa(int(srvOpt.Port)))
 		}
 	}
 
@@ -148,7 +155,6 @@ func setUpEnvForProject(pName string, setup environmentSetupConfig) (err error) 
 	}
 
 	pathToDockerComposeFile := path.Join(setup.workDir, patterns.EnvDir, pName, patterns.DockerComposeFile.Name)
-
 	err = rewrite(replaceProjectName(composeFile, pName), pathToDockerComposeFile)
 	if err != nil {
 		return errors.Wrap(err, "error writing docker compose file file")
@@ -250,6 +256,9 @@ func removeEnvironmentBrackets(in string) string {
 
 	return in
 }
+func addEnvironmentBrackets(in string) string {
+	return "${" + in + "}"
+}
 
 func selectMakefile() patterns.File {
 	if runtime.GOOS == "windows" {
@@ -257,5 +266,18 @@ func selectMakefile() patterns.File {
 		return patterns.Makefile
 	} else {
 		return patterns.Makefile
+	}
+}
+
+type portManager map[int]string
+
+func (p portManager) GetNextPort(in int, projName string) int {
+	for {
+		// if such port already exists - increment it
+		if _, ok := p[in]; !ok {
+			p[in] = projName
+			return in
+		}
+		in++
 	}
 }
