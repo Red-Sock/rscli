@@ -19,57 +19,57 @@ import (
 
 var ErrUnknownSource = errors.New("unknown client")
 
-var (
-	lineSkip = []byte("\n")
-)
-
-type setupCommon struct {
+// environmentSetupConfig - configuration info needed for setting up an environment
+type environmentSetupConfig struct {
 	config                  *config.RsCliConfig
 	workDir                 string
 	envPattern              []byte
-	composeFilePattern      []byte
-	composeServicesPatterns map[string]patterns.ComposeService
-	portToService           map[int]string
+	composeServicesPatterns map[string]patterns.ComposePatterns
+	portToService           portManager
 }
 
-func RunSetUp(envs []string) (err error) {
-
-	sc := setupCommon{
-		workDir: wd,
+// RunSetUp - runs actual environment setup.
+// Prepares datasource dependencies files - .env docker-compose.yaml and etc.
+func RunSetUp(projectNames []string) (err error) {
+	var sc = environmentSetupConfig{
+		workDir: globalWD,
 	}
-	subDir, dir := path.Split(wd)
-	if dir == EnvDir {
-		// if current dir is "environment" treat sub dir as WD
+
+	sc.config, err = config.GetConfig()
+	if err != nil {
+		return errors.Wrap(err, "error reading config file")
+	}
+
+	subDir, dir := path.Split(sc.workDir)
+	if dir == patterns.EnvDir {
+		// If current working directory is called "environment" -> treat parent directory as WD
 		sc.workDir = subDir
 	}
 
-	sc.composeServicesPatterns, err = patterns.NewComposeServices()
+	err = createEnvFolders(sc.workDir, sc.config)
+	if err != nil {
+		return errors.Wrap(err, "error creating env folders")
+	}
+
+	// Docker-compose patterns
+	sc.composeServicesPatterns, err = patterns.NewComposePatterns(sc.workDir)
+	if err != nil {
+		return errors.Wrap(err, "error creating compose patterns")
+	}
+
+	// .env patterns
+	sc.envPattern, err = os.ReadFile(path.Join(sc.workDir, patterns.EnvDir, patterns.EnvExampleFile))
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return errors.Wrapf(err, "can't open %s file", patterns.EnvExampleFile)
+	}
+
+	sc.portToService, err = getPortsFromProjects(sc.workDir, projectNames)
 	if err != nil {
 		return err
 	}
 
-	sc.portToService, err = getPortsFromEnv(wd, envs)
-	if err != nil {
-		return err
-	}
-
-	sc.config, err = config.ReadConfig(os.Args[1:])
-	if err != nil {
-		return err
-	}
-
-	sc.envPattern, err = os.ReadFile(path.Join(wd, EnvDir, envExampleFile))
-	if err != nil {
-		return errors.Wrapf(err, "can't open %s file", envExampleFile)
-	}
-
-	sc.composeFilePattern, err = os.ReadFile(path.Join(wd, EnvDir, composeExampleFile))
-	if err != nil {
-		return errors.Wrapf(err, "can't open %s file", envExampleFile)
-	}
-
-	for _, name := range envs {
-		err = setUpEnv(name, sc)
+	for _, projName := range projectNames {
+		err = setUpEnvForProject(projName, sc)
 		if err != nil {
 			return err
 		}
@@ -78,85 +78,96 @@ func RunSetUp(envs []string) (err error) {
 	return nil
 }
 
-func setUpEnv(pName string, setup setupCommon) (err error) {
-	var env *patterns.EnvService
-	env, err = patterns.NewEnvService(envFile)
+func setUpEnvForProject(pName string, setup environmentSetupConfig) (err error) {
+	var envAssembler *patterns.EnvService
+	envAssembler, err = patterns.NewEnvService(patterns.EnvFile.Content)
 	if err != nil {
 		return errors.Wrap(err, "error creating environment service")
 	}
 
 	var composeAssembler *patterns.ComposeAssembler
-	composeAssembler, err = patterns.NewComposeAssembler(replaceProjectName(setup.composeFilePattern, pName), pName)
+	composeAssembler, err = patterns.NewComposeAssembler(replaceProjectName(patterns.DockerComposeFile.Content, pName), pName)
 	if err != nil {
 		return errors.Wrap(err, "error creating compose-file assembler")
 	}
 
-	projConf, err := pconfig.NewProjectConfig(path.Join(wd, pName, setup.config.Env.PathToConfig))
+	projConf, err := pconfig.NewProjectConfig(path.Join(setup.workDir, pName, setup.config.Env.PathToConfig))
 	if err != nil {
 		return errors.Wrap(err, "error opening project configuration")
 	}
 
-	clients, err := getClients(setup.composeServicesPatterns, projConf)
-	if err != nil {
-		return errors.Wrap(err, "error assembling starting-compose-environment")
-	}
-
-	if clients == nil {
-		return nil
-	}
-
-	for _, cl := range clients {
-
-		composeEnvs := cl.GetEnvs().Content()
-
-		for _, envVal := range composeEnvs {
-			var p int
-			p, err = strconv.Atoi(envVal.Value)
-			if err == nil {
-				for {
-					if _, ok := setup.portToService[p]; !ok {
-						setup.portToService[p] = pName
-						env.Append(envVal.Name, strconv.Itoa(p))
-						break
-					}
-					p++
-				}
-				continue
-			}
-
-			env.Append(envVal.Name, envVal.Value)
+	{
+		clients, err := getClients(setup.composeServicesPatterns, projConf)
+		if err != nil {
+			return errors.Wrap(err, "error assembling starting-compose-environment")
 		}
 
-		composeAssembler.AppendService(cl.Name, cl.GetCompose())
+		for _, resource := range clients {
+
+			composeEnvs := resource.GetEnvs().Content()
+
+			for _, envRow := range composeEnvs {
+				if strings.HasSuffix(envRow.Name, PortSuffix) {
+					var p int
+					p, err = strconv.Atoi(envRow.Value)
+					if err != nil {
+						return errors.Wrap(err, "error parsing .env file: port value for "+envRow.Name+" must be int but it is "+envRow.Value)
+					}
+
+					p = setup.portToService.GetNextPort(p, pName)
+
+					envAssembler.Append(envRow.Name, strconv.Itoa(p))
+				}
+
+				envAssembler.Append(envRow.Name, envRow.Value)
+			}
+
+			{
+				composeAssembler.AppendService(resource.Name, resource.GetCompose())
+			}
+		}
 	}
 
-	err = rewrite(replaceProjectName(env.MarshalEnv(), pName), path.Join(wd, EnvDir, pName, ".env"))
+	{
+		opts, err := projConf.GetServerOptions()
+		if err != nil {
+			return errors.Wrap(err, "error obtaining server options")
+		}
+		for _, srvOpt := range opts {
+			if srvOpt.Port == 0 {
+				continue
+			}
+			portName := patterns.ProjNameCapsPattern + "_" + strings.ToUpper(srvOpt.Name) + "_" + PortSuffix
+			composeAssembler.Services[pName].Ports = append(composeAssembler.Services[pName].Ports, addEnvironmentBrackets(portName)+":"+strconv.Itoa(int(srvOpt.Port)))
+			envAssembler.Append(portName, strconv.Itoa(int(srvOpt.Port)))
+		}
+	}
+
+	pathToProjectEnvFile := path.Join(setup.workDir, patterns.EnvDir, pName, patterns.EnvFile.Name)
+	err = rewrite(replaceProjectName(envAssembler.MarshalEnv(), pName), pathToProjectEnvFile)
 	if err != nil {
-		return errors.Wrap(err, "error writing environment file")
+		return errors.Wrap(err, "error writing environment file: "+pathToProjectEnvFile)
 	}
 
-	bts, err := composeAssembler.Marshal()
+	composeFile, err := composeAssembler.Marshal()
 	if err != nil {
 		return errors.Wrap(err, "error marshalling composer file")
 	}
 
-	bts = append([]byte("version: \"3.9\"\n\n"), bts...)
-	err = rewrite(
-		replaceProjectName(bts, pName),
-		path.Join(wd, EnvDir, pName, dockerComposeFile),
-	)
+	pathToDockerComposeFile := path.Join(setup.workDir, patterns.EnvDir, pName, patterns.DockerComposeFile.Name)
+	err = rewrite(replaceProjectName(composeFile, pName), pathToDockerComposeFile)
 	if err != nil {
-		return errors.Wrap(err, "error writing environment file")
+		return errors.Wrap(err, "error writing docker compose file file")
 	}
 
 	return nil
 }
 
-func combineEnvFiles(wd string, envs []string) (string, error) {
+func getEnvFilesCombined(wd string, projectNames []string) (string, error) {
 	sb := &strings.Builder{}
 
-	for _, dir := range envs {
-		projEnvFile, err := os.ReadFile(path.Join(wd, EnvDir, dir, EnvFile))
+	for _, dir := range projectNames {
+		projEnvFile, err := os.ReadFile(path.Join(wd, patterns.EnvDir, dir, patterns.EnvFile.Name))
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				continue
@@ -165,53 +176,108 @@ func combineEnvFiles(wd string, envs []string) (string, error) {
 		}
 
 		sb.Write(projEnvFile)
+		if projEnvFile[len(projEnvFile)-1] != '\n' {
+			sb.WriteByte('\n')
+		}
 	}
 
 	return sb.String(), nil
 }
 
-func getClients(cs map[string]patterns.ComposeService, cfg interfaces.ProjectConfig) ([]patterns.ComposeService, error) {
-	dsn, err := cfg.GetDataSourceOptions()
+func getClients(composePatterns map[string]patterns.ComposePatterns, cfg interfaces.ProjectConfig) ([]patterns.ComposePatterns, error) {
+	dsns, err := cfg.GetDataSourceOptions()
 	if err != nil {
 		return nil, err
 	}
 
-	clients := make([]patterns.ComposeService, 0, len(dsn))
+	clients := make([]patterns.ComposePatterns, 0, len(dsns))
 
-	for _, item := range dsn {
-		pattern, ok := cs[item.Type]
+	for _, dsn := range dsns {
+		pattern, ok := composePatterns[dsn.Type]
 		if !ok {
 			// TODO handle unknown data sources
 			continue
 		}
-		pattern.Name = item.Name
-		err = changeStartupParameters(&pattern, item)
+		pattern.Name = dsn.Name
+		err = insertEnvironmentValues(&pattern, dsn)
+		if err != nil {
+			return nil, errors.Wrap(err, "error inserting environment values to compose")
+		}
+
 		clients = append(clients, pattern)
+	}
+
+	for _, c := range clients {
+		c.GetEnvs().RemoveEmpty()
 	}
 
 	return clients, nil
 }
 
-func selectMakefile() []byte {
-	if runtime.GOOS == "windows" {
-		// TODO add windows support
-		return nil
-	} else {
-		return makefile
-	}
-}
-
-func changeStartupParameters(pattern *patterns.ComposeService, conn configstructs.ConnectionOptions) error {
+func insertEnvironmentValues(pattern *patterns.ComposePatterns, conn configstructs.ConnectionOptions) error {
 	switch conn.Type {
 	case _consts.SourceNamePostgres:
-		pattern.GetCompose().Environment[patterns.EnvironmentPostgresUser],
-			pattern.GetCompose().Environment[patterns.EnvironmentPostgresPassword],
-			_,
-			_,
-			pattern.GetCompose().Environment[patterns.EnvironmentPostgresDb] = _consts.ParsePgConnectionString(conn.ConnectionString)
+		user, pwd, _, _, dbName := _consts.ParsePgConnectionString(conn.ConnectionString)
+		env := pattern.GetEnvs()
+		composeEnv := pattern.GetCompose().Environment
 
+		const dsPgName = "DS_POSTGRES_NAME_CAPS"
+		{
+			varName := composeEnv[patterns.EnvironmentPostgresUser]
+			varName = strings.ToUpper(strings.ReplaceAll(varName, dsPgName, dbName))
+			composeEnv[patterns.EnvironmentPostgresUser] = varName
+
+			env.Append(removeEnvironmentBrackets(varName), user)
+		}
+		{
+			varName := composeEnv[patterns.EnvironmentPostgresPassword]
+			varName = strings.ToUpper(strings.ReplaceAll(varName, dsPgName, dbName))
+			composeEnv[patterns.EnvironmentPostgresPassword] = varName
+
+			env.Append(removeEnvironmentBrackets(varName), pwd)
+		}
+		{
+			varName := composeEnv[patterns.EnvironmentPostgresDb]
+			varName = strings.ToUpper(strings.ReplaceAll(varName, dsPgName, dbName))
+			composeEnv[patterns.EnvironmentPostgresDb] = varName
+
+			env.Append(removeEnvironmentBrackets(varName), dbName)
+		}
 	default:
 		return ErrUnknownSource
 	}
 	return nil
+}
+
+func removeEnvironmentBrackets(in string) string {
+	if in[:2] == "${" && in[len(in)-1] == '}' {
+		return in[2 : len(in)-1]
+	}
+
+	return in
+}
+func addEnvironmentBrackets(in string) string {
+	return "${" + in + "}"
+}
+
+func selectMakefile() patterns.File {
+	if runtime.GOOS == "windows" {
+		// TODO add windows support
+		return patterns.Makefile
+	} else {
+		return patterns.Makefile
+	}
+}
+
+type portManager map[int]string
+
+func (p portManager) GetNextPort(in int, projName string) int {
+	for {
+		// if such port already exists - increment it
+		if _, ok := p[in]; !ok {
+			p[in] = projName
+			return in
+		}
+		in++
+	}
 }

@@ -30,6 +30,13 @@ func (e *EnvService) Content() []EnvironmentValue {
 }
 
 func (e *EnvService) Append(name string, content string) {
+	for idx, item := range e.content {
+		if item.Name == name {
+			e.content[idx].Value = content
+			return
+		}
+	}
+
 	e.content = append(e.content, EnvironmentValue{Name: name, Value: content})
 }
 
@@ -66,4 +73,15 @@ func (e *EnvService) UnmarshalEnv(b []byte) error {
 	}
 
 	return nil
+}
+
+func (e *EnvService) RemoveEmpty() {
+	newEnvs := make([]EnvironmentValue, 0, len(e.content)/2)
+	for _, item := range e.content {
+		if item.Value != "" && item.Name != "" {
+			newEnvs = append(newEnvs, item)
+		}
+	}
+
+	e.content = newEnvs
 }
