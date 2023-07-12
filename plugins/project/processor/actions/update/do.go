@@ -5,6 +5,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/update/v0_0_20_alpha"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/update/v0_0_21_alpha"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/update/v0_0_23_alpha"
+	"github.com/Red-Sock/rscli/plugins/project/processor/actions/update/v0_0_24_alpha"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/update/v0_0_10_alpha"
@@ -56,9 +57,13 @@ var updates = []Version{
 		Version: v0_0_21_alpha.Version,
 		do:      v0_0_21_alpha.Do,
 	},
-
 	{
 		Version: v0_0_23_alpha.Version,
 		do:      v0_0_23_alpha.Do,
+	},
+
+	{
+		Version: v0_0_24_alpha.Version,
+		do:      v0_0_24_alpha.Do,
 	},
 }
