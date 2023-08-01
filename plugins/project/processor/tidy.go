@@ -6,13 +6,15 @@ import (
 	errs "github.com/pkg/errors"
 
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions"
-	"github.com/Red-Sock/rscli/plugins/project/processor/actions/update"
+	"github.com/Red-Sock/rscli/plugins/project/processor/actions/go_actions"
+	"github.com/Red-Sock/rscli/plugins/project/processor/actions/go_actions/update"
 )
 
 var (
 	ErrHasUncommittedChangesDuringTidy = errors.New("cannot execute tidy. Project has uncommitted changes")
 )
 
+// TODO
 func Tidy(pathToProject string) error {
 	p, err := LoadProject(pathToProject)
 	if err != nil {
@@ -27,7 +29,7 @@ func Tidy(pathToProject string) error {
 		return errors.Join(ErrHasUncommittedChangesDuringTidy, errors.New(status.String()))
 	}
 
-	err = actions.TidyAction{}.Do(p)
+	err = go_actions.TidyAction{}.Do(p)
 	if err != nil {
 		return errs.Wrap(err, "error while tiding")
 	}

@@ -10,9 +10,9 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/plugins/config/pkg/configstructs"
-	_consts "github.com/Red-Sock/rscli/plugins/config/pkg/const"
 	"github.com/Red-Sock/rscli/plugins/environment/scripts/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/config/pkg/configstructs"
+	"github.com/Red-Sock/rscli/plugins/project/config/pkg/const"
 	pconfig "github.com/Red-Sock/rscli/plugins/project/processor/config"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
@@ -35,10 +35,7 @@ func RunSetUp(projectNames []string) (err error) {
 		workDir: globalWD,
 	}
 
-	sc.config, err = config.GetConfig()
-	if err != nil {
-		return errors.Wrap(err, "error reading config file")
-	}
+	sc.config = config.GetConfig()
 
 	subDir, dir := path.Split(sc.workDir)
 	if dir == patterns.EnvDir {
@@ -216,8 +213,8 @@ func getClients(composePatterns map[string]patterns.ComposePatterns, cfg interfa
 
 func insertEnvironmentValues(pattern *patterns.ComposePatterns, conn configstructs.ConnectionOptions) error {
 	switch conn.Type {
-	case _consts.SourceNamePostgres:
-		user, pwd, _, _, dbName := _consts.ParsePgConnectionString(conn.ConnectionString)
+	case _const.SourceNamePostgres:
+		user, pwd, _, _, dbName := _const.ParsePgConnectionString(conn.ConnectionString)
 		env := pattern.GetEnvs()
 		composeEnv := pattern.GetCompose().Environment
 

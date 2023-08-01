@@ -14,13 +14,13 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/randomizer"
 	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
-	config "github.com/Red-Sock/rscli/plugins/config/pkg/const"
+	managerConfig "github.com/Red-Sock/rscli/plugins/project/config"
+	config "github.com/Red-Sock/rscli/plugins/project/config/pkg/const"
 
 	uikit "github.com/Red-Sock/rscli-uikit"
 	"github.com/Red-Sock/rscli-uikit/basic/label"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 
-	managerConfig "github.com/Red-Sock/rscli/plugins/config"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
 )
 
@@ -157,7 +157,7 @@ func (c *createArgs) confirmCreateProjectCallback(resp string) uikit.UIElement {
 		return c.previousScreen
 	}
 
-	proj, err := processor.CreateProject(c.p)
+	proj, err := processor.CreateGoProject(c.p)
 	if err != nil {
 		return shared_ui.GetHeaderFromText(err.Error())
 	}

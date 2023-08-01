@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/plugins/config/pkg/configstructs"
+	"github.com/Red-Sock/rscli/plugins/project/config/pkg/configstructs"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
 

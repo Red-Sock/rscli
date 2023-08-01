@@ -10,22 +10,22 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
-	"github.com/Red-Sock/rscli/internal/utils/copier"
+	"github.com/Red-Sock/rscli/internal/helpers/copier"
 	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/plugins/config/pkg/configstructs"
-	_consts "github.com/Red-Sock/rscli/plugins/config/pkg/const"
+	configstructs2 "github.com/Red-Sock/rscli/plugins/project/config/pkg/configstructs"
+	"github.com/Red-Sock/rscli/plugins/project/config/pkg/const"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
-const apiInfoKey = _consts.AppKey + "_info"
+const apiInfoKey = _const.AppKey + "_info"
 
 type ProjectConfig struct {
 	Path string
 
 	Values map[string]interface{}
 
-	appInfo *configstructs.AppInfo
+	appInfo *configstructs2.AppInfo
 }
 
 // NewProjectConfig - constructor for configuration of project
@@ -102,7 +102,7 @@ func (c *ProjectConfig) ParseSelf() error {
 // GetDataSourceFolders extracts data sources information from _consts file and parses it as folders in project
 func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 	// extract connections from data source part
-	connectionSettings, ok := c.Values[_consts.DataSourceKey]
+	connectionSettings, ok := c.Values[_const.DataSourceKey]
 	if !ok {
 		return nil, nil
 	}
@@ -137,7 +137,7 @@ func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 	}
 
 	// extract connections from server part
-	connectionSettings, ok = c.Values[_consts.ServerOptsKey]
+	connectionSettings, ok = c.Values[_const.ServerOptsKey]
 	if !ok {
 		return nil, nil
 	}
@@ -166,7 +166,7 @@ func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
 }
 
 func (c *ProjectConfig) GetServerFolders() ([]*folder.Folder, error) {
-	serverOpts, ok := c.Values[_consts.ServerOptsKey]
+	serverOpts, ok := c.Values[_const.ServerOptsKey]
 	if !ok {
 		return nil, nil
 	}
@@ -213,7 +213,7 @@ func (c *ProjectConfig) GetServerFolders() ([]*folder.Folder, error) {
 	return out, nil
 }
 
-func (c *ProjectConfig) GetProjInfo() (*configstructs.AppInfo, error) {
+func (c *ProjectConfig) GetProjInfo() (*configstructs2.AppInfo, error) {
 	if c.appInfo != nil {
 		return c.appInfo, nil
 	}
@@ -234,7 +234,7 @@ func (c *ProjectConfig) GetProjInfo() (*configstructs.AppInfo, error) {
 		return nil, err
 	}
 
-	c.appInfo = &configstructs.AppInfo{}
+	c.appInfo = &configstructs2.AppInfo{}
 
 	err = yaml.Unmarshal(bts, c.appInfo)
 	if err != nil {
@@ -244,8 +244,8 @@ func (c *ProjectConfig) GetProjInfo() (*configstructs.AppInfo, error) {
 	return c.appInfo, nil
 }
 
-func (c *ProjectConfig) GetServerOptions() ([]configstructs.ServerOptions, error) {
-	serverOpts, ok := c.Values[_consts.ServerOptsKey]
+func (c *ProjectConfig) GetServerOptions() ([]configstructs2.ServerOptions, error) {
+	serverOpts, ok := c.Values[_const.ServerOptsKey]
 	if !ok {
 		return nil, nil
 	}
@@ -256,10 +256,10 @@ func (c *ProjectConfig) GetServerOptions() ([]configstructs.ServerOptions, error
 		return nil, nil
 	}
 
-	out := make([]configstructs.ServerOptions, 0, len(so))
+	out := make([]configstructs2.ServerOptions, 0, len(so))
 
 	for key, item := range so {
-		servOpt := configstructs.ServerOptions{
+		servOpt := configstructs2.ServerOptions{
 			Name: key,
 		}
 		bts, err := json.Marshal(item)
@@ -278,8 +278,8 @@ func (c *ProjectConfig) GetServerOptions() ([]configstructs.ServerOptions, error
 	return out, nil
 }
 
-func (c *ProjectConfig) GetDataSourceOptions() (out []configstructs.ConnectionOptions, err error) {
-	dataSources, ok := c.Values[_consts.DataSourceKey]
+func (c *ProjectConfig) GetDataSourceOptions() (out []configstructs2.ConnectionOptions, err error) {
+	dataSources, ok := c.Values[_const.DataSourceKey]
 	if !ok {
 		return nil, nil
 	}
@@ -293,17 +293,17 @@ func (c *ProjectConfig) GetDataSourceOptions() (out []configstructs.ConnectionOp
 	for dsn, data := range ds {
 		dataSourceType := strings.Split(dsn, "_")[0]
 		switch dataSourceType {
-		case _consts.SourceNamePostgres:
-			var pgDSN configstructs.Postgres
+		case _const.SourceNamePostgres:
+			var pgDSN configstructs2.Postgres
 			err = copier.Copy(data, &pgDSN)
 			if err != nil {
 				return nil, err
 			}
 
-			out = append(out, configstructs.ConnectionOptions{
-				Type:             _consts.SourceNamePostgres,
+			out = append(out, configstructs2.ConnectionOptions{
+				Type:             _const.SourceNamePostgres,
 				Name:             dsn,
-				ConnectionString: fmt.Sprintf(_consts.PostgresConnectionString, pgDSN.User, pgDSN.Pwd, pgDSN.Host, pgDSN.Port, pgDSN.Name),
+				ConnectionString: fmt.Sprintf(_const.PostgresConnectionString, pgDSN.User, pgDSN.Pwd, pgDSN.Host, pgDSN.Port, pgDSN.Name),
 			})
 		}
 	}
@@ -312,7 +312,7 @@ func (c *ProjectConfig) GetDataSourceOptions() (out []configstructs.ConnectionOp
 }
 
 func (c *ProjectConfig) ExtractName() (string, error) {
-	var cfg configstructs.Config
+	var cfg configstructs2.Config
 	bytes, err := yaml.Marshal(c.Values)
 	if err != nil {
 		return "", err

@@ -18,9 +18,9 @@ var configOrder = []string{
 	"dev.yaml",
 	"stage.yaml",
 	"prod.yaml",
-	"*.yaml",
 }
 
+// TODO
 func LoadProject(pth string) (*Project, error) {
 	dir, err := os.ReadDir(path.Join(pth, patterns.ConfigsFolder))
 	if err != nil {
@@ -79,10 +79,9 @@ func LoadProject(pth string) (*Project, error) {
 
 	p := &Project{
 		Name:        name,
-		ModName:     modName,
 		ProjectPath: pth,
 		Cfg:         c,
-		F:           f,
+		root:        f,
 	}
 
 	err = interfaces.LoadProjectVersion(p)

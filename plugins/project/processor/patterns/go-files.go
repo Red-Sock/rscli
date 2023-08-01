@@ -4,9 +4,9 @@ import (
 	"bytes"
 	_ "embed"
 
-	"github.com/Red-Sock/rscli/internal/utils/cases"
+	"github.com/Red-Sock/rscli/internal/helpers/cases"
 	"github.com/Red-Sock/rscli/pkg/folder"
-	_const "github.com/Red-Sock/rscli/plugins/config/pkg/const"
+	"github.com/Red-Sock/rscli/plugins/project/config/pkg/const"
 )
 
 // Constants naming: Purpose+Type (File)
@@ -151,7 +151,12 @@ const (
 
 	BootStrapFolder = "bootstrap"
 
+	ApiFolder              = "api"
 	ApiConstructorFileName = "api.go"
+
+	ExamplesFolder      = "examples"
+	ExampleFileName     = "api.http"
+	ExamplesHttpEnvFile = "http-client.env.json"
 
 	InternalFolder = "internal"
 	ClientsFolder  = "clients"
@@ -160,6 +165,7 @@ const (
 	PgTxFileName   = "tx.go"
 
 	PkgFolder          = "pkg"
+	SwaggerFolder      = "swagger"
 	ProtoFolder        = "proto"
 	ProtoFileExtension = ".proto"
 
@@ -171,6 +177,7 @@ const (
 	ApiManagerFileName = "manager.go"
 
 	ConfigsFolder  = "config"
+	ConfigFileName = "config.go"
 	ConfigTemplate = "config.yaml.template"
 
 	GoMod = "go.mod"

@@ -2,16 +2,18 @@ package interfaces
 
 import (
 	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/plugins/config/pkg/configstructs"
+	"github.com/Red-Sock/rscli/plugins/project/config/pkg/configstructs"
 )
 
 type Project interface {
 	GetName() string
-	GetProjectModName() string
+	GetShortName() string
+
 	GetConfig() ProjectConfig
-	GetProjectPath() string
 
 	GetFolder() *folder.Folder
+	GetProjectPath() string
+
 	GetVersion() Version
 	SetVersion(Version)
 }

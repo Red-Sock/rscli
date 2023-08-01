@@ -18,38 +18,59 @@ const (
 )
 
 const (
-	pathToConfig = "RSCLI_PATH_TO_CONFIG"
-	pathToMain   = "RSCLI_PATH_TO_MAIN"
+	envPathToConfig          = "RSCLI_PATH_TO_CONFIG"
+	envPathToMain            = "RSCLI_PATH_TO_MAIN"
+	envDefaultProjectGitPath = "RSCLI_DEFAULT_PROJECT_GIT_PATH"
 )
 
 //go:embed rscli.yaml
 var builtInConfig []byte
 
 type RsCliConfig struct {
-	Env struct {
-		PathToMain   string `yaml:"path_to_main"`
-		PathToConfig string `yaml:"path_to_config"`
-	} `yaml:"env"`
+	Env                   Environment `yaml:"env"`
+	DefaultProjectGitPath string      `yaml:"default_project_git_path"`
 }
 
-func GetConfig() (*RsCliConfig, error) {
+type Environment struct {
+	PathToMain   string `yaml:"path_to_main"`
+	PathToConfig string `yaml:"path_to_config"`
+}
+
+func GetConfig() *RsCliConfig {
 	var builtInConf RsCliConfig
 	err := yaml.Unmarshal(builtInConfig, &builtInConf)
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing config file")
+		panic(errors.Wrap(err, "error parsing built in config file. This is serious issue and MUST BE fixed ASAP\n\n\n Rocky (: "))
 	}
 
-	envConf := getConfigFromEnvironment()
+	out := mergeConfigs(getConfigFromEnvironment(), builtInConf)
 
-	out := mergeConfigs(envConf, builtInConf)
+	externalConf, err := getConfigFromFile()
+	if externalConf != nil {
+		out = mergeConfigs(*externalConf, out)
+	}
 
-	cfgFilePath := getConfigPathFromArgs()
+	return &out
+}
+
+func getConfigFromEnvironment() (r RsCliConfig) {
+	r.Env.PathToMain = os.Getenv(envPathToMain)
+	r.Env.PathToConfig = os.Getenv(envPathToConfig)
+
+	r.DefaultProjectGitPath = os.Getenv(envDefaultProjectGitPath)
+
+	return
+}
+
+func getConfigFromFile() (*RsCliConfig, error) {
+	cfgFilePath, _ := flag.ExtractOneValueFromFlags(flag.ParseArgs(os.Args[1:]), customPathToConfig)
 	if cfgFilePath == "" {
-		cfgFilePath = getConfigPathFromExecutable()
+		cfgFilePath = os.Getenv(environmentPathToConfig)
 	}
 
 	if cfgFilePath == "" {
-		cfgFilePath = getConfigPathFromEnvironment()
+		exePath, _ := os.Executable()
+		cfgFilePath = path.Join(path.Dir(exePath), configFilename)
 	}
 
 	file, err := os.ReadFile(cfgFilePath)
@@ -58,7 +79,7 @@ func GetConfig() (*RsCliConfig, error) {
 	}
 
 	if len(file) == 0 {
-		return &out, nil
+		return nil, nil
 	}
 
 	var externalConf RsCliConfig
@@ -67,30 +88,7 @@ func GetConfig() (*RsCliConfig, error) {
 		return nil, errors.Wrap(err, "error unmarshalling config from: "+cfgFilePath)
 	}
 
-	out = mergeConfigs(externalConf, out)
-
-	return &out, nil
-}
-
-func getConfigFromEnvironment() (r RsCliConfig) {
-	r.Env.PathToMain = os.Getenv(pathToMain)
-	r.Env.PathToConfig = os.Getenv(pathToConfig)
-
-	return
-}
-
-func getConfigPathFromArgs() string {
-	cfgFilePath, _ := flag.ExtractOneValueFromFlags(flag.ParseArgs(os.Args[1:]), customPathToConfig)
-	return cfgFilePath
-}
-
-func getConfigPathFromExecutable() string {
-	exePath, _ := os.Executable()
-	return path.Join(path.Dir(exePath), configFilename)
-}
-
-func getConfigPathFromEnvironment() string {
-	return os.Getenv(environmentPathToConfig)
+	return &externalConf, nil
 }
 
 func mergeConfigs(master, slave RsCliConfig) RsCliConfig {
@@ -100,6 +98,10 @@ func mergeConfigs(master, slave RsCliConfig) RsCliConfig {
 
 	if master.Env.PathToConfig == "" {
 		master.Env.PathToConfig = slave.Env.PathToConfig
+	}
+
+	if master.DefaultProjectGitPath == "" {
+		master.DefaultProjectGitPath = slave.DefaultProjectGitPath
 	}
 
 	return master

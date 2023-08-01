@@ -1,9 +1,11 @@
 package config
 
 import (
-	"github.com/Red-Sock/rscli/internal/utils/cases"
-	"gopkg.in/yaml.v3"
 	"os"
+
+	"gopkg.in/yaml.v3"
+
+	"github.com/Red-Sock/rscli/internal/helpers/cases"
 )
 
 func KeysFromConfig(pathToConfig string) (map[string]string, error) {
