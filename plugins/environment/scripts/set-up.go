@@ -7,14 +7,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/Red-Sock/rscli/pkg/errors"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/plugins/environment/scripts/patterns"
-	"github.com/Red-Sock/rscli/plugins/project/config/pkg/configstructs"
-	"github.com/Red-Sock/rscli/plugins/project/config/pkg/const"
 	pconfig "github.com/Red-Sock/rscli/plugins/project/processor/config"
-	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
+	patterns2 "github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
 var ErrUnknownSource = errors.New("unknown client")
@@ -88,9 +86,10 @@ func setUpEnvForProject(pName string, setup environmentSetupConfig) (err error) 
 		return errors.Wrap(err, "error creating compose-file assembler")
 	}
 
-	projConf, err := pconfig.NewProjectConfig(path.Join(setup.workDir, pName, setup.config.Env.PathToConfig))
+	configPath := path.Join(setup.workDir, pName, setup.config.Env.PathToConfig)
+	projConf, err := pconfig.ParseConfig(configPath)
 	if err != nil {
-		return errors.Wrap(err, "error opening project configuration")
+		return errors.Wrap(err, "error parsing users's config")
 	}
 
 	{
@@ -126,10 +125,8 @@ func setUpEnvForProject(pName string, setup environmentSetupConfig) (err error) 
 	}
 
 	{
-		opts, err := projConf.GetServerOptions()
-		if err != nil {
-			return errors.Wrap(err, "error obtaining server options")
-		}
+		opts := projConf.GetServerOptions()
+
 		for _, srvOpt := range opts {
 			if srvOpt.Port == 0 {
 				continue
@@ -181,7 +178,7 @@ func getEnvFilesCombined(wd string, projectNames []string) (string, error) {
 	return sb.String(), nil
 }
 
-func getClients(composePatterns map[string]patterns.ComposePatterns, cfg interfaces.ProjectConfig) ([]patterns.ComposePatterns, error) {
+func getClients(composePatterns map[string]patterns.ComposePatterns, cfg *pconfig.Config) ([]patterns.ComposePatterns, error) {
 	dsns, err := cfg.GetDataSourceOptions()
 	if err != nil {
 		return nil, err
@@ -211,10 +208,10 @@ func getClients(composePatterns map[string]patterns.ComposePatterns, cfg interfa
 	return clients, nil
 }
 
-func insertEnvironmentValues(pattern *patterns.ComposePatterns, conn configstructs.ConnectionOptions) error {
+func insertEnvironmentValues(pattern *patterns.ComposePatterns, conn pconfig.ConnectionOptions) error {
 	switch conn.Type {
-	case _const.SourceNamePostgres:
-		user, pwd, _, _, dbName := _const.ParsePgConnectionString(conn.ConnectionString)
+	case patterns2.SourceNamePostgres:
+		user, pwd, _, _, dbName := pconfig.ParsePgConnectionString(conn.ConnectionString)
 		env := pattern.GetEnvs()
 		composeEnv := pattern.GetCompose().Environment
 

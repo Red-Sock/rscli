@@ -1,5 +1,7 @@
 github.com/Red-Sock/rscli-uikit v1.1.4 h1:O4dLXC30r75ONXg1m7R4AU1j/of2+11GUUQEM0AF+iw=
 github.com/Red-Sock/rscli-uikit v1.1.4/go.mod h1:7saG2idzB8j/JpEDP+z9ylSa4ttWbNMzsliDlPqhfzM=
+github.com/adhocore/chin v1.1.0 h1:RuBkSBhtGpW2l6y9d/YSj7ZJSQINJgjodoD0OB1coAo=
+github.com/adhocore/chin v1.1.0/go.mod h1:X6ey2uVyRozOnqd/sFb/k0pxY1tnm+Msigh1m2jlfbg=
 github.com/bradleyjkemp/cupaloy v2.3.0+incompatible h1:UafIjBvWQmS9i/xRg+CamMrnLTKNzo+bdmT/oH34c2Y=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=

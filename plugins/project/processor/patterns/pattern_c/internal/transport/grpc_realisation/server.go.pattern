@@ -4,7 +4,7 @@ import (
 	"context"
 	"net"
 
-	"github.com/pkg/errors"
+	"github.com/Red-Sock/rscli/pkg/errors"
 	"google.golang.org/grpc"
 
 	"financial-microservice/internal/config"

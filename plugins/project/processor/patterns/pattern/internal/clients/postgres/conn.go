@@ -6,8 +6,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Red-Sock/rscli/pkg/errors"
 	"github.com/jackc/pgx/v5"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/pressly/goose/v3"

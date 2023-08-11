@@ -1,4 +1,4 @@
-package _const
+package config
 
 import (
 	"strings"

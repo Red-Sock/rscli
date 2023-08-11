@@ -1,8 +1,9 @@
 package patterns
 
 import (
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
+
+	"github.com/Red-Sock/rscli/pkg/errors"
 )
 
 const (

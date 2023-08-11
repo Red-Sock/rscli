@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/Red-Sock/rscli/pkg/errors"
 
 	"github.com/Red-Sock/rscli/internal/helpers/cases"
 	"github.com/Red-Sock/rscli/internal/helpers/slices"
 	"github.com/Red-Sock/rscli/pkg/cmd"
 	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/plugins/project/config/pkg/const"
+	"github.com/Red-Sock/rscli/plugins/project/processor/config"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
@@ -43,7 +43,7 @@ func Api(p interfaces.Project) error {
 	return nil
 }
 
-func tidyAPI(p interfaces.Project, cfg interfaces.ProjectConfig, projMainFile *folder.Folder) error {
+func tidyAPI(p interfaces.Project, cfg *config.Config, projMainFile *folder.Folder) error {
 	serverFolders, err := cfg.GetServerFolders()
 	if err != nil {
 		return err
@@ -181,7 +181,7 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 		newAPIImportInsert = append(newAPIImportInsert, []byte("\n\t\""+p.GetName()+"/internal/transport/"+serv.Name+"\"")...)
 		newAPIInsert = append(newAPIInsert, []byte("mngr.AddServer("+serv.Name+".NewServer(cfg))\n\t")...)
 
-		if strings.Contains(serv.Name, _const.GRPCServer) {
+		if strings.Contains(serv.Name, patterns.GRPCServer) {
 			grpcServers = append(grpcServers, serv.Name)
 		}
 	}

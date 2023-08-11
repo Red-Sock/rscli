@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	initCmd "github.com/Red-Sock/rscli/cmd/init"
@@ -25,6 +27,6 @@ func main() {
 
 	err := root.Execute()
 	if err != nil {
-		stdio.StdIO{}.Error(err.Error())
+		stdio.StdIO{}.Error(fmt.Sprintf("%+v\n", err))
 	}
 }

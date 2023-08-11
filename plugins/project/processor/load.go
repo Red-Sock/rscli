@@ -6,7 +6,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/Red-Sock/rscli/pkg/errors"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/config"
@@ -43,14 +43,9 @@ func LoadProject(pth string) (*Project, error) {
 		}
 	}
 
-	c, err := config.NewProjectConfig(path.Join(pth, patterns.ConfigsFolder, configPath))
+	c, err := config.ParseConfig(path.Join(pth, patterns.ConfigsFolder, configPath))
 	if err != nil {
-		return nil, err
-	}
-
-	err = c.ParseSelf()
-	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error parsing config")
 	}
 
 	f, err := folder.Load(pth, "")
@@ -58,10 +53,7 @@ func LoadProject(pth string) (*Project, error) {
 		return nil, err
 	}
 
-	modName, err := c.ExtractName()
-	if err != nil {
-		return nil, err
-	}
+	modName := c.ExtractName()
 
 	gomodF := f.GetByPath(patterns.GoMod)
 	moduleBts := gomodF.Content[:bytes.IndexByte(gomodF.Content, '\n')]

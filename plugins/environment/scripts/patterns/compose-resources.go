@@ -6,8 +6,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
+
+	"github.com/Red-Sock/rscli/pkg/errors"
 
 	"github.com/Red-Sock/rscli/internal/helpers/nums"
 )

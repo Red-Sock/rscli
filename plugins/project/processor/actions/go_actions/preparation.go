@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/go-faster/errors"
+	"github.com/Red-Sock/rscli/pkg/errors"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
@@ -71,10 +71,7 @@ func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 		DevDocker: map[string]string{},
 	}
 
-	servers, err := p.GetConfig().GetServerOptions()
-	if err != nil {
-		return err
-	}
+	servers := p.GetConfig().GetServerOptions()
 
 	for _, item := range servers {
 		e.Dev[item.Name] = "0.0.0.0:" + strconv.FormatUint(uint64(item.Port), 10)

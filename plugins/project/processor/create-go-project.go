@@ -4,11 +4,12 @@ import (
 	"os"
 	"path"
 
-	"github.com/pkg/errors"
+	"github.com/Red-Sock/rscli/pkg/errors"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/go_actions"
+	"github.com/Red-Sock/rscli/plugins/project/processor/config"
 )
 
 type CreateArgs struct {
@@ -23,15 +24,14 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 	proj := &Project{
 		Name: args.Name,
 		Actions: append([]actions.Action{
-			go_actions.PrepareProjectStructureAction{},   // basic go project structure
-			go_actions.PrepareExamplesFoldersAction{},    // sets up examples folder for http
+			go_actions.PrepareProjectStructureAction{}, // basic go project structure
+			//go_actions.PrepareExamplesFoldersAction{},    // sets up examples folder for http
 			go_actions.PrepareEnvironmentFoldersAction{}, // prepares environment files
 
 			go_actions.BuildGoConfigFolderAction{}, // config driver
 			go_actions.BuildProjectAction{},        // build project in file system
 
 			go_actions.InitGoModAction{},    // executes go mod
-			go_actions.MoveCfgAction{},      // moves external used config into project
 			go_actions.TidyAction{},         // adds/clears project initialization(api, resources) and replaces project name template with actual project name
 			go_actions.FixupProjectAction{}, // fetches dependencies and formats go code
 
@@ -46,6 +46,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 		if err != nil {
 			return proj, errors.Wrapf(err, "error obtaining working dir")
 		}
+
 		args.ProjectPath = path.Join(wd, proj.Name)
 	}
 
@@ -54,6 +55,8 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 	}
 
 	proj.ProjectPath = args.ProjectPath
+
+	proj.Cfg = config.NewEmptyConfig()
 
 	return proj, nil
 }

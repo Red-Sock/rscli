@@ -4,10 +4,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-faster/errors"
+	"github.com/Red-Sock/rscli/pkg/errors"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions"
+	"github.com/Red-Sock/rscli/plugins/project/processor/config"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
 
@@ -16,7 +17,7 @@ type Validator func(p interfaces.Project) error
 type Project struct {
 	Name        string
 	ProjectPath string
-	Cfg         interfaces.ProjectConfig
+	Cfg         *config.Config
 
 	Actions []actions.Action
 
@@ -40,7 +41,7 @@ func (p *Project) GetFolder() *folder.Folder {
 	return &p.root
 }
 
-func (p *Project) GetConfig() interfaces.ProjectConfig {
+func (p *Project) GetConfig() *config.Config {
 	return p.Cfg
 }
 
@@ -49,21 +50,21 @@ func (p *Project) GetProjectPath() string {
 }
 
 func (p *Project) Build() (<-chan string, <-chan error) {
-	progressCh := make(chan string, len(p.Actions))
+	progressCh := make(chan string)
 	errCh := make(chan error)
 
 	go func() {
+		defer close(progressCh)
+		defer close(errCh)
+
 		for _, a := range p.Actions {
 			progressCh <- a.NameInAction()
 			if err := a.Do(p); err != nil {
-				close(progressCh)
 				errCh <- err
-				close(errCh)
 				return
 			}
 		}
-		close(progressCh)
-		close(errCh)
+
 	}()
 
 	return progressCh, errCh

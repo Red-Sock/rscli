@@ -3,7 +3,7 @@ package transport
 import (
 	"context"
 
-	"github.com/pkg/errors"
+	"github.com/Red-Sock/rscli/pkg/errors"
 )
 
 type Server interface {

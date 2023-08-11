@@ -1,4 +1,4 @@
-package configstructs
+package config
 
 type Postgres struct {
 	Host string

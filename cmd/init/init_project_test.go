@@ -3,8 +3,10 @@ package init
 import (
 	"testing"
 
-	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Red-Sock/rscli/pkg/errors"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/pkg/colors"
@@ -36,7 +38,12 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 			io:  ioMock,
 		}
 
-		err := p.initProject(nil, nil)
+		cmd := &cobra.Command{}
+
+		err := cmd.Flags().Set("name", "")
+		require.NoError(t, err, "error setting flag value")
+
+		err = p.initProject(cmd, nil)
 		require.NoError(t, err, "error while initiating project")
 		require.True(t, ioMock.MinimockPrintDone())
 		require.True(t, ioMock.MinimockGetInputDone())
@@ -58,8 +65,11 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 			cfg: cfg,
 			io:  ioMock,
 		}
+		cmd := &cobra.Command{}
+		err := cmd.Flag("name").Value.Set("")
+		require.NoError(t, err, "error setting flag value")
 
-		err := p.initProject(nil, nil)
+		err = p.initProject(cmd, nil)
 		require.NoError(t, err, "error while initiating project")
 		require.True(t, ioMock.MinimockPrintDone())
 		require.True(t, ioMock.MinimockGetInputDone())
@@ -81,8 +91,11 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 			cfg: cfg,
 			io:  ioMock,
 		}
+		cmd := &cobra.Command{}
+		err := cmd.Flag("name").Value.Set("")
+		require.NoError(t, err, "error setting flag value")
 
-		err := p.initProject(nil, nil)
+		err = p.initProject(cmd, nil)
 		require.NoError(t, err, "error while initiating project")
 		require.True(t, ioMock.MinimockPrintDone())
 		require.True(t, ioMock.MinimockGetInputDone())
@@ -104,8 +117,11 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 			cfg: cfg,
 			io:  ioMock,
 		}
+		cmd := &cobra.Command{}
+		err := cmd.Flag("name").Value.Set("")
+		require.NoError(t, err, "error setting flag value")
 
-		errGot := p.initProject(nil, nil)
+		errGot := p.initProject(cmd, nil)
 		require.ErrorIs(t, errGot, errWant)
 
 	})
@@ -125,8 +141,11 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 			cfg: cfg,
 			io:  ioMock,
 		}
+		cmd := &cobra.Command{}
+		err := cmd.Flag("name").Value.Set("")
+		require.NoError(t, err, "error setting flag value")
 
-		err := p.initProject(nil, nil)
+		err = p.initProject(cmd, nil)
 		require.Contains(t, err.Error(), "name contains \"$\" symbol")
 		ioMock.MinimockPrintlnInspect()
 		ioMock.MinimockGetInputInspect()

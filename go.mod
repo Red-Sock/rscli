@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/Red-Sock/rscli-uikit v1.1.4
+	github.com/adhocore/chin v1.1.0
 	github.com/go-faster/errors v0.6.1
 	github.com/gojuno/minimock/v3 v3.1.3
 	github.com/nsf/termbox-go v1.1.1

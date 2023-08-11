@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/go-faster/errors"
+	"github.com/Red-Sock/rscli/pkg/errors"
 
 	"github.com/Red-Sock/rscli/pkg/colors"
 )
@@ -42,6 +42,7 @@ func (p StdIO) PrintColored(color colors.Color, in string) {
 	p.Print(colors.TerminalColor(colors.ColorDefault))
 }
 func (p StdIO) Error(in string) {
+	p.Println("")
 	_, _ = os.Stderr.WriteString(in)
 }
 func (p StdIO) GetInput() (string, error) {
