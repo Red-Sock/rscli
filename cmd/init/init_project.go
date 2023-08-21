@@ -6,7 +6,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"time"
 
 	"github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
@@ -169,8 +168,6 @@ func (p *projectConstructor) buildProject(args processor.CreateArgs) (err error)
 	for {
 		select {
 		case info, ok := <-infoC:
-			time.Sleep(time.Second)
-
 			if !ok {
 				loaders[namesToIdx[info]].Done(loader.DoneFailed)
 				return nil

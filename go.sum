@@ -1,7 +1,7 @@
 github.com/Red-Sock/rscli-uikit v1.1.4 h1:O4dLXC30r75ONXg1m7R4AU1j/of2+11GUUQEM0AF+iw=
 github.com/Red-Sock/rscli-uikit v1.1.4/go.mod h1:7saG2idzB8j/JpEDP+z9ylSa4ttWbNMzsliDlPqhfzM=
-github.com/Red-Sock/trace-errors v0.0.2 h1:QXpdOUWpwqrUH+58uufsEfpOCWBBV+Ak7/ZU06q4Gb4=
-github.com/Red-Sock/trace-errors v0.0.2/go.mod h1:rvIxpJ2M7/XkEnXjXfmQjsaKXYRVGM4TFQ8R5Zo4mSk=
+github.com/Red-Sock/trace-errors v0.0.3 h1:5egvL23Sz/eseV9s0AErY6O/MoYq3t/j3McfAmWl/1U=
+github.com/Red-Sock/trace-errors v0.0.3/go.mod h1:rvIxpJ2M7/XkEnXjXfmQjsaKXYRVGM4TFQ8R5Zo4mSk=
 github.com/bradleyjkemp/cupaloy v2.3.0+incompatible h1:UafIjBvWQmS9i/xRg+CamMrnLTKNzo+bdmT/oH34c2Y=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=

@@ -7,6 +7,7 @@ import (
 
 	initCmd "github.com/Red-Sock/rscli/cmd/init"
 	"github.com/Red-Sock/rscli/internal/stdio"
+	"github.com/Red-Sock/rscli/pkg/colors"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/go_actions/update"
 )
 
@@ -21,12 +22,13 @@ func main() {
 		CompletionOptions: cobra.CompletionOptions{
 			DisableDefaultCmd: true,
 		},
+		SilenceErrors: true,
+		SilenceUsage:  true,
 	}
 
 	root.AddCommand(initCmd.Cmd)
 
-	err := root.Execute()
-	if err != nil {
-		stdio.StdIO{}.Error(fmt.Sprintf("%+v\n", err))
+	if err := root.Execute(); err != nil {
+		stdio.StdIO{}.Error(colors.TerminalColor(colors.ColorRed) + fmt.Sprintf("%+v\n", err))
 	}
 }
