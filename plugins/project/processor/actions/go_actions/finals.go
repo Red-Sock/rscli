@@ -101,7 +101,11 @@ func (a TidyAction) Do(p interfaces.Project) error {
 		return errors.Wrap(err, "error building go config folder")
 	}
 
-	return errors.Wrap(p.GetFolder().Build(), "error building project")
+	err = p.GetFolder().Build()
+	if err != nil {
+		return errors.Wrap(err, "error building project")
+	}
+	return nil
 }
 func (a TidyAction) NameInAction() string {
 	return "Cleaning up the project"

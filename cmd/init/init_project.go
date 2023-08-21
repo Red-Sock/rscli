@@ -60,11 +60,14 @@ func (p *projectConstructor) initProject(cmd *cobra.Command, _ []string) error {
 		return errors.Wrap(err, "error obtaining folder path")
 	}
 
-	err = p.buildProject(args)
+	var proj *processor.Project
+	proj, err = p.buildProject(args)
 	if err != nil {
 		return errors.Wrap(err, "error building project")
 	}
-	// TODO
+
+	p.io.PrintlnColored(colors.ColorGreen, "Done. \nInitialized new project "+proj.GetName()+"\n at "+proj.GetProjectPath())
+
 	return nil
 }
 
@@ -111,6 +114,7 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 
 	return name, nil
 }
+
 func (p *projectConstructor) validateName(name string) error {
 	if name == "" {
 		return errors.New("no name entered")
@@ -138,11 +142,11 @@ func (p *projectConstructor) validateName(name string) error {
 
 	return nil
 }
-func (p *projectConstructor) buildProject(args processor.CreateArgs) (err error) {
-	var proj *processor.Project
+
+func (p *projectConstructor) buildProject(args processor.CreateArgs) (proj *processor.Project, err error) {
 	proj, err = processor.CreateGoProject(args)
 	if err != nil {
-		return errors.Wrap(err, "error during project creation")
+		return nil, errors.Wrap(err, "error during project creation")
 	}
 
 	actionNames := proj.GetActionNames()
@@ -170,7 +174,7 @@ func (p *projectConstructor) buildProject(args processor.CreateArgs) (err error)
 		case info, ok := <-infoC:
 			if !ok {
 				loaders[namesToIdx[info]].Done(loader.DoneFailed)
-				return nil
+				return proj, nil
 			}
 
 			idx++
@@ -178,7 +182,7 @@ func (p *projectConstructor) buildProject(args processor.CreateArgs) (err error)
 
 		case buildError, ok := <-errC:
 			if !ok {
-				return
+				return proj, nil
 			}
 			loaders[idx].Done(loader.DoneFailed)
 			idx++
@@ -187,7 +191,7 @@ func (p *projectConstructor) buildProject(args processor.CreateArgs) (err error)
 				idx++
 			}
 
-			return errors.Wrap(buildError, "failed to build project: ")
+			return nil, errors.Wrap(buildError, "failed to build project: ")
 		}
 	}
 }
