@@ -4,11 +4,10 @@ go 1.20
 
 require (
 	github.com/Red-Sock/rscli-uikit v1.1.4
-	github.com/adhocore/chin v1.1.0
-	github.com/go-faster/errors v0.6.1
+	github.com/Red-Sock/trace-errors v0.0.2
 	github.com/gojuno/minimock/v3 v3.1.3
+	github.com/morikuni/aec v1.0.0
 	github.com/nsf/termbox-go v1.1.1
-	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
 	gopkg.in/yaml.v3 v3.0.1

@@ -1,7 +1,7 @@
 package shared
 
 import (
-	"github.com/Red-Sock/rscli/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
 )
 
 var (

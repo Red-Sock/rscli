@@ -5,7 +5,7 @@ package postgres
 import (
 	"context"
 
-	"github.com/Red-Sock/rscli/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )

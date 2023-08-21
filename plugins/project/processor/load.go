@@ -6,7 +6,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/Red-Sock/rscli/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/config"

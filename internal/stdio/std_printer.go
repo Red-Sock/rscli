@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Red-Sock/rscli/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/pkg/colors"
 )
@@ -15,7 +15,9 @@ type IO interface {
 	Print(in string)
 	PrintlnColored(color colors.Color, in ...string)
 	PrintColored(color colors.Color, in string)
+
 	Error(in string)
+
 	GetInput() (string, error)
 	GetInputOneOf(options []string) string
 }

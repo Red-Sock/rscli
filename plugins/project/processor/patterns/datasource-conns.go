@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/Red-Sock/rscli/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/helpers/cases"
 	"github.com/Red-Sock/rscli/pkg/folder"

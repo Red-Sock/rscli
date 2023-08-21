@@ -3,7 +3,7 @@ package processor
 import (
 	"errors"
 
-	errs "github.com/Red-Sock/rscli/pkg/errors"
+	errs "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/go_actions"

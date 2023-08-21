@@ -1,19 +1,20 @@
 package init
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path"
 	"strings"
 	"time"
 
+	"github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/stdio"
-	"github.com/Red-Sock/rscli/internal/stdio/spinner"
+	"github.com/Red-Sock/rscli/internal/stdio/loader"
 	"github.com/Red-Sock/rscli/pkg/colors"
-	"github.com/Red-Sock/rscli/pkg/errors"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
 )
 
@@ -60,36 +61,12 @@ func (p *projectConstructor) initProject(cmd *cobra.Command, _ []string) error {
 		return errors.Wrap(err, "error obtaining folder path")
 	}
 
-	var proj *processor.Project
-	proj, err = processor.CreateGoProject(args)
+	err = p.buildProject(args)
 	if err != nil {
-		return errors.Wrap(err, "error during project creation")
+		return errors.Wrap(err, "error building project")
 	}
-	infoC, errC := proj.Build()
-
-	p.io.Print("\033[?25l")
-	p.io.Print("Starting project constructor")
-	stopF := spinner.Start(p.io, time.Second/10, spinner.RhombSpinner())
-
-	for {
-		select {
-		case info, ok := <-infoC:
-			stopF(colors.TerminalColor(colors.ColorGreen) + "✓" + colors.TerminalColor(colors.ColorDefault))
-			if !ok {
-				return nil
-			}
-
-			p.io.Println("")
-			p.io.Print(info + " ")
-
-			stopF = spinner.Start(p.io, time.Second/10, spinner.RhombSpinner())
-		case buildError, ok := <-errC:
-			if ok {
-				stopF(colors.TerminalColor(colors.ColorRed) + "×" + colors.TerminalColor(colors.ColorDefault))
-				return errors.Wrap(buildError, "failed to build project: ")
-			}
-		}
-	}
+	// TODO
+	return nil
 }
 
 func (p *projectConstructor) obtainName(cmd *cobra.Command) (name string, err error) {
@@ -161,6 +138,61 @@ func (p *projectConstructor) validateName(name string) error {
 	}
 
 	return nil
+}
+func (p *projectConstructor) buildProject(args processor.CreateArgs) (err error) {
+	var proj *processor.Project
+	proj, err = processor.CreateGoProject(args)
+	if err != nil {
+		return errors.Wrap(err, "error during project creation")
+	}
+
+	actionNames := proj.GetActionNames()
+
+	loaders := make([]loader.Progress, 0, len(actionNames))
+	namesToIdx := make(map[string]int, len(loaders))
+
+	for idx, actionName := range actionNames {
+		loaders = append(loaders, loader.NewInfiniteLoader(actionName, loader.RectSpinner()))
+		namesToIdx[actionName] = idx
+	}
+
+	infoC, errC := proj.Build()
+
+	p.io.Println("Starting project constructor")
+
+	doneF := loader.RunMultiLoader(context.TODO(), p.io, loaders)
+	defer func() {
+		<-doneF()
+	}()
+
+	idx := 0
+	for {
+		select {
+		case info, ok := <-infoC:
+			time.Sleep(time.Second)
+
+			if !ok {
+				loaders[namesToIdx[info]].Done(loader.DoneFailed)
+				return nil
+			}
+
+			idx++
+			loaders[namesToIdx[info]].Done(loader.DoneSuccessful)
+
+		case buildError, ok := <-errC:
+			if !ok {
+				return
+			}
+			loaders[idx].Done(loader.DoneFailed)
+			idx++
+			for idx < len(loaders) {
+				loaders[idx].Done(loader.DoneNotAccessed)
+				idx++
+			}
+
+			return errors.Wrap(buildError, "failed to build project: ")
+		}
+	}
 }
 
 func (p *projectConstructor) obtainFolderPath(cmd *cobra.Command, name string) (dirPath string, err error) {

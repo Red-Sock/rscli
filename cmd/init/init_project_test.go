@@ -3,10 +3,9 @@ package init
 import (
 	"testing"
 
+	"github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
-
-	"github.com/Red-Sock/rscli/pkg/errors"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/pkg/colors"

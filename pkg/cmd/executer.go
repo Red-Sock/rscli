@@ -4,7 +4,7 @@ import (
 	"io"
 	"os/exec"
 
-	"github.com/Red-Sock/rscli/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
 )
 
 type Request struct {

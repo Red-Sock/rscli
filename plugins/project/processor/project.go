@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Red-Sock/rscli/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions"
@@ -47,6 +47,14 @@ func (p *Project) GetConfig() *config.Config {
 
 func (p *Project) GetProjectPath() string {
 	return p.ProjectPath
+}
+
+func (p *Project) GetActionNames() []string {
+	out := make([]string, 0, len(p.Actions))
+	for _, a := range p.Actions {
+		out = append(out, a.NameInAction())
+	}
+	return out
 }
 
 func (p *Project) Build() (<-chan string, <-chan error) {

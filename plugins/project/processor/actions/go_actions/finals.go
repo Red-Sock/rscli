@@ -4,12 +4,11 @@ import (
 	"os"
 	"path"
 
-	"github.com/Red-Sock/rscli/pkg/errors"
-
-	"github.com/Red-Sock/rscli/plugins/project/processor/actions/go_actions/tidy"
-	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
+	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/pkg/cmd"
+	"github.com/Red-Sock/rscli/plugins/project/processor/actions/go_actions/tidy"
+	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
 
 const goBin = "go"
