@@ -38,8 +38,6 @@ type Progress interface {
 // in order to wait for all progresses to be completed and shown states
 func RunMultiLoader(ctx context.Context, io stdio.IO, progresses []Progress) (done func() chan struct{}) {
 	io.Print(aec.Hide.String())
-	defer io.Print(aec.Show.String())
-	defer io.Print(aec.Down(uint(len(progresses))).String())
 
 	doneLoaders := &sync.WaitGroup{}
 
@@ -83,6 +81,10 @@ func RunMultiLoader(ctx context.Context, io stdio.IO, progresses []Progress) (do
 	go func() {
 		doneLoaders.Wait()
 		close(doneC)
+
+		io.Print(aec.Show.String())
+		io.Print(aec.Down(uint(len(progresses))).String())
+		io.Print(aec.Column(0).String())
 	}()
 
 	return done
