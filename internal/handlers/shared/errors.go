@@ -1,6 +1,8 @@
 package shared
 
-import "github.com/pkg/errors"
+import (
+	"github.com/Red-Sock/trace-errors"
+)
 
 var (
 	ErrNoArguments    = errors.New("create ... what? specify what to create!")

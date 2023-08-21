@@ -8,7 +8,7 @@ import (
 	"github.com/Red-Sock/rscli-uikit/composit-items/multiselect"
 	"github.com/Red-Sock/rscli-uikit/composit-items/radioselect"
 	"github.com/Red-Sock/rscli-uikit/utils/common"
-	"github.com/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
 
 	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"github.com/Red-Sock/rscli/plugins/environment/scripts"

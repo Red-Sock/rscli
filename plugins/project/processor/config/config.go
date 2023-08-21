@@ -1,335 +1,165 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
+	"time"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
-	"github.com/Red-Sock/rscli/internal/utils/copier"
+	"github.com/Red-Sock/trace-errors"
+
+	"github.com/Red-Sock/rscli/internal/helpers/copier"
 	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/plugins/config/pkg/configstructs"
-	_consts "github.com/Red-Sock/rscli/plugins/config/pkg/const"
-	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
-const apiInfoKey = _consts.AppKey + "_info"
-
-type ProjectConfig struct {
-	Path string
-
-	Values map[string]interface{}
-
-	appInfo *configstructs.AppInfo
+type Config struct {
+	AppInfo     AppInfo                  `yaml:"app_info"`
+	Server      map[string]ServerOptions `yaml:"server,omitempty"`
+	DataSources map[string]interface{}   `yaml:"data_sources,omitempty"`
 }
 
-// NewProjectConfig - constructor for configuration of project
-func NewProjectConfig(p string) (*ProjectConfig, error) {
-	c := &ProjectConfig{
-		Path: p,
+type AppInfo struct {
+	Name            string        `yaml:"name"`
+	Version         string        `yaml:"version"`
+	StartupDuration time.Duration `yaml:"startup_duration"`
+}
+
+func NewEmptyConfig() *Config {
+	return &Config{
+		Server:      map[string]ServerOptions{},
+		DataSources: map[string]interface{}{},
 	}
-	err := c.ParseSelf()
-
-	return c, err
 }
 
-func (c *ProjectConfig) SetPath(pth string) {
-	c.Path = pth
+type ServerOptions struct {
+	Name        string
+	Port        uint16 `yaml:"port"`
+	CertPath    string `yaml:"cert_path"`
+	KeyPath     string `yaml:"key_path"`
+	ForceUseTLS bool   `yaml:"force_use_tls"`
 }
 
-func (c *ProjectConfig) GetPath() string {
-	return c.Path
+type ConnectionOptions struct {
+	Type string
+	Name string
+
+	ConnectionString string
 }
 
-func (c *ProjectConfig) Rebuild(p interfaces.Project) error {
-	{
-		// App info
-		bts, err := json.Marshal(c.appInfo)
-		if err != nil {
-			return err
-		}
+func ParseConfig(pth string) (*Config, error) {
+	panic("TODO")
+}
 
-		trg := map[string]interface{}{}
+func (c *Config) BuildTo(cfgFile string) error {
 
-		err = json.Unmarshal(bts, &trg)
-		if err != nil {
-			return err
-		}
-
-		c.Values[apiInfoKey] = trg
-	}
-
-	separatedPath := strings.Split(c.GetPath(), string(filepath.Separator))
-
-	cfgFile := p.GetFolder().GetByPath(patterns.ConfigsFolder, separatedPath[len(separatedPath)-1])
-	if cfgFile == nil {
-		return errors.New("cannot find config at " + c.GetPath())
-	}
-
-	var err error
-	cfgFile.Content, err = yaml.Marshal(c.Values)
+	f, err := os.Open(cfgFile)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error opening cfg file")
+	}
+	defer f.Close()
+
+	err = yaml.NewEncoder(f).Encode(*c)
+	if err != nil {
+		return errors.Wrap(err, "error encoding config to "+cfgFile)
 	}
 
 	return nil
 }
 
-// ParseSelf prepares self to be worked on
-func (c *ProjectConfig) ParseSelf() error {
-	if c.Values != nil {
-		return nil
-	}
-	c.Values = make(map[string]interface{})
-
-	bytes, err := os.ReadFile(c.Path)
-	if err != nil {
-		return err
-	}
-
-	err = yaml.Unmarshal(bytes, &c.Values)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// GetDataSourceFolders extracts data sources information from _consts file and parses it as folders in project
-func (c *ProjectConfig) GetDataSourceFolders() (*folder.Folder, error) {
+// GetDataSourceFolders extracts data sources folders
+func (c *Config) GetDataSourceFolders() (*folder.Folder, error) {
 	// extract connections from data source part
-	connectionSettings, ok := c.Values[_consts.DataSourceKey]
-	if !ok {
-		return nil, nil
-	}
 
-	var ds map[string]interface{}
-	ds, ok = connectionSettings.(map[string]interface{})
-	if !ok {
-		return nil, nil
-	}
 	out := &folder.Folder{
 		Name: patterns.ClientsFolder,
 	}
 
-	connTypeAdded := map[string]struct{}{}
+	datasourceUniqueTypes := map[string]struct{}{}
 
-	for dsn := range ds {
-		dataSourceType := strings.Split(dsn, "_")[0]
-		connFile := patterns.DatasourceClients[dataSourceType]
-		if connFile == nil {
-			return nil, errors.New(fmt.Sprintf("unknown data source %s. "+
-				"DataSource should start with name of source (e.g redis, postgres)"+
-				"and (or) be followed by \"_\" symbol if needed (e.g redis_shard1, postgres_replica2)", dsn))
+	for dataSourceName := range c.DataSources {
+		dataSourceType := strings.Split(dataSourceName, "_")[0]
+
+		connFolder, err := patterns.GetDatasourceClientFile(dataSourceType)
+		if err != nil {
+			return nil, errors.Wrap(err, "error obtaining client conn files for datasource")
 		}
 
-		if _, ok := connTypeAdded[dataSourceType]; ok {
+		if _, ok := datasourceUniqueTypes[dataSourceType]; ok {
 			continue
 		}
 
-		connTypeAdded[dataSourceType] = struct{}{}
+		datasourceUniqueTypes[dataSourceType] = struct{}{}
 
-		out.Inner = append(out.Inner, &folder.Folder{Name: dsn, Inner: connFile})
-	}
-
-	// extract connections from server part
-	connectionSettings, ok = c.Values[_consts.ServerOptsKey]
-	if !ok {
-		return nil, nil
-	}
-
-	ds, ok = connectionSettings.(map[string]interface{})
-	if !ok {
-		return nil, nil
-	}
-
-	for dsn := range ds {
-		connFile, ok := patterns.DatasourceClients[dsn]
-		if !ok {
-			continue
-		}
-
-		if _, ok := connTypeAdded[dsn]; ok {
-			continue
-		}
-
-		connTypeAdded[dsn] = struct{}{}
-
-		out.Inner = append(out.Inner, &folder.Folder{Name: dsn, Inner: connFile})
+		out.Inner = append(out.Inner, connFolder)
 	}
 
 	return out, nil
 }
 
-func (c *ProjectConfig) GetServerFolders() ([]*folder.Folder, error) {
-	serverOpts, ok := c.Values[_consts.ServerOptsKey]
-	if !ok {
-		return nil, nil
-	}
+func (c *Config) GetServerFolders() ([]*folder.Folder, error) {
 
-	var so map[string]interface{}
-	so, ok = serverOpts.(map[string]interface{})
-	if !ok {
-		return nil, nil
-	}
-	out := make([]*folder.Folder, 0, len(so))
+	out := make([]*folder.Folder, 0, len(c.Server))
 
-	for serverName := range so {
-		ptrn, ok := patterns.ServerOptsPatterns[strings.Split(serverName, "_")[0]]
-		if !ok {
-			return nil, errors.New(fmt.Sprintf("unknown server option %s. "+
-				"Server Option should start with type of server (e.g rest, grpc)"+
-				"and (or) be followed by \"_\" symbol if needed (e.g rest_v1, grpc_proxy)", serverName))
-		}
-
-		// it must be a file of folder with files|folders
-		if len(ptrn.F.Inner)+len(ptrn.F.Content) == 0 {
-			continue
-		}
-
-		// copy pattern
-		var serverF folder.Folder
-		mb, err := json.Marshal(ptrn.F)
+	for serverName := range c.Server {
+		serverPattern, err := patterns.GetServerFiles(strings.Split(serverName, "_")[0])
 		if err != nil {
-			return nil, errors.Wrap(err, "error marshalling folder pattern")
-		}
-		err = json.Unmarshal(mb, &serverF)
-		if err != nil {
-			return nil, errors.Wrap(err, "error unmarshalling copy of folder pattern")
+			return nil, errors.Wrap(err, "error getting server files")
 		}
 
-		if ptrn.Validators != nil {
-			ptrn.Validators(&serverF, serverName)
+		if serverPattern.Validators != nil {
+			serverPattern.Validators(&serverPattern.F, serverName)
 		}
 
-		serverF.Name = serverName
+		serverPattern.F.Name = serverName
 
-		out = append(out, &serverF)
+		out = append(out, &serverPattern.F)
 	}
 	return out, nil
 }
 
-func (c *ProjectConfig) GetProjInfo() (*configstructs.AppInfo, error) {
-	if c.appInfo != nil {
-		return c.appInfo, nil
-	}
-
-	appInfoMap, ok := c.Values[apiInfoKey]
-	if !ok {
-		return nil, nil
-	}
-
-	var so map[string]interface{}
-	so, ok = appInfoMap.(map[string]interface{})
-	if !ok {
-		return nil, nil
-	}
-
-	bts, err := yaml.Marshal(so)
-	if err != nil {
-		return nil, err
-	}
-
-	c.appInfo = &configstructs.AppInfo{}
-
-	err = yaml.Unmarshal(bts, c.appInfo)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.appInfo, nil
+func (c *Config) GetProjInfo() AppInfo {
+	return c.AppInfo
 }
 
-func (c *ProjectConfig) GetServerOptions() ([]configstructs.ServerOptions, error) {
-	serverOpts, ok := c.Values[_consts.ServerOptsKey]
-	if !ok {
-		return nil, nil
-	}
-
-	var so map[string]interface{}
-	so, ok = serverOpts.(map[string]interface{})
-	if !ok {
-		return nil, nil
-	}
-
-	out := make([]configstructs.ServerOptions, 0, len(so))
-
-	for key, item := range so {
-		servOpt := configstructs.ServerOptions{
-			Name: key,
-		}
-		bts, err := json.Marshal(item)
-		if err != nil {
-			return nil, err
-		}
-
-		err = json.Unmarshal(bts, &servOpt)
-		if err != nil {
-			return nil, err
-		}
-
-		out = append(out, servOpt)
-	}
-
-	return out, nil
+func (c *Config) GetServerOptions() map[string]ServerOptions {
+	return c.Server
 }
 
-func (c *ProjectConfig) GetDataSourceOptions() (out []configstructs.ConnectionOptions, err error) {
-	dataSources, ok := c.Values[_consts.DataSourceKey]
-	if !ok {
-		return nil, nil
-	}
-
-	var ds map[string]interface{}
-	ds, ok = dataSources.(map[string]interface{})
-	if !ok {
-		return nil, nil
-	}
-
-	for dsn, data := range ds {
+func (c *Config) GetDataSourceOptions() (out []ConnectionOptions, err error) {
+	for dsn, data := range c.DataSources {
 		dataSourceType := strings.Split(dsn, "_")[0]
 		switch dataSourceType {
-		case _consts.SourceNamePostgres:
-			var pgDSN configstructs.Postgres
+		case patterns.SourceNamePostgres:
+			var pgDSN Postgres
 			err = copier.Copy(data, &pgDSN)
 			if err != nil {
 				return nil, err
 			}
 
-			out = append(out, configstructs.ConnectionOptions{
-				Type:             _consts.SourceNamePostgres,
+			out = append(out, ConnectionOptions{
+				Type:             patterns.SourceNamePostgres,
 				Name:             dsn,
-				ConnectionString: fmt.Sprintf(_consts.PostgresConnectionString, pgDSN.User, pgDSN.Pwd, pgDSN.Host, pgDSN.Port, pgDSN.Name),
+				ConnectionString: fmt.Sprintf(PostgresConnectionString, pgDSN.User, pgDSN.Pwd, pgDSN.Host, pgDSN.Port, pgDSN.Name),
 			})
+		default:
+			return nil, errors.Wrapf(err, "unknown datasource type %s", dataSourceType)
 		}
 	}
 
 	return out, nil
 }
 
-func (c *ProjectConfig) ExtractName() (string, error) {
-	var cfg configstructs.Config
-	bytes, err := yaml.Marshal(c.Values)
-	if err != nil {
-		return "", err
-	}
-
-	err = yaml.Unmarshal(bytes, &cfg)
-	if err != nil {
-		return "", err
-	}
-
-	return cfg.AppInfo.Name, nil
+func (c *Config) ExtractName() string {
+	return c.AppInfo.Name
 }
 
-func (c *ProjectConfig) GenerateGoConfigKeys(prefix string) ([]byte, error) {
+func (c *Config) GenerateGoConfigKeys(prefix string) ([]byte, error) {
 	envKeys := KeysFromEnv(prefix)
 
-	keysFromCfg, err := KeysFromConfig(c.Path)
+	keysFromCfg, err := c.keysFromConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -348,8 +178,8 @@ func (c *ProjectConfig) GenerateGoConfigKeys(prefix string) ([]byte, error) {
 	return []byte(sb.String()), nil
 }
 
-func (c *ProjectConfig) GetTemplate() ([]byte, error) {
-	b, err := yaml.Marshal(c.Values)
+func (c *Config) GetTemplate() ([]byte, error) {
+	b, err := yaml.Marshal(c)
 	if err != nil {
 		return nil, err
 	}

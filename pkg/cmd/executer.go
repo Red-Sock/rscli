@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"github.com/pkg/errors"
 	"io"
 	"os/exec"
+
+	"github.com/Red-Sock/trace-errors"
 )
 
 type Request struct {

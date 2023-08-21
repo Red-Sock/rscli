@@ -3,14 +3,19 @@ package actions
 import (
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/pkg/cmd"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
 
-type InitGit struct {
-}
+const (
+	GitChangesTypeInvalid = iota
+	GitChangesTypeNotStaged
+	GitChangesTypeNotCommitted
+)
+
+type InitGit struct{}
 
 func (a InitGit) Do(p interfaces.Project) error {
 	_, err := cmd.Execute(cmd.Request{
@@ -33,45 +38,9 @@ func (a InitGit) NameInAction() string {
 	return "Initiating git"
 }
 
-func GitCommit(pth, msg string) error {
-	_, err := cmd.Execute(cmd.Request{
-		Tool:    "git",
-		Args:    []string{"add", "."},
-		WorkDir: pth,
-	})
-	if err != nil {
-		return errors.Wrap(err, "error adding files to git repository")
-	}
-
-	_, err = cmd.Execute(cmd.Request{
-		Tool:    "git",
-		Args:    []string{"commit", "-m", "\"" + msg + "\""},
-		WorkDir: pth,
-	})
-	if err != nil {
-		return errors.Wrap(err, "error committing files to git repository")
-	}
-
-	return nil
-}
-
-type gitChangesType int
-
-const (
-	GitChangesTypeInvalid = iota
-	GitChangesTypeNotStaged
-	GitChangesTypeNotCommitted
-)
-
-func (g gitChangesType) Msg() string {
-	switch g {
-	case GitChangesTypeNotStaged:
-		return "Not Staged changes:"
-	case GitChangesTypeNotCommitted:
-		return "Not committed changes:"
-	default:
-		return "Unknown git changes type!"
-	}
+type GitChanges struct {
+	Type       gitChangesType
+	Changelist []string
 }
 
 type Status []GitChanges
@@ -117,9 +86,26 @@ func (s Status) String() string {
 	return sb.String()
 }
 
-type GitChanges struct {
-	Type       gitChangesType
-	Changelist []string
+func GitCommit(pth, msg string) error {
+	_, err := cmd.Execute(cmd.Request{
+		Tool:    "git",
+		Args:    []string{"add", "."},
+		WorkDir: pth,
+	})
+	if err != nil {
+		return errors.Wrap(err, "error adding files to git repository")
+	}
+
+	_, err = cmd.Execute(cmd.Request{
+		Tool:    "git",
+		Args:    []string{"commit", "-m", "\"" + msg + "\""},
+		WorkDir: pth,
+	})
+	if err != nil {
+		return errors.Wrap(err, "error committing files to git repository")
+	}
+
+	return nil
 }
 
 func GitStatus(p interfaces.Project) (uncommitted Status, err error) {
@@ -199,4 +185,17 @@ func GitStatus(p interfaces.Project) (uncommitted Status, err error) {
 	}
 
 	return out, nil
+}
+
+type gitChangesType int
+
+func (g gitChangesType) Msg() string {
+	switch g {
+	case GitChangesTypeNotStaged:
+		return "Not Staged changes:"
+	case GitChangesTypeNotCommitted:
+		return "Not committed changes:"
+	default:
+		return "Unknown git changes type!"
+	}
 }

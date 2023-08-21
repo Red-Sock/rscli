@@ -1,13 +1,13 @@
 package config
 
 import (
-	"github.com/Red-Sock/rscli/internal/utils/cases"
 	"gopkg.in/yaml.v3"
-	"os"
+
+	"github.com/Red-Sock/rscli/internal/helpers/cases"
 )
 
-func KeysFromConfig(pathToConfig string) (map[string]string, error) {
-	cfgBytes, err := os.ReadFile(pathToConfig)
+func (c *Config) keysFromConfig() (map[string]string, error) {
+	cfgBytes, err := yaml.Marshal(*c)
 	if err != nil {
 		return nil, err
 	}

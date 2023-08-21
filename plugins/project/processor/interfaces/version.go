@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/pkg/cmd"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
@@ -44,9 +44,11 @@ func (v *Version) NeedUpdate(v2 Version) bool {
 	if v2.Major != v.Major {
 		return v2.Major < v.Major
 	}
+
 	if v.Minor != v2.Minor {
 		return v2.Minor < v.Minor
 	}
+
 	if v.Negligible != v2.Negligible {
 		return v2.Negligible < v.Negligible
 	}

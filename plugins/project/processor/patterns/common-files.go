@@ -5,7 +5,12 @@ import (
 )
 
 const (
-	RsCliMkFileName = "rscli.mk"
+	RsCliMkFileName      = "rscli.mk"
+	DockerfileFileName   = "Dockerfile"
+	ReadMeFileName       = "README.md"
+	GitignoreFileName    = ".gitignore"
+	GolangCIYamlFileName = ".golangci.yaml"
+	ConfigYamlFile       = "config.yaml"
 )
 
 // Build and deploy

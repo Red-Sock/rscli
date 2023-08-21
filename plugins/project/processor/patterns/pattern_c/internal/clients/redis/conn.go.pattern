@@ -4,7 +4,7 @@ package redis
 
 import (
 	"github.com/go-redis/redis"
-	"github.com/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
 
 	"financial-microservice/internal/utils/closer"
 )

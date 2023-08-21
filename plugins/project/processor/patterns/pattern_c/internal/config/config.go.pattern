@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
 
 	"golang.org/x/exp/maps"
 	"gopkg.in/yaml.v3"
