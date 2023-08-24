@@ -17,24 +17,24 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/processor"
 )
 
-var (
-	projectConstructorImp = projectConstructor{
+func newProjectCmd() *cobra.Command {
+	var projectConstructorImp = projectConstructor{
 		cfg: config.GetConfig(),
 		io:  stdio.StdIO{},
 	}
 
-	projectCmd = &cobra.Command{
+	c := &cobra.Command{
 		Use:   "project",
 		Short: "Initializes project",
 		Long:  `Can be used to init a project via configuration file, constructor or global config`,
 
-		RunE: projectConstructorImp.initProject,
+		RunE: projectConstructorImp.runProjectInit,
 	}
-)
 
-func init() {
-	projectCmd.Flags().StringP(nameFlag, nameFlag[:1], "", `pass a name of project with or without git pass like "rscli" or github.com/RedSock/rscli`)
-	projectCmd.Flags().StringP(pathFlag, pathFlag[:1], "", `path to folder with project`)
+	c.Flags().StringP(nameFlag, nameFlag[:1], "", `pass a name of project with or without git pass like "rscli" or github.com/RedSock/rscli`)
+	c.Flags().StringP(pathFlag, pathFlag[:1], "", `path to folder with project`)
+
+	return c
 }
 
 type projectConstructor struct {
@@ -42,7 +42,7 @@ type projectConstructor struct {
 	io  stdio.IO
 }
 
-func (p *projectConstructor) initProject(cmd *cobra.Command, _ []string) error {
+func (p *projectConstructor) runProjectInit(cmd *cobra.Command, _ []string) error {
 	args := processor.CreateArgs{}
 
 	// step 1: obtain name
@@ -66,7 +66,7 @@ func (p *projectConstructor) initProject(cmd *cobra.Command, _ []string) error {
 		return errors.Wrap(err, "error building project")
 	}
 
-	p.io.PrintlnColored(colors.ColorGreen, "Done. \nInitialized new project "+proj.GetName()+"\n at "+proj.GetProjectPath())
+	p.io.PrintlnColored(colors.ColorGreen, "Done.\nInitialized new project "+proj.GetName()+"\nat "+proj.GetProjectPath())
 
 	return nil
 }
@@ -197,7 +197,7 @@ func (p *projectConstructor) buildProject(args processor.CreateArgs) (proj *proc
 }
 
 func (p *projectConstructor) obtainFolderPath(cmd *cobra.Command, name string) (dirPath string, err error) {
-	dirPath = cmd.Flag(nameFlag).Value.String()
+	dirPath = cmd.Flag(pathFlag).Value.String()
 	if dirPath != "" {
 		return dirPath, nil
 	}
