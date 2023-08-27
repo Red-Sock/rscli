@@ -30,9 +30,11 @@ const (
 func Api(p interfaces.Project) error {
 	cfg := p.GetConfig()
 
-	projMainFile := p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName(), patterns.MainFileName)
+	pathToMainFile := []string{patterns.CmdFolder, p.GetShortName(), patterns.MainFileName}
+
+	projMainFile := p.GetFolder().GetByPath(pathToMainFile...)
 	if projMainFile == nil {
-		return errors.Wrap(ErrNoMainFile, strings.Join([]string{patterns.CmdFolder, p.GetName(), patterns.MainFileName}, "/"))
+		return errors.Wrap(ErrNoMainFile, strings.Join(pathToMainFile, "/"))
 	}
 
 	err := tidyAPI(p, cfg, projMainFile)

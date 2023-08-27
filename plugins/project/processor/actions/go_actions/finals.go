@@ -49,13 +49,11 @@ func (a InitGoModAction) NameInAction() string {
 type FixupProjectAction struct{}
 
 func (a FixupProjectAction) Do(p interfaces.Project) error {
-	wd, _ := os.Getwd()
-	wd = path.Join(wd, p.GetName())
 
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"mod", "tidy"},
-		WorkDir: wd,
+		WorkDir: p.GetProjectPath(),
 	})
 	if err != nil {
 		return errors.Wrap(err, "error executing go mod tidy")
@@ -64,7 +62,7 @@ func (a FixupProjectAction) Do(p interfaces.Project) error {
 	_, err = cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"fmt", "./..."},
-		WorkDir: wd,
+		WorkDir: p.GetProjectPath(),
 	})
 	if err != nil {
 		return err
@@ -96,7 +94,7 @@ func (a TidyAction) Do(p interfaces.Project) error {
 
 	ReplaceProjectName(p.GetName(), p.GetFolder())
 
-	err = BuildGoConfigFolderAction{}.Do(p)
+	err = PrepareGoConfigFolderAction{}.Do(p)
 	if err != nil {
 		return errors.Wrap(err, "error building go config folder")
 	}

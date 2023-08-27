@@ -101,17 +101,7 @@ func (f *Folder) GetByPath(pth ...string) *Folder {
 }
 
 func (f *Folder) Build() error {
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	wholePath, dir := path.Split(wd)
-	if dir != f.Name {
-		wholePath = wd
-	}
-
-	return f.build(wholePath)
+	return f.build("")
 }
 
 func (f *Folder) build(root string) error {
