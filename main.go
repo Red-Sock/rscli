@@ -26,7 +26,7 @@ func main() {
 		SilenceUsage:  true,
 	}
 
-	root.AddCommand(initCmd.Cmd)
+	root.AddCommand(initCmd.NewCmd())
 
 	if err := root.Execute(); err != nil {
 		stdio.StdIO{}.Error(colors.TerminalColor(colors.ColorRed) + fmt.Sprintf("%+v\n", err))

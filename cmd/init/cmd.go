@@ -9,12 +9,16 @@ const (
 	pathFlag = "path"
 )
 
-var Cmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initializes project",
-	Long:  `Can be used to init project in RSCLI project style`,
-}
+func NewCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "init",
+		Short: "Initializes project",
+		Long:  `Can be used to init project in RSCLI project style`,
 
-func init() {
-	Cmd.AddCommand(newProjectCmd())
+		SilenceErrors: true,
+		SilenceUsage:  true,
+	}
+	cmd.AddCommand(newInitProjectCmd(newProjectConstructor().runProjectInit))
+
+	return cmd
 }
