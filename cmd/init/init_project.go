@@ -124,10 +124,6 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 }
 
 func (p *projectConstructor) validateName(name string) error {
-	if name == "" {
-		return emptyNameErr
-	}
-
 	// starting and ending ascii symbols ranges that are applicable to project name
 	availableRanges := [][]int32{
 		{45, 47},
