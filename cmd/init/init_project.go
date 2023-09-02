@@ -172,29 +172,34 @@ func (p *projectConstructor) buildProject(args processor.CreateArgs) (proj *proc
 		<-doneF()
 	}()
 
-	idx := 0
+	currentProcessIdx := 0
+
+	fail := func() {
+		loaders[currentProcessIdx].Done(loader.DoneFailed)
+		currentProcessIdx++
+		for currentProcessIdx < len(loaders) {
+			loaders[currentProcessIdx].Done(loader.DoneNotAccessed)
+			currentProcessIdx++
+		}
+	}
+
 	for {
 		select {
 		case info, ok := <-infoC:
 			if !ok {
-				loaders[namesToIdx[info]].Done(loader.DoneFailed)
+				fail()
 				return proj, nil
 			}
 
-			idx++
+			currentProcessIdx++
 			loaders[namesToIdx[info]].Done(loader.DoneSuccessful)
 
 		case buildError, ok := <-errC:
 			if !ok {
 				return proj, nil
 			}
-			loaders[idx].Done(loader.DoneFailed)
-			idx++
-			for idx < len(loaders) {
-				loaders[idx].Done(loader.DoneNotAccessed)
-				idx++
-			}
 
+			fail()
 			return nil, errors.Wrap(buildError, "failed to build project: ")
 		}
 	}

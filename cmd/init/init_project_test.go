@@ -535,4 +535,8 @@ at %s`, tmpDir)},
 		ioMock.MinimockPrintlnInspect()
 		ioMock.MinimockGetInputInspect()
 	})
+
+	t.Run("ERROR_DURING_EXECUTION", func(t *testing.T) {
+
+	})
 }
