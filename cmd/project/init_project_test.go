@@ -1,4 +1,4 @@
-package init
+package project
 
 import (
 	"fmt"
@@ -113,7 +113,7 @@ at %s`, tmpDir)},
 			io:  ioMock,
 		}
 
-		cmd := newInitProjectCmd(p.runProjectInit)
+		cmd := newInitProjectCmd(p.run)
 
 		err = cmd.Flags().Set(nameFlag, "")
 		require.NoError(t, err, "error setting name flag value")
@@ -215,7 +215,7 @@ at %s`, tmpDir)},
 			io:  ioMock,
 		}
 
-		cmd := newInitProjectCmd(p.runProjectInit)
+		cmd := newInitProjectCmd(p.run)
 
 		err = cmd.Flags().Set(nameFlag, "")
 		require.NoError(t, err, "error setting name flag value")
@@ -318,7 +318,7 @@ at %s`, tmpDir)},
 			io:  ioMock,
 		}
 
-		cmd := newInitProjectCmd(p.runProjectInit)
+		cmd := newInitProjectCmd(p.run)
 
 		err = cmd.Flags().Set(nameFlag, "")
 		require.NoError(t, err, "error setting name flag value")
@@ -421,7 +421,7 @@ at %s`, tmpDir)},
 			io:  ioMock,
 		}
 
-		cmd := newInitProjectCmd(p.runProjectInit)
+		cmd := newInitProjectCmd(p.run)
 
 		err = cmd.Flags().Set(nameFlag, "")
 		require.NoError(t, err, "error setting name flag value")
@@ -496,7 +496,7 @@ at %s`, tmpDir)},
 			io:  ioMock,
 		}
 
-		cmd := newInitProjectCmd(p.runProjectInit)
+		cmd := newInitProjectCmd(p.run)
 
 		err = cmd.Flags().Set(pathFlag, tmpDir)
 		require.NoError(t, err, "error while setting path flag")
@@ -526,7 +526,7 @@ at %s`, tmpDir)},
 			cfg: cfg,
 			io:  ioMock,
 		}
-		cmd := newInitProjectCmd(p.runProjectInit)
+		cmd := newInitProjectCmd(p.run)
 		err := cmd.Flag("name").Value.Set("")
 		require.NoError(t, err, "error setting flag value")
 

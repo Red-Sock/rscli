@@ -9,8 +9,8 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
+	patterns3 "github.com/Red-Sock/rscli/cmd/environment/patterns"
 	"github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/plugins/environment/scripts/patterns"
 	pconfig "github.com/Red-Sock/rscli/plugins/project/processor/config"
 	patterns2 "github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
@@ -22,7 +22,7 @@ type environmentSetupConfig struct {
 	config                  *config.RsCliConfig
 	workDir                 string
 	envPattern              []byte
-	composeServicesPatterns map[string]patterns.ComposePatterns
+	composeServicesPatterns map[string]patterns3.ComposePatterns
 	portToService           portManager
 }
 
@@ -36,7 +36,7 @@ func RunSetUp(projectNames []string) (err error) {
 	sc.config = config.GetConfig()
 
 	subDir, dir := path.Split(sc.workDir)
-	if dir == patterns.EnvDir {
+	if dir == patterns3.EnvDir {
 		// If current working directory is called "environment" -> treat parent directory as WD
 		sc.workDir = subDir
 	}
@@ -47,15 +47,15 @@ func RunSetUp(projectNames []string) (err error) {
 	}
 
 	// Docker-compose patterns
-	sc.composeServicesPatterns, err = patterns.NewComposePatterns(sc.workDir)
+	sc.composeServicesPatterns, err = patterns3.NewComposePatterns(sc.workDir)
 	if err != nil {
 		return errors.Wrap(err, "error creating compose patterns")
 	}
 
 	// .env patterns
-	sc.envPattern, err = os.ReadFile(path.Join(sc.workDir, patterns.EnvDir, patterns.EnvExampleFile))
+	sc.envPattern, err = os.ReadFile(path.Join(sc.workDir, patterns3.EnvDir, patterns3.EnvExampleFile))
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return errors.Wrapf(err, "can't open %s file", patterns.EnvExampleFile)
+		return errors.Wrapf(err, "can't open %s file", patterns3.EnvExampleFile)
 	}
 
 	sc.portToService, err = getPortsFromProjects(sc.workDir, projectNames)
@@ -74,14 +74,14 @@ func RunSetUp(projectNames []string) (err error) {
 }
 
 func setUpEnvForProject(pName string, setup environmentSetupConfig) (err error) {
-	var envAssembler *patterns.EnvService
-	envAssembler, err = patterns.NewEnvService(patterns.EnvFile.Content)
+	var envAssembler *patterns3.EnvService
+	envAssembler, err = patterns3.NewEnvService(patterns3.EnvFile.Content)
 	if err != nil {
 		return errors.Wrap(err, "error creating environment service")
 	}
 
-	var composeAssembler *patterns.ComposeAssembler
-	composeAssembler, err = patterns.NewComposeAssembler(replaceProjectName(patterns.DockerComposeFile.Content, pName), pName)
+	var composeAssembler *patterns3.ComposeAssembler
+	composeAssembler, err = patterns3.NewComposeAssembler(replaceProjectName(patterns3.DockerComposeFile.Content, pName), pName)
 	if err != nil {
 		return errors.Wrap(err, "error creating compose-file assembler")
 	}
@@ -131,13 +131,13 @@ func setUpEnvForProject(pName string, setup environmentSetupConfig) (err error) 
 			if srvOpt.Port == 0 {
 				continue
 			}
-			portName := patterns.ProjNameCapsPattern + "_" + strings.ToUpper(srvOpt.Name) + "_" + PortSuffix
+			portName := patterns3.ProjNameCapsPattern + "_" + strings.ToUpper(srvOpt.Name) + "_" + PortSuffix
 			composeAssembler.Services[pName].Ports = append(composeAssembler.Services[pName].Ports, addEnvironmentBrackets(portName)+":"+strconv.Itoa(int(srvOpt.Port)))
 			envAssembler.Append(portName, strconv.Itoa(int(srvOpt.Port)))
 		}
 	}
 
-	pathToProjectEnvFile := path.Join(setup.workDir, patterns.EnvDir, pName, patterns.EnvFile.Name)
+	pathToProjectEnvFile := path.Join(setup.workDir, patterns3.EnvDir, pName, patterns3.EnvFile.Name)
 	err = rewrite(replaceProjectName(envAssembler.MarshalEnv(), pName), pathToProjectEnvFile)
 	if err != nil {
 		return errors.Wrap(err, "error writing environment file: "+pathToProjectEnvFile)
@@ -148,7 +148,7 @@ func setUpEnvForProject(pName string, setup environmentSetupConfig) (err error) 
 		return errors.Wrap(err, "error marshalling composer file")
 	}
 
-	pathToDockerComposeFile := path.Join(setup.workDir, patterns.EnvDir, pName, patterns.DockerComposeFile.Name)
+	pathToDockerComposeFile := path.Join(setup.workDir, patterns3.EnvDir, pName, patterns3.DockerComposeFile.Name)
 	err = rewrite(replaceProjectName(composeFile, pName), pathToDockerComposeFile)
 	if err != nil {
 		return errors.Wrap(err, "error writing docker compose file file")
@@ -161,7 +161,7 @@ func getEnvFilesCombined(wd string, projectNames []string) (string, error) {
 	sb := &strings.Builder{}
 
 	for _, dir := range projectNames {
-		projEnvFile, err := os.ReadFile(path.Join(wd, patterns.EnvDir, dir, patterns.EnvFile.Name))
+		projEnvFile, err := os.ReadFile(path.Join(wd, patterns3.EnvDir, dir, patterns3.EnvFile.Name))
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				continue
@@ -178,13 +178,13 @@ func getEnvFilesCombined(wd string, projectNames []string) (string, error) {
 	return sb.String(), nil
 }
 
-func getClients(composePatterns map[string]patterns.ComposePatterns, cfg *pconfig.Config) ([]patterns.ComposePatterns, error) {
+func getClients(composePatterns map[string]patterns3.ComposePatterns, cfg *pconfig.Config) ([]patterns3.ComposePatterns, error) {
 	dsns, err := cfg.GetDataSourceOptions()
 	if err != nil {
 		return nil, err
 	}
 
-	clients := make([]patterns.ComposePatterns, 0, len(dsns))
+	clients := make([]patterns3.ComposePatterns, 0, len(dsns))
 
 	for _, dsn := range dsns {
 		pattern, ok := composePatterns[dsn.Type]
@@ -208,7 +208,7 @@ func getClients(composePatterns map[string]patterns.ComposePatterns, cfg *pconfi
 	return clients, nil
 }
 
-func insertEnvironmentValues(pattern *patterns.ComposePatterns, conn pconfig.ConnectionOptions) error {
+func insertEnvironmentValues(pattern *patterns3.ComposePatterns, conn pconfig.ConnectionOptions) error {
 	switch conn.Type {
 	case patterns2.SourceNamePostgres:
 		user, pwd, _, _, dbName := pconfig.ParsePgConnectionString(conn.ConnectionString)
@@ -217,23 +217,23 @@ func insertEnvironmentValues(pattern *patterns.ComposePatterns, conn pconfig.Con
 
 		const dsPgName = "DS_POSTGRES_NAME_CAPS"
 		{
-			varName := composeEnv[patterns.EnvironmentPostgresUser]
+			varName := composeEnv[patterns3.EnvironmentPostgresUser]
 			varName = strings.ToUpper(strings.ReplaceAll(varName, dsPgName, dbName))
-			composeEnv[patterns.EnvironmentPostgresUser] = varName
+			composeEnv[patterns3.EnvironmentPostgresUser] = varName
 
 			env.Append(removeEnvironmentBrackets(varName), user)
 		}
 		{
-			varName := composeEnv[patterns.EnvironmentPostgresPassword]
+			varName := composeEnv[patterns3.EnvironmentPostgresPassword]
 			varName = strings.ToUpper(strings.ReplaceAll(varName, dsPgName, dbName))
-			composeEnv[patterns.EnvironmentPostgresPassword] = varName
+			composeEnv[patterns3.EnvironmentPostgresPassword] = varName
 
 			env.Append(removeEnvironmentBrackets(varName), pwd)
 		}
 		{
-			varName := composeEnv[patterns.EnvironmentPostgresDb]
+			varName := composeEnv[patterns3.EnvironmentPostgresDb]
 			varName = strings.ToUpper(strings.ReplaceAll(varName, dsPgName, dbName))
-			composeEnv[patterns.EnvironmentPostgresDb] = varName
+			composeEnv[patterns3.EnvironmentPostgresDb] = varName
 
 			env.Append(removeEnvironmentBrackets(varName), dbName)
 		}
@@ -254,12 +254,12 @@ func addEnvironmentBrackets(in string) string {
 	return "${" + in + "}"
 }
 
-func selectMakefile() patterns.File {
+func selectMakefile() patterns3.File {
 	if runtime.GOOS == "windows" {
 		// TODO add windows support
-		return patterns.Makefile
+		return patterns3.Makefile
 	} else {
-		return patterns.Makefile
+		return patterns3.Makefile
 	}
 }
 

@@ -10,9 +10,9 @@ import (
 	"github.com/Red-Sock/rscli-uikit/utils/common"
 	"github.com/Red-Sock/trace-errors"
 
+	"github.com/Red-Sock/rscli/cmd/environment/patterns"
 	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"github.com/Red-Sock/rscli/plugins/environment/scripts"
-	"github.com/Red-Sock/rscli/plugins/environment/scripts/patterns"
 )
 
 const PluginName = "environment"

@@ -1,4 +1,4 @@
-package init
+package project
 
 import (
 	"github.com/spf13/cobra"
@@ -11,14 +11,13 @@ const (
 
 func NewCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "init",
-		Short: "Initializes project",
-		Long:  `Can be used to init project in RSCLI project style`,
+		Use:   "project",
+		Short: "Handles project",
 
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
-	cmd.AddCommand(newInitProjectCmd(newProjectConstructor().runProjectInit))
+	cmd.AddCommand(newInitProjectCmd(newProjectConstructor().run))
 
 	return cmd
 }

@@ -105,5 +105,13 @@ Migrations and other useful stuff
 - Folders with scanned projects:
   - .env - environment variables to configure project (simple merge with .env.example file from above )
   - docker-compose.yaml - compose file based on project dependencies and config scans 
-
-  
+### TODO
+  1. [ ]   Local service mesh.
+     By specifying in config required external services 
+     they will be found and deployed as dependency 
+     (like pg or redis but as a service with api)
+  2. [ ] Docker networking
+  3. [ ] Services mesh with different root path (now service mesh planned to be on a folder level)
+  4. [ ] Service mesh with external projects (will be downloaded and launched as standalone applications) 
+### Restrictions
+- It is only available for projects from the same folder to be meshed

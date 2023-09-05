@@ -10,8 +10,8 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
+	"github.com/Red-Sock/rscli/cmd/environment/patterns"
 	"github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/plugins/environment/scripts/patterns"
 )
 
 const PortSuffix = "PORT"

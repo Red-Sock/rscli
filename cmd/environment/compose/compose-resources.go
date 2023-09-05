@@ -1,15 +1,16 @@
-package patterns
+package compose
 
 import (
 	"bytes"
 	_ "embed"
 	"os"
-	"path"
 
 	"gopkg.in/yaml.v3"
 
 	"github.com/Red-Sock/trace-errors"
 
+	"github.com/Red-Sock/rscli/cmd/environment/compose/env"
+	"github.com/Red-Sock/rscli/cmd/environment/patterns"
 	"github.com/Red-Sock/rscli/internal/helpers/nums"
 )
 
@@ -22,52 +23,51 @@ var (
 	ErrInvalidComposeEnvFormat  = errors.New("invalid environment variable format in docker-compose file. \"${\" must be followed by \"}\"")
 )
 
-type ComposePatterns struct {
+type ComposePattern struct {
 	Name    string
 	content ContainerSettings
-	envs    *EnvService
+	envs    env.Container
 }
 
-func NewComposePatterns(wd string) (services map[string]ComposePatterns, err error) {
-	var out map[string]ComposePatterns
-	{
-		out, err = extractComposePatternsFromServices(buildInExamples)
-		if err != nil {
-			return nil, errors.Wrap(err, "error extracting patterns from prepared file")
-		}
+func ReadComposePatternsFromFile(pth string) (map[string]ComposePattern, error) {
+	// Basic compose examples: rscli built-in
+	out, err := extractComposePatternsFromFile(patterns.BuildInComposeExamples)
+	if err != nil {
+		return nil, errors.Wrap(err, "error extracting composePatterns from prepared file")
 	}
 
-	{
-		var userDockerComposeExample []byte
-		userDockerComposeExample, err = os.ReadFile(path.Join(wd, EnvDir, DockerComposeFile.Name))
-		if err != nil {
-			return nil, errors.Wrap(err, "error reading user defined compose file")
+	// User's defined compose examples from
+	userDockerComposeExample, err := os.ReadFile(pth)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return out, nil
 		}
 
-		var userServicesDefinitions map[string]ComposePatterns
-		userServicesDefinitions, err = extractComposePatternsFromServices(userDockerComposeExample)
-		if err != nil {
-			return nil, errors.Wrap(err, "error extracting patterns from prepared file")
-		}
+		return nil, errors.Wrap(err, "error reading user defined compose file")
+	}
 
-		for serviceName, content := range userServicesDefinitions {
-			// override predefined service description with user's defined one
-			out[serviceName] = content
-		}
+	userServicesDefinitions, err := extractComposePatternsFromFile(userDockerComposeExample)
+	if err != nil {
+		return nil, errors.Wrap(err, "error extracting composePatterns from prepared file")
+	}
+
+	for serviceName, content := range userServicesDefinitions {
+		// override predefined service description with user's defined one
+		out[serviceName] = content
 	}
 
 	return out, nil
 }
 
-func (c *ComposePatterns) GetEnvs() *EnvService {
+func (c *ComposePattern) GetEnvs() env.Container {
 	return c.envs
 }
 
-func (c *ComposePatterns) GetCompose() ContainerSettings {
+func (c *ComposePattern) GetCompose() ContainerSettings {
 	return c.content
 }
 
-func extractComposePatternsFromServices(dockerComposeFile []byte) (out map[string]ComposePatterns, err error) {
+func extractComposePatternsFromFile(dockerComposeFile []byte) (out map[string]ComposePattern, err error) {
 	composeServices := map[string]interface{}{}
 	{
 		// validating prepared config
@@ -83,10 +83,10 @@ func extractComposePatternsFromServices(dockerComposeFile []byte) (out map[strin
 		composeServices = examplesMap.(map[string]interface{})
 	}
 
-	services := make(map[string]ComposePatterns, len(composeServices))
+	services := make(map[string]ComposePattern, len(composeServices))
 
 	for serviceName, content := range composeServices {
-		cs := ComposePatterns{
+		cs := ComposePattern{
 			Name: serviceName,
 		}
 
@@ -100,7 +100,8 @@ func extractComposePatternsFromServices(dockerComposeFile []byte) (out map[strin
 		if err != nil {
 			return nil, errors.Wrap(err, "error unmarshalling service "+serviceName+" to struct")
 		}
-		cs.envs, err = extractEnvsFromComposeService(bts)
+
+		cs.envs, err = extractEnvsFromComposeFile(bts)
 		if err != nil {
 			return nil, errors.Wrap(err, "error extracting environment variables")
 		}
@@ -111,13 +112,13 @@ func extractComposePatternsFromServices(dockerComposeFile []byte) (out map[strin
 	return services, nil
 }
 
-// extractEnvsFromComposeService walks thought compose service description
+// extractEnvsFromComposeFile walks thought compose service description
 // in order to find environment variable usage such as '${ENV_VAR}'
-func extractEnvsFromComposeService(b []byte) (*EnvService, error) {
+func extractEnvsFromComposeFile(b []byte) (env.Container, error) {
 	startIdx := bytes.Index(b, []byte{36, 123}) // search for "${"
 	var endIdx int
 
-	out, _ := NewEnvService(nil)
+	out := env.Container{}
 
 	for {
 		if startIdx == -1 {
@@ -131,7 +132,7 @@ func extractEnvsFromComposeService(b []byte) (*EnvService, error) {
 
 		endIdx = startIdx + bytes.IndexByte(b[startIdx:], 125) // "}"
 		if endIdx == -1 {
-			return &EnvService{}, errors.Wrapf(ErrInvalidComposeEnvFormat, string(b[startIdx:nums.Min(len(b)-1, 10)]))
+			return env.Container{}, errors.Wrapf(ErrInvalidComposeEnvFormat, string(b[startIdx:nums.Min(len(b)-1, 10)]))
 		}
 
 		// validate if after env variable goes ":" -> extract value

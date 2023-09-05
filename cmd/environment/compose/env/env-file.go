@@ -1,8 +1,9 @@
-package patterns
+package env
 
 import (
 	"bytes"
 	_ "embed"
+	"os"
 )
 
 const (
@@ -10,26 +11,35 @@ const (
 	lineSkip = byte('\n')
 )
 
-type EnvService struct {
-	content []EnvironmentValue
+type Container struct {
+	content []Variable
 }
 
-type EnvironmentValue struct {
+type Variable struct {
 	Name  string
 	Value string
 }
 
-func NewEnvService(src []byte) (*EnvService, error) {
-	es := &EnvService{}
+func ReadContainer(pth string) (*Container, error) {
+	f, err := os.ReadFile(pth)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewEnvContainer(f)
+}
+
+func NewEnvContainer(src []byte) (*Container, error) {
+	es := &Container{}
 
 	return es, es.UnmarshalEnv(src)
 }
 
-func (e *EnvService) Content() []EnvironmentValue {
+func (e *Container) Content() []Variable {
 	return e.content
 }
 
-func (e *EnvService) Append(name string, content string) {
+func (e *Container) Append(name string, content string) {
 	for idx, item := range e.content {
 		if item.Name == name {
 			e.content[idx].Value = content
@@ -37,10 +47,10 @@ func (e *EnvService) Append(name string, content string) {
 		}
 	}
 
-	e.content = append(e.content, EnvironmentValue{Name: name, Value: content})
+	e.content = append(e.content, Variable{Name: name, Value: content})
 }
 
-func (e *EnvService) MarshalEnv() []byte {
+func (e *Container) MarshalEnv() []byte {
 	sb := bytes.Buffer{}
 
 	for _, v := range e.content {
@@ -53,14 +63,14 @@ func (e *EnvService) MarshalEnv() []byte {
 	return sb.Bytes()
 }
 
-func (e *EnvService) UnmarshalEnv(b []byte) error {
+func (e *Container) UnmarshalEnv(b []byte) error {
 	if b == nil {
 		return nil
 	}
 
 	splited := bytes.Split(b, []byte{lineSkip})
 
-	e.content = make([]EnvironmentValue, len(splited))
+	e.content = make([]Variable, len(splited))
 
 	for idx, item := range splited {
 		line := bytes.Split(item, []byte{equals})
@@ -75,8 +85,8 @@ func (e *EnvService) UnmarshalEnv(b []byte) error {
 	return nil
 }
 
-func (e *EnvService) RemoveEmpty() {
-	newEnvs := make([]EnvironmentValue, 0, len(e.content)/2)
+func (e *Container) RemoveEmpty() {
+	newEnvs := make([]Variable, 0, len(e.content)/2)
 	for _, item := range e.content {
 		if item.Value != "" && item.Name != "" {
 			newEnvs = append(newEnvs, item)

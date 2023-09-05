@@ -1,15 +1,9 @@
-package patterns
+package compose
 
 import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/Red-Sock/trace-errors"
-)
-
-const (
-	EnvironmentPostgresUser     = "POSTGRES_USER"
-	EnvironmentPostgresPassword = "POSTGRES_PASSWORD"
-	EnvironmentPostgresDb       = "POSTGRES_DB"
 )
 
 type ComposeAssembler struct {

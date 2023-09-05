@@ -47,4 +47,4 @@ var (
 )
 
 //go:embed files/compose.examples.yaml
-var buildInExamples []byte
+var BuildInComposeExamples []byte

@@ -1,4 +1,4 @@
-package init
+package project
 
 import (
 	"context"
@@ -37,7 +37,7 @@ func newProjectConstructor() *projectConstructor {
 
 func newInitProjectCmd(command func(cmd *cobra.Command, _ []string) error) *cobra.Command {
 	c := &cobra.Command{
-		Use:   "project",
+		Use:   "init",
 		Short: "Initializes project",
 		Long:  `Can be used to init a project via configuration file, constructor or global config`,
 
@@ -47,13 +47,13 @@ func newInitProjectCmd(command func(cmd *cobra.Command, _ []string) error) *cobr
 		SilenceUsage:  true,
 	}
 
-	c.Flags().StringP(nameFlag, nameFlag[:1], "", `pass a name of project with or without git pass like "rscli" or github.com/RedSock/rscli`)
+	c.Flags().StringP(nameFlag, nameFlag[:1], "", `name of project with or without git pass like "rscli" or github.com/RedSock/rscli`)
 	c.Flags().StringP(pathFlag, pathFlag[:1], "", `path to folder with project`)
 
 	return c
 }
 
-func (p *projectConstructor) runProjectInit(cmd *cobra.Command, _ []string) error {
+func (p *projectConstructor) run(cmd *cobra.Command, _ []string) error {
 	args := processor.CreateArgs{}
 
 	// step 1: obtain name
