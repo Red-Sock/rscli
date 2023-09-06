@@ -21,7 +21,7 @@ func newInitEnvCmd() *cobra.Command {
 		Use:   "init",
 		Short: "Init environment for projects in given folder",
 
-		PreRunE: constr.preRun,
+		PreRunE: constr.fetchConstructor,
 		RunE:    constr.runInit,
 
 		SilenceErrors: true,
@@ -36,56 +36,50 @@ func (c *envConstructor) runInit(cmd *cobra.Command, args []string) error {
 		return c.askToRunTidy(cmd, args, "environment already exists")
 	}
 
-	progressChan := make(chan loader.Progress)
-	gDone := loader.RunSeqLoader(context.Background(), c.io, progressChan)
-	defer func() {
-		<-gDone()
+	err := func() error {
+		progressChan := make(chan loader.Progress)
+		gDone := loader.RunSeqLoader(context.Background(), c.io, progressChan)
+		defer func() {
+			<-gDone()
+		}()
+
+		defer func() {
+			close(progressChan)
+		}()
+
+		var ldr loader.Progress
+		{
+			ldr = loader.NewInfiniteLoader("Initiating basis", loader.RectSpinner())
+			progressChan <- ldr
+
+			err := c.initBasis()
+			if err != nil {
+				ldr.Done(loader.DoneFailed)
+				return errors.Wrap(err, "error initiating basis")
+			}
+			ldr.Done(loader.DoneSuccessful)
+		}
+
+		{
+			ldr = loader.NewInfiniteLoader("Creating projects folders", loader.RectSpinner())
+			progressChan <- ldr
+
+			err := c.initProjectsDirs()
+			if err != nil {
+				ldr.Done(loader.DoneFailed)
+				return errors.Wrap(err, "error initiating basis")
+			}
+
+			ldr.Done(loader.DoneSuccessful)
+		}
+		return nil
 	}()
 
-	defer func() {
-		close(progressChan)
-	}()
-
-	var ldr loader.Progress
-	{
-		ldr = loader.NewInfiniteLoader("Initiating basis", loader.RectSpinner())
-		progressChan <- ldr
-
-		err := c.initBasis()
-		if err != nil {
-			ldr.Done(loader.DoneFailed)
-			return errors.Wrap(err, "error initiating basis")
-		}
-		ldr.Done(loader.DoneSuccessful)
+	if err != nil {
+		return errors.Wrap(err, "error during basic init ")
 	}
 
-	{
-		ldr = loader.NewInfiniteLoader("Creating projects folders", loader.RectSpinner())
-		progressChan <- ldr
-
-		err := c.initProjectsDirs()
-		if err != nil {
-			ldr.Done(loader.DoneFailed)
-			return errors.Wrap(err, "error initiating basis")
-		}
-
-		ldr.Done(loader.DoneSuccessful)
-	}
-
-	{
-		ldr = loader.NewInfiniteLoader("Running rscli env tidy", loader.RectSpinner())
-		progressChan <- ldr
-
-		err := c.runTidy(cmd, args)
-		if err != nil {
-			ldr.Done(loader.DoneFailed)
-			return errors.Wrap(err, "error initiating basis")
-		}
-
-		ldr.Done(loader.DoneSuccessful)
-	}
-
-	return nil
+	return c.runTidy(cmd, args)
 }
 
 func (c *envConstructor) initBasis() error {

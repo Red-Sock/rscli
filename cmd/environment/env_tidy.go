@@ -26,8 +26,7 @@ func newTidyEnvCmd() *cobra.Command {
 		Use:   "tidy",
 		Short: "Adds new dependencies to existing environment. Clears unused dependencies",
 
-		PreRunE: constr.preRun,
-		RunE:    constr.runTidy,
+		RunE: constr.runTidy,
 
 		SilenceErrors: true,
 		SilenceUsage:  true,
@@ -38,7 +37,19 @@ func newTidyEnvCmd() *cobra.Command {
 	return c
 }
 
-func (c *envConstructor) runTidy(_ *cobra.Command, _ []string) error {
+func (c *envConstructor) runTidy(cmd *cobra.Command, arg []string) error {
+	c.io.Println("Running rscli env tidy")
+
+	err := c.initProjectsDirs()
+	if err != nil {
+		return errors.Wrap(err, "error during init of additional projects env dirs ")
+	}
+
+	err = c.fetchConstructor(cmd, arg)
+	if err != nil {
+		return errors.Wrap(err, "error fetching updated dirs")
+	}
+
 	p := ports.NewPortManager()
 	progresses := make([]loader.Progress, len(c.envProjDirs))
 	for idx := range c.envProjDirs {

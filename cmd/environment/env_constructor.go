@@ -43,20 +43,6 @@ func newEnvConstructor() *envConstructor {
 	}
 }
 
-func (c *envConstructor) preRun(cmd *cobra.Command, args []string) error {
-	err := c.fetchConstructor(cmd, args)
-	if err != nil {
-		return errors.Wrap(err, "error fetching constructor")
-	}
-
-	err = c.filterFolders()
-	if err != nil {
-		return errors.Wrap(err, "error filtering folders")
-	}
-
-	return nil
-}
-
 func (c *envConstructor) fetchConstructor(cmd *cobra.Command, _ []string) error {
 	c.envDirPath = cmd.Flag(pathFlag).Value.String()
 
@@ -97,6 +83,11 @@ func (c *envConstructor) fetchConstructor(cmd *cobra.Command, _ []string) error 
 		if !errors.Is(err, os.ErrNotExist) {
 			return errors.Wrap(err, "can't open env file at "+envPattern)
 		}
+	}
+
+	err = c.filterFolders()
+	if err != nil {
+		return errors.Wrap(err, "error filtering folders")
 	}
 
 	return nil
