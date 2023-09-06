@@ -9,14 +9,16 @@ import (
 
 func CreateFileIfNotExists(pathToFile string, content []byte) error {
 	fi, err := os.Stat(pathToFile)
-	if err != nil {
-		if !errors.Is(err, fs.ErrNotExist) {
-			return errors.Wrap(err, "error reading file: "+pathToFile)
-		}
-	} else {
+	if err == nil {
 		if fi.IsDir() {
 			return errors.New(pathToFile + " already exists and it is folder")
+		} else {
+			return nil
 		}
+	}
+
+	if !errors.Is(err, fs.ErrNotExist) {
+		return errors.Wrap(err, "error reading file: "+pathToFile)
 	}
 
 	err = os.WriteFile(pathToFile, content, os.ModePerm)

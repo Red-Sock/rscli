@@ -4,6 +4,12 @@ import (
 	"bytes"
 	_ "embed"
 	"os"
+	"strconv"
+	"strings"
+
+	errors "github.com/Red-Sock/trace-errors"
+
+	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 )
 
 const (
@@ -103,4 +109,29 @@ func (e *Container) RemoveEmpty() {
 	}
 
 	e.content = newEnvs
+}
+
+func (e *Container) GetPorts() ([]uint16, error) {
+	out := make([]uint16, 0, len(e.content)/2)
+	for _, item := range e.content {
+		if strings.HasSuffix(item.Name, patterns.PortSuffix) {
+			port, err := strconv.ParseUint(item.Value, 10, 16)
+			if err != nil {
+				return nil, errors.Wrap(err, "error parsing port for env variable "+item.Name)
+			}
+			out = append(out, uint16(port))
+		}
+	}
+
+	return out, nil
+}
+
+func (e *Container) Contains(variable Variable) bool {
+	for idx := range e.content {
+		if e.content[idx].Name == variable.Name && e.content[idx].Value == variable.Value {
+			return true
+		}
+	}
+
+	return false
 }

@@ -98,6 +98,13 @@ func (c *envConstructor) tidyEnvForProject(projName string, pm *ports.PortManage
 		return errors.Wrap(err, "error loading environment for project "+projName)
 	}
 
+	envPorts, err := proj.Environment.GetPorts()
+	if err != nil {
+		return errors.Wrap(err, "error fetching ports for environment of "+projName)
+	}
+
+	pm.SaveBatch(envPorts, projName)
+
 	dependencies, err := c.composePatterns.GetServiceDependencies(proj.Config)
 	if err != nil {
 		return errors.Wrap(err, "error getting dependencies for service "+projName)

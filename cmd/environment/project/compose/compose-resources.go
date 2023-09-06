@@ -6,9 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"gopkg.in/yaml.v3"
-
 	"github.com/Red-Sock/trace-errors"
+	"gopkg.in/yaml.v3"
 
 	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"

@@ -27,3 +27,12 @@ func (p *PortManager) GetNextPort(in uint16, projName string) uint16 {
 		in++
 	}
 }
+
+func (p *PortManager) SaveBatch(ports []uint16, projName string) {
+	p.m.Lock()
+	defer p.m.Unlock()
+
+	for _, port := range ports {
+		p.ports[port] = projName
+	}
+}
