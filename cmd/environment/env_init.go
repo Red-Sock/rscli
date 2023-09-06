@@ -136,19 +136,18 @@ func (c *envConstructor) initProjectDir(d os.DirEntry) error {
 
 	var f []byte
 	for _, spirit := range []patterns.File{c.selectMakefile(), patterns.EnvFile} {
-		fPath := path.Join(c.envDirPath, spirit.Name)
 
 		f, err = os.ReadFile(path.Join(c.envDirPath, spirit.Name))
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				continue
 			}
-			return errors.Wrap(err, "error reading "+fPath+" file")
+			return errors.Wrap(err, "error reading "+envProjDir+" file")
 		}
 
 		err = stdio.CreateFileIfNotExists(path.Join(envProjDir, spirit.Name), f)
 		if err != nil {
-			return errors.Wrap(err, "error reading "+fPath+" file")
+			return errors.Wrap(err, "error reading "+envProjDir+" file")
 		}
 	}
 
