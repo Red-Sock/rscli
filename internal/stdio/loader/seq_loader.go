@@ -16,6 +16,8 @@ func RunSeqLoader(ctx context.Context, io stdio.IO, progresses <-chan Progress) 
 
 	doneC := make(chan struct{})
 	wg := &sync.WaitGroup{}
+	io.Println()
+
 	startDrawFunc := func(p Progress) {
 		wg.Add(1)
 		defer wg.Done()
