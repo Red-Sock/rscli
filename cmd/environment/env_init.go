@@ -10,17 +10,19 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
 
-	"github.com/Red-Sock/rscli/cmd/environment/patterns"
+	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/internal/stdio"
 	"github.com/Red-Sock/rscli/internal/stdio/loader"
 )
 
-func newInitEnvCmd(command func(cmd *cobra.Command, args []string) error) *cobra.Command {
+func newInitEnvCmd() *cobra.Command {
+	constr := newEnvConstructor()
 	c := &cobra.Command{
 		Use:   "init",
 		Short: "Init environment for projects in given folder",
 
-		RunE: command,
+		PreRunE: constr.preRun,
+		RunE:    constr.runInit,
 
 		SilenceErrors: true,
 		SilenceUsage:  true,
@@ -30,19 +32,8 @@ func newInitEnvCmd(command func(cmd *cobra.Command, args []string) error) *cobra
 }
 
 func (c *envConstructor) runInit(cmd *cobra.Command, args []string) error {
-	err := c.fetchConstructor(cmd)
-	if err != nil {
-		return errors.Wrap(err, "error fetching working directory")
-	}
-
-	err = c.checkIfEnvExist()
-	if err != nil {
-		return c.askToRunTidy(cmd, args, err)
-	}
-
-	err = c.filterFolders()
-	if err != nil {
-		return errors.Wrap(err, "error filtering folders")
+	if c.checkIfEnvExist() {
+		return c.askToRunTidy(cmd, args, "environment already exists")
 	}
 
 	progressChan := make(chan loader.Progress)
@@ -60,7 +51,7 @@ func (c *envConstructor) runInit(cmd *cobra.Command, args []string) error {
 		ldr = loader.NewInfiniteLoader("Initiating basis", loader.RectSpinner())
 		progressChan <- ldr
 
-		err = c.initBasis()
+		err := c.initBasis()
 		if err != nil {
 			ldr.Done(loader.DoneFailed)
 			return errors.Wrap(err, "error initiating basis")
@@ -72,7 +63,7 @@ func (c *envConstructor) runInit(cmd *cobra.Command, args []string) error {
 		ldr = loader.NewInfiniteLoader("Creating projects folders", loader.RectSpinner())
 		progressChan <- ldr
 
-		err = c.initProjectsDirs()
+		err := c.initProjectsDirs()
 		if err != nil {
 			ldr.Done(loader.DoneFailed)
 			return errors.Wrap(err, "error initiating basis")
@@ -85,7 +76,7 @@ func (c *envConstructor) runInit(cmd *cobra.Command, args []string) error {
 		ldr = loader.NewInfiniteLoader("Running rscli env tidy", loader.RectSpinner())
 		progressChan <- ldr
 
-		err = c.runTidy(cmd, args)
+		err := c.runTidy(cmd, args)
 		if err != nil {
 			ldr.Done(loader.DoneFailed)
 			return errors.Wrap(err, "error initiating basis")
@@ -98,7 +89,6 @@ func (c *envConstructor) runInit(cmd *cobra.Command, args []string) error {
 }
 
 func (c *envConstructor) initBasis() error {
-
 	err := stdio.CreateFolderIfNotExists(c.envDirPath)
 
 	for _, f := range c.getSpirits() {
@@ -116,7 +106,7 @@ func (c *envConstructor) initProjectsDirs() error {
 
 	wg.Add(len(c.srcProjDirs))
 	for _, d := range c.srcProjDirs {
-		go func(name os.DirEntry) {
+		go func(d os.DirEntry) {
 			defer wg.Done()
 
 			err := c.initProjectDir(d)

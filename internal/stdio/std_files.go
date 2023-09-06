@@ -27,6 +27,20 @@ func CreateFileIfNotExists(pathToFile string, content []byte) error {
 	return nil
 }
 
+func OverrideFile(pth string, content []byte) error {
+	err := os.RemoveAll(pth)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(pth, content, 0755)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
 func CreateFolderIfNotExists(pth string) error {
 	fi, err := os.Stat(pth)
 	if err == nil {

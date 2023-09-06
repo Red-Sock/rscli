@@ -4,7 +4,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/Red-Sock/rscli/internal/helpers/slices"
+	"github.com/Red-Sock/rscli/internal/utils/slices"
 )
 
 var ignoredFolders = []string{

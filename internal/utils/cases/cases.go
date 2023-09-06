@@ -3,7 +3,7 @@ package cases
 import (
 	"strings"
 
-	"github.com/Red-Sock/rscli/internal/helpers/slices"
+	"github.com/Red-Sock/rscli/internal/utils/slices"
 )
 
 func SnakeToCamel(v string) string {

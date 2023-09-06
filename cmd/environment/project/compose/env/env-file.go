@@ -35,6 +35,15 @@ func NewEnvContainer(src []byte) (*Container, error) {
 	return es, es.UnmarshalEnv(src)
 }
 
+func Copy(container *Container) *Container {
+	c := &Container{
+		content: make([]Variable, len(container.content)),
+	}
+
+	copy(c.content, container.content)
+	return c
+}
+
 func (e *Container) Content() []Variable {
 	return e.content
 }

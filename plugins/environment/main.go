@@ -10,7 +10,7 @@ import (
 	"github.com/Red-Sock/rscli-uikit/utils/common"
 	"github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/cmd/environment/patterns"
+	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	shared_ui "github.com/Red-Sock/rscli/internal/shared-ui"
 	"github.com/Red-Sock/rscli/plugins/environment/scripts"
 )

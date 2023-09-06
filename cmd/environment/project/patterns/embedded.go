@@ -10,6 +10,8 @@ type File struct {
 }
 
 const (
+	PortSuffix = "PORT"
+
 	EnvDir         = "environment"
 	EnvExampleFile = ".env.example"
 )
@@ -17,6 +19,12 @@ const (
 const (
 	ProjNamePattern     = "proj_name"
 	ProjNameCapsPattern = "PROJ_NAME_CAPS"
+)
+
+const (
+	EnvVarPostgresUser     = "POSTGRES_USER"
+	EnvVarPostgresPassword = "POSTGRES_PASSWORD"
+	EnvVarPostgresDB       = "POSTGRES_DB"
 )
 
 var (

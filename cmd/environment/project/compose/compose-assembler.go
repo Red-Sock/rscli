@@ -6,8 +6,7 @@ import (
 	"github.com/Red-Sock/trace-errors"
 )
 
-type ComposeAssembler struct {
-	Name     string                        `yaml:"-"`
+type Compose struct {
 	Services map[string]*ContainerSettings `yaml:"services"`
 	Network  map[string]interface{}        `yaml:"networks"`
 }
@@ -21,9 +20,8 @@ type ContainerSettings struct {
 	Networks    []string          `yaml:"networks,omitempty"`
 }
 
-func NewComposeAssembler(src []byte, pName string) (*ComposeAssembler, error) {
-	ca := &ComposeAssembler{
-		Name:     pName,
+func NewComposeAssembler(src []byte) (*Compose, error) {
+	ca := &Compose{
 		Services: map[string]*ContainerSettings{},
 		Network:  map[string]interface{}{},
 	}
@@ -36,10 +34,10 @@ func NewComposeAssembler(src []byte, pName string) (*ComposeAssembler, error) {
 	return ca, nil
 }
 
-func (c *ComposeAssembler) AppendService(name string, service ContainerSettings) {
+func (c *Compose) AppendService(name string, service ContainerSettings) {
 	c.Services[name] = &service
 }
 
-func (c *ComposeAssembler) Marshal() ([]byte, error) {
+func (c *Compose) Marshal() ([]byte, error) {
 	return yaml.Marshal(*c)
 }

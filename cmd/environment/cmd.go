@@ -12,9 +12,8 @@ func NewCmd() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
-	envConstr := newEnvConstructor()
-	cmd.AddCommand(newInitEnvCmd(envConstr.runInit))
-	cmd.AddCommand(newTidyEnvCmd(envConstr.runTidy))
+	cmd.AddCommand(newInitEnvCmd())
+	cmd.AddCommand(newTidyEnvCmd())
 
 	return cmd
 }

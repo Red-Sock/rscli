@@ -3,7 +3,7 @@ package config
 import (
 	"gopkg.in/yaml.v3"
 
-	"github.com/Red-Sock/rscli/internal/helpers/cases"
+	"github.com/Red-Sock/rscli/internal/utils/cases"
 )
 
 func (c *Config) keysFromConfig() (map[string]string, error) {

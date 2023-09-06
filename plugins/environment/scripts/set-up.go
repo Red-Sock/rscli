@@ -9,7 +9,6 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
-	patterns3 "github.com/Red-Sock/rscli/cmd/environment/patterns"
 	"github.com/Red-Sock/rscli/internal/config"
 	pconfig "github.com/Red-Sock/rscli/plugins/project/processor/config"
 	patterns2 "github.com/Red-Sock/rscli/plugins/project/processor/patterns"
@@ -74,8 +73,8 @@ func RunSetUp(projectNames []string) (err error) {
 }
 
 func setUpEnvForProject(pName string, setup environmentSetupConfig) (err error) {
-	var envAssembler *patterns3.EnvService
-	envAssembler, err = patterns3.NewEnvService(patterns3.EnvFile.Content)
+	var envAssembler *patterns.EnvService
+	envAssembler, err = patterns.NewEnvService(patterns3.EnvFile.Content)
 	if err != nil {
 		return errors.Wrap(err, "error creating environment service")
 	}
@@ -87,7 +86,7 @@ func setUpEnvForProject(pName string, setup environmentSetupConfig) (err error) 
 	}
 
 	configPath := path.Join(setup.workDir, pName, setup.config.Env.PathToConfig)
-	projConf, err := pconfig.ParseConfig(configPath)
+	projConf, err := pconfig.ReadConfig(configPath)
 	if err != nil {
 		return errors.Wrap(err, "error parsing users's config")
 	}
