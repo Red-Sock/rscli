@@ -7,8 +7,8 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
+	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/plugins/environment/scripts/patterns"
 )
 
 func createEnvFolders(wd string, cfg *config.RsCliConfig) (err error) {

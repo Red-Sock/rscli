@@ -1,9 +1,8 @@
-package init
+package project
 
 import (
 	"context"
 	"fmt"
-	"os"
 	"path"
 	"strings"
 
@@ -18,31 +17,43 @@ import (
 )
 
 var (
-	projectConstructorImp = projectConstructor{
-		cfg: config.GetConfig(),
-		io:  stdio.StdIO{},
-	}
+	emptyNameErr   = errors.New("no name entered")
+	invalidNameErr = errors.New("name contains invalid symbol")
+)
 
-	projectCmd = &cobra.Command{
-		Use:   "project",
+type projectConstructor struct {
+	cfg              *config.RsCliConfig
+	io               stdio.IO
+	workingDirectory string
+}
+
+func newProjectConstructor() *projectConstructor {
+	return &projectConstructor{
+		cfg:              config.GetConfig(),
+		io:               stdio.StdIO{},
+		workingDirectory: stdio.GetWd(),
+	}
+}
+
+func newInitProjectCmd(command func(cmd *cobra.Command, _ []string) error) *cobra.Command {
+	c := &cobra.Command{
+		Use:   "init",
 		Short: "Initializes project",
 		Long:  `Can be used to init a project via configuration file, constructor or global config`,
 
-		RunE: projectConstructorImp.initProject,
+		RunE: command,
+
+		SilenceErrors: true,
+		SilenceUsage:  true,
 	}
-)
 
-func init() {
-	projectCmd.Flags().StringP(nameFlag, nameFlag[:1], "", `pass a name of project with or without git pass like "rscli" or github.com/RedSock/rscli`)
-	projectCmd.Flags().StringP(pathFlag, pathFlag[:1], "", `path to folder with project`)
+	c.Flags().StringP(nameFlag, nameFlag[:1], "", `name of project with or without git pass like "rscli" or github.com/RedSock/rscli`)
+	c.Flags().StringP(pathFlag, pathFlag[:1], "", `path to folder with project`)
+
+	return c
 }
 
-type projectConstructor struct {
-	cfg *config.RsCliConfig
-	io  stdio.IO
-}
-
-func (p *projectConstructor) initProject(cmd *cobra.Command, _ []string) error {
+func (p *projectConstructor) run(cmd *cobra.Command, _ []string) error {
 	args := processor.CreateArgs{}
 
 	// step 1: obtain name
@@ -55,10 +66,7 @@ func (p *projectConstructor) initProject(cmd *cobra.Command, _ []string) error {
 	p.io.PrintlnColored(colors.ColorCyan, fmt.Sprintf(`Wonderful!!! "%s" it is!`, args.Name))
 
 	// step 2: obtain path to project folder
-	args.ProjectPath, err = p.obtainFolderPath(cmd, args.Name)
-	if err != nil {
-		return errors.Wrap(err, "error obtaining folder path")
-	}
+	args.ProjectPath = p.obtainFolderPath(cmd, args.Name)
 
 	var proj *processor.Project
 	proj, err = p.buildProject(args)
@@ -66,7 +74,7 @@ func (p *projectConstructor) initProject(cmd *cobra.Command, _ []string) error {
 		return errors.Wrap(err, "error building project")
 	}
 
-	p.io.PrintlnColored(colors.ColorGreen, "Done. \nInitialized new project "+proj.GetName()+"\n at "+proj.GetProjectPath())
+	p.io.PrintlnColored(colors.ColorGreen, "Done.\nInitialized new project "+proj.GetName()+"\nat "+proj.GetProjectPath())
 
 	return nil
 }
@@ -88,7 +96,7 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 		}
 	}
 	if name == "" {
-		return "", errors.New("empty name")
+		return "", emptyNameErr
 	}
 
 	if strings.HasPrefix(name, "http") {
@@ -116,10 +124,6 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 }
 
 func (p *projectConstructor) validateName(name string) error {
-	if name == "" {
-		return errors.New("no name entered")
-	}
-
 	// starting and ending ascii symbols ranges that are applicable to project name
 	availableRanges := [][]int32{
 		{45, 47},
@@ -136,7 +140,7 @@ func (p *projectConstructor) validateName(name string) error {
 			}
 		}
 		if !hasHitRange {
-			return errors.New("name contains \"" + string(s) + "\" symbol")
+			return errors.Wrap(invalidNameErr, string(s))
 		}
 	}
 
@@ -168,43 +172,44 @@ func (p *projectConstructor) buildProject(args processor.CreateArgs) (proj *proc
 		<-doneF()
 	}()
 
-	idx := 0
+	currentProcessIdx := 0
+
+	fail := func() {
+		loaders[currentProcessIdx].Done(loader.DoneFailed)
+		currentProcessIdx++
+		for currentProcessIdx < len(loaders) {
+			loaders[currentProcessIdx].Done(loader.DoneNotAccessed)
+			currentProcessIdx++
+		}
+	}
+
 	for {
 		select {
 		case info, ok := <-infoC:
 			if !ok {
-				loaders[namesToIdx[info]].Done(loader.DoneFailed)
+				fail()
 				return proj, nil
 			}
 
-			idx++
+			currentProcessIdx++
 			loaders[namesToIdx[info]].Done(loader.DoneSuccessful)
 
 		case buildError, ok := <-errC:
 			if !ok {
 				return proj, nil
 			}
-			loaders[idx].Done(loader.DoneFailed)
-			idx++
-			for idx < len(loaders) {
-				loaders[idx].Done(loader.DoneNotAccessed)
-				idx++
-			}
 
+			fail()
 			return nil, errors.Wrap(buildError, "failed to build project: ")
 		}
 	}
 }
 
-func (p *projectConstructor) obtainFolderPath(cmd *cobra.Command, name string) (dirPath string, err error) {
-	dirPath = cmd.Flag(nameFlag).Value.String()
+func (p *projectConstructor) obtainFolderPath(cmd *cobra.Command, name string) (dirPath string) {
+	dirPath = cmd.Flag(pathFlag).Value.String()
 	if dirPath != "" {
-		return dirPath, nil
-	}
-	dirPath, err = os.Getwd()
-	if err != nil {
-		return "", errors.Wrap(err, "error getting working dir")
+		return dirPath
 	}
 
-	return path.Join(dirPath, name), nil
+	return path.Join(p.workingDirectory, name)
 }

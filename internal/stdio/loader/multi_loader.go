@@ -83,7 +83,6 @@ func RunMultiLoader(ctx context.Context, io stdio.IO, progresses []Progress) (do
 		close(doneC)
 
 		io.Print(aec.Show.String())
-		io.Print(aec.Down(uint(len(progresses))).String())
 		io.Print(aec.Column(0).String())
 	}()
 

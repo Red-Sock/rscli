@@ -10,7 +10,7 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/internal/helpers/copier"
+	"github.com/Red-Sock/rscli/internal/utils/copier"
 	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
@@ -49,8 +49,19 @@ type ConnectionOptions struct {
 	ConnectionString string
 }
 
-func ParseConfig(pth string) (*Config, error) {
-	panic("TODO")
+func ReadConfig(pth string) (*Config, error) {
+	f, err := os.Open(pth)
+	if err != nil {
+		return nil, err
+	}
+
+	c := &Config{}
+	return c, yaml.NewDecoder(f).Decode(c)
+}
+
+func NewConfig(b []byte) (*Config, error) {
+	c := &Config{}
+	return c, yaml.Unmarshal(b, c)
 }
 
 func (c *Config) BuildTo(cfgFile string) error {

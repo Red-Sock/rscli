@@ -14,10 +14,16 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
+const (
+	DevConfigFileName  = "dev.yaml"
+	StgConfigFileName  = "stage.yaml"
+	ProdConfigFileName = "prod.yaml"
+)
+
 var configOrder = []string{
-	"dev.yaml",
-	"stage.yaml",
-	"prod.yaml",
+	DevConfigFileName,
+	StgConfigFileName,
+	ProdConfigFileName,
 }
 
 // TODO
@@ -43,7 +49,7 @@ func LoadProject(pth string) (*Project, error) {
 		}
 	}
 
-	c, err := config.ParseConfig(path.Join(pth, patterns.ConfigsFolder, configPath))
+	c, err := config.ReadConfig(path.Join(pth, patterns.ConfigsFolder, configPath))
 	if err != nil {
 		return nil, errors.Wrap(err, "error parsing config")
 	}

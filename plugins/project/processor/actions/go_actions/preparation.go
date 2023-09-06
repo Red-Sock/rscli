@@ -19,7 +19,7 @@ func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 	cmd := &folder.Folder{Name: patterns.CmdFolder}
 
 	cmd.Inner = append(cmd.Inner, &folder.Folder{
-		Name: p.GetName(),
+		Name: p.GetShortName(),
 		Inner: []*folder.Folder{
 			{
 				Name:    patterns.MainFileName,
