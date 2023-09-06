@@ -1,6 +1,7 @@
 package environment
 
 import (
+	"context"
 	stderrs "errors"
 	"path"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/cmd/environment/project/ports"
 	"github.com/Red-Sock/rscli/internal/stdio"
+	"github.com/Red-Sock/rscli/internal/stdio/loader"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 )
 
@@ -38,12 +40,29 @@ func newTidyEnvCmd() *cobra.Command {
 
 func (c *envConstructor) runTidy(_ *cobra.Command, _ []string) error {
 	p := ports.NewPortManager()
+	progresses := make([]loader.Progress, len(c.envProjDirs))
+	for idx := range c.envProjDirs {
+		progresses[idx] = loader.NewInfiniteLoader(c.envProjDirs[idx].Name(), loader.RectSpinner())
+	}
+
+	done := loader.RunMultiLoader(context.Background(), c.io, progresses)
+	defer func() {
+		<-done()
+		c.io.Println("rscli env tidy done")
+	}()
 
 	errC := make(chan error)
-	for _, item := range c.envProjDirs {
-		go func(projName string) {
-			errC <- c.tidyEnvForProject(projName, p)
-		}(item.Name())
+	for idx := range c.envProjDirs {
+		go func(i int) {
+			err := c.tidyEnvForProject(c.envProjDirs[i].Name(), p)
+			if err != nil {
+				progresses[i].Done(loader.DoneFailed)
+			} else {
+				progresses[i].Done(loader.DoneSuccessful)
+			}
+
+			errC <- err
+		}(idx)
 	}
 
 	var errs []error
