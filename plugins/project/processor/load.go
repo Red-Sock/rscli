@@ -8,7 +8,7 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/pkg/folder"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/config"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"

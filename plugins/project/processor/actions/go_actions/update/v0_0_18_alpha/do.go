@@ -5,18 +5,18 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
+	interfaces2 "github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
-var Version = interfaces.Version{
+var Version = interfaces2.Version{
 	Major:      0,
 	Minor:      0,
 	Negligible: 18,
-	Additional: interfaces.TagVersionAlpha,
+	Additional: interfaces2.TagVersionAlpha,
 }
 
-func Do(p interfaces.Project) (err error) {
+func Do(p interfaces2.Project) (err error) {
 	defer func() {
 		if err != nil {
 			return

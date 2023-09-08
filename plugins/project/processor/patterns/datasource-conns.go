@@ -6,8 +6,8 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/cases"
-	"github.com/Red-Sock/rscli/pkg/folder"
 )
 
 func GetDatasourceClientFile(datasourceName string) (*folder.Folder, error) {

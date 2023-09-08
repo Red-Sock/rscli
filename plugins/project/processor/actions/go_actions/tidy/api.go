@@ -7,13 +7,13 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
+	"github.com/Red-Sock/rscli/internal/cmd"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/cases"
 	"github.com/Red-Sock/rscli/internal/utils/slices"
-	"github.com/Red-Sock/rscli/pkg/cmd"
-	"github.com/Red-Sock/rscli/pkg/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/config"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
+	patterns2 "github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
 var ErrNoMainFile = errors.New("no main file was found")
@@ -30,7 +30,7 @@ const (
 func Api(p interfaces.Project) error {
 	cfg := p.GetConfig()
 
-	pathToMainFile := []string{patterns.CmdFolder, p.GetShortName(), patterns.MainFileName}
+	pathToMainFile := []string{patterns2.CmdFolder, p.GetShortName(), patterns2.MainFileName}
 
 	projMainFile := p.GetFolder().GetByPath(pathToMainFile...)
 	if projMainFile == nil {
@@ -66,15 +66,15 @@ func tidyAPI(p interfaces.Project, cfg *config.Config, projMainFile *folder.Fold
 }
 
 func insertApiSetupInMainIfNotExists(p interfaces.Project, projMainFile *folder.Folder) {
-	apiFile := p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName(), patterns.BootStrapFolder, patterns.ApiConstructorFileName)
+	apiFile := p.GetFolder().GetByPath(patterns2.CmdFolder, p.GetName(), patterns2.BootStrapFolder, patterns2.ApiConstructorFileName)
 
 	// if bootstrap for server doesn't exist - adding it
 	if apiFile == nil {
 		apiFile = &folder.Folder{
-			Name:    patterns.ApiConstructorFileName,
-			Content: patterns.APISetupFile,
+			Name:    patterns2.ApiConstructorFileName,
+			Content: patterns2.APISetupFile,
 		}
-		p.GetFolder().ForceAddWithPath([]string{patterns.CmdFolder, p.GetName(), patterns.BootStrapFolder}, apiFile)
+		p.GetFolder().ForceAddWithPath([]string{patterns2.CmdFolder, p.GetName(), patterns2.BootStrapFolder}, apiFile)
 	}
 
 	const (
@@ -140,13 +140,13 @@ func insertApiSetupInMainIfNotExists(p interfaces.Project, projMainFile *folder.
 	return
 }
 func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder) error {
-	apiFile := p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName(), patterns.BootStrapFolder, patterns.ApiConstructorFileName)
+	apiFile := p.GetFolder().GetByPath(patterns2.CmdFolder, p.GetName(), patterns2.BootStrapFolder, patterns2.ApiConstructorFileName)
 	if apiFile == nil {
 		apiFile = &folder.Folder{
-			Name:    patterns.ApiConstructorFileName,
-			Content: patterns.APISetupFile,
+			Name:    patterns2.ApiConstructorFileName,
+			Content: patterns2.APISetupFile,
 		}
-		p.GetFolder().ForceAddWithPath([]string{patterns.CmdFolder, p.GetName(), patterns.BootStrapFolder}, apiFile)
+		p.GetFolder().ForceAddWithPath([]string{patterns2.CmdFolder, p.GetName(), patterns2.BootStrapFolder}, apiFile)
 	}
 
 	err := insertMissingAPI(p, serverFolders, apiFile)
@@ -154,15 +154,15 @@ func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder) error {
 		return errors.Wrap(err, "error inserting missing api")
 	}
 
-	apiMgr := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.TransportFolder, patterns.ApiManagerFileName)
+	apiMgr := p.GetFolder().GetByPath(patterns2.InternalFolder, patterns2.TransportFolder, patterns2.ApiManagerFileName)
 	if apiMgr == nil {
 		serverFolders = append(serverFolders, &folder.Folder{
-			Name:    patterns.ApiManagerFileName,
-			Content: patterns.ServerManagerPatternFile,
+			Name:    patterns2.ApiManagerFileName,
+			Content: patterns2.ServerManagerPatternFile,
 		})
 	}
 
-	p.GetFolder().AddWithPath([]string{patterns.InternalFolder, patterns.TransportFolder}, serverFolders...)
+	p.GetFolder().AddWithPath([]string{patterns2.InternalFolder, patterns2.TransportFolder}, serverFolders...)
 
 	return nil
 }
@@ -183,7 +183,7 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 		newAPIImportInsert = append(newAPIImportInsert, []byte("\n\t\""+p.GetName()+"/internal/transport/"+serv.Name+"\"")...)
 		newAPIInsert = append(newAPIInsert, []byte("mngr.AddServer("+serv.Name+".NewServer(cfg))\n\t")...)
 
-		if strings.Contains(serv.Name, patterns.GRPCServer) {
+		if strings.Contains(serv.Name, patterns2.GRPCServer) {
 			grpcServers = append(grpcServers, serv.Name)
 		}
 	}
@@ -210,12 +210,12 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 
 	if len(grpcServers) != 0 {
 		for _, serverName := range grpcServers {
-			protoFolder := p.GetFolder().GetByPath(patterns.PkgFolder, patterns.ProtoFolder, serverName)
+			protoFolder := p.GetFolder().GetByPath(patterns2.PkgFolder, patterns2.ProtoFolder, serverName)
 			if protoFolder == nil {
 
 				exampleFile := bytes.ReplaceAll(
-					patterns.GrpcProtoExampleFile,
-					[]byte(patterns.ImportProjectNamePatternSnakeCase),
+					patterns2.GrpcProtoExampleFile,
+					[]byte(patterns2.ImportProjectNamePatternSnakeCase),
 					[]byte(cases.KebabToSnake(serverName)))
 
 				exampleFile = bytes.ReplaceAll(exampleFile,
@@ -223,12 +223,12 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 					[]byte(serverName),
 				)
 				p.GetFolder().AddWithPath(
-					[]string{patterns.PkgFolder, patterns.ProtoFolder},
+					[]string{patterns2.PkgFolder, patterns2.ProtoFolder},
 					&folder.Folder{
 						Name: serverName,
 						Inner: []*folder.Folder{
 							{
-								Name:    serverName + patterns.ProtoFileExtension,
+								Name:    serverName + patterns2.ProtoFileExtension,
 								Content: exampleFile,
 							},
 						},
@@ -259,28 +259,28 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 }
 
 func insertGRPCInMakefile(p interfaces.Project) error {
-	rscliMkF := p.GetFolder().GetByPath(patterns.RsCliMkFileName)
+	rscliMkF := p.GetFolder().GetByPath(patterns2.RsCliMkFileName)
 	if rscliMkF == nil {
 		return ErrNoMakeFile
 	}
 
 	protocMkfile := bytes.Join([][]byte{
-		patterns.GRPCSection,
-		patterns.GRPCUtilityInstallGoProtocHeader,
-		patterns.GRPCGenerateGoCodeWithDependencies,
-		patterns.GRPCInstallProtocViaGolangEnvOSBased,
-		patterns.GRPCInstallGolangProtoc,
-		patterns.GRPCGenerateGoCode,
-		patterns.GRPCGatewayDependency,
-		patterns.SectionSeparator,
+		patterns2.GRPCSection,
+		patterns2.GRPCUtilityInstallGoProtocHeader,
+		patterns2.GRPCGenerateGoCodeWithDependencies,
+		patterns2.GRPCInstallProtocViaGolangEnvOSBased,
+		patterns2.GRPCInstallGolangProtoc,
+		patterns2.GRPCGenerateGoCode,
+		patterns2.GRPCGatewayDependency,
+		patterns2.SectionSeparator,
 	},
 		[]byte{})
 
-	idxStart := bytes.Index(rscliMkF.Content, patterns.GRPCUtilityInstallGoProtocHeader)
+	idxStart := bytes.Index(rscliMkF.Content, patterns2.GRPCUtilityInstallGoProtocHeader)
 	if idxStart == -1 {
 		rscliMkF.Content = append(rscliMkF.Content, protocMkfile...)
 	} else {
-		idxEnd := idxStart + bytes.Index(rscliMkF.Content[idxStart:], patterns.SectionSeparator)
+		idxEnd := idxStart + bytes.Index(rscliMkF.Content[idxStart:], patterns2.SectionSeparator)
 		newContent := make([]byte, idxStart+len(protocMkfile)+len(rscliMkF.Content[idxEnd:]))
 		copy(newContent[:idxStart], rscliMkF.Content[:idxStart])
 		copy(newContent[idxStart:idxEnd], protocMkfile)

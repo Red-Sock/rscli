@@ -7,7 +7,7 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/pkg/cmd"
+	"github.com/Red-Sock/rscli/internal/cmd"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 

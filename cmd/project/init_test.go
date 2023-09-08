@@ -12,7 +12,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/pkg/colors"
+	"github.com/Red-Sock/rscli/internal/io/colors"
+	"github.com/Red-Sock/rscli/plugins/project/processor/validators"
 	"github.com/Red-Sock/rscli/tests/mocks"
 )
 
@@ -108,12 +109,11 @@ at %s`, tmpDir)},
 			}
 		})
 
-		p := projectConstructor{
-			cfg: cfg,
-			io:  ioMock,
+		p := projectInit{
+			io: ioMock,
 		}
 
-		cmd := newInitProjectCmd(p.run)
+		cmd := newInitCmd(p)
 
 		err = cmd.Flags().Set(nameFlag, "")
 		require.NoError(t, err, "error setting name flag value")
@@ -210,12 +210,11 @@ at %s`, tmpDir)},
 			}
 		})
 
-		p := projectConstructor{
-			cfg: cfg,
-			io:  ioMock,
+		p := projectInit{
+			io: ioMock,
 		}
 
-		cmd := newInitProjectCmd(p.run)
+		cmd := newInitCmd(p)
 
 		err = cmd.Flags().Set(nameFlag, "")
 		require.NoError(t, err, "error setting name flag value")
@@ -313,12 +312,11 @@ at %s`, tmpDir)},
 			}
 		})
 
-		p := projectConstructor{
-			cfg: cfg,
-			io:  ioMock,
+		p := projectInit{
+			io: ioMock,
 		}
 
-		cmd := newInitProjectCmd(p.run)
+		cmd := newInitCmd(p)
 
 		err = cmd.Flags().Set(nameFlag, "")
 		require.NoError(t, err, "error setting name flag value")
@@ -416,12 +414,11 @@ at %s`, tmpDir)},
 			}
 		})
 
-		p := projectConstructor{
-			cfg: cfg,
-			io:  ioMock,
+		p := projectInit{
+			io: ioMock,
 		}
 
-		cmd := newInitProjectCmd(p.run)
+		cmd := newInitCmd(p)
 
 		err = cmd.Flags().Set(nameFlag, "")
 		require.NoError(t, err, "error setting name flag value")
@@ -491,12 +488,10 @@ at %s`, tmpDir)},
 			}
 		})
 
-		p := projectConstructor{
-			cfg: cfg,
-			io:  ioMock,
+		p := projectInit{
+			io: ioMock,
 		}
-
-		cmd := newInitProjectCmd(p.run)
+		cmd := newInitCmd(p)
 
 		err = cmd.Flags().Set(pathFlag, tmpDir)
 		require.NoError(t, err, "error while setting path flag")
@@ -522,21 +517,16 @@ at %s`, tmpDir)},
 
 		ioMock.PrintlnColoredMock.Expect(colors.ColorCyan, `Wonderful!!! "gitlab.com/RedSock/rscli" it is!`)
 
-		p := projectConstructor{
-			cfg: cfg,
-			io:  ioMock,
+		p := projectInit{
+			io: ioMock,
 		}
-		cmd := newInitProjectCmd(p.run)
+		cmd := newInitCmd(p)
 		err := cmd.Flag("name").Value.Set("")
 		require.NoError(t, err, "error setting flag value")
 
 		err = cmd.Execute()
-		require.Contains(t, err.Error(), invalidNameErr.Error())
+		require.Contains(t, err.Error(), validators.ErrInvalidNameErr.Error())
 		ioMock.MinimockPrintlnInspect()
 		ioMock.MinimockGetInputInspect()
-	})
-
-	t.Run("ERROR_DURING_EXECUTION", func(t *testing.T) {
-
 	})
 }

@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
-	"github.com/Red-Sock/rscli/internal/stdio"
-	"github.com/Red-Sock/rscli/internal/stdio/loader"
+	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/io/loader"
 )
 
 func newInitEnvCmd() *cobra.Command {
@@ -83,10 +83,10 @@ func (c *envConstructor) runInit(cmd *cobra.Command, args []string) error {
 }
 
 func (c *envConstructor) initBasis() error {
-	err := stdio.CreateFolderIfNotExists(c.envDirPath)
+	err := io.CreateFolderIfNotExists(c.envDirPath)
 
 	for _, f := range c.getSpirits() {
-		err = stdio.CreateFileIfNotExists(path.Join(c.envDirPath, f.Name), f.Content)
+		err = io.CreateFileIfNotExists(path.Join(c.envDirPath, f.Name), f.Content)
 		if err != nil {
 			return errors.Wrap(err, "error creating file "+f.Name+" file")
 		}
@@ -129,7 +129,7 @@ func (c *envConstructor) initProjectsDirs() error {
 func (c *envConstructor) initProjectDir(d os.DirEntry) error {
 	envProjDir := path.Join(c.envDirPath, d.Name())
 
-	err := stdio.CreateFolderIfNotExists(envProjDir)
+	err := io.CreateFolderIfNotExists(envProjDir)
 	if err != nil {
 		return errors.Wrap(err, "error creating folder "+envProjDir)
 	}
@@ -145,7 +145,7 @@ func (c *envConstructor) initProjectDir(d os.DirEntry) error {
 			return errors.Wrap(err, "error reading "+envProjDir+" file")
 		}
 
-		err = stdio.CreateFileIfNotExists(path.Join(envProjDir, spirit.Name), f)
+		err = io.CreateFileIfNotExists(path.Join(envProjDir, spirit.Name), f)
 		if err != nil {
 			return errors.Wrap(err, "error reading "+envProjDir+" file")
 		}

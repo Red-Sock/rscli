@@ -5,9 +5,9 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/pkg/folder"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
+	patterns2 "github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
 var ErrNoMakeFile = errors.New("no rscli.mk makefile found")
@@ -21,8 +21,8 @@ func Config(p interfaces.Project) error {
 		return err
 	}
 
-	p.GetFolder().ForceAddWithPath([]string{patterns.ConfigsFolder}, &folder.Folder{
-		Name:    patterns.ConfigTemplate,
+	p.GetFolder().ForceAddWithPath([]string{patterns2.ConfigsFolder}, &folder.Folder{
+		Name:    patterns2.ConfigTemplate,
 		Content: b,
 	})
 
@@ -34,7 +34,7 @@ func Config(p interfaces.Project) error {
 		if modName != appInfo.Name {
 			appInfo.Name = modName
 			//todo change to path to project + path to config
-			err = config.BuildTo(path.Join(p.GetProjectPath(), patterns.ConfigsFolder, patterns.ConfigYamlFile))
+			err = config.BuildTo(path.Join(p.GetProjectPath(), patterns2.ConfigsFolder, patterns2.ConfigYamlFile))
 			if err != nil {
 				return errors.Wrap(err, "error during rebuilding")
 			}

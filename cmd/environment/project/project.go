@@ -13,20 +13,20 @@ import (
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/cmd/environment/project/ports"
 	"github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/internal/stdio"
+	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	pconfig "github.com/Red-Sock/rscli/plugins/project/processor/config"
 )
 
-type Project struct {
+type Env struct {
 	envDirPath  string
 	Compose     *compose.Compose
 	Environment *env.Container
 	Config      *pconfig.Config
 }
 
-func LoadProjectEnvironment(cfg *config.RsCliConfig, pathToProjectEnv string) (p *Project, err error) {
-	p = &Project{
+func LoadProjectEnvironment(cfg config.RsCliConfig, pathToProjectEnv string) (p *Env, err error) {
+	p = &Env{
 		envDirPath: pathToProjectEnv,
 	}
 
@@ -48,7 +48,7 @@ func LoadProjectEnvironment(cfg *config.RsCliConfig, pathToProjectEnv string) (p
 	return p, nil
 }
 
-func (p *Project) Tidy(pm *ports.PortManager, composePatterns compose.PatternManager) error {
+func (p *Env) Tidy(pm *ports.PortManager, composePatterns compose.PatternManager) error {
 	projName := path.Base(p.envDirPath)
 	err := p.tidyResources(projName, composePatterns, pm)
 	if err != nil {
@@ -58,7 +58,7 @@ func (p *Project) Tidy(pm *ports.PortManager, composePatterns compose.PatternMan
 	p.tidyServerAPIs(projName, pm)
 
 	pathToProjectEnvFile := path.Join(p.envDirPath, patterns.EnvFile.Name)
-	err = stdio.OverrideFile(pathToProjectEnvFile, renamer.ReplaceProjectName(p.Environment.MarshalEnv(), projName))
+	err = io.OverrideFile(pathToProjectEnvFile, renamer.ReplaceProjectName(p.Environment.MarshalEnv(), projName))
 	if err != nil {
 		return errors.Wrap(err, "error writing environment file: "+pathToProjectEnvFile)
 	}
@@ -69,7 +69,7 @@ func (p *Project) Tidy(pm *ports.PortManager, composePatterns compose.PatternMan
 	}
 
 	pathToDockerComposeFile := path.Join(p.envDirPath, patterns.DockerComposeFile.Name)
-	err = stdio.OverrideFile(pathToDockerComposeFile, renamer.ReplaceProjectName(composeFile, projName))
+	err = io.OverrideFile(pathToDockerComposeFile, renamer.ReplaceProjectName(composeFile, projName))
 	if err != nil {
 		return errors.Wrap(err, "error writing docker compose file file")
 	}
@@ -77,7 +77,7 @@ func (p *Project) Tidy(pm *ports.PortManager, composePatterns compose.PatternMan
 	return nil
 }
 
-func (p *Project) tidyResources(projName string, composePatterns compose.PatternManager, pm *ports.PortManager) error {
+func (p *Env) tidyResources(projName string, composePatterns compose.PatternManager, pm *ports.PortManager) error {
 	dependencies, err := composePatterns.GetServiceDependencies(p.Config)
 	if err != nil {
 		return errors.Wrap(err, "error getting dependencies for service "+projName)
@@ -114,7 +114,7 @@ func (p *Project) tidyResources(projName string, composePatterns compose.Pattern
 	return nil
 }
 
-func (p *Project) tidyServerAPIs(projName string, pm *ports.PortManager) {
+func (p *Env) tidyServerAPIs(projName string, pm *ports.PortManager) {
 	serverAPIs := p.Config.GetServerOptions()
 
 	for idx := range serverAPIs {
@@ -146,7 +146,7 @@ func (p *Project) tidyServerAPIs(projName string, pm *ports.PortManager) {
 	}
 }
 
-func (p *Project) fetchComposeFile() error {
+func (p *Env) fetchComposeFile() error {
 	projectEnvComposeFilePath := path.Join(p.envDirPath, patterns.DockerComposeFile.Name)
 	composeFile, err := os.ReadFile(projectEnvComposeFilePath)
 	if err != nil {
@@ -178,7 +178,7 @@ func (p *Project) fetchComposeFile() error {
 	return nil
 }
 
-func (p *Project) fetchEnvFile() error {
+func (p *Env) fetchEnvFile() error {
 	dotEnvFilePath := path.Join(p.envDirPath, patterns.EnvFile.Name)
 	envFile, err := os.ReadFile(dotEnvFilePath)
 	if err != nil {
@@ -215,7 +215,7 @@ func (p *Project) fetchEnvFile() error {
 // 2. dev.yaml file in src project (at PATH_TO_CONFIG/dev.yaml)
 // if config was found by 2nd variant - it will be moved to ./environment/proj_name/dev.yaml
 // and symlink will be created to it at src_proj/PATH_TO_CONFIG/dev.yaml
-func (p *Project) fetchConfig(cfg *config.RsCliConfig) (err error) {
+func (p *Env) fetchConfig(cfg config.RsCliConfig) (err error) {
 	projEnvConfigPath := path.Join(p.envDirPath, path.Base(cfg.Env.PathToConfig))
 
 	f, err := os.ReadFile(projEnvConfigPath)

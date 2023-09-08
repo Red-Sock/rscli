@@ -3,19 +3,19 @@ package v0_0_23_alpha
 import (
 	"errors"
 
-	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
+	"github.com/Red-Sock/rscli/internal/io/folder"
+	interfaces2 "github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
-var Version = interfaces.Version{
+var Version = interfaces2.Version{
 	Major:      0,
 	Minor:      0,
 	Negligible: 23,
-	Additional: interfaces.TagVersionAlpha,
+	Additional: interfaces2.TagVersionAlpha,
 }
 
-func Do(p interfaces.Project) (err error) {
+func Do(p interfaces2.Project) (err error) {
 	defer func() {
 		if err != nil {
 			return

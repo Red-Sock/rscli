@@ -12,7 +12,7 @@ import (
 	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/internal/utils/nums"
-	pconfig "github.com/Red-Sock/rscli/plugins/project/processor/config"
+	"github.com/Red-Sock/rscli/plugins/project/processor/config"
 	projPatterns "github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
@@ -76,10 +76,10 @@ func (p *Pattern) GetCompose() ContainerSettings {
 	return p.content
 }
 
-func (p *Pattern) insertEnvironmentValues(conn pconfig.ConnectionOptions) error {
+func (p *Pattern) insertEnvironmentValues(conn config.ConnectionOptions) error {
 	switch conn.Type {
 	case projPatterns.SourceNamePostgres:
-		user, pwd, _, _, dbName := pconfig.ParsePgConnectionString(conn.ConnectionString)
+		user, pwd, _, _, dbName := config.ParsePgConnectionString(conn.ConnectionString)
 		env := p.GetEnvs()
 		composeEnv := p.GetCompose().Environment
 
@@ -112,7 +112,7 @@ func (p *Pattern) insertEnvironmentValues(conn pconfig.ConnectionOptions) error 
 	return nil
 }
 
-func (c *PatternManager) GetServiceDependencies(cfg *pconfig.Config) ([]Pattern, error) {
+func (c *PatternManager) GetServiceDependencies(cfg *config.Config) ([]Pattern, error) {
 	// TODO переделать на вариант без ТИПА, нужен интерфес -> имя, структура конфига подключения, порты
 	dsns, err := cfg.GetDataSourceOptions()
 	if err != nil {

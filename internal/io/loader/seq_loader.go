@@ -6,12 +6,12 @@ import (
 
 	"github.com/morikuni/aec"
 
-	"github.com/Red-Sock/rscli/internal/stdio"
-	"github.com/Red-Sock/rscli/pkg/colors"
+	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/io/colors"
 )
 
 // RunSeqLoader - allows to run sequential progress loader
-func RunSeqLoader(ctx context.Context, io stdio.IO, progresses <-chan Progress) (done func() chan struct{}) {
+func RunSeqLoader(ctx context.Context, io io.IO, progresses <-chan Progress) (done func() chan struct{}) {
 	io.Print(aec.Hide.String())
 
 	doneC := make(chan struct{})

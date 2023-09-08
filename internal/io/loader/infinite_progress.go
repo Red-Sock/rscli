@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Red-Sock/rscli/pkg/colors"
+	"github.com/Red-Sock/rscli/internal/io/colors"
 )
 
 type InfiniteLoader struct {

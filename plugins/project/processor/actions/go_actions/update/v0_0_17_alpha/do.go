@@ -3,10 +3,11 @@ package v0_0_17_alpha
 import (
 	"errors"
 
-	"github.com/Red-Sock/rscli/pkg/cmd"
-	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/plugins/project/processor/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
+
+	"github.com/Red-Sock/rscli/internal/cmd"
+	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/plugins/project/processor/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 

@@ -10,9 +10,9 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/copier"
-	"github.com/Red-Sock/rscli/pkg/folder"
-	"github.com/Red-Sock/rscli/plugins/project/processor/patterns"
+	patterns2 "github.com/Red-Sock/rscli/plugins/project/processor/patterns"
 )
 
 type Config struct {
@@ -85,7 +85,7 @@ func (c *Config) GetDataSourceFolders() (*folder.Folder, error) {
 	// extract connections from data source part
 
 	out := &folder.Folder{
-		Name: patterns.ClientsFolder,
+		Name: patterns2.ClientsFolder,
 	}
 
 	datasourceUniqueTypes := map[string]struct{}{}
@@ -93,7 +93,7 @@ func (c *Config) GetDataSourceFolders() (*folder.Folder, error) {
 	for dataSourceName := range c.DataSources {
 		dataSourceType := strings.Split(dataSourceName, "_")[0]
 
-		connFolder, err := patterns.GetDatasourceClientFile(dataSourceType)
+		connFolder, err := patterns2.GetDatasourceClientFile(dataSourceType)
 		if err != nil {
 			return nil, errors.Wrap(err, "error obtaining client conn files for datasource")
 		}
@@ -115,7 +115,7 @@ func (c *Config) GetServerFolders() ([]*folder.Folder, error) {
 	out := make([]*folder.Folder, 0, len(c.Server))
 
 	for serverName := range c.Server {
-		serverPattern, err := patterns.GetServerFiles(strings.Split(serverName, "_")[0])
+		serverPattern, err := patterns2.GetServerFiles(strings.Split(serverName, "_")[0])
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting server files")
 		}
@@ -143,7 +143,7 @@ func (c *Config) GetDataSourceOptions() (out []ConnectionOptions, err error) {
 	for dsn, data := range c.DataSources {
 		dataSourceType := strings.Split(dsn, "_")[0]
 		switch dataSourceType {
-		case patterns.SourceNamePostgres:
+		case patterns2.SourceNamePostgres:
 			var pgDSN Postgres
 			err = copier.Copy(data, &pgDSN)
 			if err != nil {
@@ -151,7 +151,7 @@ func (c *Config) GetDataSourceOptions() (out []ConnectionOptions, err error) {
 			}
 
 			out = append(out, ConnectionOptions{
-				Type:             patterns.SourceNamePostgres,
+				Type:             patterns2.SourceNamePostgres,
 				Name:             dsn,
 				ConnectionString: fmt.Sprintf(PostgresConnectionString, pgDSN.User, pgDSN.Pwd, pgDSN.Host, pgDSN.Port, pgDSN.Name),
 			})

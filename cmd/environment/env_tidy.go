@@ -15,8 +15,8 @@ import (
 	"github.com/Red-Sock/rscli/cmd/environment/project/compose"
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/cmd/environment/project/ports"
-	"github.com/Red-Sock/rscli/internal/stdio"
-	"github.com/Red-Sock/rscli/internal/stdio/loader"
+	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/io/loader"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 )
 
@@ -151,7 +151,7 @@ func (c *envConstructor) tidyEnvForProject(projName string, pm *ports.PortManage
 	}
 
 	pathToProjectEnvFile := path.Join(c.envDirPath, projName, patterns.EnvFile.Name)
-	err = stdio.OverrideFile(pathToProjectEnvFile, renamer.ReplaceProjectName(proj.Environment.MarshalEnv(), projName))
+	err = io.OverrideFile(pathToProjectEnvFile, renamer.ReplaceProjectName(proj.Environment.MarshalEnv(), projName))
 	if err != nil {
 		return errors.Wrap(err, "error writing environment file: "+pathToProjectEnvFile)
 	}
@@ -162,7 +162,7 @@ func (c *envConstructor) tidyEnvForProject(projName string, pm *ports.PortManage
 	}
 
 	pathToDockerComposeFile := path.Join(c.envDirPath, projName, patterns.DockerComposeFile.Name)
-	err = stdio.OverrideFile(pathToDockerComposeFile, renamer.ReplaceProjectName(composeFile, projName))
+	err = io.OverrideFile(pathToDockerComposeFile, renamer.ReplaceProjectName(composeFile, projName))
 	if err != nil {
 		return errors.Wrap(err, "error writing docker compose file file")
 	}

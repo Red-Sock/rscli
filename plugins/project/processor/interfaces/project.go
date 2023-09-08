@@ -1,7 +1,7 @@
 package interfaces
 
 import (
-	"github.com/Red-Sock/rscli/pkg/folder"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/config"
 )
 

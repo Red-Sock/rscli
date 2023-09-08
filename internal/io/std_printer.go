@@ -1,4 +1,4 @@
-package stdio
+package io
 
 import (
 	"bufio"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/pkg/colors"
+	"github.com/Red-Sock/rscli/internal/io/colors"
 )
 
 type IO interface {

@@ -6,8 +6,8 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/pkg/cmd"
-	"github.com/Red-Sock/rscli/plugins/project/processor/actions/go_actions/tidy"
+	"github.com/Red-Sock/rscli/internal/cmd"
+	tidy2 "github.com/Red-Sock/rscli/plugins/project/processor/actions/go_actions/tidy"
 	"github.com/Red-Sock/rscli/plugins/project/processor/interfaces"
 )
 
@@ -77,17 +77,17 @@ func (a FixupProjectAction) NameInAction() string {
 type TidyAction struct{}
 
 func (a TidyAction) Do(p interfaces.Project) error {
-	err := tidy.Api(p)
+	err := tidy2.Api(p)
 	if err != nil {
 		return errors.Wrap(err, "error during api tiding")
 	}
 
-	err = tidy.Config(p)
+	err = tidy2.Config(p)
 	if err != nil {
 		return errors.Wrap(err, "error during config tiding")
 	}
 
-	err = tidy.DataSources(p)
+	err = tidy2.DataSources(p)
 	if err != nil {
 		return errors.Wrap(err, "error during data source tiding")
 	}

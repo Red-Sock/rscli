@@ -6,10 +6,11 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/pkg/folder"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions"
 	"github.com/Red-Sock/rscli/plugins/project/processor/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/processor/config"
+	"github.com/Red-Sock/rscli/plugins/project/processor/validators"
 )
 
 type CreateArgs struct {
@@ -37,7 +38,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 
 			actions.InitGit{}, // initializing and committing project as git repo
 		}, args.Actions...),
-		validators: args.Validators,
+		validators: append(args.Validators, validators.ValidateName),
 	}
 
 	if args.ProjectPath == "" {

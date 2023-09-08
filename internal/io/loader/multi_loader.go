@@ -6,8 +6,8 @@ import (
 
 	"github.com/morikuni/aec"
 
-	"github.com/Red-Sock/rscli/internal/stdio"
-	"github.com/Red-Sock/rscli/pkg/colors"
+	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/io/colors"
 )
 
 type progressStatus int
@@ -36,7 +36,7 @@ type Progress interface {
 // return argument:
 // done - function for done channel. Call it before exiting function from which RunMultiLoader was called
 // in order to wait for all progresses to be completed and shown states
-func RunMultiLoader(ctx context.Context, io stdio.IO, progresses []Progress) (done func() chan struct{}) {
+func RunMultiLoader(ctx context.Context, io io.IO, progresses []Progress) (done func() chan struct{}) {
 	io.Print(aec.Hide.String())
 
 	doneLoaders := &sync.WaitGroup{}
