@@ -39,8 +39,8 @@ type Environment struct {
 	PathToConfig string `yaml:"path_to_config"`
 }
 
-func GetConfig() RsCliConfig {
-	return rsCliConfig
+func GetConfig() *RsCliConfig {
+	return &rsCliConfig
 }
 
 func InitConfig(cmd *cobra.Command, _ []string) error {

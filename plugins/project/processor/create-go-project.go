@@ -38,7 +38,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 
 			actions.InitGit{}, // initializing and committing project as git repo
 		}, args.Actions...),
-		validators: append(args.Validators, validators.ValidateName),
+		validators: append(args.Validators, validators.ValidateProjectName),
 	}
 
 	if args.ProjectPath == "" {

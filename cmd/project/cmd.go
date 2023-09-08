@@ -22,8 +22,8 @@ func NewCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(newInitCmd(projectInit{
-		io:        io.StdIO{},
-		rscliConf: config.GetConfig(),
+		io:     io.StdIO{},
+		config: config.GetConfig(),
 	}))
 
 	cmd.AddCommand(newAddCmd())

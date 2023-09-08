@@ -8,8 +8,12 @@ import (
 
 var ErrInvalidNameErr = errors.New("name contains invalid symbol")
 
-func ValidateName(p interfaces.Project) error {
-	name := p.GetShortName()
+func ValidateProjectName(p interfaces.Project) error {
+	return ValidateProjectNameStr(p.GetShortName())
+
+}
+
+func ValidateProjectNameStr(name string) error {
 	// starting and ending ascii symbols ranges that are applicable to project name
 	availableRanges := [][]int32{
 		{45, 47},

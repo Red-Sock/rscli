@@ -14,6 +14,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/colors"
 	"github.com/Red-Sock/rscli/internal/io/loader"
 	"github.com/Red-Sock/rscli/plugins/project/processor"
+	"github.com/Red-Sock/rscli/plugins/project/processor/validators"
 )
 
 var (
@@ -21,8 +22,8 @@ var (
 )
 
 type projectInit struct {
-	io        io.IO
-	rscliConf config.RsCliConfig
+	io     io.IO
+	config *config.RsCliConfig
 
 	proj *processor.Project
 }
@@ -32,10 +33,7 @@ func newInitCmd(pi projectInit) *cobra.Command {
 		Use:   "init",
 		Short: "Initializes project",
 		Long:  `Can be used to init a project via configuration file, constructor or global config`,
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			pi.rscliConf = config.GetConfig()
-			return nil
-		},
+
 		RunE: pi.run,
 
 		SilenceErrors: true,
@@ -82,7 +80,7 @@ What would it be called?
 hint: You can specify name with custom git url like "github.com/RedSock/rscli" 
       or just print name without spec symbols and spaces like "rscli"
       in this case default git-url will be "%s" and final result is "%s/rscli"
->`, p.rscliConf.DefaultProjectGitPath, p.rscliConf.DefaultProjectGitPath))
+>`, p.config.DefaultProjectGitPath, p.config.DefaultProjectGitPath))
 
 		name, err = p.io.GetInput()
 		if err != nil {
@@ -105,8 +103,13 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 		containsHost = hostSeparatorIdx != -1
 	}
 
+	err = validators.ValidateProjectNameStr(name)
+	if err != nil {
+		return "", errors.Wrap(err, "error validating project name")
+	}
+
 	if !containsHost {
-		name = p.rscliConf.DefaultProjectGitPath + "/" + name
+		name = p.config.DefaultProjectGitPath + "/" + name
 	}
 
 	return name, nil

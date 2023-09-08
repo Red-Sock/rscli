@@ -7,7 +7,7 @@ import (
 )
 
 func newAddCmd() *cobra.Command {
-	constr := projectAdd{
+	constr := add{
 		io: io.StdIO{},
 	}
 
@@ -27,15 +27,15 @@ func newAddCmd() *cobra.Command {
 	return c
 }
 
-type projectAdd struct {
+type add struct {
 	io io.IO
 }
 
-func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
+func (p *add) run(cmd *cobra.Command, args []string) error {
 	p.getDependenciesFromUser(cmd, args)
 	return nil
 }
 
-func (p *projectAdd) getDependenciesFromUser(cmd *cobra.Command, args []string) {
+func (p *add) getDependenciesFromUser(cmd *cobra.Command, args []string) {
 	p.io.Println(args...)
 }

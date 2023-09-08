@@ -22,7 +22,7 @@ const (
 )
 
 type envConstructor struct {
-	cfg config.RsCliConfig
+	cfg *config.RsCliConfig
 	io  io.IO
 
 	envDirPath  string

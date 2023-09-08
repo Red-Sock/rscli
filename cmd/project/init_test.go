@@ -38,10 +38,6 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 			require.NoError(t, err, "error during tmp dir deletion")
 		}()
 
-		cfg := &config.RsCliConfig{
-			DefaultProjectGitPath: "github.com/RedSock",
-		}
-
 		ioMock := mocks.NewIOMock(t)
 
 		expectedPrint := []string{hintMessage}
@@ -111,6 +107,9 @@ at %s`, tmpDir)},
 
 		p := projectInit{
 			io: ioMock,
+			config: &config.RsCliConfig{
+				DefaultProjectGitPath: "github.com/RedSock",
+			},
 		}
 
 		cmd := newInitCmd(p)
@@ -138,10 +137,6 @@ at %s`, tmpDir)},
 			err = os.RemoveAll(tmpDir)
 			require.NoError(t, err, "error during tmp dir deletion")
 		}()
-
-		cfg := &config.RsCliConfig{
-			DefaultProjectGitPath: "github.com/RedSock",
-		}
 
 		ioMock := mocks.NewIOMock(t)
 
@@ -212,6 +207,9 @@ at %s`, tmpDir)},
 
 		p := projectInit{
 			io: ioMock,
+			config: &config.RsCliConfig{
+				DefaultProjectGitPath: "github.com/RedSock",
+			},
 		}
 
 		cmd := newInitCmd(p)
@@ -240,10 +238,6 @@ at %s`, tmpDir)},
 			err = os.RemoveAll(tmpDir)
 			require.NoError(t, err, "error during tmp dir deletion")
 		}()
-
-		cfg := &config.RsCliConfig{
-			DefaultProjectGitPath: "github.com/RedSock",
-		}
 
 		ioMock := mocks.NewIOMock(t)
 
@@ -314,6 +308,9 @@ at %s`, tmpDir)},
 
 		p := projectInit{
 			io: ioMock,
+			config: &config.RsCliConfig{
+				DefaultProjectGitPath: "github.com/RedSock",
+			},
 		}
 
 		cmd := newInitCmd(p)
@@ -342,10 +339,6 @@ at %s`, tmpDir)},
 			err = os.RemoveAll(tmpDir)
 			require.NoError(t, err, "error during tmp dir deletion")
 		}()
-
-		cfg := &config.RsCliConfig{
-			DefaultProjectGitPath: "github.com/RedSock",
-		}
 
 		ioMock := mocks.NewIOMock(t)
 
@@ -416,6 +409,9 @@ at %s`, tmpDir)},
 
 		p := projectInit{
 			io: ioMock,
+			config: &config.RsCliConfig{
+				DefaultProjectGitPath: "github.com/RedSock",
+			},
 		}
 
 		cmd := newInitCmd(p)
@@ -444,10 +440,6 @@ at %s`, tmpDir)},
 			err = os.RemoveAll(tmpDir)
 			require.NoError(t, err, "error during tmp dir deletion")
 		}()
-
-		cfg := &config.RsCliConfig{
-			DefaultProjectGitPath: "github.com/RedSock",
-		}
 
 		ioMock := mocks.NewIOMock(t)
 
@@ -490,6 +482,9 @@ at %s`, tmpDir)},
 
 		p := projectInit{
 			io: ioMock,
+			config: &config.RsCliConfig{
+				DefaultProjectGitPath: "github.com/RedSock",
+			},
 		}
 		cmd := newInitCmd(p)
 
@@ -506,10 +501,6 @@ at %s`, tmpDir)},
 	t.Run("ERROR_INVALID_NAME", func(t *testing.T) {
 		t.Parallel()
 
-		cfg := &config.RsCliConfig{
-			DefaultProjectGitPath: "github.com/RedSock",
-		}
-
 		ioMock := mocks.NewIOMock(t)
 
 		ioMock.PrintMock.Expect(hintMessage)
@@ -519,6 +510,9 @@ at %s`, tmpDir)},
 
 		p := projectInit{
 			io: ioMock,
+			config: &config.RsCliConfig{
+				DefaultProjectGitPath: "github.com/RedSock",
+			},
 		}
 		cmd := newInitCmd(p)
 		err := cmd.Flag("name").Value.Set("")
