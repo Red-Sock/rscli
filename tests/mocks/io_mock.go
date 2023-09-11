@@ -7,11 +7,12 @@ import (
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
-	"github.com/Red-Sock/rscli/pkg/colors"
 	"github.com/gojuno/minimock/v3"
+
+	"github.com/Red-Sock/rscli/internal/io/colors"
 )
 
-// IOMock implements stdio.IO
+// IOMock implements io.IO
 type IOMock struct {
 	t minimock.Tester
 
@@ -58,7 +59,7 @@ type IOMock struct {
 	PrintlnColoredMock          mIOMockPrintlnColored
 }
 
-// NewIOMock returns a mock for stdio.IO
+// NewIOMock returns a mock for io.IO
 func NewIOMock(t minimock.Tester) *IOMock {
 	m := &IOMock{t: t}
 	if controller, ok := t.(minimock.MockController); ok {
@@ -168,7 +169,7 @@ func (mmError *mIOMockError) Set(f func(in string)) *IOMock {
 	return mmError.mock
 }
 
-// Error implements stdio.IO
+// Error implements io.IO
 func (mmError *IOMock) Error(in string) {
 	mm_atomic.AddUint64(&mmError.beforeErrorCounter, 1)
 	defer mm_atomic.AddUint64(&mmError.afterErrorCounter, 1)
@@ -346,7 +347,7 @@ func (mmGetInput *mIOMockGetInput) Set(f func() (s1 string, err error)) *IOMock 
 	return mmGetInput.mock
 }
 
-// GetInput implements stdio.IO
+// GetInput implements io.IO
 func (mmGetInput *IOMock) GetInput() (s1 string, err error) {
 	mm_atomic.AddUint64(&mmGetInput.beforeGetInputCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetInput.afterGetInputCounter, 1)
@@ -525,7 +526,7 @@ func (e *IOMockGetInputOneOfExpectation) Then(s1 string) *IOMock {
 	return e.mock
 }
 
-// GetInputOneOf implements stdio.IO
+// GetInputOneOf implements io.IO
 func (mmGetInputOneOf *IOMock) GetInputOneOf(options []string) (s1 string) {
 	mm_atomic.AddUint64(&mmGetInputOneOf.beforeGetInputOneOfCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetInputOneOf.afterGetInputOneOfCounter, 1)
@@ -714,7 +715,7 @@ func (mmPrint *mIOMockPrint) Set(f func(in string)) *IOMock {
 	return mmPrint.mock
 }
 
-// Print implements stdio.IO
+// Print implements io.IO
 func (mmPrint *IOMock) Print(in string) {
 	mm_atomic.AddUint64(&mmPrint.beforePrintCounter, 1)
 	defer mm_atomic.AddUint64(&mmPrint.afterPrintCounter, 1)
@@ -902,7 +903,7 @@ func (mmPrintColored *mIOMockPrintColored) Set(f func(color colors.Color, in str
 	return mmPrintColored.mock
 }
 
-// PrintColored implements stdio.IO
+// PrintColored implements io.IO
 func (mmPrintColored *IOMock) PrintColored(color colors.Color, in string) {
 	mm_atomic.AddUint64(&mmPrintColored.beforePrintColoredCounter, 1)
 	defer mm_atomic.AddUint64(&mmPrintColored.afterPrintColoredCounter, 1)
@@ -1089,7 +1090,7 @@ func (mmPrintln *mIOMockPrintln) Set(f func(in ...string)) *IOMock {
 	return mmPrintln.mock
 }
 
-// Println implements stdio.IO
+// Println implements io.IO
 func (mmPrintln *IOMock) Println(in ...string) {
 	mm_atomic.AddUint64(&mmPrintln.beforePrintlnCounter, 1)
 	defer mm_atomic.AddUint64(&mmPrintln.afterPrintlnCounter, 1)
@@ -1277,7 +1278,7 @@ func (mmPrintlnColored *mIOMockPrintlnColored) Set(f func(color colors.Color, in
 	return mmPrintlnColored.mock
 }
 
-// PrintlnColored implements stdio.IO
+// PrintlnColored implements io.IO
 func (mmPrintlnColored *IOMock) PrintlnColored(color colors.Color, in ...string) {
 	mm_atomic.AddUint64(&mmPrintlnColored.beforePrintlnColoredCounter, 1)
 	defer mm_atomic.AddUint64(&mmPrintlnColored.afterPrintlnColoredCounter, 1)

@@ -12,8 +12,7 @@ import (
 	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/internal/utils/nums"
-	pconfig "github.com/Red-Sock/rscli/plugins/project/processor/config"
-	projPatterns "github.com/Red-Sock/rscli/plugins/project/processor/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 )
 
 const (
@@ -23,7 +22,6 @@ const (
 var (
 	ErrInvalidComposeFileFormat = errors.New("invalid compose format. MUST be a VALID compose file with \"services:\" field")
 	ErrInvalidComposeEnvFormat  = errors.New("invalid environment variable format in docker-compose file. \"${\" must be followed by \"}\"")
-	ErrUnknownSource            = errors.New("unknown client")
 )
 
 type PatternManager struct {
@@ -31,14 +29,12 @@ type PatternManager struct {
 }
 
 type Pattern struct {
-	Name    string
-	content ContainerSettings
-	envs    *env.Container
+	Name                string
+	containerDefinition ContainerSettings
+	envs                *env.Container
 }
 
 func ReadComposePatternsFromFile(pth string) (out PatternManager, err error) {
-	out.Patterns = map[string]Pattern{}
-
 	// Basic compose examples: rscli built-in
 	out.Patterns, err = extractComposePatternsFromFile(patterns.BuildInComposeExamples)
 	if err != nil {
@@ -73,71 +69,72 @@ func (p *Pattern) GetEnvs() *env.Container {
 }
 
 func (p *Pattern) GetCompose() ContainerSettings {
-	return p.content
+	return p.containerDefinition
 }
 
-func (p *Pattern) insertEnvironmentValues(conn pconfig.ConnectionOptions) error {
-	switch conn.Type {
-	case projPatterns.SourceNamePostgres:
-		user, pwd, _, _, dbName := pconfig.ParsePgConnectionString(conn.ConnectionString)
-		env := p.GetEnvs()
-		composeEnv := p.GetCompose().Environment
+func (p *Pattern) RenameVariable(oldName, newName string) {
 
-		// TODO подумать и двинуть это как-нибудь в сторону структуры
-		const dsPgName = "DS_POSTGRES_NAME_CAPS"
-		{
-			varName := composeEnv[patterns.EnvVarPostgresUser]
-			varName = strings.ToUpper(strings.ReplaceAll(varName, dsPgName, dbName))
-			composeEnv[patterns.EnvVarPostgresUser] = varName
+	p.envs.Rename(oldName, newName)
 
-			env.Append(removeEnvironmentBrackets(varName), user)
+	for k, v := range p.containerDefinition.Environment {
+		if strings.Contains(v, oldName) {
+			p.containerDefinition.Environment[k] = AddEnvironmentBrackets(newName)
+			break
 		}
-		{
-			varName := composeEnv[patterns.EnvVarPostgresPassword]
-			varName = strings.ToUpper(strings.ReplaceAll(varName, dsPgName, dbName))
-			composeEnv[patterns.EnvVarPostgresPassword] = varName
-
-			env.Append(removeEnvironmentBrackets(varName), pwd)
-		}
-		{
-			varName := composeEnv[patterns.EnvVarPostgresDB]
-			varName = strings.ToUpper(strings.ReplaceAll(varName, dsPgName, dbName))
-			composeEnv[patterns.EnvVarPostgresDB] = varName
-
-			env.Append(removeEnvironmentBrackets(varName), dbName)
-		}
-	default:
-		return ErrUnknownSource
 	}
+
+	for portIdx := range p.containerDefinition.Ports {
+		p.containerDefinition.Ports[portIdx] = strings.ReplaceAll(p.containerDefinition.Ports[portIdx], oldName, newName)
+	}
+
+}
+
+// TODO
+func (p *Pattern) insertEnvironmentValues(conn resources.Resource) error {
+	dotEnv := p.GetEnvs()
+	//composeEnv := p.GetCompose().Environment
+
+	portKeys := make([]string, 0, 1)
+	_ = portKeys
+	for _, v := range dotEnv.Content() {
+		if strings.HasSuffix(v.Name, patterns.PortSuffix) {
+			portKeys = append(portKeys, v.Name)
+		}
+
+	}
+
 	return nil
 }
 
-func (c *PatternManager) GetServiceDependencies(cfg *pconfig.Config) ([]Pattern, error) {
-	// TODO переделать на вариант без ТИПА, нужен интерфес -> имя, структура конфига подключения, порты
-	dsns, err := cfg.GetDataSourceOptions()
-	if err != nil {
-		return nil, err
-	}
+func (c *PatternManager) GetServiceDependencies(resource []resources.Resource) ([]Pattern, error) {
+	clients := make([]Pattern, 0, len(resource))
 
-	clients := make([]Pattern, 0, len(dsns))
-
-	for _, dsn := range dsns {
-		pattern, ok := c.Patterns[dsn.Type]
+	for _, resourceDependency := range resource {
+		pattern, ok := c.Patterns[string(resourceDependency.GetType())]
 		if !ok {
 			// TODO handle unknown data sources
 			continue
 		}
-		pattern.Name = dsn.Name
-		err = pattern.insertEnvironmentValues(dsn)
-		if err != nil {
-			return nil, errors.Wrap(err, "error inserting environment values to compose")
+
+		if resourceDependency.GetName() != "" {
+			pattern.Name += "_" + resourceDependency.GetName()
+		}
+
+		// if value for environment variable is defined in source config
+		// e.g. section postgres_* in dev.yaml
+		// data_sources:
+		// 		postgres:
+		//			pwd: 123
+		//
+		// will set environment variable for POSTGRES_PASSWORD
+		// by setting variable PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_PWD in .env file to 123
+		for name, val := range resourceDependency.GetEnv() {
+			if envVariable, ok := pattern.containerDefinition.Environment[name]; ok {
+				pattern.envs.Append(removeEnvironmentBrackets(envVariable), val)
+			}
 		}
 
 		clients = append(clients, pattern)
-	}
-
-	for _, c := range clients {
-		c.GetEnvs().RemoveEmpty()
 	}
 
 	return clients, nil
@@ -173,7 +170,7 @@ func extractComposePatternsFromFile(dockerComposeFile []byte) (out map[string]Pa
 			return nil, errors.Wrapf(err, "error marshaling service to yaml")
 		}
 
-		err = yaml.Unmarshal(bts, &cs.content)
+		err = yaml.Unmarshal(bts, &cs.containerDefinition)
 		if err != nil {
 			return nil, errors.Wrap(err, "error unmarshalling service "+serviceName+" to struct")
 		}
@@ -237,6 +234,7 @@ func removeEnvironmentBrackets(in string) string {
 
 	return in
 }
+
 func AddEnvironmentBrackets(in string) string {
 	return "${" + in + "}"
 }

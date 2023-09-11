@@ -4,13 +4,13 @@ services:
   postgres:
     image: postgres:13.6
     environment:
-      POSTGRES_USER: ${PROJ_NAME_CAPS_DS_POSTGRES_NAME_CAPS_USER}
-      POSTGRES_PASSWORD: ${PROJ_NAME_CAPS_DS_POSTGRES_NAME_CAPS_PWD}
-      POSTGRES_DB: ${PROJ_NAME_CAPS_DS_POSTGRES_NAME_CAPS_NAME}
+      POSTGRES_USER: ${PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_USER}
+      POSTGRES_PASSWORD: ${PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_PWD}
+      POSTGRES_DB: ${PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_NAME}
     volumes:
       - './data:/var/lib/postgresql'
     ports:
-      - "${PROJ_NAME_CAPS_POSTGRES_PORT}:5432"
+      - "${PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_PORT}:5432"
     networks:
       - proj_name_net
 

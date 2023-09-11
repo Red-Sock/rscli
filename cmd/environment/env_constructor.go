@@ -13,8 +13,8 @@ import (
 	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/internal/stdio"
-	"github.com/Red-Sock/rscli/pkg/colors"
+	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/io/colors"
 )
 
 const (
@@ -23,7 +23,7 @@ const (
 
 type envConstructor struct {
 	cfg *config.RsCliConfig
-	io  stdio.IO
+	io  io.IO
 
 	envDirPath  string
 	srcProjDirs []os.DirEntry
@@ -36,7 +36,7 @@ type envConstructor struct {
 func newEnvConstructor() *envConstructor {
 	return &envConstructor{
 		cfg: config.GetConfig(),
-		io:  stdio.StdIO{},
+		io:  io.StdIO{},
 
 		composePatterns: compose.PatternManager{},
 		envPatterns:     &env.Container{},
@@ -47,7 +47,7 @@ func (c *envConstructor) fetchConstructor(cmd *cobra.Command, _ []string) error 
 	c.envDirPath = cmd.Flag(pathFlag).Value.String()
 
 	if c.envDirPath == "" {
-		c.envDirPath = stdio.GetWd()
+		c.envDirPath = io.GetWd()
 	}
 
 	if path.Base(c.envDirPath) != patterns.EnvDir {

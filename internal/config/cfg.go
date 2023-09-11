@@ -6,14 +6,15 @@ import (
 	"path"
 
 	"github.com/Red-Sock/trace-errors"
+	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
-
-	"github.com/Red-Sock/rscli/pkg/flag"
 )
 
 const (
+	CustomPathToConfig = "rscli-cfg"
+)
+const (
 	configFilename          = "rscli.yaml"
-	customPathToConfig      = "--rscli-cfg"
 	environmentPathToConfig = "RSCLI_CONFIG_PATH"
 )
 
@@ -27,43 +28,53 @@ const (
 var builtInConfig []byte
 
 type RsCliConfig struct {
-	Env                   Environment `yaml:"env"`
-	DefaultProjectGitPath string      `yaml:"default_project_git_path"`
+	Env                   Project `yaml:"env"`
+	DefaultProjectGitPath string  `yaml:"default_project_git_path"`
 }
 
-type Environment struct {
-	PathToMain   string `yaml:"path_to_main"`
-	PathToConfig string `yaml:"path_to_config"`
+var rsCliConfig RsCliConfig
+
+type Project struct {
+	PathToMain         string `yaml:"path_to_main"`
+	PathToConfigFolder string `yaml:"path_to_config"`
 }
 
 func GetConfig() *RsCliConfig {
-	var builtInConf RsCliConfig
-	err := yaml.Unmarshal(builtInConfig, &builtInConf)
+	return &rsCliConfig
+}
+
+func InitConfig(cmd *cobra.Command, _ []string) error {
+	err := yaml.Unmarshal(builtInConfig, &rsCliConfig)
 	if err != nil {
-		panic(errors.Wrap(err, "error parsing built in config file. This is serious issue and MUST BE fixed ASAP\n\n\n Rocky (: "))
+		panic(errors.Wrap(err, "error parsing built in config file. This is serious issue and MUST BE fixed A$A₽\n\n\n Like Rocky\n\n\n\n in a way (: "))
 	}
 
-	out := mergeConfigs(getConfigFromEnvironment(), builtInConf)
+	rsCliConfig = mergeConfigs(getConfigFromEnvironment(), rsCliConfig)
 
-	externalConf, err := getConfigFromFile()
-	if externalConf != nil {
-		out = mergeConfigs(*externalConf, out)
+	configFromFile, err := getConfigFromFile(cmd)
+	if err != nil {
+		return errors.Wrap(err, "")
 	}
 
-	return &out
+	if configFromFile != nil {
+		rsCliConfig = mergeConfigs(*configFromFile, rsCliConfig)
+	}
+
+	return nil
 }
 
 func getConfigFromEnvironment() (r RsCliConfig) {
 	r.Env.PathToMain = os.Getenv(envPathToMain)
-	r.Env.PathToConfig = os.Getenv(envPathToConfig)
+	r.Env.PathToConfigFolder = os.Getenv(envPathToConfig)
 
 	r.DefaultProjectGitPath = os.Getenv(envDefaultProjectGitPath)
 
 	return
 }
 
-func getConfigFromFile() (*RsCliConfig, error) {
-	cfgFilePath, _ := flag.ExtractOneValueFromFlags(flag.ParseArgs(os.Args[1:]), customPathToConfig)
+func getConfigFromFile(cmd *cobra.Command) (*RsCliConfig, error) {
+	cfgFilePath := cmd.Flag(CustomPathToConfig).Value.String()
+
 	if cfgFilePath == "" {
 		cfgFilePath = os.Getenv(environmentPathToConfig)
 	}
@@ -96,8 +107,8 @@ func mergeConfigs(master, slave RsCliConfig) RsCliConfig {
 		master.Env.PathToMain = slave.Env.PathToMain
 	}
 
-	if master.Env.PathToConfig == "" {
-		master.Env.PathToConfig = slave.Env.PathToConfig
+	if master.Env.PathToConfigFolder == "" {
+		master.Env.PathToConfigFolder = slave.Env.PathToConfigFolder
 	}
 
 	if master.DefaultProjectGitPath == "" {

@@ -13,20 +13,20 @@ import (
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/cmd/environment/project/ports"
 	"github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/internal/stdio"
+	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
-	pconfig "github.com/Red-Sock/rscli/plugins/project/processor/config"
+	pconfig "github.com/Red-Sock/rscli/plugins/project/config"
 )
 
-type Project struct {
+type Env struct {
 	envDirPath  string
 	Compose     *compose.Compose
 	Environment *env.Container
 	Config      *pconfig.Config
 }
 
-func LoadProjectEnvironment(cfg *config.RsCliConfig, pathToProjectEnv string) (p *Project, err error) {
-	p = &Project{
+func LoadProjectEnvironment(cfg *config.RsCliConfig, pathToProjectEnv string) (p *Env, err error) {
+	p = &Env{
 		envDirPath: pathToProjectEnv,
 	}
 
@@ -48,106 +48,121 @@ func LoadProjectEnvironment(cfg *config.RsCliConfig, pathToProjectEnv string) (p
 	return p, nil
 }
 
-func (p *Project) Tidy(pm *ports.PortManager, composePatterns compose.PatternManager) error {
-	projName := path.Base(p.envDirPath)
-	err := p.tidyResources(projName, composePatterns, pm)
+func (e *Env) Tidy(pm *ports.PortManager, composePatterns compose.PatternManager) error {
+	projName := path.Base(e.envDirPath)
+
+	err := e.tidyResources(projName, composePatterns, pm)
 	if err != nil {
 		return errors.Wrap(err, "error doing tidy on resources")
 	}
 
-	p.tidyServerAPIs(projName, pm)
-
-	pathToProjectEnvFile := path.Join(p.envDirPath, patterns.EnvFile.Name)
-	err = stdio.OverrideFile(pathToProjectEnvFile, renamer.ReplaceProjectName(p.Environment.MarshalEnv(), projName))
+	err = e.tidyServerAPIs(projName, pm)
 	if err != nil {
-		return errors.Wrap(err, "error writing environment file: "+pathToProjectEnvFile)
+		return errors.Wrap(err, "error doing tidy on server api")
 	}
 
-	composeFile, err := p.Compose.Marshal()
-	if err != nil {
-		return errors.Wrap(err, "error marshalling composer file")
+	{
+		pathToProjectEnvFile := path.Join(e.envDirPath, patterns.EnvFile.Name)
+
+		err = io.OverrideFile(pathToProjectEnvFile, renamer.ReplaceProjectName(e.Environment.MarshalEnv(), projName))
+		if err != nil {
+			return errors.Wrap(err, "error writing environment file: "+pathToProjectEnvFile)
+		}
 	}
 
-	pathToDockerComposeFile := path.Join(p.envDirPath, patterns.DockerComposeFile.Name)
-	err = stdio.OverrideFile(pathToDockerComposeFile, renamer.ReplaceProjectName(composeFile, projName))
-	if err != nil {
-		return errors.Wrap(err, "error writing docker compose file file")
+	{
+		composeFile, err := e.Compose.Marshal()
+		if err != nil {
+			return errors.Wrap(err, "error marshalling composer file")
+		}
+
+		pathToDockerComposeFile := path.Join(e.envDirPath, patterns.DockerComposeFile.Name)
+		err = io.OverrideFile(pathToDockerComposeFile, renamer.ReplaceProjectName(composeFile, projName))
+		if err != nil {
+			return errors.Wrap(err, "error writing docker compose file file")
+		}
 	}
 
 	return nil
 }
 
-func (p *Project) tidyResources(projName string, composePatterns compose.PatternManager, pm *ports.PortManager) error {
-	dependencies, err := composePatterns.GetServiceDependencies(p.Config)
+func (e *Env) tidyResources(projName string, composePatterns compose.PatternManager, pm *ports.PortManager) error {
+	dataResources, err := e.Config.GetDataSourceOptions()
 	if err != nil {
-		return errors.Wrap(err, "error getting dependencies for service "+projName)
+		return errors.Wrap(err, "error obtaining data source options")
+	}
+
+	dependencies, err := composePatterns.GetServiceDependencies(dataResources)
+	if err != nil {
+		return errors.Wrap(err, "error getting dependencies for service "+e.Config.AppInfo.Name)
 	}
 
 	for _, resource := range dependencies {
-		composeEnvs := resource.GetEnvs().Content()
 
-		for _, envRow := range composeEnvs {
-			if strings.HasSuffix(envRow.Name, patterns.PortSuffix) {
+		patternEnv := resource.GetEnvs().Content()
 
-				if p.Environment.Contains(env.Variable{
-					Name:  envRow.Name,
-					Value: envRow.Value,
-				}) {
-					continue
-				}
+		for idx := range patternEnv {
+			oldName := patternEnv[idx].Name
 
-				var port uint64
-				port, err = strconv.ParseUint(envRow.Value, 10, 16)
-				if err != nil {
-					return errors.Wrap(err, "error parsing .env file: port value for "+envRow.Name+" must be int but it is "+envRow.Value)
-				}
+			newEnvName := strings.ReplaceAll(patternEnv[idx].Name,
+				patterns.ResourceNameCapsPattern, strings.ToUpper(resource.Name))
 
-				envRow.Value = strconv.FormatUint(uint64(pm.GetNextPort(uint16(port), projName)), 10)
+			newEnvName = strings.ReplaceAll(newEnvName,
+				"__", "_")
+
+			newEnvName = string(renamer.ReplaceProjectNameStr(newEnvName, projName))
+
+			if e.Environment.ContainsByName(newEnvName) {
+				continue
 			}
 
-			p.Environment.Append(envRow.Name, envRow.Value)
+			if strings.HasSuffix(newEnvName, patterns.PortSuffix) {
+				var port uint64
+				port, err = strconv.ParseUint(patternEnv[idx].Value, 10, 16)
+				if err != nil {
+					return errors.Wrap(err, "error parsing .env file: port value for "+
+						newEnvName+" must be uint but it is "+
+						patternEnv[idx].Value)
+				}
+
+				patternEnv[idx].Value = strconv.FormatUint(uint64(pm.GetNextPort(uint16(port), newEnvName)), 10)
+			}
+			resource.RenameVariable(oldName, newEnvName)
+			e.Environment.Append(newEnvName, patternEnv[idx].Value)
 		}
 
-		p.Compose.AppendService(resource.Name, resource.GetCompose())
+		e.Compose.AppendService(resource.Name, resource.GetCompose())
 	}
 
 	return nil
 }
 
-func (p *Project) tidyServerAPIs(projName string, pm *ports.PortManager) {
-	serverAPIs := p.Config.GetServerOptions()
-
-	for idx := range serverAPIs {
-		if serverAPIs[idx].Port == 0 {
-			continue
-		}
-
-		portName := patterns.ProjNameCapsPattern + "_" + strings.ToUpper(serverAPIs[idx].Name) + "_" + patterns.PortSuffix
-		portValue := strconv.Itoa(int(serverAPIs[idx].Port))
-		if p.Environment.Contains(env.Variable{
-			Name:  portName,
-			Value: portValue,
-		}) {
-			continue
-		}
-
-		// TODO приобщить
-		so := serverAPIs[idx]
-		so.Port = pm.GetNextPort(serverAPIs[idx].Port, projName)
-		serverAPIs[idx] = so
-
-		portValue = strconv.Itoa(int(serverAPIs[idx].Port))
-
-		p.Compose.Services[projName].Ports = append(
-			p.Compose.Services[projName].Ports,
-			compose.AddEnvironmentBrackets(portName)+":"+portValue)
-
-		p.Environment.Append(portName, portValue)
+func (e *Env) tidyServerAPIs(projName string, pm *ports.PortManager) error {
+	opts, err := e.Config.GetServerOptions()
+	if err != nil {
+		return errors.Wrap(err, "error obtaining server options")
 	}
+
+	for optName := range opts {
+		portName := strings.ToUpper(projName) + "_" + strings.ToUpper(opts[optName].GetName()) + "_" + patterns.PortSuffix
+		portName = strings.ReplaceAll(portName,
+			"__", "_")
+
+		externalPort := opts[optName].GetPort()
+
+		if externalPort == 0 {
+			continue
+		}
+
+		e.Compose.Services[projName].Ports = append(e.Compose.Services[projName].Ports, compose.AddEnvironmentBrackets(portName)+":"+strconv.FormatUint(uint64(opts[optName].GetPort()), 10))
+		e.Environment.Append(portName, strconv.FormatUint(uint64(pm.GetNextPort(opts[optName].GetPort(), portName)), 10))
+	}
+
+	return nil
 }
 
-func (p *Project) fetchComposeFile() error {
-	projectEnvComposeFilePath := path.Join(p.envDirPath, patterns.DockerComposeFile.Name)
+func (e *Env) fetchComposeFile() error {
+	projectEnvComposeFilePath := path.Join(e.envDirPath, patterns.DockerComposeFile.Name)
 	composeFile, err := os.ReadFile(projectEnvComposeFilePath)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
@@ -156,7 +171,7 @@ func (p *Project) fetchComposeFile() error {
 	}
 
 	if len(composeFile) == 0 {
-		globalEnvComposeFilePath := path.Join(path.Dir(p.envDirPath), patterns.DockerComposeFile.Name)
+		globalEnvComposeFilePath := path.Join(path.Dir(e.envDirPath), patterns.DockerComposeFile.Name)
 		composeFile, err = os.ReadFile(globalEnvComposeFilePath)
 		if err != nil {
 			if !errors.Is(err, os.ErrNotExist) {
@@ -166,11 +181,11 @@ func (p *Project) fetchComposeFile() error {
 	}
 
 	if len(composeFile) == 0 {
-		projName := path.Base(p.envDirPath)
+		projName := path.Base(e.envDirPath)
 		composeFile = renamer.ReplaceProjectName(patterns.DockerComposeFile.Content, projName)
 	}
 
-	p.Compose, err = compose.NewComposeAssembler(composeFile)
+	e.Compose, err = compose.NewComposeAssembler(composeFile)
 	if err != nil {
 		return errors.Wrap(err, "error creating compose-file assembler")
 	}
@@ -178,8 +193,8 @@ func (p *Project) fetchComposeFile() error {
 	return nil
 }
 
-func (p *Project) fetchEnvFile() error {
-	dotEnvFilePath := path.Join(p.envDirPath, patterns.EnvFile.Name)
+func (e *Env) fetchEnvFile() error {
+	dotEnvFilePath := path.Join(e.envDirPath, patterns.EnvFile.Name)
 	envFile, err := os.ReadFile(dotEnvFilePath)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
@@ -188,7 +203,7 @@ func (p *Project) fetchEnvFile() error {
 	}
 
 	if len(envFile) == 0 {
-		globalDotEnvPath := path.Join(path.Dir(p.envDirPath), patterns.DockerComposeFile.Name)
+		globalDotEnvPath := path.Join(path.Dir(e.envDirPath), patterns.EnvFile.Name)
 		envFile, err = os.ReadFile(globalDotEnvPath)
 		if err != nil {
 			if !errors.Is(err, os.ErrNotExist) {
@@ -198,11 +213,11 @@ func (p *Project) fetchEnvFile() error {
 	}
 
 	if len(envFile) == 0 {
-		projName := path.Base(p.envDirPath)
+		projName := path.Base(e.envDirPath)
 		envFile = renamer.ReplaceProjectName(patterns.EnvFile.Content, projName)
 	}
 
-	p.Environment, err = env.NewEnvContainer(envFile)
+	e.Environment, err = env.NewEnvContainer(envFile)
 	if err != nil {
 		return errors.Wrap(err, "error creating compose-file assembler")
 	}
@@ -215,8 +230,8 @@ func (p *Project) fetchEnvFile() error {
 // 2. dev.yaml file in src project (at PATH_TO_CONFIG/dev.yaml)
 // if config was found by 2nd variant - it will be moved to ./environment/proj_name/dev.yaml
 // and symlink will be created to it at src_proj/PATH_TO_CONFIG/dev.yaml
-func (p *Project) fetchConfig(cfg *config.RsCliConfig) (err error) {
-	projEnvConfigPath := path.Join(p.envDirPath, path.Base(cfg.Env.PathToConfig))
+func (e *Env) fetchConfig(cfg *config.RsCliConfig) (err error) {
+	projEnvConfigPath := path.Join(e.envDirPath, path.Base(cfg.Env.PathToConfigFolder))
 
 	f, err := os.ReadFile(projEnvConfigPath)
 	if err != nil {
@@ -226,9 +241,9 @@ func (p *Project) fetchConfig(cfg *config.RsCliConfig) (err error) {
 	}
 
 	if len(f) == 0 {
-		srcProjectsDirPth := path.Dir(path.Dir(p.envDirPath))
-		projName := path.Base(p.envDirPath)
-		srcProjectConfigPath := path.Join(srcProjectsDirPth, projName, cfg.Env.PathToConfig)
+		srcProjectsDirPth := path.Dir(path.Dir(e.envDirPath))
+		projName := path.Base(e.envDirPath)
+		srcProjectConfigPath := path.Join(srcProjectsDirPth, projName, cfg.Env.PathToConfigFolder)
 
 		f, err = os.ReadFile(srcProjectConfigPath)
 		if err != nil {
@@ -254,7 +269,7 @@ func (p *Project) fetchConfig(cfg *config.RsCliConfig) (err error) {
 		}
 	}
 
-	p.Config, err = pconfig.NewConfig(f)
+	e.Config, err = pconfig.NewConfig(f)
 	if err != nil {
 		return errors.Wrap(err, "error parsing config")
 	}
