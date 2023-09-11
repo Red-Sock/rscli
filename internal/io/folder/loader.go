@@ -13,10 +13,10 @@ var ignoredFolders = []string{
 	".DS_Store",
 }
 
-func Load(root, projPath string) (Folder, error) {
+func Load(root string) (Folder, error) {
 	f := Folder{}
 
-	pth := path.Join(root, projPath)
+	pth := path.Join(root)
 
 	_, f.Name = path.Split(pth)
 
@@ -32,13 +32,13 @@ func Load(root, projPath string) (Folder, error) {
 
 		nodeName := d.Name()
 
-		if slices.Contains(ignoredFolders, path.Join(projPath, nodeName)) {
+		if slices.Contains(ignoredFolders, path.Join(path.Base(root), nodeName)) {
 			continue
 		}
 
 		if d.IsDir() {
 			var innerDir Folder
-			innerDir, err = Load(root, path.Join(projPath, nodeName))
+			innerDir, err = Load(path.Join(root, nodeName))
 			if err != nil {
 				return Folder{}, err
 			}

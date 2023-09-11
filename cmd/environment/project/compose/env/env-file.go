@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
-
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 )
 
@@ -41,15 +39,6 @@ func NewEnvContainer(src []byte) (*Container, error) {
 	return es, es.UnmarshalEnv(src)
 }
 
-func Copy(container *Container) *Container {
-	c := &Container{
-		content: make([]Variable, len(container.content)),
-	}
-
-	copy(c.content, container.content)
-	return c
-}
-
 func (e *Container) Content() []Variable {
 	return e.content
 }
@@ -74,8 +63,8 @@ func (e *Container) MarshalEnv() []byte {
 		sb.Write([]byte(v.Value))
 		sb.WriteByte(lineSkip)
 	}
-
-	return sb.Bytes()
+	out := sb.Bytes()
+	return out[:len(out)-1]
 }
 
 func (e *Container) UnmarshalEnv(b []byte) error {
@@ -100,26 +89,22 @@ func (e *Container) UnmarshalEnv(b []byte) error {
 	return nil
 }
 
-func (e *Container) RemoveEmpty() {
-	newEnvs := make([]Variable, 0, len(e.content)/2)
-	for _, item := range e.content {
-		if item.Value != "" && item.Name != "" {
-			newEnvs = append(newEnvs, item)
-		}
-	}
-
-	e.content = newEnvs
+type IntVariable struct {
+	Name  string
+	Value uint16
 }
 
-func (e *Container) GetPorts() ([]uint16, error) {
-	out := make([]uint16, 0, len(e.content)/2)
+func (e *Container) GetPortValues() ([]IntVariable, error) {
+	out := make([]IntVariable, 0, len(e.content)/2)
 	for _, item := range e.content {
 		if strings.HasSuffix(item.Name, patterns.PortSuffix) {
 			port, err := strconv.ParseUint(item.Value, 10, 16)
-			if err != nil {
-				return nil, errors.Wrap(err, "error parsing port for env variable "+item.Name)
+			if err == nil {
+				out = append(out, IntVariable{
+					Name:  item.Name,
+					Value: uint16(port),
+				})
 			}
-			out = append(out, uint16(port))
 		}
 	}
 
@@ -134,4 +119,22 @@ func (e *Container) Contains(variable Variable) bool {
 	}
 
 	return false
+}
+
+func (e *Container) ContainsByName(name string) bool {
+	for _, item := range e.content {
+		if item.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
+func (e *Container) Rename(oldName, newName string) {
+	for idx := range e.content {
+		if e.content[idx].Name == oldName {
+			e.content[idx].Name = newName
+			return
+		}
+	}
 }

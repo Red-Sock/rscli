@@ -15,7 +15,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
-	pconfig "github.com/Red-Sock/rscli/plugins/project/processor/config"
+	pconfig "github.com/Red-Sock/rscli/plugins/project/config"
 )
 
 type Env struct {
@@ -25,7 +25,7 @@ type Env struct {
 	Config      *pconfig.Config
 }
 
-func LoadProjectEnvironment(cfg config.RsCliConfig, pathToProjectEnv string) (p *Env, err error) {
+func LoadProjectEnvironment(cfg *config.RsCliConfig, pathToProjectEnv string) (p *Env, err error) {
 	p = &Env{
 		envDirPath: pathToProjectEnv,
 	}
@@ -78,7 +78,12 @@ func (p *Env) Tidy(pm *ports.PortManager, composePatterns compose.PatternManager
 }
 
 func (p *Env) tidyResources(projName string, composePatterns compose.PatternManager, pm *ports.PortManager) error {
-	dependencies, err := composePatterns.GetServiceDependencies(p.Config)
+	dsOpt, err := p.Config.GetDataSourceOptions()
+	if err != nil {
+		return errors.Wrap(err, "error obtaining data sources options")
+	}
+
+	dependencies, err := composePatterns.GetServiceDependencies(dsOpt)
 	if err != nil {
 		return errors.Wrap(err, "error getting dependencies for service "+projName)
 	}
@@ -188,7 +193,7 @@ func (p *Env) fetchEnvFile() error {
 	}
 
 	if len(envFile) == 0 {
-		globalDotEnvPath := path.Join(path.Dir(p.envDirPath), patterns.DockerComposeFile.Name)
+		globalDotEnvPath := path.Join(path.Dir(p.envDirPath), patterns.EnvFile.Name)
 		envFile, err = os.ReadFile(globalDotEnvPath)
 		if err != nil {
 			if !errors.Is(err, os.ErrNotExist) {
@@ -215,8 +220,8 @@ func (p *Env) fetchEnvFile() error {
 // 2. dev.yaml file in src project (at PATH_TO_CONFIG/dev.yaml)
 // if config was found by 2nd variant - it will be moved to ./environment/proj_name/dev.yaml
 // and symlink will be created to it at src_proj/PATH_TO_CONFIG/dev.yaml
-func (p *Env) fetchConfig(cfg config.RsCliConfig) (err error) {
-	projEnvConfigPath := path.Join(p.envDirPath, path.Base(cfg.Env.PathToConfig))
+func (p *Env) fetchConfig(cfg *config.RsCliConfig) (err error) {
+	projEnvConfigPath := path.Join(p.envDirPath, path.Base(cfg.Env.PathToConfigFolder))
 
 	f, err := os.ReadFile(projEnvConfigPath)
 	if err != nil {
@@ -228,7 +233,7 @@ func (p *Env) fetchConfig(cfg config.RsCliConfig) (err error) {
 	if len(f) == 0 {
 		srcProjectsDirPth := path.Dir(path.Dir(p.envDirPath))
 		projName := path.Base(p.envDirPath)
-		srcProjectConfigPath := path.Join(srcProjectsDirPth, projName, cfg.Env.PathToConfig)
+		srcProjectConfigPath := path.Join(srcProjectsDirPth, projName, cfg.Env.PathToConfigFolder)
 
 		f, err = os.ReadFile(srcProjectConfigPath)
 		if err != nil {

@@ -14,25 +14,35 @@ func NewPortManager() *PortManager {
 		ports: map[uint16]string{},
 	}
 }
-func (p *PortManager) GetNextPort(in uint16, projName string) uint16 {
+
+func (p *PortManager) GetPort(port uint16) (string, bool) {
+	res, ok := p.ports[port]
+	return res, ok
+}
+
+func (p *PortManager) GetNextPort(in uint16, key string) uint16 {
 	p.m.Lock()
 	defer p.m.Unlock()
 
 	for {
 		// if such port already exists - increment it
 		if _, ok := p.ports[in]; !ok {
-			p.ports[in] = projName
+			p.ports[in] = key
 			return in
 		}
 		in++
 	}
 }
 
-func (p *PortManager) SaveBatch(ports []uint16, projName string) {
+func (p *PortManager) SaveIfNotExist(port uint16, name string) (conflict string) {
 	p.m.Lock()
 	defer p.m.Unlock()
 
-	for _, port := range ports {
-		p.ports[port] = projName
+	if existingName, ok := p.ports[port]; ok {
+		return existingName
+
 	}
+
+	p.ports[port] = name
+	return ""
 }

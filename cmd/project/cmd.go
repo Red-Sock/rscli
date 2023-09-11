@@ -24,9 +24,14 @@ func NewCmd() *cobra.Command {
 	cmd.AddCommand(newInitCmd(projectInit{
 		io:     io.StdIO{},
 		config: config.GetConfig(),
+		path:   io.GetWd(),
 	}))
 
-	cmd.AddCommand(newAddCmd())
+	cmd.AddCommand(newAddCmd(projectAdd{
+		io:     io.StdIO{},
+		path:   io.GetWd(),
+		config: config.GetConfig(),
+	}))
 
 	return cmd
 }

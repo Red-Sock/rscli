@@ -13,8 +13,8 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/colors"
 	"github.com/Red-Sock/rscli/internal/io/loader"
-	"github.com/Red-Sock/rscli/plugins/project/processor"
-	"github.com/Red-Sock/rscli/plugins/project/processor/validators"
+	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/validators"
 )
 
 var (
@@ -25,7 +25,8 @@ type projectInit struct {
 	io     io.IO
 	config *config.RsCliConfig
 
-	proj *processor.Project
+	proj *project.Project
+	path string
 }
 
 func newInitCmd(pi projectInit) *cobra.Command {
@@ -47,7 +48,7 @@ func newInitCmd(pi projectInit) *cobra.Command {
 }
 
 func (p *projectInit) run(cmd *cobra.Command, _ []string) error {
-	args := processor.CreateArgs{}
+	args := project.CreateArgs{}
 
 	// step 1: obtain name
 	var err error
@@ -121,11 +122,11 @@ func (p *projectInit) obtainFolderPathFromUser(cmd *cobra.Command, name string) 
 		return dirPath
 	}
 
-	return path.Join(io.GetWd(), name)
+	return path.Join(p.path, name)
 }
 
-func (p *projectInit) buildProject(args processor.CreateArgs) (proj *processor.Project, err error) {
-	proj, err = processor.CreateGoProject(args)
+func (p *projectInit) buildProject(args project.CreateArgs) (proj *project.Project, err error) {
+	proj, err = project.CreateGoProject(args)
 	if err != nil {
 		return nil, errors.Wrap(err, "error during project creation")
 	}

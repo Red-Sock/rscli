@@ -1,15 +1,28 @@
 package project
 
 import (
+	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
 
+	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/plugins/project"
 )
 
-func newAddCmd() *cobra.Command {
-	constr := add{
-		io: io.StdIO{},
-	}
+const (
+	redisArgument    = "redis"
+	postgresArgument = "postgres"
+)
+
+type projectAdd struct {
+	io     io.IO
+	path   string
+	config *rscliconfig.RsCliConfig
+
+	proj *project.Project
+}
+
+func newAddCmd(constr projectAdd) *cobra.Command {
 
 	c := &cobra.Command{
 		Use:   "add",
@@ -27,15 +40,30 @@ func newAddCmd() *cobra.Command {
 	return c
 }
 
-type add struct {
-	io io.IO
-}
+func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
+	err := p.loadProject(cmd)
+	if err != nil {
+		return errors.Wrap(err, "error loading project")
+	}
 
-func (p *add) run(cmd *cobra.Command, args []string) error {
 	p.getDependenciesFromUser(cmd, args)
 	return nil
 }
 
-func (p *add) getDependenciesFromUser(cmd *cobra.Command, args []string) {
+func (p *projectAdd) loadProject(cmd *cobra.Command) (err error) {
+	pathToProject := cmd.Flag(pathFlag).Value.String()
+	if pathToProject == "" {
+		pathToProject = p.path
+	}
+
+	p.proj, err = project.LoadProject(pathToProject, p.config)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *projectAdd) getDependenciesFromUser(_ *cobra.Command, args []string) {
 	p.io.Println(args...)
 }

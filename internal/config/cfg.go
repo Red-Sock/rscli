@@ -28,15 +28,15 @@ const (
 var builtInConfig []byte
 
 type RsCliConfig struct {
-	Env                   Environment `yaml:"env"`
-	DefaultProjectGitPath string      `yaml:"default_project_git_path"`
+	Env                   Project `yaml:"env"`
+	DefaultProjectGitPath string  `yaml:"default_project_git_path"`
 }
 
 var rsCliConfig RsCliConfig
 
-type Environment struct {
-	PathToMain   string `yaml:"path_to_main"`
-	PathToConfig string `yaml:"path_to_config"`
+type Project struct {
+	PathToMain         string `yaml:"path_to_main"`
+	PathToConfigFolder string `yaml:"path_to_config"`
 }
 
 func GetConfig() *RsCliConfig {
@@ -65,7 +65,7 @@ func InitConfig(cmd *cobra.Command, _ []string) error {
 
 func getConfigFromEnvironment() (r RsCliConfig) {
 	r.Env.PathToMain = os.Getenv(envPathToMain)
-	r.Env.PathToConfig = os.Getenv(envPathToConfig)
+	r.Env.PathToConfigFolder = os.Getenv(envPathToConfig)
 
 	r.DefaultProjectGitPath = os.Getenv(envDefaultProjectGitPath)
 
@@ -107,8 +107,8 @@ func mergeConfigs(master, slave RsCliConfig) RsCliConfig {
 		master.Env.PathToMain = slave.Env.PathToMain
 	}
 
-	if master.Env.PathToConfig == "" {
-		master.Env.PathToConfig = slave.Env.PathToConfig
+	if master.Env.PathToConfigFolder == "" {
+		master.Env.PathToConfigFolder = slave.Env.PathToConfigFolder
 	}
 
 	if master.DefaultProjectGitPath == "" {

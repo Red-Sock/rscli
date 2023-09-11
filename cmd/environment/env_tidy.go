@@ -50,10 +50,37 @@ func (c *envConstructor) runTidy(cmd *cobra.Command, arg []string) error {
 		return errors.Wrap(err, "error fetching updated dirs")
 	}
 
-	p := ports.NewPortManager()
+	portManager := ports.NewPortManager()
+
 	progresses := make([]loader.Progress, len(c.envProjDirs))
+	projectsEnvs := make([]*project.Env, len(c.envProjDirs))
+
+	// TODO
+	conflicts := make(map[uint16][]string)
+
 	for idx := range c.envProjDirs {
 		progresses[idx] = loader.NewInfiniteLoader(c.envProjDirs[idx].Name(), loader.RectSpinner())
+
+		projName := c.envProjDirs[idx].Name()
+
+		var proj *project.Env
+		proj, err = project.LoadProjectEnvironment(c.cfg, path.Join(c.envDirPath, projName))
+		if err != nil {
+			return errors.Wrap(err, "error loading environment for project "+projName)
+		}
+
+		envPorts, err := proj.Environment.GetPortValues()
+		if err != nil {
+			return errors.Wrap(err, "error fetching ports for environment of "+projName)
+		}
+
+		for _, item := range envPorts {
+			if conflictName := portManager.SaveIfNotExist(item.Value, item.Name); conflictName != "" {
+				conflicts[item.Value] = []string{conflictName, item.Name}
+			}
+		}
+
+		projectsEnvs[idx] = proj
 	}
 
 	done := loader.RunMultiLoader(context.Background(), c.io, progresses)
@@ -63,9 +90,9 @@ func (c *envConstructor) runTidy(cmd *cobra.Command, arg []string) error {
 	}()
 
 	errC := make(chan error)
-	for idx := range c.envProjDirs {
+	for idx := range projectsEnvs {
 		go func(i int) {
-			err := c.tidyEnvForProject(c.envProjDirs[i].Name(), p)
+			err := c.tidyEnvForProject(projectsEnvs[i], portManager)
 			if err != nil {
 				progresses[i].Done(loader.DoneFailed)
 			} else {
@@ -92,39 +119,51 @@ func (c *envConstructor) runTidy(cmd *cobra.Command, arg []string) error {
 	return stderrs.Join(errs...)
 }
 
-func (c *envConstructor) tidyEnvForProject(projName string, pm *ports.PortManager) error {
-	proj, err := project.LoadProjectEnvironment(c.cfg, path.Join(c.envDirPath, projName))
+func (c *envConstructor) tidyEnvForProject(proj *project.Env, pm *ports.PortManager) error {
+	projName := path.Base(proj.Config.AppInfo.Name)
+
+	dataResources, err := proj.Config.GetDataSourceOptions()
 	if err != nil {
-		return errors.Wrap(err, "error loading environment for project "+projName)
+		return errors.Wrap(err, "error obtaining data source options")
 	}
 
-	envPorts, err := proj.Environment.GetPorts()
+	dependencies, err := c.composePatterns.GetServiceDependencies(dataResources)
 	if err != nil {
-		return errors.Wrap(err, "error fetching ports for environment of "+projName)
-	}
-
-	pm.SaveBatch(envPorts, projName)
-
-	dependencies, err := c.composePatterns.GetServiceDependencies(proj.Config)
-	if err != nil {
-		return errors.Wrap(err, "error getting dependencies for service "+projName)
+		return errors.Wrap(err, "error getting dependencies for service "+proj.Config.AppInfo.Name)
 	}
 
 	for _, resource := range dependencies {
-		composeEnvs := resource.GetEnvs().Content()
 
-		for _, envRow := range composeEnvs {
-			if strings.HasSuffix(envRow.Name, patterns.PortSuffix) {
-				var port uint64
-				port, err = strconv.ParseUint(envRow.Value, 10, 16)
-				if err != nil {
-					return errors.Wrap(err, "error parsing .env file: port value for "+envRow.Name+" must be int but it is "+envRow.Value)
-				}
+		patternEnv := resource.GetEnvs().Content()
 
-				envRow.Value = strconv.FormatUint(uint64(pm.GetNextPort(uint16(port), projName)), 10)
+		for idx := range patternEnv {
+			oldName := patternEnv[idx].Name
+
+			newEnvName := strings.ReplaceAll(patternEnv[idx].Name,
+				patterns.ResourceNameCapsPattern, strings.ToUpper(resource.Name))
+
+			newEnvName = strings.ReplaceAll(newEnvName,
+				"__", "_")
+
+			newEnvName = string(renamer.ReplaceProjectNameStr(newEnvName, projName))
+
+			if proj.Environment.ContainsByName(newEnvName) {
+				continue
 			}
 
-			proj.Environment.Append(envRow.Name, envRow.Value)
+			if strings.HasSuffix(newEnvName, patterns.PortSuffix) {
+				var port uint64
+				port, err = strconv.ParseUint(patternEnv[idx].Value, 10, 16)
+				if err != nil {
+					return errors.Wrap(err, "error parsing .env file: port value for "+
+						newEnvName+" must be uint but it is "+
+						patternEnv[idx].Value)
+				}
+
+				patternEnv[idx].Value = strconv.FormatUint(uint64(pm.GetNextPort(uint16(port), newEnvName)), 10)
+			}
+			resource.RenameVariable(oldName, newEnvName)
+			proj.Environment.Append(newEnvName, patternEnv[idx].Value)
 		}
 
 		proj.Compose.AppendService(resource.Name, resource.GetCompose())
@@ -141,7 +180,8 @@ func (c *envConstructor) tidyEnvForProject(projName string, pm *ports.PortManage
 		// TODO приобщить
 
 		so := opts[idx]
-		so.Port = pm.GetNextPort(opts[idx].Port, projName)
+		// TODO
+		so.Port = pm.GetNextPort(opts[idx].Port, "projName")
 		opts[idx] = so
 
 		proj.Compose.Services[projName].Ports = append(

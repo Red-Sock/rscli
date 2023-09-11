@@ -17,15 +17,12 @@ const (
 )
 
 const (
-	ProjNamePattern     = "proj_name"
-	ProjNameCapsPattern = "PROJ_NAME_CAPS"
+	ProjNamePattern         = "proj_name"
+	ProjNameCapsPattern     = "PROJ_NAME_CAPS"
+	ResourceNameCapsPattern = "RESOURCE_NAME_CAPS"
 )
 
-const (
-	EnvVarPostgresUser     = "POSTGRES_USER"
-	EnvVarPostgresPassword = "POSTGRES_PASSWORD"
-	EnvVarPostgresDB       = "POSTGRES_DB"
-)
+const ()
 
 var (
 	//go:embed files/.env

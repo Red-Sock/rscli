@@ -13,7 +13,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/colors"
-	"github.com/Red-Sock/rscli/plugins/project/processor/validators"
+	"github.com/Red-Sock/rscli/plugins/project/validators"
 	"github.com/Red-Sock/rscli/tests/mocks"
 )
 
@@ -29,12 +29,12 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 	t.Run("OK_NAME_AND_PATH_VIA_FLAG", func(t *testing.T) {
 		t.Parallel()
 
-		tmpDir := tmpDir + "_" + strings.Split(t.Name(), "/")[1]
-		err := os.MkdirAll(tmpDir, 0777)
+		tmpTestDir := tmpDir + "_" + strings.Split(t.Name(), "/")[1]
+		err := os.MkdirAll(tmpTestDir, 0777)
 		require.NoError(t, err, "error creating tmp dir")
 
 		defer func() {
-			err = os.RemoveAll(tmpDir)
+			err = os.RemoveAll(tmpTestDir)
 			require.NoError(t, err, "error during tmp dir deletion")
 		}()
 
@@ -67,7 +67,7 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 				color: colors.ColorGreen,
 				text: []string{fmt.Sprintf(`Done.
 Initialized new project github.com/RedSock/rscli
-at %s`, tmpDir)},
+at %s`, tmpTestDir)},
 			},
 		}
 
@@ -110,6 +110,7 @@ at %s`, tmpDir)},
 			config: &config.RsCliConfig{
 				DefaultProjectGitPath: "github.com/RedSock",
 			},
+			path: tmpTestDir,
 		}
 
 		cmd := newInitCmd(p)
@@ -117,7 +118,7 @@ at %s`, tmpDir)},
 		err = cmd.Flags().Set(nameFlag, "")
 		require.NoError(t, err, "error setting name flag value")
 
-		err = cmd.Flags().Set(pathFlag, tmpDir)
+		err = cmd.Flags().Set(pathFlag, tmpTestDir)
 		require.NoError(t, err, "error setting path flag value")
 
 		err = cmd.Execute()
@@ -129,12 +130,12 @@ at %s`, tmpDir)},
 
 	t.Run("OK_NAME_WITH_SHORT_URL", func(t *testing.T) {
 		t.Parallel()
-		tmpDir := tmpDir + "_" + strings.Split(t.Name(), "/")[1]
-		err := os.MkdirAll(tmpDir, 0777)
+		tmpTestDir := tmpDir + "_" + strings.Split(t.Name(), "/")[1]
+		err := os.MkdirAll(tmpTestDir, 0777)
 		require.NoError(t, err, "error creating tmp dir")
 
 		defer func() {
-			err = os.RemoveAll(tmpDir)
+			err = os.RemoveAll(tmpTestDir)
 			require.NoError(t, err, "error during tmp dir deletion")
 		}()
 
@@ -167,7 +168,7 @@ at %s`, tmpDir)},
 				color: colors.ColorGreen,
 				text: []string{fmt.Sprintf(`Done.
 Initialized new project `+pName+`
-at %s`, tmpDir)},
+at %s`, tmpTestDir)},
 			},
 		}
 
@@ -210,6 +211,7 @@ at %s`, tmpDir)},
 			config: &config.RsCliConfig{
 				DefaultProjectGitPath: "github.com/RedSock",
 			},
+			path: tmpTestDir,
 		}
 
 		cmd := newInitCmd(p)
@@ -217,7 +219,7 @@ at %s`, tmpDir)},
 		err = cmd.Flags().Set(nameFlag, "")
 		require.NoError(t, err, "error setting name flag value")
 
-		err = cmd.Flags().Set(pathFlag, tmpDir)
+		err = cmd.Flags().Set(pathFlag, tmpTestDir)
 		require.NoError(t, err, "error setting path flag value")
 
 		err = cmd.Execute()
@@ -230,12 +232,12 @@ at %s`, tmpDir)},
 	t.Run("OK_NAME_WITH_FULL_URL", func(t *testing.T) {
 		t.Parallel()
 
-		tmpDir := tmpDir + "_" + strings.Split(t.Name(), "/")[1]
-		err := os.MkdirAll(tmpDir, 0777)
+		tmpTestDir := tmpDir + "_" + strings.Split(t.Name(), "/")[1]
+		err := os.MkdirAll(tmpTestDir, 0777)
 		require.NoError(t, err, "error creating tmp dir")
 
 		defer func() {
-			err = os.RemoveAll(tmpDir)
+			err = os.RemoveAll(tmpTestDir)
 			require.NoError(t, err, "error during tmp dir deletion")
 		}()
 
@@ -268,7 +270,7 @@ at %s`, tmpDir)},
 				color: colors.ColorGreen,
 				text: []string{fmt.Sprintf(`Done.
 Initialized new project `+pName+`
-at %s`, tmpDir)},
+at %s`, tmpTestDir)},
 			},
 		}
 
@@ -311,6 +313,7 @@ at %s`, tmpDir)},
 			config: &config.RsCliConfig{
 				DefaultProjectGitPath: "github.com/RedSock",
 			},
+			path: tmpTestDir,
 		}
 
 		cmd := newInitCmd(p)
@@ -318,7 +321,7 @@ at %s`, tmpDir)},
 		err = cmd.Flags().Set(nameFlag, "")
 		require.NoError(t, err, "error setting name flag value")
 
-		err = cmd.Flags().Set(pathFlag, tmpDir)
+		err = cmd.Flags().Set(pathFlag, tmpTestDir)
 		require.NoError(t, err, "error setting path flag value")
 
 		err = cmd.Execute()
@@ -331,12 +334,12 @@ at %s`, tmpDir)},
 	t.Run("OK_NAME_WITH_SHORT_URL", func(t *testing.T) {
 		t.Parallel()
 
-		tmpDir := tmpDir + "_" + strings.Split(t.Name(), "/")[1]
-		err := os.MkdirAll(tmpDir, 0777)
+		tmpTestDir := tmpDir + "_" + strings.Split(t.Name(), "/")[1]
+		err := os.MkdirAll(tmpTestDir, 0777)
 		require.NoError(t, err, "error creating tmp dir")
 
 		defer func() {
-			err = os.RemoveAll(tmpDir)
+			err = os.RemoveAll(tmpTestDir)
 			require.NoError(t, err, "error during tmp dir deletion")
 		}()
 
@@ -369,7 +372,7 @@ at %s`, tmpDir)},
 				color: colors.ColorGreen,
 				text: []string{fmt.Sprintf(`Done.
 Initialized new project `+pName+`
-at %s`, tmpDir)},
+at %s`, tmpTestDir)},
 			},
 		}
 
@@ -412,6 +415,7 @@ at %s`, tmpDir)},
 			config: &config.RsCliConfig{
 				DefaultProjectGitPath: "github.com/RedSock",
 			},
+			path: tmpTestDir,
 		}
 
 		cmd := newInitCmd(p)
@@ -419,7 +423,7 @@ at %s`, tmpDir)},
 		err = cmd.Flags().Set(nameFlag, "")
 		require.NoError(t, err, "error setting name flag value")
 
-		err = cmd.Flags().Set(pathFlag, tmpDir)
+		err = cmd.Flags().Set(pathFlag, tmpTestDir)
 		require.NoError(t, err, "error setting path flag value")
 
 		err = cmd.Execute()
@@ -432,12 +436,12 @@ at %s`, tmpDir)},
 	t.Run("ERROR_EMPTY_NAME", func(t *testing.T) {
 		t.Parallel()
 
-		tmpDir := tmpDir + "_" + strings.Split(t.Name(), "/")[1]
-		err := os.MkdirAll(tmpDir, 0777)
+		tmpTestDir := tmpDir + "_" + strings.Split(t.Name(), "/")[1]
+		err := os.MkdirAll(tmpTestDir, 0777)
 		require.NoError(t, err, "error creating tmp dir")
 
 		defer func() {
-			err = os.RemoveAll(tmpDir)
+			err = os.RemoveAll(tmpTestDir)
 			require.NoError(t, err, "error during tmp dir deletion")
 		}()
 
@@ -485,10 +489,11 @@ at %s`, tmpDir)},
 			config: &config.RsCliConfig{
 				DefaultProjectGitPath: "github.com/RedSock",
 			},
+			path: tmpTestDir,
 		}
 		cmd := newInitCmd(p)
 
-		err = cmd.Flags().Set(pathFlag, tmpDir)
+		err = cmd.Flags().Set(pathFlag, tmpTestDir)
 		require.NoError(t, err, "error while setting path flag")
 
 		err = cmd.Execute()
