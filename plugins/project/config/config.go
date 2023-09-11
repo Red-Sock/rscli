@@ -11,6 +11,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/cases"
 	"github.com/Red-Sock/rscli/plugins/project/config/resources"
+	"github.com/Red-Sock/rscli/plugins/project/config/server"
 	"github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
@@ -144,6 +145,21 @@ func (c *Config) GetDataSourceOptions() ([]resources.Resource, error) {
 	return confResources, nil
 }
 
+func (c *Config) GetServerOptions() ([]server.Server, error) {
+	out := make([]server.Server, 0, len(c.Server))
+
+	for name, content := range c.Server {
+		opt, err := server.ParseServerOption(name, content)
+		if err != nil {
+			return out, errors.Wrap(err, "error parsing server option")
+		}
+
+		out = append(out, opt)
+	}
+
+	return out, nil
+}
+
 func (c *Config) GenerateGoConfigKeys(prefix string) ([]byte, error) {
 	envKeys := ParseKeysFromEnv(prefix)
 
@@ -172,10 +188,6 @@ func (c *Config) ExtractName() string {
 
 func (c *Config) GetProjInfo() AppInfo {
 	return c.AppInfo
-}
-
-func (c *Config) GetServerOptions() map[string]ServerOptions {
-	return c.Server
 }
 
 func (c *Config) keysFromConfig() (map[string]string, error) {

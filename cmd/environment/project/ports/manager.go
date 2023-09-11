@@ -26,9 +26,13 @@ func (p *PortManager) GetNextPort(in uint16, key string) uint16 {
 
 	for {
 		// if such port already exists - increment it
-		if _, ok := p.ports[in]; !ok {
+		if portName, ok := p.ports[in]; !ok {
 			p.ports[in] = key
 			return in
+		} else {
+			if portName == key {
+				return in
+			}
 		}
 		in++
 	}

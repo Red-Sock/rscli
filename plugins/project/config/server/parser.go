@@ -1,4 +1,4 @@
-package resources
+package server
 
 import (
 	"strings"
@@ -11,22 +11,34 @@ import (
 
 var ErrUnknownResource = errors.New("unknown resource")
 
-type ServerOption interface{}
+type Server interface {
+	GetName() string
+	GetPort() uint16
+}
 
-func ParseServerOption(name string, in interface{}) (ServerOption, error) {
-
+func ParseServerOption(name string, in interface{}) (Server, error) {
 	dataSourceType := strings.Split(name, "_")[0]
 
-	var r ServerOption
+	var r Server
 
 	switch dataSourceType {
 	case patterns.TelegramServer:
-		r = &Telegram{}
+		r = &Telegram{
+			name: name,
+		}
+	case patterns.RESTHTTPServer:
+		r = &Rest{
+			name: name,
+		}
+	case patterns.GRPCServer:
+		r = &GRPC{
+			name: name,
+		}
 	default:
 		return nil, errors.Wrapf(ErrUnknownResource, "unknown server option type %s", dataSourceType)
 	}
 
-	err := copier.Copy(in, &r)
+	err := copier.Copy(in, r)
 	if err != nil {
 		return nil, err
 	}

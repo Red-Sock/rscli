@@ -37,15 +37,16 @@ type Resource interface {
 }
 
 func ParseResource(name string, in interface{}) (Resource, error) {
+	var dataSourceType string
+
 	splitIdx := strings.Index(name, "_")
 
-	dataSourceType := name
-
-	if splitIdx != -1 {
-		dataSourceType = name[:splitIdx]
-		name = name[splitIdx:]
-	} else {
+	if splitIdx == -1 {
+		dataSourceType = name
 		name = ""
+	} else {
+		dataSourceType = name[:splitIdx]
+		name = name[splitIdx+1:]
 	}
 
 	var r Resource

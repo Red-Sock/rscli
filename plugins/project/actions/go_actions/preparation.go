@@ -71,11 +71,14 @@ func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 		DevDocker: map[string]string{},
 	}
 
-	servers := p.GetConfig().GetServerOptions()
-
+	servers, err := p.GetConfig().GetServerOptions()
+	if err != nil {
+		return errors.Wrap(err, "error obtaining server options")
+	}
 	for _, item := range servers {
-		e.Dev[item.Name] = "0.0.0.0:" + strconv.FormatUint(uint64(item.Port), 10)
-		e.DevDocker[item.Name] = "0.0.0.0:1" + strconv.FormatUint(uint64(item.Port), 10)
+		portStr := strconv.FormatUint(uint64(item.GetPort()), 10)
+		e.Dev[item.GetName()] = "0.0.0.0:" + portStr
+		e.DevDocker[item.GetName()] = "0.0.0.0:1" + portStr
 	}
 
 	exampleFile, err := json.MarshalIndent(e, "", "	")
