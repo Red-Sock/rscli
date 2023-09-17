@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
@@ -21,6 +22,7 @@ const (
 const (
 	envPathToConfig          = "RSCLI_PATH_TO_CONFIG"
 	envPathToMain            = "RSCLI_PATH_TO_MAIN"
+	envPathToClients         = "RSCLI_PATH_TO_CLIENTS"
 	envDefaultProjectGitPath = "RSCLI_DEFAULT_PROJECT_GIT_PATH"
 )
 
@@ -35,8 +37,9 @@ type RsCliConfig struct {
 var rsCliConfig RsCliConfig
 
 type Project struct {
-	PathToMain         string `yaml:"path_to_main"`
-	PathToConfigFolder string `yaml:"path_to_config"`
+	PathToMain         string   `yaml:"path_to_main"`
+	PathToConfigFolder string   `yaml:"path_to_config"`
+	PathsToClients     []string `yaml:"paths_to_clients"`
 }
 
 func GetConfig() *RsCliConfig {
@@ -68,7 +71,10 @@ func getConfigFromEnvironment() (r RsCliConfig) {
 	r.Env.PathToConfigFolder = os.Getenv(envPathToConfig)
 
 	r.DefaultProjectGitPath = os.Getenv(envDefaultProjectGitPath)
-
+	pathToClients := strings.Split(os.Getenv(envPathToClients), ",")
+	if pathToClients[0] != "" {
+		r.Env.PathsToClients = pathToClients
+	}
 	return
 }
 
@@ -113,6 +119,10 @@ func mergeConfigs(master, slave RsCliConfig) RsCliConfig {
 
 	if master.DefaultProjectGitPath == "" {
 		master.DefaultProjectGitPath = slave.DefaultProjectGitPath
+	}
+
+	if len(master.Env.PathsToClients) == 0 {
+		master.Env.PathsToClients = slave.Env.PathsToClients
 	}
 
 	return master

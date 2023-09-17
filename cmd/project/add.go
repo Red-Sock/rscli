@@ -6,13 +6,22 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/io/colors"
 	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
+	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 )
 
 const (
-	redisArgument    = "redis"
 	postgresArgument = "postgres"
+	redisArgument    = "redis"
+
+	telegramArgument = "telegram"
 )
+
+type dependency interface {
+	Do(proj interfaces.Project) error
+}
 
 type projectAdd struct {
 	io     io.IO
@@ -23,7 +32,6 @@ type projectAdd struct {
 }
 
 func newAddCmd(constr projectAdd) *cobra.Command {
-
 	c := &cobra.Command{
 		Use:   "add",
 		Short: "Adds dependency to project project",
@@ -46,7 +54,14 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "error loading project")
 	}
 
-	p.getDependenciesFromUser(cmd, args)
+	deps := p.getDependenciesFromUser(args)
+	for _, d := range deps {
+		err = d.Do(p.proj)
+		if err != nil {
+			return errors.Wrap(err, "error adding dependency to project")
+		}
+	}
+
 	return nil
 }
 
@@ -64,6 +79,24 @@ func (p *projectAdd) loadProject(cmd *cobra.Command) (err error) {
 	return nil
 }
 
-func (p *projectAdd) getDependenciesFromUser(_ *cobra.Command, args []string) {
-	p.io.Println(args...)
+func (p *projectAdd) getDependenciesFromUser(args []string) []dependency {
+	serverOpts := make([]dependency, 0, len(args))
+
+	for _, arg := range args {
+		var dep dependency
+		switch arg {
+		case postgresArgument:
+			dep = dependencies.Postgres{Cfg: p.config}
+		case redisArgument:
+			dep = dependencies.Redis{Cfg: p.config}
+		case telegramArgument:
+			dep = dependencies.Telegram{Cfg: p.config}
+		default:
+			p.io.PrintlnColored(colors.ColorRed, "unknown dependency: "+arg)
+		}
+
+		serverOpts = append(serverOpts, dep)
+	}
+
+	return serverOpts
 }

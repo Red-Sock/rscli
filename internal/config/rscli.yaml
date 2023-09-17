@@ -1,5 +1,6 @@
 env:
   path_to_main: 'cmd/proj_name/main.go'
   path_to_config: 'config/dev.yaml'
-
+  paths_to_clients:
+    - internal/clients
 default_project_git_path: github.com/Red-Sock
