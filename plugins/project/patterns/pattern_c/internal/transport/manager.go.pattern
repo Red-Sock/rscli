@@ -3,7 +3,7 @@ package transport
 import (
 	"context"
 
-	"github.com/Red-Sock/trace-errors"
+	"github.com/pkg/errors"
 )
 
 type Server interface {

@@ -19,24 +19,31 @@ type Folder struct {
 
 func (f *Folder) Add(folders ...*Folder) {
 	for _, fl := range folders {
-		if splited := strings.Split(fl.Name, string(os.PathSeparator)); len(splited) > 1 {
-			fl.Name = splited[len(splited)-1]
-			f.AddWithPath(splited[:len(splited)-1], fl)
+		dir := path.Dir(fl.Name)
+		name := path.Base(fl.Name)
+
+		if dir == "." {
+			found := false
+			for idx := range f.Inner {
+				if f.Inner[idx].Name == fl.Name {
+					f.Inner[idx] = fl
+					found = true
+					break
+				}
+			}
+			if !found {
+				f.Inner = append(f.Inner, fl)
+			}
+
 		} else {
-			f.Inner = append(f.Inner, fl)
+			fl.Name = name
+			f.addWithPath(dir, fl)
 		}
 	}
 }
 
-func (f *Folder) AddWithPath(pths []string, folders ...*Folder) {
-	f.addWithPath(pths, false, folders)
-}
-
-func (f *Folder) ForceAddWithPath(pths []string, folders ...*Folder) {
-	f.addWithPath(pths, true, folders)
-}
-
-func (f *Folder) addWithPath(pths []string, needToReplace bool, folders []*Folder) {
+func (f *Folder) addWithPath(pth string, folders ...*Folder) {
+	pths := strings.Split(pth, string(os.PathSeparator))
 	if len(folders) == 0 {
 		return
 	}
@@ -64,12 +71,10 @@ func (f *Folder) addWithPath(pths []string, needToReplace bool, folders []*Folde
 
 		for idx, itemInCurrentFolder := range currentFolder.Inner {
 			if itemInCurrentFolder.Name == folderToAdd.Name {
-				if needToReplace {
-					if len(currentFolder.Inner[idx].Content) != 0 && len(folderToAdd.Content) != 0 {
-						currentFolder.Inner[idx].Content = folderToAdd.Content
-					} else {
-						currentFolder.Inner[idx] = folderToAdd
-					}
+				if len(currentFolder.Inner[idx].Content) != 0 && len(folderToAdd.Content) != 0 {
+					currentFolder.Inner[idx].Content = folderToAdd.Content
+				} else {
+					currentFolder.Inner[idx] = folderToAdd
 				}
 				isAdded = true
 				break

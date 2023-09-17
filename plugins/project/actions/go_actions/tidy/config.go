@@ -22,8 +22,8 @@ func Config(p interfaces.Project) error {
 		return err
 	}
 
-	p.GetFolder().ForceAddWithPath([]string{patterns.ConfigsFolder}, &folder.Folder{
-		Name:    patterns.ConfigTemplate,
+	p.GetFolder().Add(&folder.Folder{
+		Name:    path.Join(patterns.ConfigsFolder, patterns.ConfigTemplate),
 		Content: b,
 	})
 
