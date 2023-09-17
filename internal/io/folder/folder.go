@@ -4,6 +4,8 @@ import (
 	"os"
 	"path"
 	"strings"
+
+	"github.com/Red-Sock/rscli/internal/io"
 )
 
 type Folder struct {
@@ -101,12 +103,12 @@ func (f *Folder) GetByPath(pth ...string) *Folder {
 }
 
 func (f *Folder) Build() error {
-	return f.build("")
+	return f.build(path.Dir(f.Name))
 }
 
 func (f *Folder) build(root string) error {
 
-	pth := path.Join(root, f.Name)
+	pth := path.Join(root, path.Base(f.Name))
 
 	if f.isToBeDeleted {
 		err := os.RemoveAll(pth)
@@ -131,7 +133,7 @@ func (f *Folder) build(root string) error {
 		}
 
 		if len(f.Content) != 0 && !(len(f.Content) == 1 && f.Content[0] != 0) {
-			err := os.WriteFile(pth, f.Content, 0755)
+			err := io.OverrideFile(pth, f.Content)
 			if err != nil {
 				return err
 			}

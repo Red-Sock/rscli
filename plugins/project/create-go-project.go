@@ -7,8 +7,8 @@ import (
 	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	actions2 "github.com/Red-Sock/rscli/plugins/project/actions"
-	go_actions2 "github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
+	"github.com/Red-Sock/rscli/plugins/project/actions"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config"
 	"github.com/Red-Sock/rscli/plugins/project/validators"
 )
@@ -18,25 +18,25 @@ type CreateArgs struct {
 	CfgPath     string
 	ProjectPath string
 	Validators  []Validator
-	Actions     []actions2.Action
+	Actions     []actions.Action
 }
 
 func CreateGoProject(args CreateArgs) (*Project, error) {
 	proj := &Project{
 		Name: args.Name,
-		Actions: append([]actions2.Action{
-			go_actions2.PrepareProjectStructureAction{}, // basic go project structure
+		Actions: append([]actions.Action{
+			go_actions.PrepareProjectStructureAction{}, // basic go project structure
 			//go_actions.PrepareExamplesFoldersAction{},    // sets up examples folder for http
-			go_actions2.PrepareEnvironmentFoldersAction{}, // prepares environment files
-			go_actions2.PrepareGoConfigFolderAction{},     // config driver
+			go_actions.PrepareEnvironmentFoldersAction{}, // prepares environment files
+			go_actions.PrepareGoConfigFolderAction{},     // config driver
 
-			go_actions2.BuildProjectAction{}, // build project in file system
+			go_actions.BuildProjectAction{}, // build project in file system
 
-			go_actions2.InitGoModAction{},    // executes go mod
-			go_actions2.TidyAction{},         // adds/clears project initialization(api, resources) and replaces project name template with actual project name
-			go_actions2.FixupProjectAction{}, // fetches dependencies and formats go code
+			go_actions.InitGoModAction{},    // executes go mod
+			go_actions.TidyAction{},         // adds/clears project initialization(api, resources) and replaces project name template with actual project name
+			go_actions.FixupProjectAction{}, // fetches dependencies and formats go code
 
-			actions2.InitGit{}, // initializing and committing project as git repo
+			actions.InitGit{}, // initializing and committing project as git repo
 		}, args.Actions...),
 		validators: append(args.Validators, validators.ValidateProjectName),
 	}

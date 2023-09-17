@@ -14,11 +14,11 @@ var ignoredFolders = []string{
 }
 
 func Load(root string) (Folder, error) {
-	f := Folder{}
+	f := Folder{
+		Name: root,
+	}
 
-	pth := path.Join(root)
-
-	_, f.Name = path.Split(pth)
+	pth := root
 
 	dir, err := os.ReadDir(pth)
 	if err != nil {
