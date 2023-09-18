@@ -11,6 +11,7 @@ import (
 
 	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
+	"github.com/Red-Sock/rscli/internal/utils/copier"
 	"github.com/Red-Sock/rscli/internal/utils/nums"
 	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 )
@@ -89,23 +90,6 @@ func (p *Pattern) RenameVariable(oldName, newName string) {
 
 }
 
-// TODO
-func (p *Pattern) insertEnvironmentValues(conn resources.Resource) error {
-	dotEnv := p.GetEnvs()
-	//composeEnv := p.GetCompose().Environment
-
-	portKeys := make([]string, 0, 1)
-	_ = portKeys
-	for _, v := range dotEnv.Content() {
-		if strings.HasSuffix(v.Name, patterns.PortSuffix) {
-			portKeys = append(portKeys, v.Name)
-		}
-
-	}
-
-	return nil
-}
-
 func (c *PatternManager) GetServiceDependencies(resource []resources.Resource) ([]Pattern, error) {
 	clients := make([]Pattern, 0, len(resource))
 
@@ -114,6 +98,11 @@ func (c *PatternManager) GetServiceDependencies(resource []resources.Resource) (
 		if !ok {
 			// TODO handle unknown data sources
 			continue
+		}
+
+		err := copier.Copy(&pattern, &pattern)
+		if err != nil {
+			return nil, errors.Wrap(err, "error coping pattern")
 		}
 
 		if resourceDependency.GetName() != "" {
