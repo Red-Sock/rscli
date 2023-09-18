@@ -1,4 +1,4 @@
-package environment
+package env
 
 import (
 	"os"
@@ -18,33 +18,33 @@ import (
 )
 
 const (
-	pathFlag = "path"
+	PathFlag = "path"
 )
 
-type envConstructor struct {
-	cfg *config.RsCliConfig
-	io  io.IO
+type Constructor struct {
+	Cfg *config.RsCliConfig
+	Io  io.IO
+
+	ComposePatterns compose.PatternManager
+	EnvPatterns     *env.Container
 
 	envDirPath  string
 	srcProjDirs []os.DirEntry
 	envProjDirs []os.DirEntry
-
-	composePatterns compose.PatternManager
-	envPatterns     *env.Container
 }
 
-func newEnvConstructor() *envConstructor {
-	return &envConstructor{
-		cfg: config.GetConfig(),
-		io:  io.StdIO{},
+func NewEnvConstructor() *Constructor {
+	return &Constructor{
+		Cfg: config.GetConfig(),
+		Io:  io.StdIO{},
 
-		composePatterns: compose.PatternManager{},
-		envPatterns:     &env.Container{},
+		ComposePatterns: compose.PatternManager{},
+		EnvPatterns:     &env.Container{},
 	}
 }
 
-func (c *envConstructor) fetchConstructor(cmd *cobra.Command, _ []string) error {
-	c.envDirPath = cmd.Flag(pathFlag).Value.String()
+func (c *Constructor) FetchConstructor(cmd *cobra.Command, _ []string) error {
+	c.envDirPath = cmd.Flag(PathFlag).Value.String()
 
 	if c.envDirPath == "" {
 		c.envDirPath = io.GetWd()
@@ -69,7 +69,7 @@ func (c *envConstructor) fetchConstructor(cmd *cobra.Command, _ []string) error 
 	}
 
 	composePatternsPath := path.Join(c.envDirPath, patterns.DockerComposeFile.Name)
-	c.composePatterns, err = compose.ReadComposePatternsFromFile(composePatternsPath)
+	c.ComposePatterns, err = compose.ReadComposePatternsFromFile(composePatternsPath)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			return errors.Wrap(err, "error reading compose file at "+composePatternsPath)
@@ -78,7 +78,7 @@ func (c *envConstructor) fetchConstructor(cmd *cobra.Command, _ []string) error 
 	}
 
 	envPattern := path.Join(c.envDirPath, patterns.EnvExampleFile)
-	c.envPatterns, err = env.ReadContainer(envPattern)
+	c.EnvPatterns, err = env.ReadContainer(envPattern)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			return errors.Wrap(err, "can't open env file at "+envPattern)
@@ -93,7 +93,7 @@ func (c *envConstructor) fetchConstructor(cmd *cobra.Command, _ []string) error 
 	return nil
 
 }
-func (c *envConstructor) filterFolders() error {
+func (c *Constructor) filterFolders() error {
 	filter := func(dirs []os.DirEntry, srcProjDir string) ([]os.DirEntry, error) {
 		var idx int
 		for idx = 0; idx < len(dirs); idx++ {
@@ -101,7 +101,7 @@ func (c *envConstructor) filterFolders() error {
 			if dirs[idx].IsDir() && name != patterns.EnvDir {
 				// validate whether this directory contains main file in specified location
 				pathToMainFile := path.Join(srcProjDir, name,
-					strings.ReplaceAll(c.cfg.Env.PathToMain, patterns.ProjNamePattern, name))
+					strings.ReplaceAll(c.Cfg.Env.PathToMain, patterns.ProjNamePattern, name))
 
 				fi, err := os.Stat(pathToMainFile)
 				if err != nil {
@@ -111,7 +111,7 @@ func (c *envConstructor) filterFolders() error {
 				} else {
 					if !fi.IsDir() {
 						// definition of service to be added to projects dir list:
-						// must be named NOT composePatterns.EnvDir
+						// must be named NOT ComposePatterns.EnvDir
 						// must be directory
 						// must have proj_name/path_to_main
 						continue
@@ -141,7 +141,7 @@ func (c *envConstructor) filterFolders() error {
 	return nil
 }
 
-func (c *envConstructor) checkIfEnvExist() bool {
+func (c *Constructor) checkIfEnvExist() bool {
 	for _, d := range c.srcProjDirs {
 		if d.Name() == patterns.EnvDir {
 			return true
@@ -152,31 +152,31 @@ func (c *envConstructor) checkIfEnvExist() bool {
 
 }
 
-func (c *envConstructor) askToRunTidy(cmd *cobra.Command, args []string, msg string) error {
-	c.io.Println()
-	c.io.PrintColored(colors.ColorYellow, msg+
+func (c *Constructor) askToRunTidy(cmd *cobra.Command, args []string, msg string) error {
+	c.Io.Println()
+	c.Io.PrintColored(colors.ColorYellow, msg+
 		"!\nWant to run \"rscli env tidy\"? (Y)es/(N)o: ")
 
 	for {
-		resp, err := c.io.GetInput()
+		resp, err := c.Io.GetInput()
 		if err != nil {
 			return errors.Wrap(err, "error obtaining user input")
 		}
 		r := strings.ToLower(resp)[0]
 		if r == 'y' {
-			return c.runTidy(cmd, args)
+			return c.RunTidy(cmd, args)
 		}
 
 		if r == 'n' {
 			return nil
 		}
-		c.io.PrintlnColored(colors.ColorRed, "No can't do "+resp+"! \"(Y)es\" or \"(N)o\":")
+		c.Io.PrintlnColored(colors.ColorRed, "No can't do "+resp+"! \"(Y)es\" or \"(N)o\":")
 	}
 
 	return nil
 }
 
-func (c *envConstructor) selectMakefile() patterns.File {
+func (c *Constructor) selectMakefile() patterns.File {
 	if runtime.GOOS == "windows" {
 		// TODO add windows support
 		return patterns.Makefile
@@ -185,6 +185,6 @@ func (c *envConstructor) selectMakefile() patterns.File {
 	}
 }
 
-func (c *envConstructor) getSpirits() []patterns.File {
+func (c *Constructor) getSpirits() []patterns.File {
 	return []patterns.File{patterns.EnvFile, patterns.DockerComposeFile, c.selectMakefile()}
 }

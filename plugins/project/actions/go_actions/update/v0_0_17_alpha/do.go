@@ -41,7 +41,7 @@ func Do(p interfaces2.Project) (err error) {
 		Content: patterns.UtilsCloserFile,
 	})
 
-	connFile := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.ClientsFolder, patterns.PostgresFolder, patterns.ConnFile)
+	connFile := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.ClientsFolder, patterns.PostgresFolder, patterns.ConnFileName)
 	connFile.Content = patterns.PgConnFile
 
 	go_actions.ReplaceProjectName(p.GetName(), connFile)

@@ -39,7 +39,7 @@ func (t Telegram) Do(proj interfaces.Project) error {
 
 	proj.GetFolder().Add(
 		&folder.Folder{
-			Name:    path.Join(t.Cfg.Env.PathsToClients[0], t.GetFolderName(), patterns.ConnFile),
+			Name:    path.Join(t.Cfg.Env.PathsToClients[0], t.GetFolderName(), patterns.ConnFileName),
 			Content: patterns.TgConnFile,
 		},
 	)

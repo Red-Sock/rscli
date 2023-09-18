@@ -39,7 +39,7 @@ func (p Redis) Do(proj interfaces.Project) error {
 
 	proj.GetFolder().Add(
 		&folder.Folder{
-			Name:    path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), patterns.ConnFile),
+			Name:    path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), patterns.ConnFileName),
 			Content: patterns.RedisConnFile,
 		},
 	)

@@ -2,6 +2,8 @@ package environment
 
 import (
 	"github.com/spf13/cobra"
+
+	"github.com/Red-Sock/rscli/cmd/environment/env"
 )
 
 func NewCmd() *cobra.Command {
@@ -12,8 +14,8 @@ func NewCmd() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
-	cmd.AddCommand(newInitEnvCmd())
-	cmd.AddCommand(newTidyEnvCmd())
+	cmd.AddCommand(newInitEnvCmd(env.NewEnvConstructor()))
+	cmd.AddCommand(newTidyEnvCmd(env.NewEnvConstructor()))
 
 	return cmd
 }
