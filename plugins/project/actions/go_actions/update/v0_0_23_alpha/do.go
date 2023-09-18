@@ -39,7 +39,7 @@ func Do(p interfaces.Project) (err error) {
 			patterns.InternalFolder,
 			patterns.ClientsFolder,
 			patterns.PostgresFolder,
-			patterns.ConnFile,
+			patterns.ConnFileName,
 		)
 		if connFile != nil {
 			connFile.Content = patterns.PgConnFile
@@ -52,7 +52,7 @@ func Do(p interfaces.Project) (err error) {
 		if pgFolder != nil {
 			pgFolder.Inner = []*folder.Folder{
 				{
-					Name:    patterns.ConnFile,
+					Name:    patterns.ConnFileName,
 					Content: patterns.PgConnFile,
 				},
 				{

@@ -36,7 +36,7 @@ const (
 	InternalFolder = "internal"
 	ClientsFolder  = "clients"
 	PostgresFolder = "postgres"
-	ConnFile       = "conn.go"
+	ConnFileName   = "conn.go"
 	PgTxFileName   = "tx.go"
 
 	PkgFolder          = "pkg"

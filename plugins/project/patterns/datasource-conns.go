@@ -14,11 +14,11 @@ func GetDatasourceClientFile(datasourceName string) (*folder.Folder, error) {
 	out := &folder.Folder{Name: datasourceName}
 	switch datasourceName {
 	case SourceNameRedis:
-		out.Inner = []*folder.Folder{{Name: ConnFile, Content: RedisConnFile}}
+		out.Inner = []*folder.Folder{{Name: ConnFileName, Content: RedisConnFile}}
 	case SourceNamePostgres:
-		out.Inner = []*folder.Folder{{Name: ConnFile, Content: PgConnFile}, {Name: PgTxFileName, Content: PgTxFile}}
+		out.Inner = []*folder.Folder{{Name: ConnFileName, Content: PgConnFile}, {Name: PgTxFileName, Content: PgTxFile}}
 	case TelegramServer:
-		out.Inner = []*folder.Folder{{Name: ConnFile, Content: TgConnFile}}
+		out.Inner = []*folder.Folder{{Name: ConnFileName, Content: TgConnFile}}
 	default:
 		return nil, errors.New(fmt.Sprintf("unknown data source %s. "+
 			"DataSource should start with name of source (e.g redis, postgres)"+

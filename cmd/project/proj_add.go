@@ -31,13 +31,13 @@ type projectAdd struct {
 	proj *project.Project
 }
 
-func newAddCmd(constr projectAdd) *cobra.Command {
+func newAddCmd(projAdd projectAdd) *cobra.Command {
 	c := &cobra.Command{
 		Use:   "add",
 		Short: "Adds dependency to project project",
 		Long:  `Can be used to add a datasource or external API dependency to project`,
 
-		RunE: constr.run,
+		RunE: projAdd.run,
 
 		SilenceErrors: true,
 		SilenceUsage:  true,

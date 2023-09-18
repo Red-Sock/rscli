@@ -1,4 +1,4 @@
-package environment
+package env
 
 import (
 	"os"
@@ -18,10 +18,10 @@ import (
 )
 
 const (
-	pathFlag = "path"
+	PathFlag = "path"
 )
 
-type envConstructor struct {
+type Constructor struct {
 	cfg *config.RsCliConfig
 	io  io.IO
 
@@ -33,8 +33,8 @@ type envConstructor struct {
 	envPatterns     *env.Container
 }
 
-func newEnvConstructor() *envConstructor {
-	return &envConstructor{
+func NewEnvConstructor() *Constructor {
+	return &Constructor{
 		cfg: config.GetConfig(),
 		io:  io.StdIO{},
 
@@ -43,8 +43,8 @@ func newEnvConstructor() *envConstructor {
 	}
 }
 
-func (c *envConstructor) fetchConstructor(cmd *cobra.Command, _ []string) error {
-	c.envDirPath = cmd.Flag(pathFlag).Value.String()
+func (c *Constructor) FetchConstructor(cmd *cobra.Command, _ []string) error {
+	c.envDirPath = cmd.Flag(PathFlag).Value.String()
 
 	if c.envDirPath == "" {
 		c.envDirPath = io.GetWd()
@@ -93,7 +93,7 @@ func (c *envConstructor) fetchConstructor(cmd *cobra.Command, _ []string) error 
 	return nil
 
 }
-func (c *envConstructor) filterFolders() error {
+func (c *Constructor) filterFolders() error {
 	filter := func(dirs []os.DirEntry, srcProjDir string) ([]os.DirEntry, error) {
 		var idx int
 		for idx = 0; idx < len(dirs); idx++ {
@@ -141,7 +141,7 @@ func (c *envConstructor) filterFolders() error {
 	return nil
 }
 
-func (c *envConstructor) checkIfEnvExist() bool {
+func (c *Constructor) checkIfEnvExist() bool {
 	for _, d := range c.srcProjDirs {
 		if d.Name() == patterns.EnvDir {
 			return true
@@ -152,7 +152,7 @@ func (c *envConstructor) checkIfEnvExist() bool {
 
 }
 
-func (c *envConstructor) askToRunTidy(cmd *cobra.Command, args []string, msg string) error {
+func (c *Constructor) askToRunTidy(cmd *cobra.Command, args []string, msg string) error {
 	c.io.Println()
 	c.io.PrintColored(colors.ColorYellow, msg+
 		"!\nWant to run \"rscli env tidy\"? (Y)es/(N)o: ")
@@ -164,7 +164,7 @@ func (c *envConstructor) askToRunTidy(cmd *cobra.Command, args []string, msg str
 		}
 		r := strings.ToLower(resp)[0]
 		if r == 'y' {
-			return c.runTidy(cmd, args)
+			return c.RunTidy(cmd, args)
 		}
 
 		if r == 'n' {
@@ -176,7 +176,7 @@ func (c *envConstructor) askToRunTidy(cmd *cobra.Command, args []string, msg str
 	return nil
 }
 
-func (c *envConstructor) selectMakefile() patterns.File {
+func (c *Constructor) selectMakefile() patterns.File {
 	if runtime.GOOS == "windows" {
 		// TODO add windows support
 		return patterns.Makefile
@@ -185,6 +185,6 @@ func (c *envConstructor) selectMakefile() patterns.File {
 	}
 }
 
-func (c *envConstructor) getSpirits() []patterns.File {
+func (c *Constructor) getSpirits() []patterns.File {
 	return []patterns.File{patterns.EnvFile, patterns.DockerComposeFile, c.selectMakefile()}
 }
