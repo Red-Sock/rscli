@@ -14,7 +14,7 @@ import (
 )
 
 func (c *Constructor) RunTidy(cmd *cobra.Command, arg []string) error {
-	c.io.Println("Running rscli env tidy")
+	c.Io.Println("Running rscli env tidy")
 
 	err := c.initProjectsDirs()
 	if err != nil {
@@ -40,7 +40,7 @@ func (c *Constructor) RunTidy(cmd *cobra.Command, arg []string) error {
 		projName := c.envProjDirs[idx].Name()
 
 		var proj *project.Env
-		proj, err = project.LoadProjectEnvironment(c.cfg, path.Join(c.envDirPath, projName))
+		proj, err = project.LoadProjectEnvironment(c.Cfg, path.Join(c.envDirPath, projName))
 		if err != nil {
 			return errors.Wrap(err, "error loading environment for project "+projName)
 		}
@@ -59,16 +59,16 @@ func (c *Constructor) RunTidy(cmd *cobra.Command, arg []string) error {
 		projectsEnvs[idx] = proj
 	}
 
-	done := loader.RunMultiLoader(context.Background(), c.io, progresses)
+	done := loader.RunMultiLoader(context.Background(), c.Io, progresses)
 	defer func() {
 		<-done()
-		c.io.Println("rscli env tidy done")
+		c.Io.Println("rscli env tidy done")
 	}()
 
 	errC := make(chan error)
 	for idx := range projectsEnvs {
 		go func(i int) {
-			err := projectsEnvs[i].Tidy(portManager, c.composePatterns)
+			err := projectsEnvs[i].Tidy(portManager, c.ComposePatterns)
 			if err != nil {
 				progresses[i].Done(loader.DoneFailed)
 			} else {

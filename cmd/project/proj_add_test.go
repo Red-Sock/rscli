@@ -42,7 +42,11 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 			err = os.RemoveAll(tmpTestDir)
 			require.NoError(t, err, "error during tmp dir deletion")
 		}
-
+		defer func() {
+			if err != nil {
+				clean()
+			}
+		}()
 		ioMock := mocks.NewIOMock(t)
 
 		expectedPrint := []string{hintMessage}

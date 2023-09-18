@@ -6,8 +6,7 @@ import (
 	"github.com/Red-Sock/rscli/cmd/environment/env"
 )
 
-func newInitEnvCmd() *cobra.Command {
-	constr := env.NewEnvConstructor()
+func newInitEnvCmd(constr *env.Constructor) *cobra.Command {
 	c := &cobra.Command{
 		Use:   "init",
 		Short: "Init environment for projects in given folder",

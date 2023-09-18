@@ -22,7 +22,7 @@ func (c *Constructor) RunInit(cmd *cobra.Command, args []string) error {
 
 	err := func() error {
 		progressChan := make(chan loader.Progress)
-		gDone := loader.RunSeqLoader(context.Background(), c.io, progressChan)
+		gDone := loader.RunSeqLoader(context.Background(), c.Io, progressChan)
 		defer func() {
 			<-gDone()
 		}()

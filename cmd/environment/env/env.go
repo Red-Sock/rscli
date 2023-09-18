@@ -22,24 +22,24 @@ const (
 )
 
 type Constructor struct {
-	cfg *config.RsCliConfig
-	io  io.IO
+	Cfg *config.RsCliConfig
+	Io  io.IO
+
+	ComposePatterns compose.PatternManager
+	EnvPatterns     *env.Container
 
 	envDirPath  string
 	srcProjDirs []os.DirEntry
 	envProjDirs []os.DirEntry
-
-	composePatterns compose.PatternManager
-	envPatterns     *env.Container
 }
 
 func NewEnvConstructor() *Constructor {
 	return &Constructor{
-		cfg: config.GetConfig(),
-		io:  io.StdIO{},
+		Cfg: config.GetConfig(),
+		Io:  io.StdIO{},
 
-		composePatterns: compose.PatternManager{},
-		envPatterns:     &env.Container{},
+		ComposePatterns: compose.PatternManager{},
+		EnvPatterns:     &env.Container{},
 	}
 }
 
@@ -69,7 +69,7 @@ func (c *Constructor) FetchConstructor(cmd *cobra.Command, _ []string) error {
 	}
 
 	composePatternsPath := path.Join(c.envDirPath, patterns.DockerComposeFile.Name)
-	c.composePatterns, err = compose.ReadComposePatternsFromFile(composePatternsPath)
+	c.ComposePatterns, err = compose.ReadComposePatternsFromFile(composePatternsPath)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			return errors.Wrap(err, "error reading compose file at "+composePatternsPath)
@@ -78,7 +78,7 @@ func (c *Constructor) FetchConstructor(cmd *cobra.Command, _ []string) error {
 	}
 
 	envPattern := path.Join(c.envDirPath, patterns.EnvExampleFile)
-	c.envPatterns, err = env.ReadContainer(envPattern)
+	c.EnvPatterns, err = env.ReadContainer(envPattern)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			return errors.Wrap(err, "can't open env file at "+envPattern)
@@ -101,7 +101,7 @@ func (c *Constructor) filterFolders() error {
 			if dirs[idx].IsDir() && name != patterns.EnvDir {
 				// validate whether this directory contains main file in specified location
 				pathToMainFile := path.Join(srcProjDir, name,
-					strings.ReplaceAll(c.cfg.Env.PathToMain, patterns.ProjNamePattern, name))
+					strings.ReplaceAll(c.Cfg.Env.PathToMain, patterns.ProjNamePattern, name))
 
 				fi, err := os.Stat(pathToMainFile)
 				if err != nil {
@@ -111,7 +111,7 @@ func (c *Constructor) filterFolders() error {
 				} else {
 					if !fi.IsDir() {
 						// definition of service to be added to projects dir list:
-						// must be named NOT composePatterns.EnvDir
+						// must be named NOT ComposePatterns.EnvDir
 						// must be directory
 						// must have proj_name/path_to_main
 						continue
@@ -153,12 +153,12 @@ func (c *Constructor) checkIfEnvExist() bool {
 }
 
 func (c *Constructor) askToRunTidy(cmd *cobra.Command, args []string, msg string) error {
-	c.io.Println()
-	c.io.PrintColored(colors.ColorYellow, msg+
+	c.Io.Println()
+	c.Io.PrintColored(colors.ColorYellow, msg+
 		"!\nWant to run \"rscli env tidy\"? (Y)es/(N)o: ")
 
 	for {
-		resp, err := c.io.GetInput()
+		resp, err := c.Io.GetInput()
 		if err != nil {
 			return errors.Wrap(err, "error obtaining user input")
 		}
@@ -170,7 +170,7 @@ func (c *Constructor) askToRunTidy(cmd *cobra.Command, args []string, msg string
 		if r == 'n' {
 			return nil
 		}
-		c.io.PrintlnColored(colors.ColorRed, "No can't do "+resp+"! \"(Y)es\" or \"(N)o\":")
+		c.Io.PrintlnColored(colors.ColorRed, "No can't do "+resp+"! \"(Y)es\" or \"(N)o\":")
 	}
 
 	return nil
