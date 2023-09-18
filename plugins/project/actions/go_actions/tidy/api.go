@@ -3,6 +3,7 @@ package tidy
 import (
 	"bytes"
 	"fmt"
+	"path"
 	"strings"
 
 	"github.com/Red-Sock/trace-errors"
@@ -66,15 +67,16 @@ func tidyAPI(p interfaces.Project, cfg *config.Config, projMainFile *folder.Fold
 }
 
 func insertApiSetupInMainIfNotExists(p interfaces.Project, projMainFile *folder.Folder) {
-	apiFile := p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName(), patterns.BootStrapFolder, patterns.ApiConstructorFileName)
+	bootstrapFolderPath := path.Join(patterns.CmdFolder, p.GetShortName(), patterns.BootStrapFolder)
+	apiFile := p.GetFolder().GetByPath(bootstrapFolderPath, patterns.ApiConstructorFileName)
 
 	// if bootstrap for server doesn't exist - adding it
 	if apiFile == nil {
 		apiFile = &folder.Folder{
-			Name:    patterns.ApiConstructorFileName,
+			Name:    path.Join(bootstrapFolderPath, patterns.ApiConstructorFileName),
 			Content: patterns.APISetupFile,
 		}
-		p.GetFolder().ForceAddWithPath([]string{patterns.CmdFolder, p.GetName(), patterns.BootStrapFolder}, apiFile)
+		p.GetFolder().Add(apiFile)
 	}
 
 	const (
@@ -125,7 +127,7 @@ func insertApiSetupInMainIfNotExists(p interfaces.Project, projMainFile *folder.
 
 	{
 		// add import on boostrap if doesn't exists
-		importBootstrap := []byte("\"" + p.GetName() + "/cmd/" + p.GetName() + "/bootstrap\"\n")
+		importBootstrap := []byte("\"" + p.GetName() + "/cmd/" + p.GetShortName() + "/bootstrap\"\n")
 		if bytes.Index(projMainFile.Content, importBootstrap) == -1 {
 			importStartIdx := bytes.Index(projMainFile.Content, []byte(importWord))
 			importEndIdx := importStartIdx + bytes.Index(projMainFile.Content[importStartIdx:], []byte(")"))
@@ -140,13 +142,15 @@ func insertApiSetupInMainIfNotExists(p interfaces.Project, projMainFile *folder.
 	return
 }
 func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder) error {
-	apiFile := p.GetFolder().GetByPath(patterns.CmdFolder, p.GetName(), patterns.BootStrapFolder, patterns.ApiConstructorFileName)
+	bootstrapFolderPath := path.Join(patterns.CmdFolder, p.GetShortName(), patterns.BootStrapFolder)
+
+	apiFile := p.GetFolder().GetByPath(bootstrapFolderPath, patterns.ApiConstructorFileName)
 	if apiFile == nil {
 		apiFile = &folder.Folder{
-			Name:    patterns.ApiConstructorFileName,
+			Name:    path.Join(bootstrapFolderPath, patterns.ApiConstructorFileName),
 			Content: patterns.APISetupFile,
 		}
-		p.GetFolder().ForceAddWithPath([]string{patterns.CmdFolder, p.GetName(), patterns.BootStrapFolder}, apiFile)
+		p.GetFolder().Add(apiFile)
 	}
 
 	err := insertMissingAPI(p, serverFolders, apiFile)
@@ -157,12 +161,12 @@ func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder) error {
 	apiMgr := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.TransportFolder, patterns.ApiManagerFileName)
 	if apiMgr == nil {
 		serverFolders = append(serverFolders, &folder.Folder{
-			Name:    patterns.ApiManagerFileName,
+			Name:    path.Join(patterns.InternalFolder, patterns.TransportFolder, patterns.ApiManagerFileName),
 			Content: patterns.ServerManagerPatternFile,
 		})
 	}
 
-	p.GetFolder().AddWithPath([]string{patterns.InternalFolder, patterns.TransportFolder}, serverFolders...)
+	p.GetFolder().Add(serverFolders...)
 
 	return nil
 }
@@ -222,10 +226,9 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 					[]byte("grpc_realisation"),
 					[]byte(serverName),
 				)
-				p.GetFolder().AddWithPath(
-					[]string{patterns.PkgFolder, patterns.ProtoFolder},
+				p.GetFolder().Add(
 					&folder.Folder{
-						Name: serverName,
+						Name: path.Join(patterns.PkgFolder, patterns.ProtoFolder, serverName),
 						Inner: []*folder.Folder{
 							{
 								Name:    serverName + patterns.ProtoFileExtension,

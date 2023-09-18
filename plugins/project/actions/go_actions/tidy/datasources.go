@@ -33,7 +33,7 @@ func applyDatasourceFolders(p interfaces.Project) error {
 	}
 
 	if len(clientsFolder.Inner) != 0 {
-		p.GetFolder().AddWithPath([]string{patterns.InternalFolder}, clientsFolder)
+		p.GetFolder().GetByPath(patterns.InternalFolder).Add(clientsFolder)
 	}
 
 	err = p.GetFolder().Build()

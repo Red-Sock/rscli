@@ -2,6 +2,7 @@ package go_actions
 
 import (
 	"bytes"
+	"path"
 	"sort"
 	"strings"
 
@@ -15,7 +16,7 @@ type PrepareGoConfigFolderAction struct{}
 func (a PrepareGoConfigFolderAction) Do(p interfaces.Project) error {
 	out := []*folder.Folder{
 		{
-			Name: patterns.ConfigsFolder,
+			Name: path.Join(patterns.InternalFolder, patterns.ConfigsFolder, patterns.ConfigFileName),
 			Content: []byte(
 				strings.ReplaceAll(patterns.ConfiguratorFile, "{{projectNAME_}}", strings.ToUpper(p.GetShortName())),
 			),
@@ -43,18 +44,12 @@ func (a PrepareGoConfigFolderAction) Do(p interfaces.Project) error {
 	if len(keys) != 0 {
 		out = append(out,
 			&folder.Folder{
-				Name:    "keys.go",
+				Name:    path.Join(patterns.InternalFolder, patterns.ConfigsFolder, patterns.ConfigKeysFileName),
 				Content: cfgKeysFile,
 			})
 	}
 
-	p.GetFolder().ForceAddWithPath(
-		[]string{
-			"internal",
-			"config",
-		},
-		out...,
-	)
+	p.GetFolder().Add(out...)
 
 	return nil
 }

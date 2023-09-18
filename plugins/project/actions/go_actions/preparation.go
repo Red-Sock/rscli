@@ -3,6 +3,7 @@ package go_actions
 import (
 	"bytes"
 	"encoding/json"
+	"path"
 	"strconv"
 
 	"github.com/Red-Sock/trace-errors"
@@ -43,8 +44,8 @@ func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 		},
 	})
 
-	fldr.AddWithPath([]string{patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder}, &folder.Folder{
-		Name:    patterns.CloserFile,
+	fldr.Add(&folder.Folder{
+		Name:    path.Join(patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder, patterns.CloserFile),
 		Content: patterns.UtilsCloserFile,
 	})
 

@@ -2,6 +2,7 @@ package v0_0_17_alpha
 
 import (
 	"errors"
+	"path"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	"github.com/Red-Sock/rscli/internal/io/folder"
@@ -35,8 +36,8 @@ func Do(p interfaces2.Project) (err error) {
 
 		err = errors.Join(err, updErr)
 	}()
-	p.GetFolder().AddWithPath([]string{patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder}, &folder.Folder{
-		Name:    patterns.CloserFile,
+	p.GetFolder().Add(&folder.Folder{
+		Name:    path.Join(patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder, patterns.CloserFile),
 		Content: patterns.UtilsCloserFile,
 	})
 

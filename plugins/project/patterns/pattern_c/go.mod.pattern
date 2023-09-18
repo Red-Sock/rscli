@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/Red-Sock/go_tg v0.0.16
+	github.com/Red-Sock/trace-errors v0.0.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx/v5 v5.3.1

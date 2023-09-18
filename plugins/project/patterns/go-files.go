@@ -51,9 +51,10 @@ const (
 	TransportFolder    = "transport"
 	ApiManagerFileName = "manager.go"
 
-	ConfigsFolder  = "config"
-	ConfigFileName = "config.go"
-	ConfigTemplate = "config.yaml.template"
+	ConfigsFolder      = "config"
+	ConfigFileName     = "config.go"
+	ConfigTemplate     = "config.yaml.template"
+	ConfigKeysFileName = "keys.go"
 
 	GoMod = "go.mod"
 )

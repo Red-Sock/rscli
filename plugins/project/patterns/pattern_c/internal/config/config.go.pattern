@@ -10,7 +10,6 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
-	"golang.org/x/exp/maps"
 	"gopkg.in/yaml.v3"
 )
 
@@ -132,8 +131,10 @@ func extractVariables(prefix string, in map[string]interface{}) (out map[configK
 	out = make(map[configKey]any)
 
 	for k, v := range in {
-		if newMap, ok := v.(map[string]interface{}); ok {
-			maps.Copy(out, extractVariables(mergeParts("_", prefix, k), newMap))
+		if srcMap, ok := v.(map[string]interface{}); ok {
+			for k, v := range extractVariables(mergeParts("_", prefix, k), srcMap) {
+				out[k] = v
+			}
 		} else {
 			out[configKey(mergeParts("_", prefix, k))] = v
 		}

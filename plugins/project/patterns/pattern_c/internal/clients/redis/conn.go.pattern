@@ -3,8 +3,8 @@
 package redis
 
 import (
-	"github.com/go-redis/redis"
 	"github.com/Red-Sock/trace-errors"
+	"github.com/go-redis/redis"
 
 	"financial-microservice/internal/utils/closer"
 )
