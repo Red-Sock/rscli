@@ -16,9 +16,9 @@ import (
 )
 
 type Config struct {
-	AppInfo     AppInfo                  `yaml:"app_info"`
-	Server      map[string]ServerOptions `yaml:"server,omitempty"`
-	DataSources map[string]interface{}   `yaml:"data_sources,omitempty"`
+	AppInfo     AppInfo                `yaml:"app_info"`
+	Server      map[string]interface{} `yaml:"server,omitempty"`
+	DataSources map[string]interface{} `yaml:"data_sources,omitempty"`
 }
 
 type AppInfo struct {
@@ -29,17 +29,9 @@ type AppInfo struct {
 
 func NewEmptyConfig() *Config {
 	return &Config{
-		Server:      map[string]ServerOptions{},
+		Server:      map[string]interface{}{},
 		DataSources: map[string]interface{}{},
 	}
-}
-
-type ServerOptions struct {
-	Name        string
-	Port        uint16 `yaml:"port"`
-	CertPath    string `yaml:"cert_path"`
-	KeyPath     string `yaml:"key_path"`
-	ForceUseTLS bool   `yaml:"force_use_tls"`
 }
 
 type ConnectionOptions struct {

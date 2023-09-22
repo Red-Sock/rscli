@@ -8,6 +8,7 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/patterns"
 )
@@ -51,6 +52,11 @@ func (p Postgres) Do(proj interfaces.Project) error {
 	err = proj.GetFolder().Build()
 	if err != nil {
 		return errors.Wrap(err, "error building pg connection folder")
+	}
+
+	ds := proj.GetConfig().DataSources
+	if _, ok = ds[p.GetFolderName()]; !ok {
+		ds[p.GetFolderName()] = resources.Postgres{}
 	}
 
 	return nil

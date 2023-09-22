@@ -8,6 +8,7 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/plugins/project/config/server"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/patterns"
 )
@@ -47,6 +48,11 @@ func (t Telegram) Do(proj interfaces.Project) error {
 	err = proj.GetFolder().Build()
 	if err != nil {
 		return errors.Wrap(err, "error building pg connection folder")
+	}
+
+	ds := proj.GetConfig().Server
+	if _, ok = ds[t.GetFolderName()]; !ok {
+		ds[t.GetFolderName()] = server.Telegram{}
 	}
 
 	return nil
