@@ -17,6 +17,8 @@ const (
 	redisArgument    = "redis"
 
 	telegramArgument = "telegram"
+
+	restArgument = "rest"
 )
 
 type dependency interface {
@@ -91,6 +93,8 @@ func (p *projectAdd) getDependenciesFromUser(args []string) []dependency {
 			dep = dependencies.Redis{Cfg: p.config}
 		case telegramArgument:
 			dep = dependencies.Telegram{Cfg: p.config}
+		case restArgument:
+			//dep = dependencies.Rest{Cfg: p.config}
 		default:
 			p.io.PrintlnColored(colors.ColorRed, "unknown dependency: "+arg)
 		}

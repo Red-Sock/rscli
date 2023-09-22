@@ -1,7 +1,9 @@
 package dependencies
 
 import (
+	"os"
 	"path"
+	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
 
@@ -28,20 +30,43 @@ func (t Telegram) Do(proj interfaces.Project) error {
 		return errors.Wrap(err, "error finding dependency path")
 	}
 
-	if ok {
-		// TODO: RSI-141
-		// t.Io.Println("already contains pg dependency")
-		return nil
-	}
-
-	if len(t.Cfg.Env.PathsToClients) == 0 {
-		return ErrNoClientFolderInConfig
-	}
-
 	proj.GetFolder().Add(
 		&folder.Folder{
 			Name:    path.Join(t.Cfg.Env.PathsToClients[0], t.GetFolderName(), patterns.ConnFileName),
 			Content: patterns.TgConnFile,
+		},
+	)
+
+	if len(t.Cfg.Env.PathToServers) == 0 {
+		return ErrNoServerFolderInConfig
+	}
+
+	for _, pth := range t.Cfg.Env.PathToServers {
+		srvFold := proj.GetFolder().GetByPath(strings.Split(pth, string(os.PathSeparator))...)
+		if srvFold == nil {
+			continue
+		}
+
+		for _, innerFolder := range srvFold.Inner {
+			if innerFolder.Name == t.GetFolderName() {
+				return nil
+			}
+		}
+	}
+
+	proj.GetFolder().Add(
+		&folder.Folder{
+			Name: path.Join(t.Cfg.Env.PathToServers[0], t.GetFolderName()),
+			Inner: []*folder.Folder{
+				{
+					Name:    patterns.TelegramServFileName,
+					Content: patterns.TgServFile,
+				},
+				{
+					Name:    path.Join(patterns.HandlersFolderName, patterns.VersionFolderName, patterns.TgHandlerFileName),
+					Content: patterns.TgHandlerExampleFile,
+				},
+			},
 		},
 	)
 
@@ -51,9 +76,14 @@ func (t Telegram) Do(proj interfaces.Project) error {
 	}
 
 	ds := proj.GetConfig().Server
+	if ds == nil {
+		ds = make(map[string]interface{})
+	}
 	if _, ok = ds[t.GetFolderName()]; !ok {
 		ds[t.GetFolderName()] = server.Telegram{}
 	}
+
+	proj.GetConfig().Server = ds
 
 	return nil
 }

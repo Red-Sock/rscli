@@ -23,6 +23,7 @@ const (
 	envPathToConfig          = "RSCLI_PATH_TO_CONFIG"
 	envPathToMain            = "RSCLI_PATH_TO_MAIN"
 	envPathToClients         = "RSCLI_PATH_TO_CLIENTS"
+	envPathToServers         = "RSCLI_PATH_TO_SERVERS"
 	envDefaultProjectGitPath = "RSCLI_DEFAULT_PROJECT_GIT_PATH"
 )
 
@@ -40,6 +41,7 @@ type Project struct {
 	PathToMain         string   `yaml:"path_to_main"`
 	PathToConfigFolder string   `yaml:"path_to_config"`
 	PathsToClients     []string `yaml:"paths_to_clients"`
+	PathToServers      []string `yaml:"path_to_servers"`
 }
 
 func GetConfig() *RsCliConfig {
@@ -70,10 +72,19 @@ func getConfigFromEnvironment() (r RsCliConfig) {
 	r.Env.PathToMain = os.Getenv(envPathToMain)
 	r.Env.PathToConfigFolder = os.Getenv(envPathToConfig)
 
-	r.DefaultProjectGitPath = os.Getenv(envDefaultProjectGitPath)
-	pathToClients := strings.Split(os.Getenv(envPathToClients), ",")
-	if pathToClients[0] != "" {
-		r.Env.PathsToClients = pathToClients
+	{
+		r.DefaultProjectGitPath = os.Getenv(envDefaultProjectGitPath)
+		pathToClients := strings.Split(os.Getenv(envPathToClients), ",")
+		if pathToClients[0] != "" {
+			r.Env.PathsToClients = pathToClients
+		}
+	}
+
+	{
+		pathToServers := strings.Split(os.Getenv(envPathToServers), ",")
+		if pathToServers[0] != "" {
+			r.Env.PathToServers = pathToServers
+		}
 	}
 	return
 }
@@ -123,6 +134,10 @@ func mergeConfigs(master, slave RsCliConfig) RsCliConfig {
 
 	if len(master.Env.PathsToClients) == 0 {
 		master.Env.PathsToClients = slave.Env.PathsToClients
+	}
+
+	if len(master.Env.PathToServers) == 0 {
+		master.Env.PathToServers = slave.Env.PathToServers
 	}
 
 	return master

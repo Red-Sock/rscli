@@ -51,10 +51,14 @@ const (
 	TransportFolder    = "transport"
 	ApiManagerFileName = "manager.go"
 
-	ConfigsFolder      = "config"
-	ConfigFileName     = "config.go"
-	ConfigTemplate     = "config.yaml.template"
-	ConfigKeysFileName = "keys.go"
+	HandlersFolderName   = "handlers"
+	VersionFolderName    = "version"
+	TelegramServFileName = "listener.go"
+	TgHandlerFileName    = "handler.go"
+	ConfigsFolder        = "config"
+	ConfigFileName       = "config.go"
+	ConfigTemplate       = "config.yaml.template"
+	ConfigKeysFileName   = "keys.go"
 
 	GoMod = "go.mod"
 )

@@ -7,7 +7,10 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 )
 
-var ErrNoClientFolderInConfig = errors.New("no client path in rscli config")
+var (
+	ErrNoClientFolderInConfig = errors.New("no client folder path in rscli config")
+	ErrNoServerFolderInConfig = errors.New("no server folder path in rscli config")
+)
 
 // containsDependency - searches through RSCLI_PATH_TO_CLIENTS
 // folders in order to find depName
