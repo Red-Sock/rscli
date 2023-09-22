@@ -10,6 +10,7 @@ const (
 	ReadMeFileName       = "README.md"
 	GitignoreFileName    = ".gitignore"
 	GolangCIYamlFileName = ".golangci.yaml"
+	DevConfigYamlFile    = "dev.yaml"
 	ConfigYamlFile       = "config.yaml"
 )
 

@@ -3,6 +3,7 @@ package project
 import (
 	"os"
 	"path"
+	"time"
 
 	"github.com/Red-Sock/trace-errors"
 
@@ -11,6 +12,11 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config"
 	"github.com/Red-Sock/rscli/plugins/project/validators"
+)
+
+const (
+	defaultVersion  = "0.0.1"
+	startupDuration = time.Second * 10
 )
 
 type CreateArgs struct {
@@ -58,6 +64,11 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 	}
 
 	proj.Cfg = config.NewEmptyConfig()
+	proj.Cfg.AppInfo = config.AppInfo{
+		Name:            proj.GetName(),
+		Version:         defaultVersion,
+		StartupDuration: startupDuration,
+	}
 
 	return proj, nil
 }
