@@ -94,7 +94,7 @@ func (p *projectAdd) getDependenciesFromUser(args []string) []dependency {
 		case telegramArgument:
 			dep = dependencies.Telegram{Cfg: p.config}
 		case restArgument:
-			//dep = dependencies.Rest{Cfg: p.config}
+			dep = dependencies.Rest{Cfg: p.config}
 		default:
 			p.io.PrintlnColored(colors.ColorRed, "unknown dependency: "+arg)
 		}

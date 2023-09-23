@@ -24,16 +24,26 @@ func (r Rest) GetFolderName() string {
 
 func (r Rest) Do(proj interfaces.Project) error {
 	if len(r.Cfg.Env.PathToServers) == 0 {
-		return ErrNoClientFolderInConfig
+		return ErrNoServerFolderInConfig
 	}
 	defaultApiName := r.GetFolderName() + "_api"
+
 	r.doConfig(proj, defaultApiName)
+	r.doFolder(proj, defaultApiName)
+
+	err := proj.GetFolder().Build()
+	if err != nil {
+		return errors.Wrap(err, "error building pg connection folder")
+	}
 
 	return nil
 }
 
 func (r Rest) doConfig(proj interfaces.Project, defaultApiName string) {
 	ds := proj.GetConfig().Server
+	if ds == nil {
+		ds = make(map[string]interface{})
+	}
 
 	containsConfig := false
 	for name := range ds {
@@ -43,39 +53,36 @@ func (r Rest) doConfig(proj interfaces.Project, defaultApiName string) {
 		}
 	}
 
-	if !containsConfig {
-		ds[defaultApiName] = server.Rest{}
+	if containsConfig {
+		return
 	}
+	ds[defaultApiName] = server.Rest{}
+
+	proj.GetConfig().Server = ds
 }
 
-func (r Rest) doFolder(proj interfaces.Project, defaultApiName string) error {
+func (r Rest) doFolder(proj interfaces.Project, defaultApiName string) {
 	containsFolder := false
 	for _, pth := range r.Cfg.Env.PathToServers {
-		if proj.GetFolder().GetByPath(pth, defaultApiName) == nil {
+		if proj.GetFolder().GetByPath(pth, defaultApiName) != nil {
 			containsFolder = true
 			break
 		}
 	}
 
 	if containsFolder {
-		return nil
+		return
 	}
 
 	proj.GetFolder().Add(
 		&folder.Folder{
-			Name:    path.Join(r.Cfg.Env.PathsToClients[0], defaultApiName, patterns.ServerGoFile),
+			Name:    path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, patterns.ServerGoFile),
 			Content: patterns.RestServFile,
 		},
 		&folder.Folder{
-			Name:    path.Join(r.Cfg.Env.PathsToClients[0], defaultApiName, patterns.VersionGoFile),
+			Name:    path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, patterns.VersionGoFile),
 			Content: patterns.RestServHandlerExampleFile,
 		},
 	)
 
-	err := proj.GetFolder().Build()
-	if err != nil {
-		return errors.Wrap(err, "error building pg connection folder")
-	}
-
-	return nil
 }
