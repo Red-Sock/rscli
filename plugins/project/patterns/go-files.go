@@ -12,9 +12,9 @@ const (
 )
 
 const (
-	serverGoFile  = "server.go"
-	versionGoFile = "version.go"
-	pingerGoFile  = "pinger.go"
+	ServerGoFile  = "server.go"
+	VersionGoFile = "version.go"
+	PingerGoFile  = "pinger.go"
 
 	handlerFolder = "handlers"
 	handlerGoFile = "handler.go"

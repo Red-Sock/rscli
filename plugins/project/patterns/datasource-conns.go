@@ -56,11 +56,11 @@ func getRestPattern() ServerPattern {
 		F: folder.Folder{
 			Inner: []*folder.Folder{
 				{
-					Name:    serverGoFile,
+					Name:    ServerGoFile,
 					Content: RestServFile,
 				},
 				{
-					Name:    versionGoFile,
+					Name:    VersionGoFile,
 					Content: RestServHandlerExampleFile,
 				},
 			},
@@ -73,7 +73,7 @@ func getRestPattern() ServerPattern {
 					[]byte("package "+serverName),
 				)
 
-				if innerFolder.Name == serverGoFile {
+				if innerFolder.Name == ServerGoFile {
 					innerFolder.Content = bytes.ReplaceAll(
 						innerFolder.Content,
 						[]byte("config.ServerRestApiPort"),
@@ -89,7 +89,7 @@ func getTelegramPattern() ServerPattern {
 		F: folder.Folder{
 			Inner: []*folder.Folder{
 				{
-					Name:    serverGoFile,
+					Name:    ServerGoFile,
 					Content: TgServFile,
 				},
 				{
@@ -109,7 +109,7 @@ func getTelegramPattern() ServerPattern {
 			},
 		},
 		Validators: func(f *folder.Folder, serverName string) {
-			server := f.GetByPath(serverGoFile)
+			server := f.GetByPath(ServerGoFile)
 
 			server.Content = bytes.ReplaceAll(
 				server.Content,
@@ -129,11 +129,11 @@ func getGrpcPattern() ServerPattern {
 		F: folder.Folder{
 			Inner: []*folder.Folder{
 				{
-					Name:    serverGoFile,
+					Name:    ServerGoFile,
 					Content: GrpcServFile,
 				},
 				{
-					Name:    pingerGoFile,
+					Name:    PingerGoFile,
 					Content: GrpcServExampleFile,
 				},
 			},
@@ -152,7 +152,7 @@ func getGrpcPattern() ServerPattern {
 					[]byte("/pkg/"+serverName+"\""),
 				)
 
-				if innerFolder.Name == serverGoFile {
+				if innerFolder.Name == ServerGoFile {
 					innerFolder.Content = bytes.ReplaceAll(
 						innerFolder.Content,
 						[]byte("config.ServerGRPCApiPort"),

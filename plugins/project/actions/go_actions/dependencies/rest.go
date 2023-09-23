@@ -26,31 +26,55 @@ func (r Rest) Do(proj interfaces.Project) error {
 	if len(r.Cfg.Env.PathToServers) == 0 {
 		return ErrNoClientFolderInConfig
 	}
-
 	defaultApiName := r.GetFolderName() + "_api"
-	_ = defaultApiName
+	r.doConfig(proj, defaultApiName)
+
+	return nil
+}
+
+func (r Rest) doConfig(proj interfaces.Project, defaultApiName string) {
+	ds := proj.GetConfig().Server
+
+	containsConfig := false
+	for name := range ds {
+		if name == defaultApiName {
+			containsConfig = true
+			break
+		}
+	}
+
+	if !containsConfig {
+		ds[defaultApiName] = server.Rest{}
+	}
+}
+
+func (r Rest) doFolder(proj interfaces.Project, defaultApiName string) error {
+	containsFolder := false
+	for _, pth := range r.Cfg.Env.PathToServers {
+		if proj.GetFolder().GetByPath(pth, defaultApiName) == nil {
+			containsFolder = true
+			break
+		}
+	}
+
+	if containsFolder {
+		return nil
+	}
 
 	proj.GetFolder().Add(
 		&folder.Folder{
-			Name:    path.Join(r.Cfg.Env.PathsToClients[0], r.GetFolderName(), patterns.ConnFileName),
+			Name:    path.Join(r.Cfg.Env.PathsToClients[0], defaultApiName, patterns.ServerGoFile),
 			Content: patterns.RestServFile,
+		},
+		&folder.Folder{
+			Name:    path.Join(r.Cfg.Env.PathsToClients[0], defaultApiName, patterns.VersionGoFile),
+			Content: patterns.RestServHandlerExampleFile,
 		},
 	)
 
 	err := proj.GetFolder().Build()
 	if err != nil {
 		return errors.Wrap(err, "error building pg connection folder")
-	}
-
-	ds := proj.GetConfig().Server
-
-	containsConfig := false
-	for _, v := range ds {
-		_ = v
-	}
-
-	if containsConfig {
-		ds[r.GetFolderName()] = server.Rest{}
 	}
 
 	return nil
