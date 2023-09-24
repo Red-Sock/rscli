@@ -13,12 +13,10 @@ export function Footer() {
             className={cls.Footer}
             data-isOpen={isOpen}
         >
-            <div
-                onClick={() => setIsOpen(!isOpen)}
-                className={cls.OpenButton}>
-                <div className={cls.OpenButtonLeftLine}/>
-                <div className={cls.OpenButtonRightLine}/>
-
+            <div className={cls.ButtonContainer}>
+                <div
+                    onClick={() => setIsOpen(!isOpen)}
+                    className={cls.OpenButton}/>
             </div>
         </motion.div>
     );
