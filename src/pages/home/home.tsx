@@ -11,11 +11,6 @@ export function Home() {
     const [isSideMenuOpen, setIsSideMenuOpen] = useState(false)
     return (
         <div className={cls.Home}>
-            <Header
-                isOpen={isSideMenuOpen}
-                setIsOpen={setIsSideMenuOpen}
-            />
-
             <div className={cls.contentWrap}>
                 <ContentDisplay/>
                 <Sidebar
@@ -23,6 +18,10 @@ export function Home() {
                 />
             </div>
 
+            <Header
+                isOpen={isSideMenuOpen}
+                setIsOpen={setIsSideMenuOpen}
+            />
             <Footer/>
         </div>
     )

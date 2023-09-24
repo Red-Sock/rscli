@@ -1,18 +1,20 @@
 .Home {
-    background-color: black;
+    background-color: aqua;
 
     display: flex;
     flex-flow: column;
     justify-content: space-between;
 
     flex-grow: 1;
-    height: 100vh;
+    height: 100%;
+    width: 100%;
 }
 
 .contentWrap {
-    flex: 1;
+    margin-top: 3em;
     display: flex;
     flex-direction: row;
+    min-height: 100%;
     position: relative;
 }
 
