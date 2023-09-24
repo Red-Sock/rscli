@@ -1,0 +1,6 @@
+.Footer {
+    flex: 1;
+
+    max-height: 2em;
+    background-color: yellow;
+}

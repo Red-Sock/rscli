@@ -1,0 +1,14 @@
+.Header {
+    box-sizing: border-box;
+
+    flex: 1;
+
+    max-height: 3em;
+    background-color: rgb(65, 85, 222);
+
+    border: red solid;
+}
+
+.BurgerContainer {
+    height: 100%;
+}

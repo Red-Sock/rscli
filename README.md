@@ -1,39 +1,27 @@
-# RS CLI
-CLI tool to handle golang projects
+# React + TypeScript + Vite
 
-Allows you to create and manage a Golang project
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Installing
-go install github.com/Red-Sock/rscli@latest
+Currently, two official plugins are available:
 
-## Already supported features
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-- Project build
-- Separated configuration build
-- Environment setup
+## Expanding the ESLint configuration
 
-### Project and configuration build
-can be used to create and configure an application - basically a boilerplate to a fast start
+If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
 
-### Environment setup - in development
-Something quite interesting...
+- Configure the top-level `parserOptions` property like this:
 
-For projects in folder "projects-folder-name" structured as:
-- .../projects-folder-name/...
-  - .../web-application-backend
-  - .../web-application-frontend
-  - .../web-application-auth
-  - .../some-useful-microservice
-  - .../another-great-frontend
+```js
+   parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    project: ['./tsconfig.json', './tsconfig.node.json'],
+    tsconfigRootDir: __dirname,
+   },
+```
 
-creates a directory "environment" that contains some basic files to setup and connect all of the above:
-- docker-compose.example.yaml - template to be used when updating or creating new envs
-- .env.example - environment example file that will be placed next to each project
-- Makefile / PowerShell (TODO) - additional scripts to build dev environment
-- folders with projects:
-  - .env - with environment variables to configure project
-  - docker-compose.yaml - with all needed resources
-
-
-
-#### Terminal UI is based on [rscli-uikit](https://github.com/Red-Sock/rscli-uikit)
+- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
+- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
+- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list

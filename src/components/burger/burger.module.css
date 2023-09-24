@@ -1,0 +1,63 @@
+.Burger {
+    box-sizing: border-box;
+
+    width: 3em;
+    height: 100%;
+    display: flex;
+    flex-flow: column;
+    justify-content: space-evenly;
+    align-items: center;
+    transition: all .2s ease-in-out;
+}
+
+.Burger:hover {
+    transform: scale(1.05);
+
+}
+
+.Burger[data-isOpen="true"] {
+    justify-content: space-between;
+    align-items: start;
+}
+
+.Burger > * {
+    box-sizing: border-box;
+    background: black;
+    width: 80%;
+    height: 7%;
+}
+.Burger > *[data-isOpen="true"] {
+    width: 120%;
+}
+
+
+.TopLine {
+    transition: all .2s ease-in-out;
+}
+
+.TopLine[data-isOpen="true"] {
+    transform-origin: 0 100%;
+    transform: rotate(45deg);
+}
+
+
+.MidLine {
+    transition: all .2s ease-in-out;
+    transform: scale(1);
+    opacity: 1;
+}
+
+.MidLine[data-isOpen="true"] {
+    transform: scale(0);
+    opacity: 0;
+}
+
+
+.BotLine {
+    transition: all .2s ease-in-out;
+}
+
+.BotLine[data-isOpen="true"] {
+    transform-origin: 0 0;
+    transform: rotate(-45deg);
+}
