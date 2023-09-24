@@ -2,6 +2,7 @@ import cls from './burger.module.css'
 import {motion} from 'framer-motion';
 
 export function Burger(props: { isOpen: boolean; }) {
+
     return (
         <motion.div
             layout

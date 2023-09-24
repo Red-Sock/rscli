@@ -1,4 +1,6 @@
 .ContentDisplay {
-    flex: 3;
+    position: absolute;
+    height: 100%;
+    width: 100%;
     background-color: aqua;
 }

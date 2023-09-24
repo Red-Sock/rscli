@@ -1,7 +1,7 @@
 .Burger {
     box-sizing: border-box;
 
-    width: 3em;
+    width: 100%;
     height: 100%;
     display: flex;
     flex-flow: column;

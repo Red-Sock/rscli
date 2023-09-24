@@ -5,10 +5,10 @@
 
     max-height: 3em;
     background-color: rgb(65, 85, 222);
-
-    border: red solid;
+    border: rgb(65, 85, 222) solid;
 }
 
 .BurgerContainer {
+    width: 3em;
     height: 100%;
 }
