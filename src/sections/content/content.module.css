@@ -1,8 +1,17 @@
-.ContentDisplay {
+.ContentWrapper {
     position: absolute;
-    overflow: scroll;
 
     height: 100%;
     width: 100%;
-    background-color: rgb(179, 245, 245);
+    background-color: rgb(70, 96, 96);
+
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
 }
+
+.Content {
+    position: relative;
+    flex: 10;
+}
+
