@@ -1,12 +1,13 @@
 import cls from './burger.module.css'
-import {motion} from "framer-motion";
+import {motion} from 'framer-motion';
 
 export function Burger(props: { isOpen: boolean; }) {
     return (
         <motion.div
+            layout
+
             className={cls.Burger}
             data-isOpen={props.isOpen}
-            layout
         >
             <motion.div
                 data-isOpen={props.isOpen}

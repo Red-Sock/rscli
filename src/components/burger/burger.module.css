@@ -12,12 +12,15 @@
 
 .Burger:hover {
     transform: scale(1.05);
-
 }
 
 .Burger[data-isOpen="true"] {
     justify-content: space-between;
     align-items: start;
+    transform: scale(0.75);
+}
+.Burger[data-isOpen="true"]:hover {
+    transform: scale(0.80);
 }
 
 .Burger > * {
