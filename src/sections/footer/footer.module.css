@@ -3,4 +3,40 @@
 
     max-height: 2em;
     background-color: yellow;
+
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+
+.OpenButton {
+    margin-right: 1em;
+
+    width: 2em;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+
+    border: red solid;
+}
+
+.OpenButtonLeftLine {
+    width: 100%;
+    height: 0.2em;
+
+    /*transform: rotate(-45deg);*/
+
+    background: red;
+}
+
+.OpenButtonRightLine {
+    width: 100%;
+    height: 0.2em;
+
+    /*transform: rotate(45deg);*/
+
+    background: red;
 }
