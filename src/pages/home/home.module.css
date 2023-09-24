@@ -1,0 +1,20 @@
+.Home {
+    background-color: black;
+
+    display: flex;
+    flex-flow: column;
+    justify-content: space-between;
+
+    flex-grow: 1;
+    height: 100vh;
+}
+
+.contentWrap {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+}
+
+.sideBar {
+    flex: 1;
+}
