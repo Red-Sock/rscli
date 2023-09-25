@@ -20,22 +20,19 @@
     width: 2em;
     height: 2em;
     cursor: pointer;
-
-    transform: scale(0.8);
 }
 
 .ButtonContainer:hover {
-    transform: scale(0.9);
+    transform: scale(1.1);
 }
 
 .OpenButton {
     position: absolute;
 
     margin-right: 1em;
-    top: 1em;
 
-    width: 2em;
-    height: 0.25em;
+    width: 0.25em;
+    height: 2em;
 
     background: black;
 }
@@ -44,21 +41,21 @@
     content: '';
     position: absolute;
 
-    width: 60%;
-    height: 0.25em;
+    width: 0.25em;
+    height: 60%;
 
-    right: -0.09em;
+    top: -0.09em;
 
     background-color: black;
 }
 
 .OpenButton::after {
-    top: -0.4em;
-    transform: rotate(45deg)
+    right: -0.4em;
+    transform: rotate(-45deg)
 }
 
 .OpenButton::before {
-    top: 0.4em;
+    right: 0.4em;
     box-shadow: 0 3px 5px rgba(0, 0, 0, .2);
-    transform: rotate(-45deg);
+    transform: rotate(45deg);
 }
