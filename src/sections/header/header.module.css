@@ -5,8 +5,8 @@
     height: 5.45vh;
     width: 100%;
 
-    background-color: #808080;
-    border: rgb(128, 128, 128) solid;
+    background-color: var(--secondarry-bg-color);
+    border: var(--secondarry-bg-color) solid;
 }
 
 .BurgerContainer {

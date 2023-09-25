@@ -4,7 +4,7 @@
     flex: 1;
 
     max-height: 5vh;
-    background-color: rgb(128, 128, 128);
+    background-color: var(--secondarry-bg-color);
 
     display: flex;
     flex-direction: row-reverse;

@@ -1,11 +1,11 @@
 .Sidebar {
-    position: absolute;
+    position: fixed;
     top: 0;
     overflow: scroll;
 
     width: 20vw;
     height: 100%;
-    background: linear-gradient(90deg, rgba(80,80,80,0.9) 0%,  rgba(70, 96, 96, 0) 100%);
+    background: linear-gradient(90deg, var(--secondarry-bg-color) 0%,  rgba(70, 96, 96, 0) 100%);
     transition: all .2s ease-in-out;
 }
 

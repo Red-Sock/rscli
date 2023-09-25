@@ -1,8 +1,14 @@
 * {
   height: 100%;
 }
+
 root, body {
   margin: 0;
   height: 100%;
-  background: rgb(128, 128, 128);
+  background: var(--main-bg-color);
+}
+
+:root {
+  --main-bg-color: rgb(43, 43, 43);
+  --secondarry-bg-color: rgb(128, 128, 128);
 }
