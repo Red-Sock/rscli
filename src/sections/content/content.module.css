@@ -15,9 +15,12 @@
 }
 
 .Content {
+    box-sizing: border-box;
+
     padding-top: 4em;
     padding-left: 8em;
     padding-right: 8em;
+
     display: flex;
     flex-direction: column;
 
@@ -27,3 +30,49 @@
     color: whitesmoke;
 }
 
+p {
+    font-size: 2em;
+    line-height:1.5em;
+}
+
+h2 {
+    font-size: 3em;
+}
+
+h3 {
+    font-size: 2.5em;
+}
+
+
+blockquote {
+    box-sizing: border-box;
+
+    white-space: pre-wrap;
+
+    background: var(--quote-background);
+
+    margin-block: 0;
+    margin-inline: 0;
+
+    width: 100%;
+
+    border: wheat solid;
+}
+
+blockquote > p {
+    box-sizing: border-box;
+
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+
+    padding: 0.5em 2em 0.5em;
+}
+
+pre {
+    font-size: 1.5em;
+    box-sizing: border-box;
+    padding: 1em 1em 1em;
+    border: whitesmoke solid;
+}

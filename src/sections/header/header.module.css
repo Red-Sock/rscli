@@ -14,7 +14,3 @@
     height: 100%;
     transition: all .2s ease-in-out;
 }
-
-.BurgerContainer[data-isOpen="true"] {
-    transform: translateX(-100%) translateX(20vw);
-}

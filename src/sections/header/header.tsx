@@ -1,21 +1,24 @@
 import cls from './header.module.css'
 
-import { motion } from 'framer-motion';
-
 import {Burger} from '../../components/burger/burger.tsx';
+import {Sidebar} from "../sidebar/sidebar.tsx";
+import {useState} from "react";
 
-export function Header(props: { setIsOpen: (isOpen: boolean) => void; isOpen: boolean; }) {
+export function Header() {
+    const [isSideMenuOpen, setIsSideMenuOpen] = useState(false)
+
     return (
         <header className={cls.Header}>
-            <motion.div
-                layout
+            <div
                 className={cls.BurgerContainer}
-                data-isOpen={props.isOpen}
-                 onClick={()=> props.setIsOpen(!props.isOpen)}>
+                 onClick={()=> setIsSideMenuOpen(!isSideMenuOpen)}>
                 <Burger
-                    isOpen={props.isOpen}
+                    isOpen={isSideMenuOpen}
                 />
-            </motion.div>
+            </div>
+            <Sidebar
+                isOpen={isSideMenuOpen}
+            />
         </header>
     );
 }

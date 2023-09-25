@@ -7,6 +7,13 @@ export function Sidebar (props: { isOpen: any; }) {
             className={cls.Sidebar}
             layout
             data-isOpen={props.isOpen}
-        />
+        >
+            <div className={cls.Content}>
+                <ul>
+                    <li>123faefavtrsvtreagrvaerfgerg</li>
+                    <li>1234</li>
+                </ul>
+            </div>
+        </motion.div>
     );
 }
