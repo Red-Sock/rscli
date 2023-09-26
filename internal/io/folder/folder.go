@@ -89,7 +89,13 @@ func (f *Folder) addWithPath(pth string, folders ...*Folder) {
 
 func (f *Folder) GetByPath(pth ...string) *Folder {
 	currentFolder := f
+	splitPath := make([]string, 0, len(pth))
 	for _, p := range pth {
+		sp := strings.Split(p, string(os.PathListSeparator))
+		splitPath = append(splitPath, sp...)
+	}
+
+	for _, p := range splitPath {
 		var foundFolder *Folder
 		for _, cf := range currentFolder.Inner {
 			if cf.Name == p {

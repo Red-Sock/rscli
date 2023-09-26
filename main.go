@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-
 	root := &cobra.Command{
 		Use: "rscli [command] [arguments] [flags]",
 

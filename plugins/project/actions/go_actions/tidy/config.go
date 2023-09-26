@@ -27,6 +27,11 @@ func Config(p interfaces.Project) error {
 		Content: b,
 	})
 
+	p.GetFolder().Add(&folder.Folder{
+		Name:    path.Join(patterns.ConfigsFolder, patterns.DevConfigYamlFile),
+		Content: b,
+	})
+
 	appInfo := config.GetProjInfo()
 
 	if appInfo.Name != "" {

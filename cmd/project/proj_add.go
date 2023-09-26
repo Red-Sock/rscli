@@ -17,6 +17,8 @@ const (
 	redisArgument    = "redis"
 
 	telegramArgument = "telegram"
+
+	restArgument = "rest"
 )
 
 type dependency interface {
@@ -62,6 +64,16 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	err = p.proj.GetFolder().Build()
+	if err != nil {
+		return errors.Wrap(err, "error building folders")
+	}
+
+	err = p.proj.GetConfig().BuildTo(p.proj.GetConfigPath())
+	if err != nil {
+		return errors.Wrap(err, "error building config")
+	}
+
 	return nil
 }
 
@@ -91,6 +103,8 @@ func (p *projectAdd) getDependenciesFromUser(args []string) []dependency {
 			dep = dependencies.Redis{Cfg: p.config}
 		case telegramArgument:
 			dep = dependencies.Telegram{Cfg: p.config}
+		case restArgument:
+			dep = dependencies.Rest{Cfg: p.config}
 		default:
 			p.io.PrintlnColored(colors.ColorRed, "unknown dependency: "+arg)
 		}

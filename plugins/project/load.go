@@ -29,6 +29,7 @@ var configOrder = []string{
 
 func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 	configDirPath := path.Join(pth, path.Dir(cfg.Env.PathToConfigFolder))
+
 	dir, err := os.ReadDir(configDirPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "error reading config folder")
@@ -36,14 +37,14 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 
 	var yamlFiles = map[string]struct{}{}
 
-	var configPath string
 	for _, d := range dir {
 		if strings.HasSuffix(d.Name(), ".yaml") {
-			configPath = d.Name()
-			yamlFiles[configPath] = struct{}{}
+
+			yamlFiles[d.Name()] = struct{}{}
 		}
 	}
 
+	var configPath string
 	for _, d := range configOrder {
 		if _, ok := yamlFiles[d]; ok {
 			configPath = d
@@ -51,7 +52,9 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 		}
 	}
 
-	c, err := config.ReadConfig(path.Join(configDirPath, configPath))
+	configPath = path.Join(configDirPath, configPath)
+
+	c, err := config.ReadConfig(configPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "error parsing config")
 	}
@@ -81,7 +84,7 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 		Name:        name,
 		ProjectPath: pth,
 		Cfg:         c,
-		root:        f,
+		pthToCfg:    configPath,
 	}
 
 	err = interfaces.LoadProjectVersion(p)
