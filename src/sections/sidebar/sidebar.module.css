@@ -21,13 +21,13 @@
     margin: 1em 1em 1em;
     font-size: 1.5em;
 }
-ul {
-    padding: 0;
-}
-li {
-    cursor: pointer;
-}
+/*ul {*/
+/*    padding: 0;*/
+/*}*/
+/*li {*/
+/*    cursor: pointer;*/
+/*}*/
 
-li::marker {
-    content: "⌎";
-}
+/*li::marker {*/
+/*    content: "⌎";*/
+/*}*/
