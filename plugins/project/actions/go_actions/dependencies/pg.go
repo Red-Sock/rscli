@@ -23,19 +23,28 @@ func (Postgres) GetFolderName() string {
 }
 
 func (p Postgres) Do(proj interfaces.Project) error {
-	ok, err := containsDependency(p.Cfg, proj.GetFolder(), p.GetFolderName())
+	err := p.applyClientFolder(proj)
+	if err != nil {
+		return errors.Wrap(err, "error applying client folder")
+	}
+
+	p.applyConfig(proj)
+
+	return nil
+}
+
+func (p Postgres) applyClientFolder(proj interfaces.Project) error {
+	ok, err := containsDependency(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding dependency path")
 	}
 
 	if ok {
-		// TODO: RSI-141
-		// p.Io.Println("already contains pg dependency")
 		return nil
 	}
 
 	if len(p.Cfg.Env.PathsToClients) == 0 {
-		return ErrNoClientFolderInConfig
+		return ErrNoFolderInConfig
 	}
 
 	proj.GetFolder().Add(
@@ -49,15 +58,14 @@ func (p Postgres) Do(proj interfaces.Project) error {
 		},
 	)
 
-	err = proj.GetFolder().Build()
-	if err != nil {
-		return errors.Wrap(err, "error building pg connection folder")
-	}
-
-	ds := proj.GetConfig().DataSources
-	if _, ok = ds[p.GetFolderName()]; !ok {
-		ds[p.GetFolderName()] = resources.Postgres{}
-	}
-
 	return nil
+}
+
+func (p Postgres) applyConfig(proj interfaces.Project) {
+	ds := proj.GetConfig().DataSources
+	if _, ok := ds[p.GetFolderName()]; ok {
+		return
+	}
+
+	ds[p.GetFolderName()] = resources.Postgres{}
 }

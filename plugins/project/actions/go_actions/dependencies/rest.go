@@ -23,55 +23,37 @@ func (r Rest) GetFolderName() string {
 }
 
 func (r Rest) Do(proj interfaces.Project) error {
-	if len(r.Cfg.Env.PathToServers) == 0 {
-		return ErrNoServerFolderInConfig
-	}
 	defaultApiName := r.GetFolderName() + "_api"
 
-	r.doConfig(proj, defaultApiName)
-	r.doFolder(proj, defaultApiName)
-
-	err := proj.GetFolder().Build()
+	err := r.applyFolder(proj, defaultApiName)
 	if err != nil {
-		return errors.Wrap(err, "error building pg connection folder")
+		return errors.Wrap(err, "error applying rest folder")
 	}
+
+	r.applyConfig(proj, defaultApiName)
 
 	return nil
 }
 
-func (r Rest) doConfig(proj interfaces.Project, defaultApiName string) {
+func (r Rest) applyConfig(proj interfaces.Project, defaultApiName string) {
 	ds := proj.GetConfig().Server
-	if ds == nil {
-		ds = make(map[string]interface{})
-	}
 
-	containsConfig := false
-	for name := range ds {
-		if name == defaultApiName {
-			containsConfig = true
-			break
-		}
-	}
-
-	if containsConfig {
+	if _, ok := ds[defaultApiName]; ok {
 		return
 	}
+
 	ds[defaultApiName] = server.Rest{}
 
-	proj.GetConfig().Server = ds
 }
 
-func (r Rest) doFolder(proj interfaces.Project, defaultApiName string) {
-	containsFolder := false
-	for _, pth := range r.Cfg.Env.PathToServers {
-		if proj.GetFolder().GetByPath(pth, defaultApiName) != nil {
-			containsFolder = true
-			break
-		}
+func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error {
+	ok, err := containsDependency(r.Cfg.Env.PathToServers, proj.GetFolder(), r.GetFolderName())
+	if err != nil {
+		return errors.Wrap(err, "error searching dependencies")
 	}
 
-	if containsFolder {
-		return
+	if ok {
+		return nil
 	}
 
 	proj.GetFolder().Add(
@@ -85,4 +67,5 @@ func (r Rest) doFolder(proj interfaces.Project, defaultApiName string) {
 		},
 	)
 
+	return nil
 }

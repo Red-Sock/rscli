@@ -1,9 +1,7 @@
 package dependencies
 
 import (
-	"os"
 	"path"
-	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
 
@@ -25,9 +23,29 @@ func (t Telegram) GetFolderName() string {
 }
 
 func (t Telegram) Do(proj interfaces.Project) error {
-	ok, err := containsDependency(t.Cfg, proj.GetFolder(), t.GetFolderName())
+	err := t.applyClient(proj)
+	if err != nil {
+		return errors.Wrap(err, "error applying tg client")
+	}
+
+	err = t.applyFolder(proj)
+	if err != nil {
+		return errors.Wrap(err, "error applying tg folder")
+	}
+
+	t.applyConfig(proj)
+
+	return nil
+}
+
+func (t Telegram) applyClient(proj interfaces.Project) error {
+	ok, err := containsDependency(t.Cfg.Env.PathsToClients, proj.GetFolder(), t.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding dependency path")
+	}
+
+	if ok {
+		return nil
 	}
 
 	proj.GetFolder().Add(
@@ -37,21 +55,17 @@ func (t Telegram) Do(proj interfaces.Project) error {
 		},
 	)
 
-	if len(t.Cfg.Env.PathToServers) == 0 {
-		return ErrNoServerFolderInConfig
+	return nil
+}
+
+func (t Telegram) applyFolder(proj interfaces.Project) error {
+	ok, err := containsDependency(t.Cfg.Env.PathToServers, proj.GetFolder(), t.GetFolderName())
+	if err != nil {
+		return err
 	}
 
-	for _, pth := range t.Cfg.Env.PathToServers {
-		srvFold := proj.GetFolder().GetByPath(strings.Split(pth, string(os.PathSeparator))...)
-		if srvFold == nil {
-			continue
-		}
-
-		for _, innerFolder := range srvFold.Inner {
-			if innerFolder.Name == t.GetFolderName() {
-				return nil
-			}
-		}
+	if ok {
+		return nil
 	}
 
 	proj.GetFolder().Add(
@@ -70,20 +84,15 @@ func (t Telegram) Do(proj interfaces.Project) error {
 		},
 	)
 
-	err = proj.GetFolder().Build()
-	if err != nil {
-		return errors.Wrap(err, "error building pg connection folder")
-	}
-
-	ds := proj.GetConfig().Server
-	if ds == nil {
-		ds = make(map[string]interface{})
-	}
-	if _, ok = ds[t.GetFolderName()]; !ok {
-		ds[t.GetFolderName()] = server.Telegram{}
-	}
-
-	proj.GetConfig().Server = ds
-
 	return nil
+}
+
+func (t Telegram) applyConfig(proj interfaces.Project) {
+	ds := proj.GetConfig().Server
+
+	if _, ok := ds[t.GetFolderName()]; ok {
+		return
+	}
+
+	ds[t.GetFolderName()] = server.Telegram{}
 }

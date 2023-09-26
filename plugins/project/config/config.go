@@ -48,7 +48,20 @@ func ReadConfig(pth string) (*Config, error) {
 	}
 
 	c := &Config{}
-	return c, yaml.NewDecoder(f).Decode(c)
+	err = yaml.NewDecoder(f).Decode(c)
+	if err != nil {
+		return nil, errors.Wrap(err, "error decoding config to struct")
+	}
+
+	if c.DataSources == nil {
+		c.DataSources = make(map[string]interface{})
+	}
+
+	if c.Server == nil {
+		c.Server = map[string]interface{}{}
+	}
+
+	return c, nil
 }
 
 func NewConfig(b []byte) (*Config, error) {
@@ -57,7 +70,7 @@ func NewConfig(b []byte) (*Config, error) {
 }
 
 func (c *Config) BuildTo(cfgFile string) error {
-	f, err := os.Open(cfgFile)
+	f, err := os.OpenFile(cfgFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "error opening cfg file")
 	}

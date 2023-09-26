@@ -17,7 +17,9 @@ type Validator func(p interfaces.Project) error
 type Project struct {
 	Name        string
 	ProjectPath string
-	Cfg         *config.Config
+
+	Cfg      *config.Config
+	pthToCfg string
 
 	Actions []actions.Action
 
@@ -25,6 +27,10 @@ type Project struct {
 
 	validators []Validator
 	root       folder.Folder
+}
+
+func (p *Project) GetConfigPath() string {
+	return p.pthToCfg
 }
 
 func (p *Project) GetShortName() string {
