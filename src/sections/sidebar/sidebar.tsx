@@ -2,8 +2,8 @@ import { motion } from 'framer-motion';
 import cls from './sidebar.module.css'
 import {TreeItem, TreeView} from "@mui/x-tree-view";
 
-import {FoldedIcon} from "../../components/tree/foldedIcon.tsx";
-import {UnfoldedIcon} from "../../components/tree/unfoldedIcon.tsx";
+import {FoldedIcon} from '../../components/tree/foldedIcon';
+import {UnfoldedIcon} from '../../components/tree/unfoldedIcon';
 export function Sidebar (props: { isOpen: any; }) {
 
     return (

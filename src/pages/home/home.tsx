@@ -1,7 +1,7 @@
 import cls from './home.module.css';
 
-import {Header} from "../../sections/header/header.tsx";
-import {ContentWrapper} from "../../sections/content/content.tsx";
+import {Header} from "../../sections/header/header";
+import {ContentWrapper} from "../../sections/content/content";
 
 export function Home() {
     return (

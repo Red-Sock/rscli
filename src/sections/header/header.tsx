@@ -1,9 +1,9 @@
 import cls from './header.module.css'
 
-import {Burger} from '../../components/burger/burger.tsx';
-import {Sidebar} from "../sidebar/sidebar.tsx";
+import {Burger} from '../../components/burger/burger';
+import {Sidebar} from "../sidebar/sidebar";
 import {useState} from "react";
-import {Search} from "../../components/search/search.tsx";
+import {Search} from "../../components/search/search";
 
 export function Header() {
     const [isSideMenuOpen, setIsSideMenuOpen] = useState(false)
