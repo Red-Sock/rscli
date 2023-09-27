@@ -16,7 +16,10 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	pconfig "github.com/Red-Sock/rscli/plugins/project/config"
+	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
+
+var ErrNoConfig = errors.New("no config found")
 
 type Env struct {
 	envDirPath  string
@@ -246,49 +249,78 @@ func (e *Env) fetchEnvFile() error {
 // 2. dev.yaml file in src project (at PATH_TO_CONFIG/dev.yaml)
 // if config was found by 2nd variant - it will be moved to ./environment/proj_name/dev.yaml
 // and symlink will be created to it at src_proj/PATH_TO_CONFIG/dev.yaml
-func (e *Env) fetchConfig(cfg *config.RsCliConfig) (err error) {
-	projEnvConfigPath := path.Join(e.envDirPath, path.Base(cfg.Env.PathToConfigFolder))
-
-	f, err := os.ReadFile(projEnvConfigPath)
+func (e *Env) fetchConfig(cfg *config.RsCliConfig) error {
+	f, err := e.findEnvConfig(cfg)
 	if err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
-			return errors.Wrap(err, "error ")
-		}
-	}
-
-	if len(f) == 0 {
-		srcProjectsDirPth := path.Dir(path.Dir(e.envDirPath))
-		projName := path.Base(e.envDirPath)
-		srcProjectConfigPath := path.Join(srcProjectsDirPth, projName, cfg.Env.PathToConfigFolder)
-
-		f, err = os.ReadFile(srcProjectConfigPath)
-		if err != nil {
-			if errors.Is(err, os.ErrNotExist) {
-				return errors.Wrap(err, "project at "+srcProjectConfigPath+" doesn't contain config")
-			}
-			return errors.Wrap(err, "error reading project config file")
-		}
-
-		err = os.WriteFile(projEnvConfigPath, f, os.ModePerm)
-		if err != nil {
-			return errors.Wrap(err, "error moving project config file to env")
-		}
-
-		err = os.RemoveAll(srcProjectConfigPath)
-		if err != nil {
-			return errors.Wrap(err, "error deleting config at "+srcProjectConfigPath)
-		}
-
-		err = os.Symlink(projEnvConfigPath, srcProjectConfigPath)
-		if err != nil {
-			return errors.Wrap(err, "error creating symlink from "+projEnvConfigPath+" to "+srcProjectConfigPath)
-		}
+		return errors.Wrap(err, "error finding environment config")
 	}
 
 	e.Config, err = pconfig.NewConfig(f)
 	if err != nil {
 		return errors.Wrap(err, "error parsing config")
 	}
-
 	return nil
+}
+
+func (e *Env) findEnvConfig(cfg *config.RsCliConfig) ([]byte, error) {
+	// trying to find env.yaml file in env folder
+	envConfigPath := path.Join(e.envDirPath, projpatterns.EnvConfigYamlFile)
+
+	f, err := os.ReadFile(envConfigPath)
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			return nil, errors.Wrap(err, "error reading environment config file")
+		}
+	}
+	if len(f) != 0 {
+		return f, nil
+	}
+
+	srcProjectsDirPth := path.Dir(path.Dir(e.envDirPath))
+	projName := path.Base(e.envDirPath)
+	projEnvConfigPath := path.Join(srcProjectsDirPth, projName, path.Dir(cfg.Env.PathToConfig), projpatterns.EnvConfigYamlFile)
+
+	// trying to find env.yaml file in project folder (might be left from previous "rscli env" use)
+	f, err = os.ReadFile(projEnvConfigPath)
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			return nil, errors.Wrap(err, "error reading environment config file in project")
+		}
+	}
+
+	if len(f) != 0 {
+		err = os.Link(projEnvConfigPath, envConfigPath)
+		if err != nil {
+			return nil, errors.Wrap(err, "error creating hardlink from "+projEnvConfigPath+" to "+envConfigPath)
+		}
+		return f, nil
+	}
+
+	// trying to find default config file in project folder (might be left from previous "rscli env" use)
+
+	srcProjectConfigPath := path.Join(srcProjectsDirPth, projName, cfg.Env.PathToConfig)
+
+	f, err = os.ReadFile(srcProjectConfigPath)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil, errors.Wrap(err, "project at "+srcProjectConfigPath+" doesn't contain config")
+		}
+		return nil, errors.Wrap(err, "error reading project config file")
+	}
+
+	if len(f) == 0 {
+		return nil, errors.Wrap(ErrNoConfig, "no config found")
+	}
+
+	err = os.WriteFile(envConfigPath, f, os.ModePerm)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating environment config at "+envConfigPath)
+	}
+
+	err = os.Link(envConfigPath, projEnvConfigPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating hardlink from "+envConfigPath+" to "+projEnvConfigPath)
+	}
+
+	return f, nil
 }
