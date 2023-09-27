@@ -62,9 +62,6 @@ func (p Redis) applyConfig(proj interfaces.Project) {
 	ds[p.GetFolderName()] = resources.Redis{
 		ResourceName: "redis",
 		Host:         "localhost",
-		Port:         0,
-		User:         "",
-		Pwd:          "",
-		Db:           0,
+		Port:         6379,
 	}
 }

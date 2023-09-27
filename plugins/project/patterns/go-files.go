@@ -57,7 +57,7 @@ const (
 	TgHandlerFileName    = "handler.go"
 	ConfigsFolder        = "config"
 	ConfigFileName       = "config.go"
-	ConfigTemplate       = "config.yaml.template"
+	ConfigTemplate       = "config_template.yaml"
 	ConfigKeysFileName   = "keys.go"
 
 	GoMod = "go.mod"

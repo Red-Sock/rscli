@@ -67,5 +67,13 @@ func (p Postgres) applyConfig(proj interfaces.Project) {
 		return
 	}
 
-	ds[p.GetFolderName()] = resources.Postgres{}
+	ds[p.GetFolderName()] = resources.Postgres{
+		ResourceName: p.GetFolderName(),
+		Host:         "localhost",
+		Port:         5432,
+		Name:         "",
+		User:         "",
+		Pwd:          "",
+		SSLMode:      "",
+	}
 }
