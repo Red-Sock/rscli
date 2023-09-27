@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import cls from './sidebar.module.css'
+
 import {TreeItem, TreeView} from "@mui/x-tree-view";
 
 import {FoldedIcon} from '../../components/tree/foldedIcon';
