@@ -5,7 +5,7 @@ import {memo, useState} from "react";
 
 
 export const ContentWrapper = memo(() => {
-        const contentURL = "https://red-sock.github.io";
+        const contentURL = "https://raw.githubusercontent.com/Red-Sock/rscli/gh-pages/docs/";
         const projectPath = "rscli";
         const docsFolder = "docs"
         const fileExtension = ".md"
@@ -16,7 +16,7 @@ export const ContentWrapper = memo(() => {
 
 
         const [content, setContent] = useState("")
-        const resourceURL = [contentURL, projectPath, docsFolder, resourcePath+fileExtension].join("/")
+        const resourceURL = [contentURL, resourcePath+fileExtension].join("/")
 
         fetch(resourceURL).then(async (response) => {
             if (response.ok) {
