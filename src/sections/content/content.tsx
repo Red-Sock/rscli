@@ -1,40 +1,39 @@
 import cls from './content.module.css'
 
 import ReactMarkdown from 'react-markdown'
-import {memo, useState} from "react";
+import {useState} from "react";
+
+import {doStaff} from '../../services/file-fetcher';
 
 
-export const ContentWrapper = memo(() => {
-        const contentURL = "https://raw.githubusercontent.com/Red-Sock/rscli/docs/docs/";
-        const projectPath = "rscli";
-        const docsFolder = "docs"
-        const fileExtension = ".md"
+export const ContentWrapper = () => {
 
-        const resourcePath = window.location.href.substring(
-            window.location.href.indexOf(projectPath)+projectPath.length+1
-        )
+    const path = doStaff();
+    console.log('res url', path.resourceURL);
+    console.log('ref url', path.refreshURl);
 
+    const [content, setContent] = useState("# Content is loading...")
 
-        const [content, setContent] = useState("")
-        const resourceURL = [contentURL, resourcePath+fileExtension].join("/")
+    if (path.resourceURL.length === 0) {
+        window.location.replace(path.refreshURl);
+    }
 
-        fetch(resourceURL).then(async (response) => {
-            if (response.ok) {
-                setContent(await response.text())
-            } else {
-                window.location.replace([window.location.href.substring(0, window.location.href.indexOf(projectPath)-1), projectPath, "home"].join("/"));
-            }
-        })
+    fetch(path.resourceURL).then(async (response) => {
+        if (response.ok) {
+            setContent(await response.text())
+        }
+        window.location.replace(path.refreshURl);
+    })
 
-        return (
-            <div className={cls.ContentWrapper}>
-                <div className={cls.ContentField}>
-                    <div className={cls.Content}>
-                        <ReactMarkdown
-                            children={content}/>
-                    </div>
+    return (
+        <div className={cls.ContentWrapper}>
+            <div className={cls.ContentField}>
+                <div className={cls.Content}>
+                    <ReactMarkdown
+                        children={content}/>
                 </div>
             </div>
-        );
-    }
-)
+        </div>
+    );
+}
+
