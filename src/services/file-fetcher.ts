@@ -4,7 +4,7 @@ const resourceDelimiter = "#/"
 const defaultURI = "home";
 const fileExtension = ".md";
 
-export function doStaff() {
+export function getResourceURLs() {
     let currentPage = window.location.href
     let correctPageBase = window.location.origin + projectRoot + resourceDelimiter;
 

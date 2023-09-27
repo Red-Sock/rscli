@@ -3,14 +3,12 @@ import cls from './content.module.css'
 import ReactMarkdown from 'react-markdown'
 import {useState} from "react";
 
-import {doStaff} from '../../services/file-fetcher';
+import {getResourceURLs} from '../../services/file-fetcher';
 
 
 export const ContentWrapper = () => {
 
-    const path = doStaff();
-    console.log('res url', path.resourceURL);
-    console.log('ref url', path.refreshURl);
+    const path = getResourceURLs();
 
     const [content, setContent] = useState("# Content is loading...")
 
