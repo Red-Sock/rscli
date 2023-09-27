@@ -10,5 +10,5 @@ const (
 const (
 	RESTHTTPServer = "rest"
 	GRPCServer     = "grpc"
-	TelegramServer = "tg"
+	TelegramServer = "telegram"
 )

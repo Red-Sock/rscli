@@ -19,7 +19,7 @@ type Telegram struct {
 }
 
 func (t Telegram) GetFolderName() string {
-	return "telegram"
+	return patterns.TelegramServer
 }
 
 func (t Telegram) Do(proj interfaces.Project) error {
