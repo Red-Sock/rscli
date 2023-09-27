@@ -5,7 +5,7 @@ import {memo, useState} from "react";
 
 
 export const ContentWrapper = memo(() => {
-        const contentURL = "https://raw.githubusercontent.com/Red-Sock/rscli/gh-pages/docs/";
+        const contentURL = "https://raw.githubusercontent.com/Red-Sock/rscli/docs/docs/";
         const projectPath = "rscli";
         const docsFolder = "docs"
         const fileExtension = ".md"
