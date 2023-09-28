@@ -21,16 +21,23 @@ import (
 
 var ErrNoConfig = errors.New("no config found")
 
+type envResourcePattern interface {
+	GetByName(envName string) (value string)
+}
+
 type Env struct {
 	envDirPath  string
 	Compose     *compose.Compose
 	Environment *env.Container
 	Config      *pconfig.Config
+
+	environmentResourcePatterns envResourcePattern
 }
 
-func LoadProjectEnvironment(cfg *config.RsCliConfig, pathToProjectEnv string) (p *Env, err error) {
+func LoadProjectEnvironment(cfg *config.RsCliConfig, envResourcePattern envResourcePattern, pathToProjectEnv string) (p *Env, err error) {
 	p = &Env{
-		envDirPath: pathToProjectEnv,
+		envDirPath:                  pathToProjectEnv,
+		environmentResourcePatterns: envResourcePattern,
 	}
 
 	err = p.fetchComposeFile()
@@ -53,6 +60,8 @@ func LoadProjectEnvironment(cfg *config.RsCliConfig, pathToProjectEnv string) (p
 
 func (e *Env) Tidy(pm *ports.PortManager, composePatterns compose.PatternManager) error {
 	projName := path.Base(e.envDirPath)
+
+	e.tidyEnvFile()
 
 	err := e.tidyResources(projName, composePatterns, pm)
 	if err != nil {
@@ -89,13 +98,16 @@ func (e *Env) Tidy(pm *ports.PortManager, composePatterns compose.PatternManager
 	return nil
 }
 
-func (e *Env) tidyResources(projName string, composePatterns compose.PatternManager, pm *ports.PortManager) error {
-	dataResources, err := e.Config.GetDataSourceOptions()
-	if err != nil {
-		return errors.Wrap(err, "error obtaining data source options")
+func (e *Env) tidyEnvFile() {
+	for _, envVar := range e.Environment.Content() {
+		if envVar.Name == "" || envVar.Name[0] == '#' {
+			e.Environment.Remove(envVar.Name)
+		}
 	}
+}
 
-	dependencies, err := composePatterns.GetServiceDependencies(dataResources)
+func (e *Env) tidyResources(projName string, composePatterns compose.PatternManager, pm *ports.PortManager) error {
+	dependencies, err := composePatterns.GetServiceDependencies(e.Config)
 	if err != nil {
 		return errors.Wrap(err, "error getting dependencies for service "+e.Config.AppInfo.Name)
 	}
@@ -105,19 +117,21 @@ func (e *Env) tidyResources(projName string, composePatterns compose.PatternMana
 		patternEnv := resource.GetEnvs().Content()
 
 		for idx := range patternEnv {
-			oldName := patternEnv[idx].Name
 
 			newEnvName := strings.ReplaceAll(patternEnv[idx].Name,
 				patterns.ResourceNameCapsPattern, strings.ToUpper(resource.Name))
 
-			newEnvName = strings.ReplaceAll(newEnvName,
-				"__", "_")
-
-			newEnvName = string(renamer.ReplaceProjectNameStr(newEnvName, projName))
+			{
+				newEnvName = strings.ReplaceAll(newEnvName,
+					"__", "_")
+				newEnvName = renamer.ReplaceProjectNameStr(newEnvName, projName)
+			}
 
 			if e.Environment.ContainsByName(newEnvName) {
 				continue
 			}
+
+			newEnvValue := e.environmentResourcePatterns.GetByName(newEnvName)
 
 			if strings.HasSuffix(newEnvName, patterns.PortSuffix) {
 				var port uint64
@@ -128,10 +142,14 @@ func (e *Env) tidyResources(projName string, composePatterns compose.PatternMana
 						patternEnv[idx].Value)
 				}
 
-				patternEnv[idx].Value = strconv.FormatUint(uint64(pm.GetNextPort(uint16(port), newEnvName)), 10)
+				newEnvValue = strconv.FormatUint(uint64(pm.GetNextPort(uint16(port), newEnvName)), 10)
+			} else {
+				newEnvValue = renamer.ReplaceProjectNameStr(newEnvValue, projName)
 			}
-			resource.RenameVariable(oldName, newEnvName)
-			e.Environment.Append(newEnvName, patternEnv[idx].Value)
+
+			resource.RenameVariable(patternEnv[idx].Name, newEnvName)
+
+			e.Environment.Append(newEnvName, newEnvValue)
 		}
 
 		e.Compose.AppendService(resource.Name, resource.GetCompose())
@@ -219,21 +237,6 @@ func (e *Env) fetchEnvFile() error {
 		if !errors.Is(err, os.ErrNotExist) {
 			return errors.Wrap(err, "error reading project .env file "+dotEnvFilePath)
 		}
-	}
-
-	if len(envFile) == 0 {
-		globalDotEnvPath := path.Join(path.Dir(e.envDirPath), patterns.EnvFile.Name)
-		envFile, err = os.ReadFile(globalDotEnvPath)
-		if err != nil {
-			if !errors.Is(err, os.ErrNotExist) {
-				return errors.Wrap(err, "error reading global .env file "+globalDotEnvPath)
-			}
-		}
-	}
-
-	if len(envFile) == 0 {
-		projName := path.Base(e.envDirPath)
-		envFile = renamer.ReplaceProjectName(patterns.EnvFile.Content, projName)
 	}
 
 	e.Environment, err = env.NewEnvContainer(envFile)

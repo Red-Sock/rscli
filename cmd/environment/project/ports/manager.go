@@ -38,13 +38,12 @@ func (p *PortManager) GetNextPort(in uint16, key string) uint16 {
 	}
 }
 
-func (p *PortManager) SaveIfNotExist(port uint16, name string) (conflict string) {
+func (p *PortManager) SaveIfNotExist(port uint16, name string) (conflictServiceName string) {
 	p.m.Lock()
 	defer p.m.Unlock()
 
 	if existingName, ok := p.ports[port]; ok {
 		return existingName
-
 	}
 
 	p.ports[port] = name

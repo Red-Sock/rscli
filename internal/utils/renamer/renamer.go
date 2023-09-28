@@ -24,6 +24,6 @@ func ReplaceProjectName(src []byte, newName string) []byte {
 	return b
 }
 
-func ReplaceProjectNameStr(src string, newName string) []byte {
-	return ReplaceProjectName([]byte(src), newName)
+func ReplaceProjectNameStr(src string, newName string) string {
+	return string(ReplaceProjectName([]byte(src), newName))
 }

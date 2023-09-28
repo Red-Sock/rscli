@@ -26,7 +26,7 @@ type Constructor struct {
 	Io  io.IO
 
 	ComposePatterns compose.PatternManager
-	EnvPatterns     *env.Container
+	EnvManager      *envManager
 
 	envDirPath  string
 	srcProjDirs []os.DirEntry
@@ -39,22 +39,16 @@ func NewEnvConstructor() *Constructor {
 		Io:  io.StdIO{},
 
 		ComposePatterns: compose.PatternManager{},
-		EnvPatterns:     &env.Container{},
+		EnvManager:      &envManager{},
 	}
 }
 
-func (c *Constructor) FetchConstructor(cmd *cobra.Command, _ []string) error {
-	c.envDirPath = cmd.Flag(PathFlag).Value.String()
-
-	if c.envDirPath == "" {
-		c.envDirPath = io.GetWd()
-	}
-
-	if path.Base(c.envDirPath) != patterns.EnvDir {
-		c.envDirPath = path.Join(c.envDirPath, patterns.EnvDir)
-	}
-
+func (c *Constructor) FetchConstructor(cmd *cobra.Command, args []string) error {
 	var err error
+	err = c.fetchWD(cmd, args)
+	if err != nil {
+		return errors.Wrap(err, "error fetching working directory")
+	}
 
 	c.srcProjDirs, err = os.ReadDir(path.Dir(c.envDirPath))
 	if err != nil {
@@ -71,19 +65,17 @@ func (c *Constructor) FetchConstructor(cmd *cobra.Command, _ []string) error {
 	composePatternsPath := path.Join(c.envDirPath, patterns.DockerComposeFile.Name)
 	c.ComposePatterns, err = compose.ReadComposePatternsFromFile(composePatternsPath)
 	if err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
-			return errors.Wrap(err, "error reading compose file at "+composePatternsPath)
-		}
-
+		return errors.Wrap(err, "error creating compose file at "+composePatternsPath)
 	}
 
 	envPattern := path.Join(c.envDirPath, patterns.EnvExampleFile)
-	c.EnvPatterns, err = env.ReadContainer(envPattern)
+
+	globalEnv, err := env.ReadContainer(envPattern)
 	if err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
-			return errors.Wrap(err, "can't open env file at "+envPattern)
-		}
+		return errors.Wrap(err, "can't open env file at "+envPattern)
 	}
+
+	c.EnvManager = newEnvManager(globalEnv)
 
 	err = c.filterFolders()
 	if err != nil {
@@ -93,6 +85,20 @@ func (c *Constructor) FetchConstructor(cmd *cobra.Command, _ []string) error {
 	return nil
 
 }
+func (c *Constructor) fetchWD(cmd *cobra.Command, _ []string) error {
+	c.envDirPath = cmd.Flag(PathFlag).Value.String()
+
+	if c.envDirPath == "" {
+		c.envDirPath = io.GetWd()
+	}
+
+	if path.Base(c.envDirPath) != patterns.EnvDir {
+		c.envDirPath = path.Join(c.envDirPath, patterns.EnvDir)
+	}
+
+	return nil
+}
+
 func (c *Constructor) filterFolders() error {
 	filter := func(dirs []os.DirEntry, srcProjDir string) ([]os.DirEntry, error) {
 		var idx int

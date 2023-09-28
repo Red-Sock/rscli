@@ -19,7 +19,8 @@ const (
 const (
 	ProjNamePattern         = "proj_name"
 	ProjNameCapsPattern     = "PROJ_NAME_CAPS"
-	ResourceNameCapsPattern = "RESOURCE_NAME_CAPS"
+	ResourceCapsPattern     = "RESOURCE"
+	ResourceNameCapsPattern = ResourceCapsPattern + "_NAME_CAPS"
 )
 
 const ()

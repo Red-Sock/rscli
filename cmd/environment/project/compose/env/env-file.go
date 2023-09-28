@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	errors "github.com/Red-Sock/trace-errors"
+
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 )
 
@@ -27,14 +29,23 @@ type Variable struct {
 func ReadContainer(pth string) (*Container, error) {
 	f, err := os.ReadFile(pth)
 	if err != nil {
-		return nil, err
+		if !errors.Is(err, os.ErrNotExist) {
+			return nil, errors.Wrap(err, "error reading container")
+		}
 	}
 
-	return NewEnvContainer(f)
+	if len(f) != 0 {
+		return NewEnvContainer(f)
+	}
+
+	return NewEnvContainer(patterns.EnvFile.Content)
 }
 
 func NewEnvContainer(src []byte) (*Container, error) {
 	es := &Container{}
+	if len(src) == 0 {
+		return es, nil
+	}
 
 	return es, es.UnmarshalEnv(src)
 }
@@ -137,4 +148,14 @@ func (e *Container) Rename(oldName, newName string) {
 			return
 		}
 	}
+}
+
+func (e *Container) Remove(name string) {
+	for idx, envVar := range e.content {
+		if envVar.Name == name {
+			e.content[0], e.content[idx] = e.content[idx], e.content[0]
+			break
+		}
+	}
+	e.content = e.content[1:]
 }

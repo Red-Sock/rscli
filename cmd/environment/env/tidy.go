@@ -40,7 +40,7 @@ func (c *Constructor) RunTidy(cmd *cobra.Command, arg []string) error {
 		projName := c.envProjDirs[idx].Name()
 
 		var proj *project.Env
-		proj, err = project.LoadProjectEnvironment(c.Cfg, path.Join(c.envDirPath, projName))
+		proj, err = project.LoadProjectEnvironment(c.Cfg, c.EnvManager.resources, path.Join(c.envDirPath, projName))
 		if err != nil {
 			return errors.Wrap(err, "error loading environment for project "+projName)
 		}
@@ -51,8 +51,9 @@ func (c *Constructor) RunTidy(cmd *cobra.Command, arg []string) error {
 		}
 
 		for _, item := range envPorts {
-			if conflictName := portManager.SaveIfNotExist(item.Value, item.Name); conflictName != "" {
-				conflicts[item.Value] = []string{conflictName, item.Name}
+			conflictServiceName := portManager.SaveIfNotExist(item.Value, item.Name)
+			if conflictServiceName != "" {
+				conflicts[item.Value] = []string{conflictServiceName, item.Name}
 			}
 		}
 
@@ -68,14 +69,14 @@ func (c *Constructor) RunTidy(cmd *cobra.Command, arg []string) error {
 	errC := make(chan error)
 	for idx := range projectsEnvs {
 		go func(i int) {
-			err := projectsEnvs[i].Tidy(portManager, c.ComposePatterns)
-			if err != nil {
+			tidyErr := projectsEnvs[i].Tidy(portManager, c.ComposePatterns)
+			if tidyErr != nil {
 				progresses[i].Done(loader.DoneFailed)
 			} else {
 				progresses[i].Done(loader.DoneSuccessful)
 			}
 
-			errC <- err
+			errC <- tidyErr
 		}(idx)
 	}
 
