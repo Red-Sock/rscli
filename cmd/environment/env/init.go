@@ -110,6 +110,7 @@ func (c *Constructor) initProjectsDirs() error {
 
 	return stderrs.Join(errors.New("error preparing projects dirs"), stderrs.Join(errs...))
 }
+
 func (c *Constructor) initProjectDir(d os.DirEntry) error {
 	envProjDir := path.Join(c.envDirPath, d.Name())
 
@@ -119,7 +120,7 @@ func (c *Constructor) initProjectDir(d os.DirEntry) error {
 	}
 
 	var f []byte
-	for _, spirit := range []patterns.File{c.selectMakefile(), patterns.EnvFile} {
+	for _, spirit := range []patterns.File{c.selectMakefile()} {
 
 		f, err = os.ReadFile(path.Join(c.envDirPath, spirit.Name))
 		if err != nil {

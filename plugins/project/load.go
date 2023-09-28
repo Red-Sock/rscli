@@ -28,7 +28,7 @@ var configOrder = []string{
 }
 
 func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
-	configDirPath := path.Join(pth, path.Dir(cfg.Env.PathToConfigFolder))
+	configDirPath := path.Join(pth, path.Dir(cfg.Env.PathToConfig))
 
 	dir, err := os.ReadDir(configDirPath)
 	if err != nil {

@@ -12,14 +12,14 @@ type File struct {
 const (
 	PortSuffix = "PORT"
 
-	EnvDir         = "environment"
-	EnvExampleFile = ".env.example"
+	EnvDir = "environment"
 )
 
 const (
 	ProjNamePattern         = "proj_name"
 	ProjNameCapsPattern     = "PROJ_NAME_CAPS"
-	ResourceNameCapsPattern = "RESOURCE_NAME_CAPS"
+	ResourceCapsPattern     = "RESOURCE"
+	ResourceNameCapsPattern = ResourceCapsPattern + "_NAME_CAPS"
 )
 
 const ()

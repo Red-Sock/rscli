@@ -13,7 +13,7 @@ import (
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/internal/utils/copier"
 	"github.com/Red-Sock/rscli/internal/utils/nums"
-	"github.com/Red-Sock/rscli/plugins/project/config/resources"
+	"github.com/Red-Sock/rscli/plugins/project/config"
 )
 
 const (
@@ -90,7 +90,12 @@ func (p *Pattern) RenameVariable(oldName, newName string) {
 
 }
 
-func (c *PatternManager) GetServiceDependencies(resource []resources.Resource) ([]Pattern, error) {
+func (c *PatternManager) GetServiceDependencies(cfg *config.Config) ([]Pattern, error) {
+	resource, err := cfg.GetDataSourceOptions()
+	if err != nil {
+		return nil, errors.Wrap(err, "error obtaining data source options")
+	}
+
 	clients := make([]Pattern, 0, len(resource))
 
 	for _, resourceDependency := range resource {
