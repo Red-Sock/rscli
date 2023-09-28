@@ -38,7 +38,7 @@ func ReadContainer(pth string) (*Container, error) {
 		return NewEnvContainer(f)
 	}
 
-	return NewEnvContainer(patterns.EnvFile.Content)
+	return NewEnvContainer(nil)
 }
 
 func NewEnvContainer(src []byte) (*Container, error) {

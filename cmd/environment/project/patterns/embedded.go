@@ -12,8 +12,7 @@ type File struct {
 const (
 	PortSuffix = "PORT"
 
-	EnvDir         = "environment"
-	EnvExampleFile = ".env.example"
+	EnvDir = "environment"
 )
 
 const (

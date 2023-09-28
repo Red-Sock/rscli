@@ -68,14 +68,25 @@ func (c *Constructor) FetchConstructor(cmd *cobra.Command, args []string) error 
 		return errors.Wrap(err, "error creating compose file at "+composePatternsPath)
 	}
 
-	envPattern := path.Join(c.envDirPath, patterns.EnvExampleFile)
-
+	envContainer, err := env.NewEnvContainer(patterns.EnvFile.Content)
+	if err != nil {
+		return errors.Wrap(err, "error parsing env container")
+	}
+	envPattern := path.Join(c.envDirPath, patterns.EnvFile.Name)
 	globalEnv, err := env.ReadContainer(envPattern)
 	if err != nil {
 		return errors.Wrap(err, "can't open env file at "+envPattern)
 	}
 
-	c.EnvManager = newEnvManager(globalEnv)
+	for _, preDefined := range envContainer.Content() {
+		for _, userDefined := range globalEnv.Content() {
+			if preDefined.Name == userDefined.Name {
+				envContainer.Append(preDefined.Name, userDefined.Value)
+			}
+		}
+	}
+
+	c.EnvManager = newEnvManager(envContainer)
 
 	err = c.filterFolders()
 	if err != nil {
