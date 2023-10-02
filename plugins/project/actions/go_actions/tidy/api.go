@@ -81,17 +81,9 @@ func insertApiSetupInMainIfNotExists(p interfaces.Project, projMainFile *folder.
 
 	const (
 		// key lines for starting and stopping servers
-		apiEntryPointStopFunc = `stopFunc := `
-		apiEntryPointCall     = `bootstrap.ApiEntryPoint`
-		apiEntryPointArgs     = `(ctx, cfg)`
+		apiEntryPointCall = `bootstrap.ApiEntryPoint`
 
-		apiEntryPointStop         = `stopFunc(context.Background())`
-		apiEntryPointStopFuncCall = `
-	err = %s
-	if err != nil {
-		logrus.Fatal(err)
-	}
-`
+		apiEntryPointStop = `stopFunc(context.Background())`
 	)
 
 	var insertBeforeEnd []byte
@@ -99,12 +91,12 @@ func insertApiSetupInMainIfNotExists(p interfaces.Project, projMainFile *folder.
 
 	// add to main file api entry call if not exists
 	if bytes.Index(projMainFile.Content, []byte(apiEntryPointCall)) == -1 {
-		insertBeforeEnd = bytes.Join([][]byte{
-			insertBeforeEnd,
-			[]byte(apiEntryPointStopFunc),
-			[]byte(apiEntryPointCall),
-			[]byte(apiEntryPointArgs),
-		}, []byte{})
+		insertBeforeEnd = []byte(fmt.Sprintf(`
+stopFunc, err := %s(ctx, cfg)
+if err != nil {
+	logrus.Fatal(err)
+}
+`, apiEntryPointCall))
 	}
 	wfteBytes := []byte(waitingForTheEndFunc)
 
@@ -119,7 +111,12 @@ func insertApiSetupInMainIfNotExists(p interfaces.Project, projMainFile *folder.
 	if bytes.Index(projMainFile.Content, []byte(apiEntryPointStop)) == -1 {
 		insertAfterEnd = append(
 			insertAfterEnd,
-			[]byte(fmt.Sprintf(apiEntryPointStopFuncCall, apiEntryPointStop))...)
+			[]byte(fmt.Sprintf(`
+err = %s
+if err != nil {
+	logrus.Fatal(err)
+}
+`, apiEntryPointStop))...)
 	}
 	if len(insertAfterEnd) != 0 {
 		projMainFile.Content = slices.InsertSlice(projMainFile.Content, insertAfterEnd, endFuncIdx)

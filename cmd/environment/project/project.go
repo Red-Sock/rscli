@@ -10,6 +10,7 @@ import (
 
 	"github.com/Red-Sock/rscli/cmd/environment/project/compose"
 	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
+	"github.com/Red-Sock/rscli/cmd/environment/project/makefile"
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/cmd/environment/project/ports"
 	"github.com/Red-Sock/rscli/internal/config"
@@ -26,10 +27,12 @@ type envResourcePattern interface {
 }
 
 type Env struct {
-	envDirPath  string
+	envDirPath string
+
 	Compose     *compose.Compose
 	Environment *env.Container
 	Config      *pconfig.Config
+	Makefile    *makefile.Makefile
 
 	environmentResourcePatterns envResourcePattern
 }
@@ -63,6 +66,8 @@ func (e *Env) Tidy(pm *ports.PortManager, composePatterns compose.PatternManager
 
 	e.tidyEnvFile()
 
+	e.tidyMakeFile()
+
 	err := e.tidyResources(projName, composePatterns, pm)
 	if err != nil {
 		return errors.Wrap(err, "error doing tidy on resources")
@@ -76,9 +81,12 @@ func (e *Env) Tidy(pm *ports.PortManager, composePatterns compose.PatternManager
 	{
 		pathToProjectEnvFile := path.Join(e.envDirPath, patterns.EnvFile.Name)
 
-		err = io.OverrideFile(pathToProjectEnvFile, renamer.ReplaceProjectName(e.Environment.MarshalEnv(), projName))
-		if err != nil {
-			return errors.Wrap(err, "error writing environment file: "+pathToProjectEnvFile)
+		envBytes := e.Environment.MarshalEnv()
+		if len(envBytes) != 0 {
+			err = io.OverrideFile(pathToProjectEnvFile, renamer.ReplaceProjectName(envBytes, projName))
+			if err != nil {
+				return errors.Wrap(err, "error writing environment file: "+pathToProjectEnvFile)
+			}
 		}
 	}
 
@@ -104,6 +112,10 @@ func (e *Env) tidyEnvFile() {
 			e.Environment.Remove(envVar.Name)
 		}
 	}
+}
+
+func (e *Env) tidyMakeFile() {
+
 }
 
 func (e *Env) tidyResources(projName string, composePatterns compose.PatternManager, pm *ports.PortManager) error {
@@ -149,7 +161,7 @@ func (e *Env) tidyResources(projName string, composePatterns compose.PatternMana
 
 			resource.RenameVariable(patternEnv[idx].Name, newEnvName)
 
-			e.Environment.Append(newEnvName, newEnvValue)
+			e.Environment.AppendRaw(newEnvName, newEnvValue)
 		}
 
 		e.Compose.AppendService(resource.Name, resource.GetCompose())
@@ -192,7 +204,7 @@ func (e *Env) tidyServerAPIs(projName string, pm *ports.PortManager) error {
 			service.Ports = append(service.Ports, composePort)
 		}
 
-		e.Environment.Append(portName, strconv.FormatUint(uint64(pm.GetNextPort(opts[optName].GetPort(), portName)), 10))
+		e.Environment.AppendRaw(portName, strconv.FormatUint(uint64(pm.GetNextPort(opts[optName].GetPort(), portName)), 10))
 	}
 
 	return nil
@@ -326,4 +338,14 @@ func (e *Env) findEnvConfig(cfg *config.RsCliConfig) ([]byte, error) {
 	}
 
 	return f, nil
+}
+
+// TODO: RSI-165
+func (e *Env) fetchMakeFile() (err error) {
+	e.Makefile, err = makefile.ReadMakeFile(path.Join(e.envDirPath, patterns.Makefile.Name))
+	if err != nil {
+		return errors.Wrap(err, "error getting makefile")
+	}
+
+	return nil
 }

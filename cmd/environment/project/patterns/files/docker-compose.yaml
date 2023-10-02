@@ -12,7 +12,7 @@ services:
     working_dir: "/app"
     volumes:
       - "./proj_name:/app/proj_name"
-      - "./config/dev.yaml:/app/config/dev.yaml"
+      - "./env.yaml:/app/config/dev.yaml"
     networks:
       - proj_name_net
 

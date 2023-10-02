@@ -16,10 +16,11 @@ const (
 )
 
 const (
-	ProjNamePattern         = "proj_name"
-	ProjNameCapsPattern     = "PROJ_NAME_CAPS"
-	ResourceCapsPattern     = "RESOURCE"
-	ResourceNameCapsPattern = ResourceCapsPattern + "_NAME_CAPS"
+	ProjNamePattern            = "proj_name"
+	ProjNameCapsPattern        = "PROJ_NAME_CAPS"
+	AbsoluteProjectPathPattern = "abs_proj_path"
+	ResourceCapsPattern        = "RESOURCE"
+	ResourceNameCapsPattern    = ResourceCapsPattern + "_NAME_CAPS"
 )
 
 const ()
