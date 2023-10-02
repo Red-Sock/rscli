@@ -54,7 +54,18 @@ func (e *Container) Content() []Variable {
 	return e.content
 }
 
-func (e *Container) Append(name string, content string) {
+func (e *Container) Append(v Variable) {
+	for idx, item := range e.content {
+		if item.Name == v.Name {
+			e.content[idx].Value = v.Value
+			return
+		}
+	}
+
+	e.content = append(e.content, Variable{Name: v.Name, Value: v.Value})
+}
+
+func (e *Container) AppendRaw(name string, content string) {
 	for idx, item := range e.content {
 		if item.Name == name {
 			e.content[idx].Value = content
@@ -66,6 +77,9 @@ func (e *Container) Append(name string, content string) {
 }
 
 func (e *Container) MarshalEnv() []byte {
+	if len(e.content) == 0 {
+		return []byte{}
+	}
 	sb := bytes.Buffer{}
 
 	for _, v := range e.content {

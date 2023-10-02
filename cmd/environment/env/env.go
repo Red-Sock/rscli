@@ -81,7 +81,7 @@ func (c *Constructor) FetchConstructor(cmd *cobra.Command, args []string) error 
 	for _, preDefined := range envContainer.Content() {
 		for _, userDefined := range globalEnv.Content() {
 			if preDefined.Name == userDefined.Name {
-				envContainer.Append(preDefined.Name, userDefined.Value)
+				envContainer.AppendRaw(preDefined.Name, userDefined.Value)
 			}
 		}
 	}

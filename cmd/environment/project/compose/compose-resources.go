@@ -124,7 +124,7 @@ func (c *PatternManager) GetServiceDependencies(cfg *config.Config) ([]Pattern, 
 		// by setting variable PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_PWD in .env file to 123
 		for name, val := range resourceDependency.GetEnv() {
 			if envVariable, ok := pattern.containerDefinition.Environment[name]; ok {
-				pattern.envs.Append(removeEnvironmentBrackets(envVariable), val)
+				pattern.envs.AppendRaw(removeEnvironmentBrackets(envVariable), val)
 			}
 		}
 
@@ -212,7 +212,7 @@ func extractEnvsFromComposeFile(b []byte) (*env.Container, error) {
 			}
 		}
 
-		out.Append(string(b[startIdx+1:endIdx]), string(val))
+		out.AppendRaw(string(b[startIdx+1:endIdx]), string(val))
 
 		startIdx = bytes.Index(b[endIdx:], []byte{36, 123}) // "${"
 
