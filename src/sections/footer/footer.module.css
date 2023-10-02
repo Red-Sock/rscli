@@ -1,10 +1,10 @@
 .Footer {
     width: 100%;
-
+    height: 100%;
     flex: 1;
 
-    max-height: 5vh;
-    background-color: var(--secondarry-bg-color);
+
+    background: linear-gradient(180deg, var(--secondarry-bg-color) 0%,  var(--main-bg-color) 100%);;
 
     display: flex;
     flex-direction: row-reverse;

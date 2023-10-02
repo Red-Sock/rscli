@@ -2,6 +2,7 @@ import cls from './home.module.css';
 
 import {Header} from "../../sections/header/header";
 import {ContentWrapper} from "../../sections/content/content";
+import {Footer} from "../../sections/footer/footer";
 
 export function Home() {
     return (
@@ -15,6 +16,9 @@ export function Home() {
                 <ContentWrapper/>
             </div>
 
+            <div className={cls.footerWrap}>
+                <Footer/>
+            </div>
 
         </div>
     )

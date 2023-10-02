@@ -1,18 +1,37 @@
 .Home {
     display: flex;
+    flex-direction: column;
+
 
     flex-grow: 1;
     height: 100%;
-    width: 100%;
+    width: 100vw;
+
+    padding-top: 5.45vh;
 }
 
 .headerWrap {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 5.45vh;
+
+    padding: 0;
+    margin: 0;
+
     z-index: 2;
 }
+
 .contentWrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     z-index: 1;
+}
 
-    margin-top: 5.45vh;
 
-    position: relative;
+.footerWrap {
+    height: 15vh;
+    z-index: 2;
 }
