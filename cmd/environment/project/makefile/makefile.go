@@ -35,10 +35,12 @@ func NewMakeFile(in []byte) (*Makefile, error) {
 		Variables: &env.Container{},
 	}
 
-	for _, l := range lines {
-		if len(l) == 0 {
+	for idx := range lines {
+		if len(lines[idx]) == 0 {
 			continue
 		}
+
+		l := lines[idx]
 
 		if index := bytes.Index(l, []byte{'='}); index != -1 {
 			m.Variables.Append(env.Variable{

@@ -10,6 +10,7 @@ import (
 
 	"github.com/Red-Sock/rscli/cmd/environment/project/compose"
 	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
+	"github.com/Red-Sock/rscli/cmd/environment/project/makefile"
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/cmd/environment/project/ports"
 	"github.com/Red-Sock/rscli/internal/config"
@@ -31,6 +32,7 @@ type Env struct {
 	Compose     *compose.Compose
 	Environment *env.Container
 	Config      *pconfig.Config
+	Makefile    *makefile.Makefile
 
 	environmentResourcePatterns envResourcePattern
 }
@@ -336,4 +338,14 @@ func (e *Env) findEnvConfig(cfg *config.RsCliConfig) ([]byte, error) {
 	}
 
 	return f, nil
+}
+
+// TODO: RSI-165
+func (e *Env) fetchMakeFile() (err error) {
+	e.Makefile, err = makefile.ReadMakeFile(path.Join(e.envDirPath, patterns.Makefile.Name))
+	if err != nil {
+		return errors.Wrap(err, "error getting makefile")
+	}
+
+	return nil
 }
