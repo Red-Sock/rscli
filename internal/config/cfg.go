@@ -4,52 +4,101 @@ import (
 	_ "embed"
 	"os"
 	"path"
+	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/Red-Sock/trace-errors"
+	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
-
-	"github.com/Red-Sock/rscli/pkg/flag"
 )
 
 const (
+	CustomPathToConfig = "rscli-cfg"
+)
+const (
 	configFilename          = "rscli.yaml"
-	customPathToConfig      = "--rscli-cfg"
 	environmentPathToConfig = "RSCLI_CONFIG_PATH"
 )
 
 const (
-	pathToConfig = "RSCLI_PATH_TO_CONFIG"
-	pathToMain   = "RSCLI_PATH_TO_MAIN"
+	envPathToConfig          = "RSCLI_PATH_TO_CONFIG"
+	envPathToMain            = "RSCLI_PATH_TO_MAIN"
+	envPathToClients         = "RSCLI_PATH_TO_CLIENTS"
+	envPathToServers         = "RSCLI_PATH_TO_SERVERS"
+	envDefaultProjectGitPath = "RSCLI_DEFAULT_PROJECT_GIT_PATH"
 )
 
 //go:embed rscli.yaml
 var builtInConfig []byte
 
 type RsCliConfig struct {
-	Env struct {
-		PathToMain   string `yaml:"path_to_main"`
-		PathToConfig string `yaml:"path_to_config"`
-	} `yaml:"env"`
+	Env                   Project `yaml:"env"`
+	DefaultProjectGitPath string  `yaml:"default_project_git_path"`
 }
 
-func GetConfig() (*RsCliConfig, error) {
-	var builtInConf RsCliConfig
-	err := yaml.Unmarshal(builtInConfig, &builtInConf)
+var rsCliConfig RsCliConfig
+
+type Project struct {
+	PathToMain     string   `yaml:"path_to_main"`
+	PathToConfig   string   `yaml:"path_to_config"`
+	PathsToClients []string `yaml:"paths_to_clients"`
+	PathToServers  []string `yaml:"path_to_servers"`
+}
+
+func GetConfig() *RsCliConfig {
+	return &rsCliConfig
+}
+
+func InitConfig(cmd *cobra.Command, _ []string) error {
+	err := yaml.Unmarshal(builtInConfig, &rsCliConfig)
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing config file")
+		panic(errors.Wrap(err, "error parsing built in config file. This is serious issue and MUST BE fixed A$A₽\n\n\n Like Rocky\n\n\n\n in a way (: "))
 	}
 
-	envConf := getConfigFromEnvironment()
+	rsCliConfig = mergeConfigs(getConfigFromEnvironment(), rsCliConfig)
 
-	out := mergeConfigs(envConf, builtInConf)
+	configFromFile, err := getConfigFromFile(cmd)
+	if err != nil {
+		return errors.Wrap(err, "")
+	}
 
-	cfgFilePath := getConfigPathFromArgs()
+	if configFromFile != nil {
+		rsCliConfig = mergeConfigs(*configFromFile, rsCliConfig)
+	}
+
+	return nil
+}
+
+func getConfigFromEnvironment() (r RsCliConfig) {
+	r.Env.PathToMain = os.Getenv(envPathToMain)
+	r.Env.PathToConfig = os.Getenv(envPathToConfig)
+
+	{
+		r.DefaultProjectGitPath = os.Getenv(envDefaultProjectGitPath)
+		pathToClients := strings.Split(os.Getenv(envPathToClients), ",")
+		if pathToClients[0] != "" {
+			r.Env.PathsToClients = pathToClients
+		}
+	}
+
+	{
+		pathToServers := strings.Split(os.Getenv(envPathToServers), ",")
+		if pathToServers[0] != "" {
+			r.Env.PathToServers = pathToServers
+		}
+	}
+	return
+}
+
+func getConfigFromFile(cmd *cobra.Command) (*RsCliConfig, error) {
+	cfgFilePath := cmd.Flag(CustomPathToConfig).Value.String()
+
 	if cfgFilePath == "" {
-		cfgFilePath = getConfigPathFromExecutable()
+		cfgFilePath = os.Getenv(environmentPathToConfig)
 	}
 
 	if cfgFilePath == "" {
-		cfgFilePath = getConfigPathFromEnvironment()
+		exePath, _ := os.Executable()
+		cfgFilePath = path.Join(path.Dir(exePath), configFilename)
 	}
 
 	file, err := os.ReadFile(cfgFilePath)
@@ -58,7 +107,7 @@ func GetConfig() (*RsCliConfig, error) {
 	}
 
 	if len(file) == 0 {
-		return &out, nil
+		return nil, nil
 	}
 
 	var externalConf RsCliConfig
@@ -67,30 +116,7 @@ func GetConfig() (*RsCliConfig, error) {
 		return nil, errors.Wrap(err, "error unmarshalling config from: "+cfgFilePath)
 	}
 
-	out = mergeConfigs(externalConf, out)
-
-	return &out, nil
-}
-
-func getConfigFromEnvironment() (r RsCliConfig) {
-	r.Env.PathToMain = os.Getenv(pathToMain)
-	r.Env.PathToConfig = os.Getenv(pathToConfig)
-
-	return
-}
-
-func getConfigPathFromArgs() string {
-	cfgFilePath, _ := flag.ExtractOneValueFromFlags(flag.ParseArgs(os.Args[1:]), customPathToConfig)
-	return cfgFilePath
-}
-
-func getConfigPathFromExecutable() string {
-	exePath, _ := os.Executable()
-	return path.Join(path.Dir(exePath), configFilename)
-}
-
-func getConfigPathFromEnvironment() string {
-	return os.Getenv(environmentPathToConfig)
+	return &externalConf, nil
 }
 
 func mergeConfigs(master, slave RsCliConfig) RsCliConfig {
@@ -100,6 +126,18 @@ func mergeConfigs(master, slave RsCliConfig) RsCliConfig {
 
 	if master.Env.PathToConfig == "" {
 		master.Env.PathToConfig = slave.Env.PathToConfig
+	}
+
+	if master.DefaultProjectGitPath == "" {
+		master.DefaultProjectGitPath = slave.DefaultProjectGitPath
+	}
+
+	if len(master.Env.PathsToClients) == 0 {
+		master.Env.PathsToClients = slave.Env.PathsToClients
+	}
+
+	if len(master.Env.PathToServers) == 0 {
+		master.Env.PathToServers = slave.Env.PathToServers
 	}
 
 	return master

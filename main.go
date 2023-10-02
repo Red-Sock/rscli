@@ -1,15 +1,39 @@
 package main
 
 import (
-	"github.com/Red-Sock/rscli/internal"
-	"github.com/Red-Sock/rscli/internal/randomizer"
-	"github.com/Red-Sock/rscli/pkg/colors"
+	"fmt"
+
+	"github.com/spf13/cobra"
+
+	"github.com/Red-Sock/rscli/cmd/environment"
+	initCmd "github.com/Red-Sock/rscli/cmd/project"
+	"github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/io/colors"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update"
 )
 
 func main() {
-	err := internal.Run()
-	if err != nil {
-		println(colors.TerminalColor(colors.ColorRed) + err.Error())
+	root := &cobra.Command{
+		Use: "rscli [command] [arguments] [flags]",
+
+		Short: "RsCLI is a tool for handling developers environment",
+
+		Version: update.GetLatestVersion().String(),
+		CompletionOptions: cobra.CompletionOptions{
+			DisableDefaultCmd: true,
+		},
+		PersistentPreRunE: config.InitConfig,
+		SilenceErrors:     true,
+		SilenceUsage:      true,
 	}
-	println(randomizer.GoodGoodBuy())
+
+	root.PersistentFlags().String(config.CustomPathToConfig, "", "path flag to custom config")
+
+	root.AddCommand(initCmd.NewCmd())
+	root.AddCommand(environment.NewCmd())
+
+	if err := root.Execute(); err != nil {
+		io.StdIO{}.Error(colors.TerminalColor(colors.ColorRed) + fmt.Sprintf("%+v\n", err))
+	}
 }
