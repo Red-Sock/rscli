@@ -30,7 +30,8 @@ type PatternManager struct {
 }
 
 type Pattern struct {
-	Name                string
+	name                string
+	resourceType        string
 	containerDefinition ContainerSettings
 	envs                *env.Container
 }
@@ -63,6 +64,14 @@ func ReadComposePatternsFromFile(pth string) (out PatternManager, err error) {
 	}
 
 	return out, nil
+}
+
+func (p *Pattern) GetName() string {
+	return p.name
+}
+
+func (p *Pattern) GetType() string {
+	return p.resourceType
 }
 
 func (p *Pattern) GetEnvs() *env.Container {
@@ -111,7 +120,7 @@ func (c *PatternManager) GetServiceDependencies(cfg *config.Config) ([]Pattern, 
 		}
 
 		if resourceDependency.GetName() != "" {
-			pattern.Name += "_" + resourceDependency.GetName()
+			pattern.name += "_" + resourceDependency.GetName()
 		}
 
 		// if value for environment variable is defined in source config
@@ -135,6 +144,10 @@ func (c *PatternManager) GetServiceDependencies(cfg *config.Config) ([]Pattern, 
 
 }
 
+func AddEnvironmentBrackets(in string) string {
+	return "${" + in + "}"
+}
+
 func extractComposePatternsFromFile(dockerComposeFile []byte) (out map[string]Pattern, err error) {
 	composeServices := map[string]interface{}{}
 	{
@@ -155,7 +168,8 @@ func extractComposePatternsFromFile(dockerComposeFile []byte) (out map[string]Pa
 
 	for serviceName, content := range composeServices {
 		cs := Pattern{
-			Name: serviceName,
+			name:         serviceName,
+			resourceType: serviceName,
 		}
 
 		var bts []byte
@@ -227,8 +241,4 @@ func removeEnvironmentBrackets(in string) string {
 	}
 
 	return in
-}
-
-func AddEnvironmentBrackets(in string) string {
-	return "${" + in + "}"
 }

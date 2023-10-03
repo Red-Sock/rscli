@@ -43,9 +43,9 @@ func NewEnvConstructor() *Constructor {
 	}
 }
 
-func (c *Constructor) FetchConstructor(cmd *cobra.Command, args []string) error {
+func (c *Constructor) FetchConstructor(cmd *cobra.Command, _ []string) error {
 	var err error
-	err = c.fetchWD(cmd, args)
+	err = c.fetchWD(cmd)
 	if err != nil {
 		return errors.Wrap(err, "error fetching working directory")
 	}
@@ -96,7 +96,8 @@ func (c *Constructor) FetchConstructor(cmd *cobra.Command, args []string) error 
 	return nil
 
 }
-func (c *Constructor) fetchWD(cmd *cobra.Command, _ []string) error {
+
+func (c *Constructor) fetchWD(cmd *cobra.Command) error {
 	c.envDirPath = cmd.Flag(PathFlag).Value.String()
 
 	if c.envDirPath == "" {

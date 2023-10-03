@@ -29,10 +29,11 @@ type envResourcePattern interface {
 type Env struct {
 	envDirPath string
 
-	Compose     *compose.Compose
-	Environment *env.Container
-	Config      *pconfig.Config
-	Makefile    *makefile.Makefile
+	Compose         *compose.Compose
+	Environment     *env.Container
+	ComposePatterns compose.PatternManager
+	Config          *pconfig.Config
+	Makefile        *makefile.Makefile
 
 	environmentResourcePatterns envResourcePattern
 }
@@ -61,14 +62,13 @@ func LoadProjectEnvironment(cfg *config.RsCliConfig, envResourcePattern envResou
 	return p, nil
 }
 
-func (e *Env) Tidy(pm *ports.PortManager, composePatterns compose.PatternManager) error {
+func (e *Env) Tidy(pm *ports.PortManager) error {
 	projName := path.Base(e.envDirPath)
 
 	e.tidyEnvFile()
-
 	e.tidyMakeFile()
 
-	err := e.tidyResources(projName, composePatterns, pm)
+	err := e.tidyResources(pm, projName)
 	if err != nil {
 		return errors.Wrap(err, "error doing tidy on resources")
 	}
@@ -101,70 +101,6 @@ func (e *Env) Tidy(pm *ports.PortManager, composePatterns compose.PatternManager
 		if err != nil {
 			return errors.Wrap(err, "error writing docker compose file file")
 		}
-	}
-
-	return nil
-}
-
-func (e *Env) tidyEnvFile() {
-	for _, envVar := range e.Environment.Content() {
-		if envVar.Name == "" || envVar.Name[0] == '#' {
-			e.Environment.Remove(envVar.Name)
-		}
-	}
-}
-
-func (e *Env) tidyMakeFile() {
-
-}
-
-func (e *Env) tidyResources(projName string, composePatterns compose.PatternManager, pm *ports.PortManager) error {
-	dependencies, err := composePatterns.GetServiceDependencies(e.Config)
-	if err != nil {
-		return errors.Wrap(err, "error getting dependencies for service "+e.Config.AppInfo.Name)
-	}
-
-	for _, resource := range dependencies {
-
-		patternEnv := resource.GetEnvs().Content()
-
-		for idx := range patternEnv {
-
-			newEnvName := strings.ReplaceAll(patternEnv[idx].Name,
-				patterns.ResourceNameCapsPattern, strings.ToUpper(resource.Name))
-
-			{
-				newEnvName = strings.ReplaceAll(newEnvName,
-					"__", "_")
-				newEnvName = renamer.ReplaceProjectNameStr(newEnvName, projName)
-			}
-
-			if e.Environment.ContainsByName(newEnvName) {
-				continue
-			}
-
-			newEnvValue := e.environmentResourcePatterns.GetByName(newEnvName)
-
-			if strings.HasSuffix(newEnvName, patterns.PortSuffix) {
-				var port uint64
-				port, err = strconv.ParseUint(patternEnv[idx].Value, 10, 16)
-				if err != nil {
-					return errors.Wrap(err, "error parsing .env file: port value for "+
-						newEnvName+" must be uint but it is "+
-						patternEnv[idx].Value)
-				}
-
-				newEnvValue = strconv.FormatUint(uint64(pm.GetNextPort(uint16(port), newEnvName)), 10)
-			} else {
-				newEnvValue = renamer.ReplaceProjectNameStr(newEnvValue, projName)
-			}
-
-			resource.RenameVariable(patternEnv[idx].Name, newEnvName)
-
-			e.Environment.AppendRaw(newEnvName, newEnvValue)
-		}
-
-		e.Compose.AppendService(resource.Name, resource.GetCompose())
 	}
 
 	return nil
@@ -208,6 +144,22 @@ func (e *Env) tidyServerAPIs(projName string, pm *ports.PortManager) error {
 	}
 
 	return nil
+}
+
+func (e *Env) tidyEnvFile() {
+	for _, envVar := range e.Environment.Content() {
+		if envVar.Name == "" || envVar.Name[0] == '#' {
+			e.Environment.Remove(envVar.Name)
+		}
+	}
+}
+
+func (e *Env) tidyConfigFile() {
+
+}
+
+func (e *Env) tidyMakeFile() {
+	// TODO
 }
 
 func (e *Env) fetchComposeFile() error {
