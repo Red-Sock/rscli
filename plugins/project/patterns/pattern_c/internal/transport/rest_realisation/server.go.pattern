@@ -6,11 +6,10 @@ import (
 	"net/http"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
 	"financial-microservice/internal/config"
-
-	"github.com/gorilla/mux"
 )
 
 type Server struct {
