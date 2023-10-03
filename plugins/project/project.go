@@ -35,7 +35,11 @@ func (p *Project) GetConfigPath() string {
 
 func (p *Project) GetShortName() string {
 	name := p.Name
-	name = name[strings.LastIndex(name, string(os.PathSeparator))+1:]
+
+	if idx := strings.LastIndex(name, string(os.PathSeparator)); idx != -1 {
+		name = name[+1:]
+	}
+
 	return name
 }
 

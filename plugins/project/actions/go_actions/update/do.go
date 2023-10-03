@@ -8,6 +8,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update/v0_0_21_alpha"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update/v0_0_23_alpha"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update/v0_0_24_alpha"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update/v0_0_26_alpha"
 	interfaces2 "github.com/Red-Sock/rscli/plugins/project/interfaces"
 )
 
@@ -65,9 +66,12 @@ var updates = []Version{
 		Version: v0_0_23_alpha.Version,
 		do:      v0_0_23_alpha.Do,
 	},
-
 	{
 		Version: v0_0_24_alpha.Version,
 		do:      v0_0_24_alpha.Do,
+	},
+	{
+		Version: v0_0_26_alpha.Version,
+		do:      v0_0_26_alpha.Do,
 	},
 }
