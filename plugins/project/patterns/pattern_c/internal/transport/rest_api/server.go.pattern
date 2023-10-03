@@ -1,4 +1,4 @@
-package rest_realisation
+package rest_api
 
 import (
 	"context"
