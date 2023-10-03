@@ -1,20 +1,17 @@
 .Home {
     display: flex;
-    flex-direction: column;
-
+    flex-direction: row;
 
     flex-grow: 1;
     height: 100%;
     width: 100vw;
-
-    padding-top: 5.45vh;
 }
 
 .headerWrap {
     position: fixed;
     top: 0;
     width: 100%;
-    height: 5.45vh;
+    height: 3em;
 
     padding: 0;
     margin: 0;
@@ -23,13 +20,20 @@
 }
 
 .contentWrap {
+    flex: 4;
     display: flex;
+
     flex-direction: column;
+
     justify-content: center;
     align-items: center;
+
     z-index: 1;
 }
 
+.sideMenuWrap {
+    flex: 4;
+}
 
 .footerWrap {
     height: 15vh;

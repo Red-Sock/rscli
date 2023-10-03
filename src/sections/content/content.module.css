@@ -1,9 +1,11 @@
 .ContentWrapper {
-    width: 80%;
+    width: 100%;
 
     background-color: var(--main-bg-color);
-
-    color: whitesmoke;
+    color: var(--primary-fg-color);
+    padding-top: 1em;
+    padding-left: 2em;
+    padding-bottom: 1em;
 }
 
 p {
@@ -21,7 +23,7 @@ h3 {
 
 
 blockquote {
-    box-sizing: border-box;
+    box-sizing: content-box;
 
     white-space: pre-wrap;
 

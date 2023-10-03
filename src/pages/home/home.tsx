@@ -3,6 +3,7 @@ import cls from './home.module.css';
 import {Header} from "../../sections/header/header";
 import {ContentWrapper} from "../../sections/content/content";
 import {Footer} from "../../sections/footer/footer";
+import {Sidebar} from "../../sections/sidebar/sidebar";
 
 export function Home() {
     return (
@@ -16,8 +17,8 @@ export function Home() {
                 <ContentWrapper/>
             </div>
 
-            <div className={cls.footerWrap}>
-                <Footer/>
+            <div className={cls.sideMenuWrap}>
+                <Sidebar/>
             </div>
 
         </div>

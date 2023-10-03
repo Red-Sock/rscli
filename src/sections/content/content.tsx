@@ -1,10 +1,7 @@
 import cls from './content.module.css'
 
 import ReactMarkdown from 'react-markdown'
-import {useState} from "react";
-
-import {getResourceURLs} from '../../services/file-fetcher';
-
+import React from "react";
 
 export const ContentWrapper = () => {
 
@@ -142,10 +139,8 @@ go mod init github.com/project-folder/project-name
 
     return (
         <div className={cls.ContentWrapper}>
-                <div className={cls.Content}>
-                    <ReactMarkdown
-                        children={content}/>
-                </div>
+            <ReactMarkdown
+                children={content}/>
         </div>
     );
 }

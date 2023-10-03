@@ -1,5 +1,11 @@
+@import url(https://fonts.googleapis.com/icon?family=Comfortaa);
+
 html {
   height: 100%;
+}
+
+html * {
+  font-family: 'Comfortaa', sans-serif;
 }
 
 root, body {
@@ -9,9 +15,9 @@ root, body {
 }
 
 :root {
-  --main-bg-color: rgb(43, 43, 43);
-  --secondarry-bg-color: rgb(149, 149, 149);
+  --main-bg-color: rgb(167, 198, 255);
+  --secondarry-bg-color: rgb(50, 73, 166);
   --quote-background: rgb(91, 91, 91);
-  --primary-fg-color: rgb(206, 96, 96);
+  --primary-fg-color: #232328;
 }
 
