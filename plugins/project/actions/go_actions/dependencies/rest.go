@@ -45,7 +45,6 @@ func (r Rest) applyConfig(proj interfaces.Project, defaultApiName string) {
 	}
 
 	ds[defaultApiName] = server.Rest{}
-
 }
 
 func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error {
