@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/Red-Sock/trace-errors"
-
 	"gopkg.in/yaml.v3"
 )
 
