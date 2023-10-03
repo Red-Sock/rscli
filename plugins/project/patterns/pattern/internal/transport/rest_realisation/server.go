@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	errors "github.com/Red-Sock/trace-errors"
 	"github.com/sirupsen/logrus"
 
 	"financial-microservice/internal/config"
@@ -37,7 +38,7 @@ func NewServer(cfg *config.Config) *Server {
 func (s *Server) Start(ctx context.Context) error {
 	go func() {
 		err := s.HttpServer.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed {
+		if err != nil && errors.Is(err, http.ErrServerClosed) {
 			logrus.Fatal(err)
 		}
 	}()
