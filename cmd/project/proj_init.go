@@ -122,7 +122,9 @@ func (p *projectInit) obtainFolderPathFromUser(cmd *cobra.Command, name string) 
 		return dirPath
 	}
 
-	return path.Join(p.path, name)
+	dirPath = path.Join(p.path, path.Base(name))
+
+	return dirPath
 }
 
 func (p *projectInit) buildProject(args project.CreateArgs) (proj *project.Project, err error) {
