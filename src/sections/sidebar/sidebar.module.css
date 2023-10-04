@@ -2,23 +2,29 @@
     box-sizing: border-box;
 
     height: 100%;
+    padding: 5.5em 0.5em 1em;
 
-    background: var(--main-bg-color);
     transition: all .2s ease-in-out;
-    padding: 0.5em;
 }
 
 
 .Content {
+    width: fit-content;
+    min-width: 70%;
+
+    background: var(--thirdly-bg-color);
+    color: var(--primary-fg-color   );
     box-sizing: content-box;
 
     overflow-y: scroll;
 
     position: sticky;
-    top: 3em;
+    top: 2.5em;
+
+    padding: 1.5em 1.5em 1.5em;
 
     font-size: 1.5em;
 
-    border-radius: 0.5em;
-    border: black solid;
+    border-radius: 1em;
 }
+

@@ -1,9 +1,5 @@
 @import url(https://fonts.googleapis.com/icon?family=Material+Icons);
 
-*{
-    box-sizing: border-box;
-    font-family: 'Montserrat', 'Helevtica', sans-serif;
-}
 
 .SearchBox{
     width: fit-content;
@@ -11,6 +7,8 @@
     position: relative;
 }
 .inputSearch{
+    box-sizing: border-box;
+
     height: 3em;
     width: 3em;
 
@@ -31,6 +29,8 @@
 }
 
 .btnSearch{
+    box-sizing: border-box;
+
     width: 3em;
     height: 3em;
     border-style: none;

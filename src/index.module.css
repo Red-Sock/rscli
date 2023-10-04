@@ -17,6 +17,7 @@ root, body {
 :root {
   --main-bg-color: rgb(167, 198, 255);
   --secondarry-bg-color: rgb(50, 73, 166);
+  --thirdly-bg-color: rgb(141, 218, 236);
   --quote-background: rgb(91, 91, 91);
   --primary-fg-color: #232328;
 }

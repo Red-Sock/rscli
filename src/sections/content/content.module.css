@@ -1,11 +1,7 @@
 .ContentWrapper {
-    width: 100%;
-
     background-color: var(--main-bg-color);
     color: var(--primary-fg-color);
-    padding-top: 1em;
-    padding-left: 2em;
-    padding-bottom: 1em;
+    padding: 1em 2em 1em;
 }
 
 p {
@@ -25,32 +21,28 @@ h3 {
 blockquote {
     box-sizing: content-box;
 
-    white-space: pre-wrap;
-
     background: var(--quote-background);
 
     margin-block: 0;
     margin-inline: 0;
 
-    width: 100%;
-
     border: wheat solid;
 }
 
 blockquote > p {
+    white-space: pre-wrap;
+
+    margin: 0.5em;
     box-sizing: border-box;
 
-    width: 100%;
-    height: 100%;
-
-    margin: 0;
-
-    padding: 0.5em 2em 0.5em;
+    padding: 0 1em 0;
 }
 
 pre {
+    box-sizing: content-box;
     font-size: 1.5em;
-    box-sizing: border-box;
+    color: var(--main-bg-color);
     padding: 1em 1em 1em;
     border: whitesmoke solid;
+    background-color: var(--secondarry-bg-color);
 }
