@@ -27,7 +27,6 @@
     flex: 9;
 
     display: flex;
-    width: fit-content;
 
     flex-direction: column;
 
@@ -38,7 +37,8 @@
 }
 
 .sideMenuWrap {
-    box-sizing: content-box;
+    min-width: 20vw;
+    min-height: 100%;
 
     flex: 3;
 }

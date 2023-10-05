@@ -9,12 +9,11 @@
 
 
 .Content {
-    width: fit-content;
-    min-width: 70%;
+    min-width: 100%;
+    min-height: 40vh;
 
     background: var(--thirdly-bg-color);
     color: var(--primary-fg-color   );
-    box-sizing: content-box;
 
     overflow-y: scroll;
 

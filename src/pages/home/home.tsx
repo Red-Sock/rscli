@@ -4,8 +4,18 @@ import {Header} from "../../sections/header/header";
 import {ContentWrapper} from "../../sections/content/content";
 import {Footer} from "../../sections/footer/footer";
 import {Sidebar} from "../../sections/sidebar/sidebar";
+import {Route, Routes} from "react-router-dom";
+import {useState} from "react";
+import {getResourceURLs} from "../../services/file-fetcher";
 
 export function Home() {
+
+    const [pageContent, setPageContent] = useState("Loading...")
+
+    function getContentViaLink(link: string) {
+        getResourceURLs(link, setPageContent, (url: string)=> { window.location.replace(url)})
+    }
+
     return (
         <>
             <div className={cls.headerWrap}>
@@ -13,12 +23,15 @@ export function Home() {
             </div>
 
             <div className={cls.Home}>
+
                 <div className={cls.contentWrap}>
-                    <ContentWrapper/>
+                    <Routes>
+                        <Route path={"/*"} element={<ContentWrapper content={pageContent}/>}/>
+                    </Routes>
                 </div>
 
                 <div className={cls.sideMenuWrap}>
-                    <Sidebar/>
+                    <Sidebar setContentViaLink={getContentViaLink}/>
                 </div>
 
             </div>

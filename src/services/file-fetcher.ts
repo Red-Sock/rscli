@@ -1,31 +1,37 @@
-const contentSourceURL = "https://raw.githubusercontent.com/Red-Sock/rscli/docs/docs/";
-const projectRoot = "/rscli/";
-const resourceDelimiter = "#/"
-const defaultURI = "home";
-const fileExtension = ".md";
+const path = "https://raw.githubusercontent.com/Red-Sock/rscli/docs/docs";
+const idx = window.location.pathname.indexOf("/", 2)
 
-export function getResourceURLs() {
-    let currentPage = window.location.href
-    let correctPageBase = window.location.origin + projectRoot + resourceDelimiter;
+export function getResourceURLs(url: string, setContent: (value: string) => void, setNewUrl: (arg0: string) => void) {
+    fetch(url).then(async response => {
+        if (response.ok) {
+            setContent(await response.text())
+        } else {
+            setNewUrl(window.location.protocol+"//"+window.location.host+"/rscli/home")
+        }
+    })
+}
 
+function clearMd(req: string) : string {
+    let idx = req.indexOf("<!-- ")
+    let iterations = 10
+    while (idx !== -1 && iterations > 0) {
+        iterations--
+        let idxEnd = req.indexOf("-->")
+        if (idxEnd == -1) {
+            idxEnd=idx+4
+        }
 
-    const out = {
-        refreshURl: correctPageBase + defaultURI,
-        resourceURL: "",
+        req = req.substring(idx, idxEnd)
     }
+    return req
+}
 
-
-    if (!currentPage.startsWith(correctPageBase)) {
-        return out
-    }
-
-    let pathSeparatorIdx = currentPage.indexOf(resourceDelimiter);
-    if (pathSeparatorIdx === -1) {
-        return out
-    }
-
-    const resourceURI = currentPage.substring(pathSeparatorIdx + resourceDelimiter.length)
-    out.resourceURL = contentSourceURL + "/" + resourceURI + fileExtension;
-
-    return out
+export function getGithubResourceURLs( setContent: (value: string) => void, setNewUrl: (arg0: string) => void) {
+    fetch(path + window.location.pathname.substring(idx)+".md").then(async response => {
+        if (response.ok) {
+            setContent(await response.text())
+        } else {
+            setNewUrl(window.location.protocol+"//"+window.location.host+"/rscli/home")
+        }
+    })
 }

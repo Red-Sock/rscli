@@ -19,8 +19,6 @@ h3 {
 
 
 blockquote {
-    box-sizing: content-box;
-
     background: var(--quote-background);
 
     margin-block: 0;
@@ -33,13 +31,11 @@ blockquote > p {
     white-space: pre-wrap;
 
     margin: 0.5em;
-    box-sizing: border-box;
 
     padding: 0 1em 0;
 }
 
 pre {
-    box-sizing: content-box;
     font-size: 1.5em;
     color: var(--main-bg-color);
     padding: 1em 1em 1em;
