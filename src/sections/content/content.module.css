@@ -2,11 +2,15 @@
     background-color: var(--main-bg-color);
     color: var(--primary-fg-color);
     padding: 1em 2em 1em;
+
+    box-sizing: border-box;
 }
 
 p {
     font-size: 2em;
     line-height:1.5em;
+
+    word-break: break-all;
 }
 
 h2 {
