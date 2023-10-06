@@ -56,6 +56,7 @@ func (c *Constructor) RunTidy(cmd *cobra.Command, arg []string) error {
 				conflicts[item.Value] = []string{conflictServiceName, item.Name}
 			}
 		}
+		proj.ComposePatterns = c.ComposePatterns
 
 		projectsEnvs[idx] = proj
 	}
@@ -69,7 +70,7 @@ func (c *Constructor) RunTidy(cmd *cobra.Command, arg []string) error {
 	errC := make(chan error)
 	for idx := range projectsEnvs {
 		go func(i int) {
-			tidyErr := projectsEnvs[i].Tidy(portManager, c.ComposePatterns)
+			tidyErr := projectsEnvs[i].Tidy(portManager)
 			if tidyErr != nil {
 				progresses[i].Done(loader.DoneFailed)
 			} else {
