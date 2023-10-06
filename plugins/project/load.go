@@ -81,7 +81,7 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 		ProjectPath: pth,
 		Cfg:         c,
 		pthToCfg:    configPath,
-		root:        f,
+		root:        *f,
 	}
 
 	err = interfaces.LoadProjectVersion(p)

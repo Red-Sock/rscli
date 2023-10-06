@@ -9,5 +9,5 @@ import (
 )
 
 func New(cfg *config.Config) *client.Bot {
-	return client.NewBot(cfg.GetString(config.ServerTgApikey))
+	return client.NewBot(cfg.GetString(config.ServerTelegramAPIKey))
 }

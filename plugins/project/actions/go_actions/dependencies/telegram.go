@@ -49,11 +49,15 @@ func (t Telegram) applyClient(proj interfaces.Project) error {
 		return nil
 	}
 
+	tgConnFile := &folder.Folder{
+		Name:    path.Join(t.Cfg.Env.PathsToClients[0], t.GetFolderName(), patterns.ConnFileName),
+		Content: patterns.TgConnFile,
+	}
+
+	go_actions.ReplaceProjectName(proj.GetName(), tgConnFile)
+
 	proj.GetFolder().Add(
-		&folder.Folder{
-			Name:    path.Join(t.Cfg.Env.PathsToClients[0], t.GetFolderName(), patterns.ConnFileName),
-			Content: patterns.TgConnFile,
-		},
+		tgConnFile,
 	)
 
 	return nil
@@ -77,7 +81,7 @@ func (t Telegram) applyFolder(proj interfaces.Project) error {
 	go_actions.ReplaceProjectName(proj.GetName(), tgServer)
 
 	tgHandlerExample := &folder.Folder{
-		Name:    path.Join(patterns.HandlersFolderName, patterns.VersionFolderName, patterns.TgHandlerFileName),
+		Name:    patterns.TgHandlerFileName,
 		Content: patterns.TgHandlerExampleFile,
 	}
 	go_actions.ReplaceProjectName(proj.GetName(), tgHandlerExample)
@@ -87,7 +91,10 @@ func (t Telegram) applyFolder(proj interfaces.Project) error {
 			Name: path.Join(t.Cfg.Env.PathToServers[0], t.GetFolderName()),
 			Inner: []*folder.Folder{
 				tgServer,
-				tgHandlerExample,
+				{
+					Name:  path.Join(patterns.HandlersFolderName, patterns.VersionFolderName),
+					Inner: []*folder.Folder{tgHandlerExample},
+				},
 			},
 		},
 	)
