@@ -8,6 +8,7 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/patterns"
@@ -43,12 +44,14 @@ func (p Redis) applyClientFolder(proj interfaces.Project) error {
 		return nil
 	}
 
-	proj.GetFolder().Add(
-		&folder.Folder{
-			Name:    path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), patterns.ConnFileName),
-			Content: patterns.RedisConnFile,
-		},
-	)
+	redisConn := &folder.Folder{
+		Name:    path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), patterns.ConnFileName),
+		Content: patterns.RedisConnFile,
+	}
+
+	go_actions.ReplaceProjectName(proj.GetName(), redisConn)
+
+	proj.GetFolder().Add(redisConn)
 
 	return nil
 }

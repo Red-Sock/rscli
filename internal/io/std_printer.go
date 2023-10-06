@@ -53,6 +53,7 @@ func (p StdIO) GetInput() (string, error) {
 	if err != nil {
 		return out, errors.Wrap(err, "error reading user input")
 	}
+
 	out, _ = strings.CutSuffix(out, "\n")
 	out, _ = strings.CutSuffix(out, "\r")
 	return out, nil

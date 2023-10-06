@@ -8,6 +8,7 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/patterns"
@@ -47,11 +48,14 @@ func (p Postgres) applyClientFolder(proj interfaces.Project) error {
 		return ErrNoFolderInConfig
 	}
 
+	pgConnFile := &folder.Folder{
+		Name:    path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), patterns.ConnFileName),
+		Content: patterns.PgConnFile,
+	}
+	go_actions.ReplaceProjectName(proj.GetName(), pgConnFile)
+
 	proj.GetFolder().Add(
-		&folder.Folder{
-			Name:    path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), patterns.ConnFileName),
-			Content: patterns.PgConnFile,
-		},
+		pgConnFile,
 		&folder.Folder{
 			Name:    path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), patterns.PgTxFileName),
 			Content: patterns.PgTxFile,

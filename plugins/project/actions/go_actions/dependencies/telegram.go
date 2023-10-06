@@ -8,6 +8,7 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config/server"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/patterns"
@@ -68,18 +69,25 @@ func (t Telegram) applyFolder(proj interfaces.Project) error {
 		return nil
 	}
 
+	tgServer := &folder.Folder{
+
+		Name:    patterns.TelegramServFileName,
+		Content: patterns.TgServFile,
+	}
+	go_actions.ReplaceProjectName(proj.GetName(), tgServer)
+
+	tgHandlerExample := &folder.Folder{
+		Name:    path.Join(patterns.HandlersFolderName, patterns.VersionFolderName, patterns.TgHandlerFileName),
+		Content: patterns.TgHandlerExampleFile,
+	}
+	go_actions.ReplaceProjectName(proj.GetName(), tgHandlerExample)
+
 	proj.GetFolder().Add(
 		&folder.Folder{
 			Name: path.Join(t.Cfg.Env.PathToServers[0], t.GetFolderName()),
 			Inner: []*folder.Folder{
-				{
-					Name:    patterns.TelegramServFileName,
-					Content: patterns.TgServFile,
-				},
-				{
-					Name:    path.Join(patterns.HandlersFolderName, patterns.VersionFolderName, patterns.TgHandlerFileName),
-					Content: patterns.TgHandlerExampleFile,
-				},
+				tgServer,
+				tgHandlerExample,
 			},
 		},
 	)
