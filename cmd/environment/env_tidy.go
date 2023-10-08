@@ -39,17 +39,7 @@ func (c *envTidy) RunTidy(cmd *cobra.Command, arg []string) error {
 
 	err := c.constructor.InitProjectsDirs()
 	if err != nil {
-		return errors.Wrap(err, "error during projects dir init")
-	}
-
-	err = c.constructor.InitProjectsDirs()
-	if err != nil {
 		return errors.Wrap(err, "error during init of additional projects env dirs ")
-	}
-
-	err = c.constructor.FetchConstructor(cmd, arg)
-	if err != nil {
-		return errors.Wrap(err, "error fetching updated dirs")
 	}
 
 	tidyMngr, err := c.constructor.FetchTidyManager()

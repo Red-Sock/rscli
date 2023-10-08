@@ -94,7 +94,7 @@ func (c *envInit) askToRunTidy(cmd *cobra.Command, args []string, msg string, co
 		}
 		r := strings.ToLower(resp)[0]
 		if r == 'y' {
-			et := envTidy{io: c.io}
+			et := envTidy{io: c.io, constructor: c.constructor}
 			return et.RunTidy(cmd, args)
 		}
 
