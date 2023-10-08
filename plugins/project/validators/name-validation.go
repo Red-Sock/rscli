@@ -10,6 +10,7 @@ var ErrInvalidNameErr = errors.New("name contains invalid symbol")
 
 func ValidateProjectName(p interfaces.Project) error {
 	return ValidateProjectNameStr(p.GetShortName())
+
 }
 
 func ValidateProjectNameStr(name string) error {

@@ -4,6 +4,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/Red-Sock/rscli/cmd/environment/env"
+	"github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/internal/io"
 )
 
 func NewCmd() *cobra.Command {
@@ -14,8 +16,20 @@ func NewCmd() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
-	cmd.AddCommand(newInitEnvCmd(env.NewEnvConstructor()))
-	cmd.AddCommand(newTidyEnvCmd(env.NewEnvConstructor()))
+
+	stdIO := io.StdIO{}
+
+	cfg := config.GetConfig()
+
+	cmd.AddCommand(newInitEnvCmd(&envInit{
+		io:          stdIO,
+		constructor: env.NewConstructor(stdIO, cfg),
+	}))
+
+	cmd.AddCommand(newTidyEnvCmd(&envTidy{
+		io:          stdIO,
+		constructor: env.NewConstructor(stdIO, cfg),
+	}))
 
 	return cmd
 }
