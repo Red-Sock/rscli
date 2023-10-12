@@ -1,72 +1,18 @@
 package env
 
 import (
-	"context"
 	stderrs "errors"
 	"os"
 	"path"
 	"sync"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/spf13/cobra"
 
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/internal/io/loader"
 )
 
-func (c *Constructor) RunInit(cmd *cobra.Command, args []string) error {
-	if c.checkIfEnvExist() {
-		return c.askToRunTidy(cmd, args, "environment already exists")
-	}
-
-	err := func() error {
-		progressChan := make(chan loader.Progress)
-		gDone := loader.RunSeqLoader(context.Background(), c.Io, progressChan)
-		defer func() {
-			<-gDone()
-		}()
-
-		defer func() {
-			close(progressChan)
-		}()
-
-		var ldr loader.Progress
-		{
-			ldr = loader.NewInfiniteLoader("Initiating basis", loader.RectSpinner())
-			progressChan <- ldr
-
-			err := c.initBasis()
-			if err != nil {
-				ldr.Done(loader.DoneFailed)
-				return errors.Wrap(err, "error initiating basis")
-			}
-			ldr.Done(loader.DoneSuccessful)
-		}
-
-		{
-			ldr = loader.NewInfiniteLoader("Creating projects folders", loader.RectSpinner())
-			progressChan <- ldr
-
-			err := c.initProjectsDirs()
-			if err != nil {
-				ldr.Done(loader.DoneFailed)
-				return errors.Wrap(err, "error initiating basis")
-			}
-
-			ldr.Done(loader.DoneSuccessful)
-		}
-		return nil
-	}()
-
-	if err != nil {
-		return errors.Wrap(err, "error during basic init ")
-	}
-
-	return c.RunTidy(cmd, args)
-}
-
-func (c *Constructor) initBasis() error {
+func (c *Constructor) InitBasis() error {
 	err := io.CreateFolderIfNotExists(c.envDirPath)
 
 	for _, f := range c.getSpirits() {
@@ -78,7 +24,7 @@ func (c *Constructor) initBasis() error {
 
 	return nil
 }
-func (c *Constructor) initProjectsDirs() error {
+func (c *Constructor) InitProjectsDirs() error {
 	wg := &sync.WaitGroup{}
 	errC := make(chan error, len(c.srcProjDirs))
 

@@ -76,16 +76,12 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 
 	name := modName
 
-	if nameStartIdx := strings.LastIndex(modName, "/"); nameStartIdx != -1 {
-		name = modName[nameStartIdx+1:]
-	}
-
 	p := &Project{
 		Name:        name,
 		ProjectPath: pth,
 		Cfg:         c,
 		pthToCfg:    configPath,
-		root:        f,
+		root:        *f,
 	}
 
 	err = interfaces.LoadProjectVersion(p)

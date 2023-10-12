@@ -118,7 +118,7 @@ func getTelegramPattern() ServerPattern {
 			)
 			server.Content = bytes.ReplaceAll(
 				server.Content,
-				[]byte("config.ServerTgApikey"),
+				[]byte("config.ServerTelegramAPIKey"),
 				[]byte("config.Server"+cases.SnakeToCamel(serverName)+"Apikey"))
 		},
 	}

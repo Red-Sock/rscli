@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/Red-Sock/trace-errors"
 
@@ -53,7 +54,9 @@ func (p StdIO) GetInput() (string, error) {
 		return out, errors.Wrap(err, "error reading user input")
 	}
 
-	return out[:len(out)-1], nil
+	out, _ = strings.CutSuffix(out, "\n")
+	out, _ = strings.CutSuffix(out, "\r")
+	return out, nil
 }
 func (p StdIO) GetInputOneOf(options []string) string {
 	panic("not implemented")

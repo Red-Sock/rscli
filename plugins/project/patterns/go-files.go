@@ -96,9 +96,9 @@ var (
 	//go:embed pattern_c/internal/transport/manager.go.pattern
 	ServerManagerPatternFile []byte
 
-	//go:embed pattern_c/internal/transport/rest_realisation/server.go.pattern
+	//go:embed pattern_c/internal/transport/rest_api/server.go.pattern
 	RestServFile []byte
-	//go:embed pattern_c/internal/transport/rest_realisation/version.go.pattern
+	//go:embed pattern_c/internal/transport/rest_api/version.go.pattern
 	RestServHandlerExampleFile []byte
 
 	//go:embed pattern_c/internal/transport/tg/listener.go.pattern
@@ -106,9 +106,9 @@ var (
 	//go:embed pattern_c/internal/transport/tg/handlers/version/handler.go.pattern
 	TgHandlerExampleFile []byte
 
-	//go:embed pattern_c/internal/transport/grpc_realisation/server.go.pattern
+	//go:embed pattern_c/internal/transport/grpc_api/server.go.pattern
 	GrpcServFile []byte
-	//go:embed pattern_c/internal/transport/grpc_realisation/pinger.go.pattern
+	//go:embed pattern_c/internal/transport/grpc_api/pinger.go.pattern
 	GrpcServExampleFile []byte
 	//go:embed pattern_c/pkg/proto/grpc_realisation/financial-microservice.proto
 	GrpcProtoExampleFile []byte

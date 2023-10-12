@@ -8,6 +8,8 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/internal/utils/renamer"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config/server"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/patterns"
@@ -43,7 +45,6 @@ func (r Rest) applyConfig(proj interfaces.Project, defaultApiName string) {
 	}
 
 	ds[defaultApiName] = server.Rest{}
-
 }
 
 func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error {
@@ -55,12 +56,14 @@ func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error 
 	if ok {
 		return nil
 	}
+	serverF := &folder.Folder{
+		Name:    path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, patterns.ServerGoFile),
+		Content: renamer.ReplaceProjectName(patterns.RestServFile, proj.GetName()),
+	}
+	go_actions.ReplaceProjectName(proj.GetName(), serverF)
 
 	proj.GetFolder().Add(
-		&folder.Folder{
-			Name:    path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, patterns.ServerGoFile),
-			Content: patterns.RestServFile,
-		},
+		serverF,
 		&folder.Folder{
 			Name:    path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, patterns.VersionGoFile),
 			Content: patterns.RestServHandlerExampleFile,

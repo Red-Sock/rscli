@@ -20,7 +20,8 @@ func newEnvManager(envContainer *env.Container) *envManager {
 
 	for _, item := range envContainer.Content() {
 		switch {
-		case strings.HasPrefix(item.Name, patterns.ResourceCapsPattern) && len(item.Name) > len(patterns.ResourceCapsPattern):
+		case strings.HasPrefix(item.Name, patterns.ResourceCapsPattern) &&
+			len(item.Name) > len(patterns.ResourceCapsPattern):
 			name := item.Name[len(patterns.ResourceCapsPattern)+1:]
 			if name != "" {
 				em.resources[name] = item.Value

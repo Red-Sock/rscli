@@ -8,6 +8,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/colors"
 	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/patterns"
@@ -63,6 +64,11 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return errors.Wrap(err, "error adding dependency to project")
 		}
+	}
+
+	err = go_actions.PrepareGoConfigFolderAction{}.Do(p.proj)
+	if err != nil {
+		return errors.Wrap(err, "error building golang config")
 	}
 
 	err = p.proj.GetFolder().Build()
