@@ -29,14 +29,14 @@ func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 		},
 	})
 
-	fldr := p.GetFolder()
-	fldr.Add(cmd)
+	rootF := p.GetFolder()
+	rootF.Add(cmd)
 
-	fldr.Add(&folder.Folder{Name: patterns.ConfigsFolder})
+	rootF.Add(&folder.Folder{Name: patterns.ConfigsFolder})
 
-	fldr.Add(&folder.Folder{Name: patterns.InternalFolder})
+	rootF.Add(&folder.Folder{Name: patterns.InternalFolder})
 
-	fldr.Add(&folder.Folder{
+	rootF.Add(&folder.Folder{
 		Name: patterns.PkgFolder,
 		Inner: []*folder.Folder{
 			{Name: patterns.SwaggerFolder},
@@ -44,7 +44,7 @@ func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 		},
 	})
 
-	fldr.Add(&folder.Folder{
+	rootF.Add(&folder.Folder{
 		Name:    path.Join(patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder, patterns.CloserFile),
 		Content: patterns.UtilsCloserFile,
 	})

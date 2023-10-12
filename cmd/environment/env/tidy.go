@@ -94,7 +94,7 @@ func (c *Constructor) FetchTidyManager() (*TidyManager, error) {
 		projName := c.EnvProjDirs[idx].Name()
 
 		var proj *project.Env
-		proj, err = project.LoadProjectEnvironment(c.cfg, c.envManager.resources, path.Join(c.envDirPath, projName))
+		proj, err = project.LoadProjectEnvironment(c.cfg, c.envManager.resources, c.makefile, path.Join(c.envDirPath, projName))
 		if err != nil {
 			return nil, errors.Wrap(err, "error loading environment for project "+projName)
 		}

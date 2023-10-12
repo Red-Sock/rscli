@@ -21,6 +21,7 @@ func ReplaceProjectName(src []byte, newName string) []byte {
 		[]byte(patterns.ProjNamePattern),
 		smallName,
 	)
+
 	return b
 }
 

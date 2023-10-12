@@ -37,7 +37,7 @@ func (p *Project) GetShortName() string {
 	name := p.Name
 
 	if idx := strings.LastIndex(name, string(os.PathSeparator)); idx != -1 {
-		name = name[+1:]
+		name = name[idx+1:]
 	}
 
 	return name

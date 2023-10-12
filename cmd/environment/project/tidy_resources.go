@@ -17,13 +17,13 @@ import (
 
 func (e *Env) tidyResources(pm *ports.PortManager, projName string) error {
 	tr := tidyResources{
-		config:                      e.Config,
-		compose:                     e.Compose,
-		environment:                 e.Environment,
-		composePatterns:             e.ComposePatterns,
-		environmentResourcePatterns: e.environmentResourcePatterns,
-		pm:                          pm,
-		projName:                    projName,
+		config:          e.Config,
+		compose:         e.Compose,
+		environment:     e.Environment,
+		composePatterns: e.ComposePatterns,
+		globalEnvConfig: e.globalEnvFile,
+		pm:              pm,
+		projName:        projName,
 	}
 	return tr.tidyResources()
 }
@@ -33,9 +33,9 @@ type tidyResources struct {
 	compose     *compose.Compose
 	environment *env.Container
 
-	composePatterns             compose.PatternManager
-	environmentResourcePatterns envResourcePattern
-	pm                          *ports.PortManager
+	composePatterns compose.PatternManager
+	globalEnvConfig globalEnvConfig
+	pm              *ports.PortManager
 
 	projName string
 }
@@ -120,5 +120,5 @@ func (e *tidyResources) getDefaultValue(resName, resType string) (basicEnvName, 
 	basicEnvName = strings.ReplaceAll(basicEnvName,
 		patterns.ProjNameCapsPattern+"_", "")
 
-	return basicEnvName, e.environmentResourcePatterns.GetByName(basicEnvName)
+	return basicEnvName, e.globalEnvConfig.GetByName(basicEnvName)
 }

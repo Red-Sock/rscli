@@ -1,6 +1,7 @@
 package project
 
 import (
+	"bytes"
 	"os"
 	"path"
 	"strconv"
@@ -22,7 +23,7 @@ import (
 
 var ErrNoConfig = errors.New("no config found")
 
-type envResourcePattern interface {
+type globalEnvConfig interface {
 	GetByName(envName string) (value string)
 }
 
@@ -35,13 +36,23 @@ type Env struct {
 	Config          *pconfig.Config
 	Makefile        *makefile.Makefile
 
-	environmentResourcePatterns envResourcePattern
+	globalEnvFile  globalEnvConfig
+	globalMakefile *makefile.Makefile
+	rscliConfig    *config.RsCliConfig
 }
 
-func LoadProjectEnvironment(cfg *config.RsCliConfig, envResourcePattern envResourcePattern, pathToProjectEnv string) (p *Env, err error) {
+func LoadProjectEnvironment(
+	cfg *config.RsCliConfig,
+	envResourcePattern globalEnvConfig,
+	globalMakefile *makefile.Makefile,
+	pathToProjectEnv string,
+) (p *Env, err error) {
 	p = &Env{
-		envDirPath:                  pathToProjectEnv,
-		environmentResourcePatterns: envResourcePattern,
+		envDirPath: pathToProjectEnv,
+
+		globalEnvFile:  envResourcePattern,
+		globalMakefile: globalMakefile,
+		rscliConfig:    cfg,
 	}
 
 	err = p.fetchComposeFile()
@@ -59,6 +70,11 @@ func LoadProjectEnvironment(cfg *config.RsCliConfig, envResourcePattern envResou
 		return nil, errors.Wrap(err, "error fetching config")
 	}
 
+	err = p.fetchMakeFile()
+	if err != nil {
+		return nil, errors.Wrap(err, "error fetching makefile")
+	}
+
 	return p, nil
 }
 
@@ -66,6 +82,7 @@ func (e *Env) Tidy(pm *ports.PortManager) error {
 	projName := path.Base(e.envDirPath)
 
 	e.tidyEnvFile()
+
 	e.tidyMakeFile()
 
 	err := e.tidyResources(pm, projName)
@@ -100,6 +117,23 @@ func (e *Env) Tidy(pm *ports.PortManager) error {
 		err = io.OverrideFile(pathToDockerComposeFile, renamer.ReplaceProjectName(composeFile, projName))
 		if err != nil {
 			return errors.Wrap(err, "error writing docker compose file file")
+		}
+	}
+
+	{
+		mkFile, err := e.Makefile.Marshal()
+		pathToMakefile := path.Join(e.envDirPath, patterns.Makefile.Name)
+
+		mkFile = renamer.ReplaceProjectName(mkFile, projName)
+
+		projectAbsPath := path.Join(path.Dir(path.Dir(e.envDirPath)), projName)
+		mkFile = bytes.ReplaceAll(mkFile, []byte(patterns.AbsoluteProjectPathPattern), []byte(projectAbsPath))
+
+		mkFile = bytes.ReplaceAll(mkFile, []byte(patterns.PathToMain), []byte(e.rscliConfig.Env.PathToMain))
+
+		err = io.OverrideFile(pathToMakefile, mkFile)
+		if err != nil {
+			return errors.Wrap(err, "error writing makefile")
 		}
 	}
 
@@ -159,7 +193,7 @@ func (e *Env) tidyConfigFile() {
 }
 
 func (e *Env) tidyMakeFile() {
-	// TODO
+	e.Makefile.Merge(e.globalMakefile)
 }
 
 func (e *Env) fetchComposeFile() error {
@@ -292,7 +326,6 @@ func (e *Env) findEnvConfig(cfg *config.RsCliConfig) ([]byte, error) {
 	return f, nil
 }
 
-// TODO: RSI-165
 func (e *Env) fetchMakeFile() (err error) {
 	e.Makefile, err = makefile.ReadMakeFile(path.Join(e.envDirPath, patterns.Makefile.Name))
 	if err != nil {
