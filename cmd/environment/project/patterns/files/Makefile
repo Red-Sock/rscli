@@ -12,5 +12,5 @@ env-up:
 
 .PHONY: env-down
 env-down:
-	docker-compose - f docker-compose.yaml -p $(PROJECT_NAME) down
+	docker-compose -p $(PROJECT_NAME) down
 
