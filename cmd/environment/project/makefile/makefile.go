@@ -31,6 +31,9 @@ type Makefile struct {
 func ReadMakeFile(pth string) (*Makefile, error) {
 	makeFile, err := os.ReadFile(pth)
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil, err
+		}
 		return nil, errors.Wrap(err, "error reading makefile")
 	}
 
@@ -38,10 +41,11 @@ func ReadMakeFile(pth string) (*Makefile, error) {
 }
 
 func NewMakeFile(in []byte) (*Makefile, error) {
-	lines := bytes.Split(in, []byte{'\n'})
 	m := &Makefile{
 		variables: &env.Container{},
 	}
+
+	lines := bytes.Split(in, []byte{'\n'})
 
 	for idx := 0; idx < len(lines); idx++ {
 		if len(lines[idx]) == 0 {
@@ -67,10 +71,26 @@ func NewMakeFile(in []byte) (*Makefile, error) {
 	return m, nil
 }
 
+func MewEmptyMakefile() *Makefile {
+	return &Makefile{
+		variables: &env.Container{},
+	}
+}
+
 func (m *Makefile) GetRules() []Rule {
 	return m.rules
 }
 
+func (m *Makefile) GetRuleByName(name string) *Rule {
+
+	for _, item := range m.rules {
+		if string(item.Name) == name {
+			return &item
+		}
+	}
+
+	return nil
+}
 func (m *Makefile) GetVars() *env.Container {
 	return m.variables
 }

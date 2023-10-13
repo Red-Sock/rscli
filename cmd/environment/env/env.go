@@ -203,7 +203,7 @@ func (c *Constructor) fetchMakefile() (err error) {
 	userDefinedMakefilePath := path.Join(c.envDirPath, patterns.Makefile.Name)
 	_, err = os.Stat(userDefinedMakefilePath)
 	if err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
+		if errors.Is(err, os.ErrNotExist) {
 			return nil
 		}
 		return errors.Wrap(err, "error getting stat on makefile")

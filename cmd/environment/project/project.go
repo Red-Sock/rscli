@@ -83,8 +83,6 @@ func (e *Env) Tidy(pm *ports.PortManager) error {
 
 	e.tidyEnvFile()
 
-	e.tidyMakeFile()
-
 	err := e.tidyResources(pm, projName)
 	if err != nil {
 		return errors.Wrap(err, "error doing tidy on resources")
@@ -121,17 +119,15 @@ func (e *Env) Tidy(pm *ports.PortManager) error {
 	}
 
 	{
-		mkFile, err := e.Makefile.Marshal()
-		pathToMakefile := path.Join(e.envDirPath, patterns.Makefile.Name)
+		e.tidyMakeFile(projName)
 
-		mkFile = renamer.ReplaceProjectName(mkFile, projName)
+		var mkFile []byte
+		mkFile, err = e.Makefile.Marshal()
+		if err != nil {
+			return errors.Wrap(err, "error marshalling makefile")
+		}
 
-		projectAbsPath := path.Join(path.Dir(path.Dir(e.envDirPath)), projName)
-		mkFile = bytes.ReplaceAll(mkFile, []byte(patterns.AbsoluteProjectPathPattern), []byte(projectAbsPath))
-
-		mkFile = bytes.ReplaceAll(mkFile, []byte(patterns.PathToMain), []byte(e.rscliConfig.Env.PathToMain))
-
-		err = io.OverrideFile(pathToMakefile, mkFile)
+		err = io.OverrideFile(path.Join(e.envDirPath, patterns.Makefile.Name), mkFile)
 		if err != nil {
 			return errors.Wrap(err, "error writing makefile")
 		}
@@ -189,11 +185,64 @@ func (e *Env) tidyEnvFile() {
 }
 
 func (e *Env) tidyConfigFile() {
-
+	// TODO RSI-187
 }
 
-func (e *Env) tidyMakeFile() {
+func (e *Env) tidyMakeFile(projName string) {
 	e.Makefile.Merge(e.globalMakefile)
+
+	projNameCaps := strings.ToUpper(projName)
+	projectAbsPath := path.Join(path.Dir(path.Dir(e.envDirPath)), projName)
+	{
+		// tidy variables
+		v := e.Makefile.GetVars().Content()
+
+		for i := range v {
+			v[i].Name = strings.ReplaceAll(v[i].Name, patterns.ProjNameCapsPattern, projNameCaps)
+			switch v[i].Value {
+			case patterns.AbsoluteProjectPathPattern:
+				v[i].Value = strings.ReplaceAll(v[i].Value, patterns.AbsoluteProjectPathPattern, projectAbsPath)
+			case patterns.PathToMain:
+				v[i].Value = strings.ReplaceAll(v[i].Value, patterns.PathToMain, e.rscliConfig.Env.PathToMain)
+
+			default:
+				v[i].Value = renamer.ReplaceProjectNameStr(v[i].Value, projName)
+			}
+		}
+	}
+
+	{
+		environments := make([]string, 0, len(e.Compose.Services))
+		for name := range e.Compose.Services {
+			if name != projName {
+				environments = append(environments, name)
+			}
+		}
+
+		rules := e.Makefile.GetRules()
+		for i := range rules {
+			if string(rules[i].Name) == patterns.MakefileEnvUpRuleName {
+				envUpRule := e.globalMakefile.GetRuleByName(patterns.MakefileEnvUpRuleName)
+				if envUpRule == nil {
+					continue
+				}
+
+				if len(envUpRule.Commands) == 0 {
+					continue
+				}
+
+				if len(rules[i].Commands) == 0 {
+					rules[i].Commands = envUpRule.Commands
+				}
+
+				if !bytes.HasSuffix(envUpRule.Commands[0], []byte{' '}) {
+					rules[i].Commands[0] = append(envUpRule.Commands[0], ' ')
+				}
+
+				rules[i].Commands[0] = append(rules[i].Commands[0], []byte(strings.Join(environments, " "))...)
+			}
+		}
+	}
 }
 
 func (e *Env) fetchComposeFile() error {
@@ -329,7 +378,11 @@ func (e *Env) findEnvConfig(cfg *config.RsCliConfig) ([]byte, error) {
 func (e *Env) fetchMakeFile() (err error) {
 	e.Makefile, err = makefile.ReadMakeFile(path.Join(e.envDirPath, patterns.Makefile.Name))
 	if err != nil {
-		return errors.Wrap(err, "error getting makefile")
+		if !errors.Is(err, os.ErrNotExist) {
+			return errors.Wrap(err, "error getting makefile")
+		}
+
+		e.Makefile = makefile.MewEmptyMakefile()
 	}
 
 	return nil

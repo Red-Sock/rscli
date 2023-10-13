@@ -24,7 +24,10 @@ const (
 	ResourceNameCapsPattern    = ResourceCapsPattern + "_NAME_CAPS"
 )
 
-const ()
+const (
+	MakefileEnvUpRuleName   = "env-up"
+	MakefileEnvDownRuleName = "env-down"
+)
 
 var (
 	//go:embed files/.env

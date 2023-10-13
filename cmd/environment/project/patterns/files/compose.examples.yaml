@@ -7,6 +7,7 @@ services:
       POSTGRES_USER: ${PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_USER}
       POSTGRES_PASSWORD: ${PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_PWD}
       POSTGRES_DB: ${PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_NAME}
+      POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - './data:/var/lib/postgresql'
     ports:
