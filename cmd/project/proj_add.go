@@ -76,7 +76,7 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "error building folders")
 	}
 
-	err = p.proj.GetConfig().BuildTo(p.proj.GetConfigPath())
+	err = p.proj.GetConfig().BuildTo(p.proj.GetConfig().GetPath())
 	if err != nil {
 		return errors.Wrap(err, "error building config")
 	}

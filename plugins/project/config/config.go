@@ -19,6 +19,8 @@ type Config struct {
 	AppInfo     AppInfo                `yaml:"app_info"`
 	Server      map[string]interface{} `yaml:"server,omitempty"`
 	DataSources map[string]interface{} `yaml:"data_sources,omitempty"`
+
+	pth string `yaml:"-"`
 }
 
 type AppInfo struct {
@@ -47,7 +49,9 @@ func ReadConfig(pth string) (*Config, error) {
 		return nil, err
 	}
 
-	c := &Config{}
+	c := &Config{
+		pth: pth,
+	}
 	err = yaml.NewDecoder(f).Decode(c)
 	if err != nil {
 		return nil, errors.Wrap(err, "error decoding config to struct")
@@ -62,11 +66,6 @@ func ReadConfig(pth string) (*Config, error) {
 	}
 
 	return c, nil
-}
-
-func NewConfig(b []byte) (*Config, error) {
-	c := &Config{}
-	return c, yaml.Unmarshal(b, c)
 }
 
 func (c *Config) BuildTo(cfgFile string) error {
@@ -218,4 +217,8 @@ func (c *Config) keysFromConfig() (map[string]string, error) {
 	}
 
 	return variables, nil
+}
+
+func (c *Config) GetPath() string {
+	return c.pth
 }

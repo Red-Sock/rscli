@@ -19,8 +19,9 @@ type Postgres struct {
 	Host         string `yaml:"host"`
 	Port         uint64 `yaml:"port"`
 
-	Name    string `yaml:"name"`
-	User    string `yaml:"user"`
+	Name string `yaml:"name"`
+	User string `yaml:"user"`
+
 	Pwd     string `yaml:"pwd"`
 	SSLMode string `yaml:"ssl_mode"`
 }

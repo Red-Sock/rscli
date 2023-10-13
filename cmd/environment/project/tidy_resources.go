@@ -15,7 +15,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 )
 
-func (e *Env) tidyResources(pm *ports.PortManager, projName string) error {
+func (e *Env) tidyResources(pm *ports.PortManager, projName string, enableService bool) error {
 	tr := tidyResources{
 		config:          e.Config,
 		compose:         e.Compose,
@@ -25,7 +25,7 @@ func (e *Env) tidyResources(pm *ports.PortManager, projName string) error {
 		pm:              pm,
 		projName:        projName,
 	}
-	return tr.tidyResources()
+	return tr.tidyResources(enableService)
 }
 
 type tidyResources struct {
@@ -40,7 +40,7 @@ type tidyResources struct {
 	projName string
 }
 
-func (e *tidyResources) tidyResources() error {
+func (e *tidyResources) tidyResources(enableService bool) error {
 	dependencies, err := e.composePatterns.GetServiceDependencies(e.config)
 	if err != nil {
 		return errors.Wrap(err, "error getting dependencies for service "+e.config.AppInfo.Name)
@@ -48,7 +48,7 @@ func (e *tidyResources) tidyResources() error {
 
 	for _, resource := range dependencies {
 
-		err = e.tidyResource(e.projName, resource)
+		err = e.tidyResource(e.projName, resource, enableService)
 		if err != nil {
 			return errors.Wrap(err, "error tiding resource "+resource.GetName())
 		}
@@ -59,9 +59,10 @@ func (e *tidyResources) tidyResources() error {
 	return nil
 }
 
-func (e *tidyResources) tidyResource(projName string, resource compose.Pattern) (err error) {
+func (e *tidyResources) tidyResource(projName string, resource compose.Pattern, enableService bool) (err error) {
 	patternEnv := resource.GetEnvs().Content()
 	envMap := make(map[string]string, len(patternEnv))
+
 	for idx := range patternEnv {
 		newEnvName := e.getResourceName(patternEnv[idx].Name, resource.GetName(), projName)
 
@@ -80,6 +81,13 @@ func (e *tidyResources) tidyResource(projName string, resource compose.Pattern) 
 		e.environment.AppendRaw(newEnvName, newEnvValue)
 	}
 
+	hostName := strings.ToUpper(resource.GetName()) + "_HOST"
+	if enableService {
+		envMap[hostName] = resource.GetName()
+	} else {
+		envMap[hostName] = patterns.Localhost
+	}
+
 	e.config.DataSources[resource.GetName()] = e.tidyConfig(resource, envMap)
 
 	return nil
@@ -89,8 +97,12 @@ func (e *tidyResources) tidyConfig(resource compose.Pattern, env map[string]stri
 	switch resource.GetType() {
 	case resources.DataSourcePostgres:
 		pgConf := resources.Postgres{}
-		pgConf.FillFromEnv(env)
+		_ = pgConf.FillFromEnv(env)
 		return pgConf
+	case resources.DataSourceRedis:
+		rdsConf := resources.Redis{}
+		_ = rdsConf.FillFromEnv(env)
+		return rdsConf
 	default:
 		return nil
 	}

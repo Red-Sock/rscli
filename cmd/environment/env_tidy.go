@@ -25,6 +25,7 @@ func newTidyEnvCmd(et *envTidy) *cobra.Command {
 	}
 
 	c.Flags().StringP(env.PathFlag, env.PathFlag[:1], "", `Path to folder with projects`)
+	c.Flags().BoolP(env.ServiceInContainer, env.ServiceInContainer[:1], false, "Service will be run in container")
 
 	return c
 }
@@ -53,10 +54,16 @@ func (c *envTidy) RunTidy(cmd *cobra.Command, arg []string) error {
 		c.io.Println("rscli env tidyMngr done")
 	}()
 
+	var serviceEnabled bool
+
+	if cmd.Flag(env.ServiceInContainer).Value.String() == "true" {
+		serviceEnabled = true
+	}
+
 	errC := make(chan error)
 	for idx := range tidyMngr.ProjEnvs {
 		go func(i int) {
-			tidyErr := tidyMngr.ProjEnvs[i].Tidy(tidyMngr.PortManager)
+			tidyErr := tidyMngr.ProjEnvs[i].Tidy(tidyMngr.PortManager, serviceEnabled)
 			if tidyErr != nil {
 				tidyMngr.Progresses[i].Done(loader.DoneFailed)
 			} else {

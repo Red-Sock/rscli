@@ -17,7 +17,8 @@ import (
 )
 
 const (
-	PathFlag = "path"
+	PathFlag           = "path"
+	ServiceInContainer = "service-enabled"
 )
 
 type Constructor struct {

@@ -24,6 +24,8 @@ const (
 	ResourceNameCapsPattern    = ResourceCapsPattern + "_NAME_CAPS"
 )
 
+const Localhost = "0.0.0.0"
+
 const (
 	MakefileEnvUpRuleName   = "env-up"
 	MakefileEnvDownRuleName = "env-down"
