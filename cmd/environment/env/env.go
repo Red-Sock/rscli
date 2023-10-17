@@ -182,8 +182,8 @@ func (c *Constructor) fetchDotEnv() (err error) {
 		return errors.Wrap(err, "can't open env file at "+envPattern)
 	}
 
-	for _, preDefined := range builtIn.Content() {
-		for _, userDefined := range globalEnv.Content() {
+	for _, preDefined := range builtIn.GetContent() {
+		for _, userDefined := range globalEnv.GetContent() {
 			if preDefined.Name == userDefined.Name {
 				builtIn.AppendRaw(preDefined.Name, userDefined.Value)
 			}

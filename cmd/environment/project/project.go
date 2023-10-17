@@ -80,9 +80,9 @@ func LoadProjectEnvironment(
 func (e *Env) Tidy(pm *ports.PortManager, serviceEnabled bool) error {
 	projName := path.Base(e.envDirPath)
 
-	e.tidyConfigFile()
+	e.preTidyConfigFile()
 
-	e.tidyEnvFile()
+	e.preTidyEnvFile()
 
 	err := e.tidyResources(pm, projName, serviceEnabled)
 	if err != nil {

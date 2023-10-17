@@ -110,7 +110,7 @@ func (m *Makefile) AppendRule(rule Rule) {
 }
 
 func (m *Makefile) Merge(external *Makefile) {
-	for _, item := range external.GetVars().Content() {
+	for _, item := range external.GetVars().GetContent() {
 		if !m.GetVars().ContainsByName(item.Name) {
 			m.GetVars().Append(item)
 		}

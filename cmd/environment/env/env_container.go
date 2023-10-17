@@ -18,7 +18,7 @@ func newEnvManager(envContainer *env.Container) *envManager {
 		resources: make(resources),
 	}
 
-	for _, item := range envContainer.Content() {
+	for _, item := range envContainer.GetContent() {
 		switch {
 		case strings.HasPrefix(item.Name, patterns.ResourceCapsPattern) &&
 			len(item.Name) > len(patterns.ResourceCapsPattern):

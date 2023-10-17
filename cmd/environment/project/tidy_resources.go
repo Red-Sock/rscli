@@ -56,11 +56,26 @@ func (e *tidyResources) tidyResources(enableService bool) error {
 		e.compose.AppendService(resource.GetName(), resource.GetCompose())
 	}
 
+	for name := range e.compose.Services {
+		foundInConfig := false
+
+		for _, cfgRes := range dependencies {
+			if name == cfgRes.GetName() || name == e.projName {
+				foundInConfig = true
+				break
+			}
+		}
+
+		if !foundInConfig {
+			delete(e.compose.Services, name)
+		}
+	}
+
 	return nil
 }
 
 func (e *tidyResources) tidyResource(projName string, resource compose.Pattern, enableService bool) (err error) {
-	patternEnv := resource.GetEnvs().Content()
+	patternEnv := resource.GetEnvs().GetContent()
 	envMap := make(map[string]string, len(patternEnv))
 
 	for idx := range patternEnv {
@@ -81,12 +96,17 @@ func (e *tidyResources) tidyResource(projName string, resource compose.Pattern, 
 		e.environment.AppendRaw(newEnvName, newEnvValue)
 	}
 
-	hostName := strings.ToUpper(resource.GetName()) + "_HOST"
+	hostName := strings.ToUpper(projName+"_"+resource.GetName()) + patterns.HostEnvSuffix
+	hostValue := ""
 	if enableService {
-		envMap[hostName] = resource.GetName()
+		hostValue = resource.GetName()
 	} else {
-		envMap[hostName] = patterns.Localhost
+		hostValue = patterns.Localhost
 	}
+
+	envMap[strings.ToUpper(resource.GetType()+patterns.HostEnvSuffix)] = hostValue
+
+	e.environment.AppendRaw(hostName, hostValue)
 
 	e.config.DataSources[resource.GetName()] = e.tidyConfig(resource, envMap)
 

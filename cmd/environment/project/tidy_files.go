@@ -14,7 +14,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project"
 )
 
-func (e *Env) tidyConfigFile() {
+func (e *Env) preTidyConfigFile() {
 	projConfig, err := project.LoadProjectConfig(e.projPath, e.rscliConfig)
 	if err != nil {
 		return
@@ -73,8 +73,8 @@ func (e *Env) tidyServerAPIs(projName string, pm *ports.PortManager) error {
 	return nil
 }
 
-func (e *Env) tidyEnvFile() {
-	for _, envVar := range e.Environment.Content() {
+func (e *Env) preTidyEnvFile() {
+	for _, envVar := range e.Environment.GetContent() {
 		if envVar.Name == "" || envVar.Name[0] == '#' {
 			e.Environment.Remove(envVar.Name)
 		}
@@ -88,7 +88,7 @@ func (e *Env) tidyMakeFile(projName string) {
 
 	{
 		// tidy variables
-		v := e.Makefile.GetVars().Content()
+		v := e.Makefile.GetVars().GetContent()
 
 		for i := range v {
 			v[i].Name = strings.ReplaceAll(v[i].Name, patterns.ProjNameCapsPattern, projNameCaps)

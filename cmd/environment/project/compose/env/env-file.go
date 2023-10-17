@@ -18,7 +18,7 @@ const (
 )
 
 type Container struct {
-	content []Variable
+	Content []Variable
 }
 
 type Variable struct {
@@ -50,39 +50,39 @@ func NewEnvContainer(src []byte) (*Container, error) {
 	return es, es.UnmarshalEnv(src)
 }
 
-func (e *Container) Content() []Variable {
-	return e.content
+func (e *Container) GetContent() []Variable {
+	return e.Content
 }
 
 func (e *Container) Append(v Variable) {
-	for idx, item := range e.content {
+	for idx, item := range e.Content {
 		if item.Name == v.Name {
-			e.content[idx].Value = v.Value
+			e.Content[idx].Value = v.Value
 			return
 		}
 	}
 
-	e.content = append(e.content, Variable{Name: v.Name, Value: v.Value})
+	e.Content = append(e.Content, Variable{Name: v.Name, Value: v.Value})
 }
 
 func (e *Container) AppendRaw(name string, content string) {
-	for idx, item := range e.content {
+	for idx, item := range e.Content {
 		if item.Name == name {
-			e.content[idx].Value = content
+			e.Content[idx].Value = content
 			return
 		}
 	}
 
-	e.content = append(e.content, Variable{Name: name, Value: content})
+	e.Content = append(e.Content, Variable{Name: name, Value: content})
 }
 
 func (e *Container) MarshalEnv() []byte {
-	if len(e.content) == 0 {
+	if len(e.Content) == 0 {
 		return []byte{}
 	}
 	sb := bytes.Buffer{}
 
-	for _, v := range e.content {
+	for _, v := range e.Content {
 		sb.Write([]byte(v.Name))
 		sb.WriteByte(equals)
 		sb.Write([]byte(v.Value))
@@ -99,15 +99,15 @@ func (e *Container) UnmarshalEnv(b []byte) error {
 
 	splited := bytes.Split(b, []byte{lineSkip})
 
-	e.content = make([]Variable, len(splited))
+	e.Content = make([]Variable, len(splited))
 
 	for idx, item := range splited {
 		line := bytes.Split(item, []byte{equals})
 		if len(line) > 0 {
-			e.content[idx].Name = string(line[0])
+			e.Content[idx].Name = string(line[0])
 		}
 		if len(line) == 2 {
-			e.content[idx].Value = string(line[1])
+			e.Content[idx].Value = string(line[1])
 		}
 	}
 
@@ -120,8 +120,8 @@ type IntVariable struct {
 }
 
 func (e *Container) GetPortValues() ([]IntVariable, error) {
-	out := make([]IntVariable, 0, len(e.content)/2)
-	for _, item := range e.content {
+	out := make([]IntVariable, 0, len(e.Content)/2)
+	for _, item := range e.Content {
 		if strings.HasSuffix(item.Name, patterns.PortSuffix) {
 			port, err := strconv.ParseUint(item.Value, 10, 16)
 			if err == nil {
@@ -137,8 +137,8 @@ func (e *Container) GetPortValues() ([]IntVariable, error) {
 }
 
 func (e *Container) Contains(variable Variable) bool {
-	for idx := range e.content {
-		if e.content[idx].Name == variable.Name && e.content[idx].Value == variable.Value {
+	for idx := range e.Content {
+		if e.Content[idx].Name == variable.Name && e.Content[idx].Value == variable.Value {
 			return true
 		}
 	}
@@ -147,7 +147,7 @@ func (e *Container) Contains(variable Variable) bool {
 }
 
 func (e *Container) ContainsByName(name string) bool {
-	for _, item := range e.content {
+	for _, item := range e.Content {
 		if item.Name == name {
 			return true
 		}
@@ -156,20 +156,20 @@ func (e *Container) ContainsByName(name string) bool {
 }
 
 func (e *Container) Rename(oldName, newName string) {
-	for idx := range e.content {
-		if e.content[idx].Name == oldName {
-			e.content[idx].Name = newName
+	for idx := range e.Content {
+		if e.Content[idx].Name == oldName {
+			e.Content[idx].Name = newName
 			return
 		}
 	}
 }
 
 func (e *Container) Remove(name string) {
-	for idx, envVar := range e.content {
+	for idx, envVar := range e.Content {
 		if envVar.Name == name {
-			e.content[0], e.content[idx] = e.content[idx], e.content[0]
+			e.Content[0], e.Content[idx] = e.Content[idx], e.Content[0]
 			break
 		}
 	}
-	e.content = e.content[1:]
+	e.Content = e.Content[1:]
 }
