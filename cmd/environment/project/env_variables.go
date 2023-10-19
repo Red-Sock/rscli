@@ -41,11 +41,33 @@ func (e *envVariables) fetch(globalEnvFile *env.Container, pathToProjEnv string)
 		return errors.Wrap(err, "error creating project example .env file")
 	}
 
-	e.Container.AppendRaw(globalUserDefinedEnvVariablesComment, "")
-	e.Container.Append(globalEnvFile.GetContent()...)
+	globalValidEnvs := make([]env.Variable, 0, len(globalEnvFile.Content)/2)
 
-	e.Container.AppendRaw(userDefinedEnvVariablesComment, "")
-	e.Container.Append(example.GetContent()...)
+	for _, item := range globalEnvFile.GetContent() {
+		if len(item.Name) == 0 {
+			continue
+		}
+
+		if strings.HasPrefix(item.Name, "###") {
+			continue
+		}
+
+		if strings.HasPrefix(item.Name, patterns.ResourceCapsPattern) {
+			continue
+		}
+
+		globalValidEnvs = append(globalValidEnvs, item)
+	}
+
+	if len(globalValidEnvs) != 0 {
+		e.Container.AppendRaw(globalUserDefinedEnvVariablesComment, "")
+		e.Container.Append(globalValidEnvs...)
+	}
+
+	if len(example.Content) != 0 {
+		e.Container.AppendRaw(userDefinedEnvVariablesComment, "")
+		e.Container.Append(example.GetContent()...)
+	}
 
 	e.envResources = newEnvManager(globalEnvFile)
 

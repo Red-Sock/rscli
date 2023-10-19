@@ -71,6 +71,11 @@ func (e *tidyResources) tidyResources(enableService bool) error {
 
 		return envs[i].Content[0].Value > envs[j].Content[0].Name
 	})
+
+	for _, item := range envs {
+		e.environment.Append(item.Content...)
+	}
+
 	for name := range e.compose.Services {
 		foundInConfig := false
 
