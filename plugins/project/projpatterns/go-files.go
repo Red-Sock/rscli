@@ -14,12 +14,9 @@ const (
 )
 
 const (
-	ServerGoFile  = "server.go"
-	VersionGoFile = "version.go"
-	PingerGoFile  = "pinger.go"
+	ServerGoFile = "server.go"
 
 	handlerFolder = "handlers"
-	handlerGoFile = "handler.go"
 )
 
 const (
@@ -29,8 +26,8 @@ const (
 
 	ApiFolder = "api"
 
-	ExamplesFolder      = "examples"
-	ExampleFileName     = "api.http"
+	ExamplesFolder = "examples"
+
 	ExamplesHttpEnvFile = "http-client.env.json"
 
 	InternalFolder = "internal"
@@ -56,7 +53,6 @@ const (
 	TelegramServFileName = "listener.go"
 	TgHandlerFileName    = "handler.go"
 	ConfigsFolder        = "config"
-	ConfigFileName       = "config.go"
 	ConfigTemplate       = "config_template.yaml"
 
 	GoMod = "go.mod"
@@ -86,14 +82,14 @@ var (
 	//go:embed pattern_c/internal/clients/redis/conn.go.pattern
 	redisConnFile []byte
 	RedisConnFile = &folder.Folder{
-		Name:    "conn.go",
+		Name:    ConnFileName,
 		Content: redisConnFile,
 	}
 
 	//go:embed pattern_c/internal/clients/postgres/conn.go.pattern
 	pgConnFile []byte
 	PgConnFile = &folder.Folder{
-		Name:    "conn.go",
+		Name:    ConnFileName,
 		Content: pgConnFile,
 	}
 	//go:embed pattern_c/internal/clients/postgres/tx.go.pattern
@@ -106,7 +102,7 @@ var (
 	//go:embed pattern_c/internal/clients/telegram/conn.go.pattern
 	tgConnFile []byte
 	TgConnFile = &folder.Folder{
-		Name:    "conn.go",
+		Name:    ConnFileName,
 		Content: tgConnFile,
 	}
 )
@@ -131,28 +127,64 @@ var (
 // Server files
 var (
 	//go:embed pattern_c/internal/transport/manager.go.pattern
-	ServerManagerPatternFile []byte
+	serverManagerPatternFile []byte
+	ServerManagerPatternFile = &folder.Folder{
+		Name:    "manager.go",
+		Content: serverManagerPatternFile,
+	}
 
 	//go:embed pattern_c/internal/transport/rest_api/server.go.pattern
-	RestServFile []byte
+	restServFile []byte
+	RestServFile = &folder.Folder{
+		Name:    ServerGoFile,
+		Content: restServFile,
+	}
 	//go:embed pattern_c/internal/transport/rest_api/version.go.pattern
-	RestServHandlerExampleFile []byte
+	restServHandlerVersionExampleFile []byte
+	RestServHandlerVersionExampleFile = &folder.Folder{
+		Name:    "version.go",
+		Content: restServHandlerVersionExampleFile,
+	}
 
 	//go:embed pattern_c/internal/transport/tg/listener.go.pattern
-	TgServFile []byte
+	tgServFile []byte
+	TgServFile = &folder.Folder{
+		Name:    "listener.go",
+		Content: tgServFile,
+	}
 	//go:embed pattern_c/internal/transport/tg/handlers/version/handler.go.pattern
-	TgHandlerExampleFile []byte
+	tgHandlerExampleFile []byte
+	TgHandlerExampleFile = &folder.Folder{
+		Name:    "handler.go",
+		Content: tgHandlerExampleFile,
+	}
 
 	//go:embed pattern_c/internal/transport/grpc_api/server.go.pattern
-	GrpcServFile []byte
+	grpcServFile []byte
+	GrpcServFile = &folder.Folder{
+		Name:    ServerGoFile,
+		Content: grpcServFile,
+	}
 	//go:embed pattern_c/internal/transport/grpc_api/pinger.go.pattern
-	GrpcServExampleFile []byte
+	grpcServExampleFile []byte
+	GrpcServExampleFile = &folder.Folder{
+		Name:    "pinger.go",
+		Content: grpcServExampleFile,
+	}
 	//go:embed pattern_c/pkg/proto/grpc_realisation/financial-microservice.proto
-	GrpcProtoExampleFile []byte
+	grpcProtoExampleFile []byte
+	GrpcProtoExampleFile = &folder.Folder{
+		Name:    "financial-microservice.proto",
+		Content: grpcProtoExampleFile,
+	}
 )
 
 // Utils
 var (
 	//go:embed pattern_c/internal/utils/closer/closer.go.pattern
-	UtilsCloserFile []byte
+	utilsCloserFile []byte
+	UtilsCloserFile = &folder.Folder{
+		Name:    "closer.go",
+		Content: utilsCloserFile,
+	}
 )

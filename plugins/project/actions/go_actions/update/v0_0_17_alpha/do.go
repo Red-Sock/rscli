@@ -38,7 +38,7 @@ func Do(p interfaces2.Project) (err error) {
 	}()
 	p.GetFolder().Add(&folder.Folder{
 		Name:    path.Join(projpatterns.InternalFolder, projpatterns.UtilsFolder, projpatterns.CloserFolder, projpatterns.CloserFile),
-		Content: projpatterns.UtilsCloserFile,
+		Content: projpatterns.UtilsCloserFile.Content,
 	})
 
 	connFile := p.GetFolder().GetByPath(projpatterns.InternalFolder, projpatterns.ClientsFolder, projpatterns.PostgresFolder, projpatterns.ConnFileName)

@@ -41,10 +41,10 @@ func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 		},
 	})
 
-	rootF.Add(&folder.Folder{
-		Name:    path.Join(projpatterns.InternalFolder, projpatterns.UtilsFolder, projpatterns.CloserFolder, projpatterns.CloserFile),
-		Content: projpatterns.UtilsCloserFile,
-	})
+	rootF.Add(
+		projpatterns.UtilsCloserFile.CopyWithNewName(
+			path.Join(projpatterns.InternalFolder, projpatterns.UtilsFolder, projpatterns.CloserFolder, projpatterns.UtilsCloserFile.Name)),
+	)
 
 	return nil
 }
@@ -87,10 +87,7 @@ func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 	p.GetFolder().Add(&folder.Folder{
 		Name: projpatterns.ExamplesFolder,
 		Inner: []*folder.Folder{
-			{
-				Name:    projpatterns.ExampleFileName,
-				Content: projpatterns.ApiHTTP,
-			},
+			projpatterns.ApiHTTP.Copy(),
 			{
 				Name:    projpatterns.ExamplesHttpEnvFile,
 				Content: exampleFile,

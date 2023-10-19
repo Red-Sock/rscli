@@ -71,17 +71,12 @@ func (t Telegram) applyFolder(proj interfaces.Project) error {
 		return nil
 	}
 
-	tgServer := &folder.Folder{
+	tgServer := projpatterns.TgServFile.Copy()
 
-		Name:    projpatterns.TelegramServFileName,
-		Content: projpatterns.TgServFile,
-	}
 	go_actions.ReplaceProjectName(proj.GetName(), tgServer)
 
-	tgHandlerExample := &folder.Folder{
-		Name:    projpatterns.TgHandlerFileName,
-		Content: projpatterns.TgHandlerExampleFile,
-	}
+	tgHandlerExample := projpatterns.TgHandlerExampleFile.Copy()
+
 	go_actions.ReplaceProjectName(proj.GetName(), tgHandlerExample)
 
 	proj.GetFolder().Add(

@@ -42,7 +42,11 @@ var (
 // Testing files
 var (
 	//go:embed pattern_c/examples/api.http
-	ApiHTTP []byte
+	apiHTTP []byte
+	ApiHTTP = &folder.Folder{
+		Name:    "api.http",
+		Content: apiHTTP,
+	}
 )
 
 var (

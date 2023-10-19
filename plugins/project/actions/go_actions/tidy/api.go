@@ -155,10 +155,10 @@ func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder) error {
 
 	apiMgr := p.GetFolder().GetByPath(projpatterns.InternalFolder, projpatterns.TransportFolder, projpatterns.ApiManagerFileName)
 	if apiMgr == nil {
-		serverFolders = append(serverFolders, &folder.Folder{
-			Name:    path.Join(projpatterns.InternalFolder, projpatterns.TransportFolder, projpatterns.ApiManagerFileName),
-			Content: projpatterns.ServerManagerPatternFile,
-		})
+		serverFolders = append(serverFolders,
+			projpatterns.ServerManagerPatternFile.CopyWithNewName(
+				path.Join(projpatterns.InternalFolder, projpatterns.TransportFolder, projpatterns.ServerManagerPatternFile.Name)),
+		)
 	}
 
 	p.GetFolder().Add(serverFolders...)
@@ -212,12 +212,13 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 			protoFolder := p.GetFolder().GetByPath(projpatterns.PkgFolder, projpatterns.ProtoFolder, serverName)
 			if protoFolder == nil {
 
-				exampleFile := bytes.ReplaceAll(
-					projpatterns.GrpcProtoExampleFile,
+				exampleFile := projpatterns.GrpcProtoExampleFile.Copy()
+				exampleFile.Content = bytes.ReplaceAll(
+					exampleFile.Content,
 					[]byte(projpatterns.ImportProjectNamePatternSnakeCase),
 					[]byte(cases.KebabToSnake(serverName)))
 
-				exampleFile = bytes.ReplaceAll(exampleFile,
+				exampleFile.Content = bytes.ReplaceAll(exampleFile.Content,
 					[]byte("grpc_realisation"),
 					[]byte(serverName),
 				)
@@ -227,7 +228,7 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 						Inner: []*folder.Folder{
 							{
 								Name:    serverName + projpatterns.ProtoFileExtension,
-								Content: exampleFile,
+								Content: exampleFile.Content,
 							},
 						},
 					})

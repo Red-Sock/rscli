@@ -55,14 +55,8 @@ func getRestPattern() ServerPattern {
 	return ServerPattern{
 		F: folder.Folder{
 			Inner: []*folder.Folder{
-				{
-					Name:    ServerGoFile,
-					Content: RestServFile,
-				},
-				{
-					Name:    VersionGoFile,
-					Content: RestServHandlerExampleFile,
-				},
+				RestServFile.Copy(),
+				RestServHandlerVersionExampleFile.Copy(),
 			},
 		},
 		Validators: func(f *folder.Folder, serverName string) {
@@ -88,20 +82,14 @@ func getTelegramPattern() ServerPattern {
 	return ServerPattern{
 		F: folder.Folder{
 			Inner: []*folder.Folder{
-				{
-					Name:    ServerGoFile,
-					Content: TgServFile,
-				},
+				TgServFile.Copy(),
 				{
 					Name: handlerFolder,
 					Inner: []*folder.Folder{
 						{
 							Name: "version",
 							Inner: []*folder.Folder{
-								{
-									Name:    handlerGoFile,
-									Content: TgHandlerExampleFile,
-								},
+								TgHandlerExampleFile.Copy(),
 							},
 						},
 					},
@@ -128,14 +116,8 @@ func getGrpcPattern() ServerPattern {
 	return ServerPattern{
 		F: folder.Folder{
 			Inner: []*folder.Folder{
-				{
-					Name:    ServerGoFile,
-					Content: GrpcServFile,
-				},
-				{
-					Name:    PingerGoFile,
-					Content: GrpcServExampleFile,
-				},
+				GrpcServFile.Copy(),
+				GrpcServExampleFile.Copy(),
 			},
 		},
 		Validators: func(f *folder.Folder, serverName string) {
