@@ -31,7 +31,7 @@ const (
 func Api(p interfaces.Project) error {
 	cfg := p.GetConfig()
 
-	pathToMainFile := []string{projpatterns.CmdFolder, p.GetShortName(), projpatterns.MainFileName}
+	pathToMainFile := []string{projpatterns.CmdFolder, p.GetShortName(), projpatterns.MainFile.Name}
 
 	projMainFile := p.GetFolder().GetByPath(pathToMainFile...)
 	if projMainFile == nil {
@@ -68,13 +68,13 @@ func tidyAPI(p interfaces.Project, cfg *config.Config, projMainFile *folder.Fold
 
 func insertApiSetupInMainIfNotExists(p interfaces.Project, projMainFile *folder.Folder) {
 	bootstrapFolderPath := path.Join(projpatterns.CmdFolder, p.GetShortName(), projpatterns.BootStrapFolder)
-	apiFile := p.GetFolder().GetByPath(bootstrapFolderPath, projpatterns.ApiConstructorFileName)
+	apiFile := p.GetFolder().GetByPath(bootstrapFolderPath, projpatterns.APISetupFile.Name)
 
 	// if bootstrap for server doesn't exist - adding it
 	if apiFile == nil {
 		apiFile = &folder.Folder{
-			Name:    path.Join(bootstrapFolderPath, projpatterns.ApiConstructorFileName),
-			Content: projpatterns.APISetupFile,
+			Name:    path.Join(bootstrapFolderPath, projpatterns.APISetupFile.Name),
+			Content: projpatterns.APISetupFile.Content,
 		}
 		p.GetFolder().Add(apiFile)
 	}
@@ -141,12 +141,10 @@ if err != nil {
 func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder) error {
 	bootstrapFolderPath := path.Join(projpatterns.CmdFolder, p.GetShortName(), projpatterns.BootStrapFolder)
 
-	apiFile := p.GetFolder().GetByPath(bootstrapFolderPath, projpatterns.ApiConstructorFileName)
+	apiFile := p.GetFolder().GetByPath(bootstrapFolderPath, projpatterns.APISetupFile.Name)
 	if apiFile == nil {
-		apiFile = &folder.Folder{
-			Name:    path.Join(bootstrapFolderPath, projpatterns.ApiConstructorFileName),
-			Content: projpatterns.APISetupFile,
-		}
+		apiFile = projpatterns.APISetupFile.CopyWithNewName(
+			path.Join(bootstrapFolderPath, projpatterns.APISetupFile.Name))
 		p.GetFolder().Add(apiFile)
 	}
 

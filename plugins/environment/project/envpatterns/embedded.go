@@ -3,7 +3,7 @@ package envpatterns
 import (
 	_ "embed"
 
-	"github.com/Red-Sock/rscli/plugins/shared/file"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 )
 
 const (
@@ -34,7 +34,7 @@ const (
 var (
 	//go:embed files/.env
 	envFile []byte
-	EnvFile = file.File{
+	EnvFile = folder.Folder{
 		Name:    ".env",
 		Content: envFile,
 	}
@@ -43,7 +43,7 @@ var (
 var (
 	//go:embed files/docker-compose.yaml
 	mainServiceComposeFile []byte
-	DockerComposeFile      = file.File{
+	DockerComposeFile      = folder.Folder{
 		Name:    "docker-compose.yaml",
 		Content: mainServiceComposeFile,
 	}
@@ -52,11 +52,17 @@ var (
 var (
 	//go:embed files/Makefile
 	makefile []byte
-	Makefile = file.File{
+	Makefile = folder.Folder{
 		Name:    "Makefile",
 		Content: makefile,
 	}
 )
 
-//go:embed files/compose.examples.yaml
-var BuildInComposeExamples []byte
+var (
+	//go:embed files/compose.examples.yaml
+	buildInComposeExamples []byte
+	BuildInComposeExamples = folder.Folder{
+		Name:    "compose.examples.yaml",
+		Content: buildInComposeExamples,
+	}
+)

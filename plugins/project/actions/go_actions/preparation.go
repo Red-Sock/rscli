@@ -22,10 +22,7 @@ func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 	cmd.Inner = append(cmd.Inner, &folder.Folder{
 		Name: p.GetShortName(),
 		Inner: []*folder.Folder{
-			{
-				Name:    projpatterns.MainFileName,
-				Content: projpatterns.MainFile,
-			},
+			projpatterns.MainFile,
 		},
 	})
 

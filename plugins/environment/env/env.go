@@ -10,11 +10,11 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/environment/project/compose"
 	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
 	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
 	"github.com/Red-Sock/rscli/plugins/environment/project/makefile"
-	"github.com/Red-Sock/rscli/plugins/shared/file"
 )
 
 const (
@@ -222,6 +222,6 @@ func (c *Constructor) fetchMakefile() (err error) {
 	return nil
 }
 
-func (c *Constructor) getSpirits() []file.File {
-	return []file.File{envpatterns.EnvFile, envpatterns.DockerComposeFile, envpatterns.Makefile}
+func (c *Constructor) getSpirits() []folder.Folder {
+	return []folder.Folder{envpatterns.EnvFile, envpatterns.DockerComposeFile, envpatterns.Makefile}
 }

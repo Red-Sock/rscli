@@ -3,7 +3,7 @@ package projpatterns
 import (
 	_ "embed"
 
-	"github.com/Red-Sock/rscli/plugins/shared/file"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 )
 
 const (
@@ -21,7 +21,7 @@ const (
 var (
 	//go:embed pattern_c/Dockerfile
 	dockerfile []byte
-	Dockerfile = file.File{
+	Dockerfile = &folder.Folder{
 		Name:    DockerfileFileName,
 		Content: dockerfile,
 	}

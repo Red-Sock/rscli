@@ -16,10 +16,8 @@ type PrepareGoConfigFolderAction struct{}
 func (a PrepareGoConfigFolderAction) Do(p interfaces.Project) error {
 	out := []*folder.Folder{
 		{
-			Name: path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder, projpatterns.ConfigFileName),
-			Content: []byte(
-				strings.ReplaceAll(projpatterns.ConfiguratorFile, "{{projectNAME_}}", strings.ToUpper(p.GetShortName())),
-			),
+			Name:    path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder, projpatterns.ConfigFile.Name),
+			Content: bytes.ReplaceAll(projpatterns.ConfigFile.Copy().Content, []byte("{{projectNAME_}}"), bytes.ToUpper([]byte(p.GetShortName()))),
 		},
 	}
 
@@ -34,17 +32,17 @@ func (a PrepareGoConfigFolderAction) Do(p interfaces.Project) error {
 		return keysFromCfg[i] < keysFromCfg[j]
 	})
 	keys = []byte(strings.Join(keysFromCfg, "\n\t"))
-	cfgKeysFile := make([]byte, 0, len(projpatterns.ConfigKeysFile))
+	cfgKeysFile := make([]byte, 0, len(projpatterns.ConfigKeysFile.Content))
 
-	cfgKeysFile = append(cfgKeysFile, projpatterns.ConfigKeysFile[:bytes.Index(projpatterns.ConfigKeysFile, []byte("// _start_of_consts_to_replace"))]...)
+	cfgKeysFile = append(cfgKeysFile, projpatterns.ConfigKeysFile.Content[:bytes.Index(projpatterns.ConfigKeysFile.Content, []byte("// _start_of_consts_to_replace"))]...)
 	cfgKeysFile = append(cfgKeysFile, keys...)
 	endOfConstsToReplaceBytes := []byte("// _end_of_consts_to_replace")
-	cfgKeysFile = append(cfgKeysFile, projpatterns.ConfigKeysFile[bytes.Index(projpatterns.ConfigKeysFile, endOfConstsToReplaceBytes)+len(endOfConstsToReplaceBytes):]...)
+	cfgKeysFile = append(cfgKeysFile, projpatterns.ConfigKeysFile.Content[bytes.Index(projpatterns.ConfigKeysFile.Content, endOfConstsToReplaceBytes)+len(endOfConstsToReplaceBytes):]...)
 
 	if len(keys) != 0 {
 		out = append(out,
 			&folder.Folder{
-				Name:    path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder, projpatterns.ConfigKeysFileName),
+				Name:    path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder, projpatterns.ConfigKeysFile.Name),
 				Content: cfgKeysFile,
 			})
 	}

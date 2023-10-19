@@ -42,7 +42,7 @@ func Do(p interfaces.Project) (err error) {
 			projpatterns.ConnFileName,
 		)
 		if connFile != nil {
-			connFile.Content = projpatterns.PgConnFile
+			connFile.Content = projpatterns.PgConnFile.Content
 		}
 	}
 
@@ -51,14 +51,8 @@ func Do(p interfaces.Project) (err error) {
 		pgFolder := p.GetFolder().GetByPath(projpatterns.InternalFolder, projpatterns.ClientsFolder, projpatterns.PostgresFolder)
 		if pgFolder != nil {
 			pgFolder.Inner = []*folder.Folder{
-				{
-					Name:    projpatterns.ConnFileName,
-					Content: projpatterns.PgConnFile,
-				},
-				{
-					Name:    projpatterns.PgTxFileName,
-					Content: projpatterns.PgTxFile,
-				},
+				projpatterns.PgConnFile.Copy(),
+				projpatterns.PgTxFile.Copy(),
 			}
 		}
 	}

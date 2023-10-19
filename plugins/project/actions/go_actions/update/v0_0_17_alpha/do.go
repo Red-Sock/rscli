@@ -42,7 +42,7 @@ func Do(p interfaces2.Project) (err error) {
 	})
 
 	connFile := p.GetFolder().GetByPath(projpatterns.InternalFolder, projpatterns.ClientsFolder, projpatterns.PostgresFolder, projpatterns.ConnFileName)
-	connFile.Content = projpatterns.PgConnFile
+	connFile.Content = projpatterns.PgConnFile.Copy().Content
 
 	go_actions.ReplaceProjectName(p.GetName(), connFile)
 

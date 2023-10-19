@@ -2,6 +2,8 @@ package projpatterns
 
 import (
 	_ "embed"
+
+	"github.com/Red-Sock/rscli/internal/io/folder"
 )
 
 // Constants naming: Purpose+Type (File)
@@ -21,13 +23,11 @@ const (
 )
 
 const (
-	CmdFolder    = "cmd"
-	MainFileName = "main.go"
+	CmdFolder = "cmd"
 
 	BootStrapFolder = "bootstrap"
 
-	ApiFolder              = "api"
-	ApiConstructorFileName = "api.go"
+	ApiFolder = "api"
 
 	ExamplesFolder      = "examples"
 	ExampleFileName     = "api.http"
@@ -58,7 +58,6 @@ const (
 	ConfigsFolder        = "config"
 	ConfigFileName       = "config.go"
 	ConfigTemplate       = "config_template.yaml"
-	ConfigKeysFileName   = "keys.go"
 
 	GoMod = "go.mod"
 
@@ -68,29 +67,65 @@ const (
 // Basic files
 var (
 	//go:embed pattern_c/cmd/financial-microservice/main.go.pattern
-	MainFile []byte
+	mainFile []byte
+	MainFile = &folder.Folder{
+		Name:    "main.go",
+		Content: mainFile,
+	}
+
 	//go:embed pattern_c/cmd/financial-microservice/bootstrap/api.go.pattern
-	APISetupFile []byte
+	apiSetupFile []byte
+	APISetupFile = &folder.Folder{
+		Name:    "api.go",
+		Content: apiSetupFile,
+	}
 )
 
 // DataStorage connection files
 var (
 	//go:embed pattern_c/internal/clients/redis/conn.go.pattern
-	RedisConnFile []byte
+	redisConnFile []byte
+	RedisConnFile = &folder.Folder{
+		Name:    "conn.go",
+		Content: redisConnFile,
+	}
+
 	//go:embed pattern_c/internal/clients/postgres/conn.go.pattern
-	PgConnFile []byte
+	pgConnFile []byte
+	PgConnFile = &folder.Folder{
+		Name:    "conn.go",
+		Content: pgConnFile,
+	}
 	//go:embed pattern_c/internal/clients/postgres/tx.go.pattern
-	PgTxFile []byte
+	pgTxFile []byte
+	PgTxFile = &folder.Folder{
+		Name:    "tx.go",
+		Content: pgTxFile,
+	}
+
 	//go:embed pattern_c/internal/clients/telegram/conn.go.pattern
-	TgConnFile []byte
+	tgConnFile []byte
+	TgConnFile = &folder.Folder{
+		Name:    "conn.go",
+		Content: tgConnFile,
+	}
 )
 
 // Config parser files
 var (
 	//go:embed pattern_c/internal/config/config.go.pattern
-	ConfiguratorFile string
+	configFile []byte
+	ConfigFile = &folder.Folder{
+		Name:    "config.go",
+		Content: configFile,
+	}
+
 	//go:embed pattern_c/internal/config/keys.go.pattern
-	ConfigKeysFile []byte
+	configKeysFile []byte
+	ConfigKeysFile = &folder.Folder{
+		Name:    "keys.go",
+		Content: configKeysFile,
+	}
 )
 
 // Server files

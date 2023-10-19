@@ -197,7 +197,7 @@ func (r redisValidator) validate(t *testing.T, pth string) {
 	f, err := os.ReadFile(pathToRedisConn)
 	require.NoError(t, err, "error reading redis conn file")
 
-	require.Equal(t, projpatterns.RedisConnFile, f)
+	require.Equal(t, projpatterns.RedisConnFile.Content, f)
 }
 
 type postgresValidator struct{}
@@ -208,13 +208,13 @@ func (r postgresValidator) getName() string {
 func (r postgresValidator) validate(t *testing.T, pth string) {
 	pathToPGFolder := path.Join(pth, configPathToClient, projpatterns.SourceNamePostgres)
 
-	f, err := os.ReadFile(path.Join(pathToPGFolder, projpatterns.ConnFileName))
+	f, err := os.ReadFile(path.Join(pathToPGFolder, projpatterns.PgConnFile.Name))
 	require.NoError(t, err, "error reading postgres conn file")
-	require.Equal(t, projpatterns.PgConnFile, f)
+	require.Equal(t, projpatterns.PgConnFile.Content, f)
 
 	f, err = os.ReadFile(path.Join(pathToPGFolder, projpatterns.PgTxFileName))
 	require.NoError(t, err, "error reading postgres tx file")
-	require.Equal(t, projpatterns.PgTxFile, f)
+	require.Equal(t, projpatterns.PgTxFile.Content, f)
 }
 
 type telegramValidator struct{}

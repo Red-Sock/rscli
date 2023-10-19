@@ -49,10 +49,8 @@ func (t Telegram) applyClient(proj interfaces.Project) error {
 		return nil
 	}
 
-	tgConnFile := &folder.Folder{
-		Name:    path.Join(t.Cfg.Env.PathsToClients[0], t.GetFolderName(), projpatterns.ConnFileName),
-		Content: projpatterns.TgConnFile,
-	}
+	tgConnFile := projpatterns.TgConnFile.CopyWithNewName(
+		path.Join(t.Cfg.Env.PathsToClients[0], t.GetFolderName(), projpatterns.TgConnFile.Name))
 
 	go_actions.ReplaceProjectName(proj.GetName(), tgConnFile)
 
