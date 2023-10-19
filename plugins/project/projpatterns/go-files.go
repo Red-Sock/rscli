@@ -32,7 +32,6 @@ const (
 
 	InternalFolder = "internal"
 	ClientsFolder  = "clients"
-	PostgresFolder = "postgres"
 	ConnFileName   = "conn.go"
 	PgTxFileName   = "tx.go"
 
@@ -43,17 +42,14 @@ const (
 
 	UtilsFolder  = "utils"
 	CloserFolder = "closer"
-	CloserFile   = "closer.go"
 
 	TransportFolder    = "transport"
 	ApiManagerFileName = "manager.go"
 
-	HandlersFolderName   = "handlers"
-	VersionFolderName    = "version"
-	TelegramServFileName = "listener.go"
-	TgHandlerFileName    = "handler.go"
-	ConfigsFolder        = "config"
-	ConfigTemplate       = "config_template.yaml"
+	HandlersFolderName = "handlers"
+	VersionFolderName  = "version"
+	ConfigsFolder      = "config"
+	ConfigTemplate     = "config_template.yaml"
 
 	GoMod = "go.mod"
 
