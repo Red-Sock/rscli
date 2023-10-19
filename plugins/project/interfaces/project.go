@@ -10,7 +10,6 @@ type Project interface {
 	GetShortName() string
 
 	GetConfig() *config.Config
-	GetConfigPath() string
 
 	GetFolder() *folder.Folder
 	GetProjectPath() string

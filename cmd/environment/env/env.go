@@ -3,7 +3,6 @@ package env
 import (
 	"os"
 	"path"
-	"runtime"
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
@@ -11,13 +10,15 @@ import (
 
 	"github.com/Red-Sock/rscli/cmd/environment/project/compose"
 	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
+	"github.com/Red-Sock/rscli/cmd/environment/project/makefile"
 	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 )
 
 const (
-	PathFlag = "path"
+	PathFlag           = "path"
+	ServiceInContainer = "service-enabled"
 )
 
 type Constructor struct {
@@ -25,7 +26,8 @@ type Constructor struct {
 	cfg *config.RsCliConfig
 
 	composePatterns compose.PatternManager
-	envManager      *envManager
+	environment     *env.Container
+	makefile        *makefile.Makefile
 
 	envDirPath  string
 	srcProjDirs []os.DirEntry
@@ -60,6 +62,11 @@ func (c *Constructor) FetchConstructor(cmd *cobra.Command, _ []string) error {
 	err = c.fetchDotEnv()
 	if err != nil {
 		return errors.Wrap(err, "error fetching dot env file")
+	}
+
+	err = c.fetchMakefile()
+	if err != nil {
+		return errors.Wrap(err, "error fetching makefile")
 	}
 
 	return nil
@@ -164,38 +171,56 @@ func (c *Constructor) fetchCompose() (err error) {
 }
 
 func (c *Constructor) fetchDotEnv() (err error) {
-	envContainer, err := env.NewEnvContainer(patterns.EnvFile.Content)
+	builtIn, err := env.NewEnvContainer(patterns.EnvFile.Content)
 	if err != nil {
 		return errors.Wrap(err, "error parsing env container")
 	}
+
 	envPattern := path.Join(c.envDirPath, patterns.EnvFile.Name)
 	globalEnv, err := env.ReadContainer(envPattern)
 	if err != nil {
 		return errors.Wrap(err, "can't open env file at "+envPattern)
 	}
 
-	for _, preDefined := range envContainer.Content() {
-		for _, userDefined := range globalEnv.Content() {
+	for _, preDefined := range builtIn.GetContent() {
+		for _, userDefined := range globalEnv.GetContent() {
 			if preDefined.Name == userDefined.Name {
-				envContainer.AppendRaw(preDefined.Name, userDefined.Value)
+				builtIn.AppendRaw(preDefined.Name, userDefined.Value)
 			}
 		}
 	}
 
-	c.envManager = newEnvManager(envContainer)
+	c.environment = builtIn
 
 	return nil
 }
 
-func (c *Constructor) selectMakefile() patterns.File {
-	if runtime.GOOS == "windows" {
-		// TODO add windows support
-		return patterns.Makefile
-	} else {
-		return patterns.Makefile
+func (c *Constructor) fetchMakefile() (err error) {
+	c.makefile, err = makefile.NewMakeFile(patterns.Makefile.Content)
+	if err != nil {
+		return errors.Wrap(err, "error parsing built in makefile")
 	}
+
+	userDefinedMakefilePath := path.Join(c.envDirPath, patterns.Makefile.Name)
+	_, err = os.Stat(userDefinedMakefilePath)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil
+		}
+		return errors.Wrap(err, "error getting stat on makefile")
+	}
+
+	m, err := makefile.ReadMakeFile(userDefinedMakefilePath)
+	if err != nil {
+		return errors.Wrap(err, "error parsing user defined config")
+	}
+
+	m.Merge(c.makefile)
+	c.makefile = m
+
+	return nil
 }
 
 func (c *Constructor) getSpirits() []patterns.File {
-	return []patterns.File{patterns.EnvFile, patterns.DockerComposeFile, c.selectMakefile()}
+	return []patterns.File{patterns.EnvFile, patterns.DockerComposeFile, patterns.Makefile}
 }

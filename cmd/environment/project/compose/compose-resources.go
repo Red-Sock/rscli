@@ -30,10 +30,10 @@ type PatternManager struct {
 }
 
 type Pattern struct {
-	name                string
-	resourceType        string
-	containerDefinition ContainerSettings
-	envs                *env.Container
+	Name                string
+	ResourceType        string
+	ContainerDefinition ContainerSettings
+	Envs                *env.Container
 }
 
 func ReadComposePatternsFromFile(pth string) (out PatternManager, err error) {
@@ -67,36 +67,34 @@ func ReadComposePatternsFromFile(pth string) (out PatternManager, err error) {
 }
 
 func (p *Pattern) GetName() string {
-	return p.name
+	return p.Name
 }
 
 func (p *Pattern) GetType() string {
-	return p.resourceType
+	return p.ResourceType
 }
 
 func (p *Pattern) GetEnvs() *env.Container {
-	return p.envs
+	return p.Envs
 }
 
 func (p *Pattern) GetCompose() ContainerSettings {
-	return p.containerDefinition
+	return p.ContainerDefinition
 }
 
 func (p *Pattern) RenameVariable(oldName, newName string) {
+	p.Envs.Rename(oldName, newName)
 
-	p.envs.Rename(oldName, newName)
-
-	for k, v := range p.containerDefinition.Environment {
+	for k, v := range p.ContainerDefinition.Environment {
 		if strings.Contains(v, oldName) {
-			p.containerDefinition.Environment[k] = AddEnvironmentBrackets(newName)
+			p.ContainerDefinition.Environment[k] = AddEnvironmentBrackets(newName)
 			break
 		}
 	}
 
-	for portIdx := range p.containerDefinition.Ports {
-		p.containerDefinition.Ports[portIdx] = strings.ReplaceAll(p.containerDefinition.Ports[portIdx], oldName, newName)
+	for portIdx := range p.ContainerDefinition.Ports {
+		p.ContainerDefinition.Ports[portIdx] = strings.ReplaceAll(p.ContainerDefinition.Ports[portIdx], oldName, newName)
 	}
-
 }
 
 func (c *PatternManager) GetServiceDependencies(cfg *config.Config) ([]Pattern, error) {
@@ -108,19 +106,19 @@ func (c *PatternManager) GetServiceDependencies(cfg *config.Config) ([]Pattern, 
 	clients := make([]Pattern, 0, len(resource))
 
 	for _, resourceDependency := range resource {
-		pattern, ok := c.Patterns[string(resourceDependency.GetType())]
+		originalPattern, ok := c.Patterns[string(resourceDependency.GetType())]
 		if !ok {
 			// TODO handle unknown data sources
 			continue
 		}
-
-		err := copier.Copy(&pattern, &pattern)
+		var pattern Pattern
+		err := copier.Copy(&originalPattern, &pattern)
 		if err != nil {
 			return nil, errors.Wrap(err, "error coping pattern")
 		}
 
 		if resourceDependency.GetName() != "" {
-			pattern.name += "_" + resourceDependency.GetName()
+			pattern.Name += "_" + resourceDependency.GetName()
 		}
 
 		// if value for environment variable is defined in source config
@@ -132,8 +130,8 @@ func (c *PatternManager) GetServiceDependencies(cfg *config.Config) ([]Pattern, 
 		// will set environment variable for POSTGRES_PASSWORD
 		// by setting variable PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_PWD in .env file to 123
 		for name, val := range resourceDependency.GetEnv() {
-			if envVariable, ok := pattern.containerDefinition.Environment[name]; ok {
-				pattern.envs.AppendRaw(removeEnvironmentBrackets(envVariable), val)
+			if envVariable, ok := pattern.ContainerDefinition.Environment[name]; ok {
+				pattern.Envs.AppendRaw(removeEnvironmentBrackets(envVariable), val)
 			}
 		}
 
@@ -168,8 +166,8 @@ func extractComposePatternsFromFile(dockerComposeFile []byte) (out map[string]Pa
 
 	for serviceName, content := range composeServices {
 		cs := Pattern{
-			name:         serviceName,
-			resourceType: serviceName,
+			Name:         serviceName,
+			ResourceType: serviceName,
 		}
 
 		var bts []byte
@@ -178,12 +176,12 @@ func extractComposePatternsFromFile(dockerComposeFile []byte) (out map[string]Pa
 			return nil, errors.Wrapf(err, "error marshaling service to yaml")
 		}
 
-		err = yaml.Unmarshal(bts, &cs.containerDefinition)
+		err = yaml.Unmarshal(bts, &cs.ContainerDefinition)
 		if err != nil {
 			return nil, errors.Wrap(err, "error unmarshalling service "+serviceName+" to struct")
 		}
 
-		cs.envs, err = extractEnvsFromComposeFile(bts)
+		cs.Envs, err = extractEnvsFromComposeFile(bts)
 		if err != nil {
 			return nil, errors.Wrap(err, "error extracting environment variables")
 		}

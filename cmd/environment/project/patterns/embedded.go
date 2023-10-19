@@ -19,11 +19,20 @@ const (
 	ProjNamePattern            = "proj_name"
 	ProjNameCapsPattern        = "PROJ_NAME_CAPS"
 	AbsoluteProjectPathPattern = "abs_proj_path"
+	PathToMain                 = "path_to_main"
 	ResourceCapsPattern        = "RESOURCE"
 	ResourceNameCapsPattern    = ResourceCapsPattern + "_NAME_CAPS"
 )
 
-const ()
+const (
+	HostEnvSuffix = "_HOST"
+	Localhost     = "0.0.0.0"
+)
+
+const (
+	MakefileEnvUpRuleName   = "env-up"
+	MakefileEnvDownRuleName = "env-down"
+)
 
 var (
 	//go:embed files/.env

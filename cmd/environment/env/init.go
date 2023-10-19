@@ -66,7 +66,7 @@ func (c *Constructor) initProjectDir(d os.DirEntry) error {
 	}
 
 	var f []byte
-	for _, spirit := range []patterns.File{c.selectMakefile()} {
+	for _, spirit := range []patterns.File{patterns.Makefile} {
 
 		f, err = os.ReadFile(path.Join(c.envDirPath, spirit.Name))
 		if err != nil {

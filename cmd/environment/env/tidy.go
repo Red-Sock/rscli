@@ -17,7 +17,7 @@ type TidyManager struct {
 	PortManager *ports.PortManager
 
 	Progresses []loader.Progress
-	ProjEnvs   []*project.Env
+	ProjEnvs   []*project.ProjEnv
 
 	conflicts map[uint16][]string
 }
@@ -46,10 +46,16 @@ func (c *Constructor) RunTidy(cmd *cobra.Command, arg []string) error {
 		c.io.Println("rscli env tidyMngr done")
 	}()
 
+	var serviceEnabled bool
+
+	if cmd.Flag(ServiceInContainer).Value.String() == "true" {
+		serviceEnabled = true
+	}
+
 	errC := make(chan error)
 	for idx := range tidyMngr.ProjEnvs {
 		go func(i int) {
-			tidyErr := tidyMngr.ProjEnvs[i].Tidy(tidyMngr.PortManager)
+			tidyErr := tidyMngr.ProjEnvs[i].Tidy(tidyMngr.PortManager, serviceEnabled)
 			if tidyErr != nil {
 				tidyMngr.Progresses[i].Done(loader.DoneFailed)
 			} else {
@@ -83,7 +89,7 @@ func (c *Constructor) FetchTidyManager() (*TidyManager, error) {
 		PortManager: ports.NewPortManager(),
 
 		Progresses: make([]loader.Progress, len(c.EnvProjDirs)),
-		ProjEnvs:   make([]*project.Env, len(c.EnvProjDirs)),
+		ProjEnvs:   make([]*project.ProjEnv, len(c.EnvProjDirs)),
 
 		conflicts: make(map[uint16][]string),
 	}
@@ -93,8 +99,14 @@ func (c *Constructor) FetchTidyManager() (*TidyManager, error) {
 
 		projName := c.EnvProjDirs[idx].Name()
 
-		var proj *project.Env
-		proj, err = project.LoadProjectEnvironment(c.cfg, c.envManager.resources, path.Join(c.envDirPath, projName))
+		var proj *project.ProjEnv
+		proj, err = project.LoadProjectEnvironment(
+			c.cfg,
+			c.environment,
+			c.makefile,
+			path.Join(c.envDirPath, projName),
+			path.Join(path.Dir(c.envDirPath), projName),
+		)
 		if err != nil {
 			return nil, errors.Wrap(err, "error loading environment for project "+projName)
 		}
