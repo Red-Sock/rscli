@@ -11,7 +11,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type Redis struct {

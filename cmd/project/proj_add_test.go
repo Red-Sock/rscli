@@ -13,7 +13,6 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/colors"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
 	"github.com/Red-Sock/rscli/tests/mocks"
 )
 

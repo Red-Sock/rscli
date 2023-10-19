@@ -9,7 +9,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/plugins/project"
 	pconfig "github.com/Red-Sock/rscli/plugins/project/config"
-	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type envConfig struct {

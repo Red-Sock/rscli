@@ -4,7 +4,7 @@ import (
 	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 func DataSources(p interfaces.Project) error {

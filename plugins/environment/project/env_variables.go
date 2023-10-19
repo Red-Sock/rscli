@@ -10,7 +10,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
 	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
 
-	projPatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
+	projPatterns "github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type envVariables struct {

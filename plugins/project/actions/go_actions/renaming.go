@@ -4,7 +4,7 @@ import (
 	"bytes"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 func ReplaceProjectName(name string, f *folder.Folder) {
