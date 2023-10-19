@@ -13,6 +13,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/colors"
+	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 	"github.com/Red-Sock/rscli/tests/mocks"
 )
 
@@ -192,11 +193,11 @@ func (r redisValidator) getName() string {
 	return redisArgument
 }
 func (r redisValidator) validate(t *testing.T, pth string) {
-	pathToRedisConn := path.Join(pth, configPathToClient, patterns.SourceNameRedis, patterns.ConnFileName)
+	pathToRedisConn := path.Join(pth, configPathToClient, projpatterns.SourceNameRedis, projpatterns.ConnFileName)
 	f, err := os.ReadFile(pathToRedisConn)
 	require.NoError(t, err, "error reading redis conn file")
 
-	require.Equal(t, patterns.RedisConnFile, f)
+	require.Equal(t, projpatterns.RedisConnFile, f)
 }
 
 type postgresValidator struct{}
@@ -205,15 +206,15 @@ func (r postgresValidator) getName() string {
 	return postgresArgument
 }
 func (r postgresValidator) validate(t *testing.T, pth string) {
-	pathToPGFolder := path.Join(pth, configPathToClient, patterns.SourceNamePostgres)
+	pathToPGFolder := path.Join(pth, configPathToClient, projpatterns.SourceNamePostgres)
 
-	f, err := os.ReadFile(path.Join(pathToPGFolder, patterns.ConnFileName))
+	f, err := os.ReadFile(path.Join(pathToPGFolder, projpatterns.ConnFileName))
 	require.NoError(t, err, "error reading postgres conn file")
-	require.Equal(t, patterns.PgConnFile, f)
+	require.Equal(t, projpatterns.PgConnFile, f)
 
-	f, err = os.ReadFile(path.Join(pathToPGFolder, patterns.PgTxFileName))
+	f, err = os.ReadFile(path.Join(pathToPGFolder, projpatterns.PgTxFileName))
 	require.NoError(t, err, "error reading postgres tx file")
-	require.Equal(t, patterns.PgTxFile, f)
+	require.Equal(t, projpatterns.PgTxFile, f)
 }
 
 type telegramValidator struct{}
@@ -224,7 +225,7 @@ func (r telegramValidator) getName() string {
 func (r telegramValidator) validate(t *testing.T, pth string) {
 	pathToTgFolder := path.Join(pth, configPathToClient, telegramArgument)
 
-	f, err := os.ReadFile(path.Join(pathToTgFolder, patterns.ConnFileName))
+	f, err := os.ReadFile(path.Join(pathToTgFolder, projpatterns.ConnFileName))
 	require.NoError(t, err, "error reading telegram conn file")
-	require.Equal(t, patterns.TgConnFile, f)
+	require.Equal(t, projpatterns.TgConnFile, f)
 }
