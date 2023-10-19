@@ -8,7 +8,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	interfaces2 "github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
 var Version = interfaces2.Version{
@@ -37,12 +37,12 @@ func Do(p interfaces2.Project) (err error) {
 		err = errors.Join(err, updErr)
 	}()
 	p.GetFolder().Add(&folder.Folder{
-		Name:    path.Join(patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder, patterns.CloserFile),
-		Content: patterns.UtilsCloserFile,
+		Name:    path.Join(projpatterns.InternalFolder, projpatterns.UtilsFolder, projpatterns.CloserFolder, projpatterns.CloserFile),
+		Content: projpatterns.UtilsCloserFile,
 	})
 
-	connFile := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.ClientsFolder, patterns.PostgresFolder, patterns.ConnFileName)
-	connFile.Content = patterns.PgConnFile
+	connFile := p.GetFolder().GetByPath(projpatterns.InternalFolder, projpatterns.ClientsFolder, projpatterns.PostgresFolder, projpatterns.ConnFileName)
+	connFile.Content = projpatterns.PgConnFile
 
 	go_actions.ReplaceProjectName(p.GetName(), connFile)
 

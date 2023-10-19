@@ -14,7 +14,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/utils/slices"
 	"github.com/Red-Sock/rscli/plugins/project/config"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
 var ErrNoMainFile = errors.New("no main file was found")
@@ -31,7 +31,7 @@ const (
 func Api(p interfaces.Project) error {
 	cfg := p.GetConfig()
 
-	pathToMainFile := []string{patterns.CmdFolder, p.GetShortName(), patterns.MainFileName}
+	pathToMainFile := []string{projpatterns.CmdFolder, p.GetShortName(), projpatterns.MainFileName}
 
 	projMainFile := p.GetFolder().GetByPath(pathToMainFile...)
 	if projMainFile == nil {
@@ -67,14 +67,14 @@ func tidyAPI(p interfaces.Project, cfg *config.Config, projMainFile *folder.Fold
 }
 
 func insertApiSetupInMainIfNotExists(p interfaces.Project, projMainFile *folder.Folder) {
-	bootstrapFolderPath := path.Join(patterns.CmdFolder, p.GetShortName(), patterns.BootStrapFolder)
-	apiFile := p.GetFolder().GetByPath(bootstrapFolderPath, patterns.ApiConstructorFileName)
+	bootstrapFolderPath := path.Join(projpatterns.CmdFolder, p.GetShortName(), projpatterns.BootStrapFolder)
+	apiFile := p.GetFolder().GetByPath(bootstrapFolderPath, projpatterns.ApiConstructorFileName)
 
 	// if bootstrap for server doesn't exist - adding it
 	if apiFile == nil {
 		apiFile = &folder.Folder{
-			Name:    path.Join(bootstrapFolderPath, patterns.ApiConstructorFileName),
-			Content: patterns.APISetupFile,
+			Name:    path.Join(bootstrapFolderPath, projpatterns.ApiConstructorFileName),
+			Content: projpatterns.APISetupFile,
 		}
 		p.GetFolder().Add(apiFile)
 	}
@@ -139,13 +139,13 @@ if err != nil {
 	return
 }
 func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder) error {
-	bootstrapFolderPath := path.Join(patterns.CmdFolder, p.GetShortName(), patterns.BootStrapFolder)
+	bootstrapFolderPath := path.Join(projpatterns.CmdFolder, p.GetShortName(), projpatterns.BootStrapFolder)
 
-	apiFile := p.GetFolder().GetByPath(bootstrapFolderPath, patterns.ApiConstructorFileName)
+	apiFile := p.GetFolder().GetByPath(bootstrapFolderPath, projpatterns.ApiConstructorFileName)
 	if apiFile == nil {
 		apiFile = &folder.Folder{
-			Name:    path.Join(bootstrapFolderPath, patterns.ApiConstructorFileName),
-			Content: patterns.APISetupFile,
+			Name:    path.Join(bootstrapFolderPath, projpatterns.ApiConstructorFileName),
+			Content: projpatterns.APISetupFile,
 		}
 		p.GetFolder().Add(apiFile)
 	}
@@ -155,11 +155,11 @@ func tidyAPIFile(p interfaces.Project, serverFolders []*folder.Folder) error {
 		return errors.Wrap(err, "error inserting missing api")
 	}
 
-	apiMgr := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.TransportFolder, patterns.ApiManagerFileName)
+	apiMgr := p.GetFolder().GetByPath(projpatterns.InternalFolder, projpatterns.TransportFolder, projpatterns.ApiManagerFileName)
 	if apiMgr == nil {
 		serverFolders = append(serverFolders, &folder.Folder{
-			Name:    path.Join(patterns.InternalFolder, patterns.TransportFolder, patterns.ApiManagerFileName),
-			Content: patterns.ServerManagerPatternFile,
+			Name:    path.Join(projpatterns.InternalFolder, projpatterns.TransportFolder, projpatterns.ApiManagerFileName),
+			Content: projpatterns.ServerManagerPatternFile,
 		})
 	}
 
@@ -184,7 +184,7 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 		newAPIImportInsert = append(newAPIImportInsert, []byte("\n\t\""+p.GetName()+"/internal/transport/"+serv.Name+"\"")...)
 		newAPIInsert = append(newAPIInsert, []byte("mngr.AddServer("+serv.Name+".NewServer(cfg))\n\t")...)
 
-		if strings.Contains(serv.Name, patterns.GRPCServer) {
+		if strings.Contains(serv.Name, projpatterns.GRPCServer) {
 			grpcServers = append(grpcServers, serv.Name)
 		}
 	}
@@ -211,12 +211,12 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 
 	if len(grpcServers) != 0 {
 		for _, serverName := range grpcServers {
-			protoFolder := p.GetFolder().GetByPath(patterns.PkgFolder, patterns.ProtoFolder, serverName)
+			protoFolder := p.GetFolder().GetByPath(projpatterns.PkgFolder, projpatterns.ProtoFolder, serverName)
 			if protoFolder == nil {
 
 				exampleFile := bytes.ReplaceAll(
-					patterns.GrpcProtoExampleFile,
-					[]byte(patterns.ImportProjectNamePatternSnakeCase),
+					projpatterns.GrpcProtoExampleFile,
+					[]byte(projpatterns.ImportProjectNamePatternSnakeCase),
 					[]byte(cases.KebabToSnake(serverName)))
 
 				exampleFile = bytes.ReplaceAll(exampleFile,
@@ -225,10 +225,10 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 				)
 				p.GetFolder().Add(
 					&folder.Folder{
-						Name: path.Join(patterns.PkgFolder, patterns.ProtoFolder, serverName),
+						Name: path.Join(projpatterns.PkgFolder, projpatterns.ProtoFolder, serverName),
 						Inner: []*folder.Folder{
 							{
-								Name:    serverName + patterns.ProtoFileExtension,
+								Name:    serverName + projpatterns.ProtoFileExtension,
 								Content: exampleFile,
 							},
 						},
@@ -259,28 +259,28 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 }
 
 func insertGRPCInMakefile(p interfaces.Project) error {
-	rscliMkF := p.GetFolder().GetByPath(patterns.RsCliMkFileName)
+	rscliMkF := p.GetFolder().GetByPath(projpatterns.RsCliMkFileName)
 	if rscliMkF == nil {
 		return ErrNoMakeFile
 	}
 
 	protocMkfile := bytes.Join([][]byte{
-		patterns.GRPCSection,
-		patterns.GRPCUtilityInstallGoProtocHeader,
-		patterns.GRPCGenerateGoCodeWithDependencies,
-		patterns.GRPCInstallProtocViaGolangEnvOSBased,
-		patterns.GRPCInstallGolangProtoc,
-		patterns.GRPCGenerateGoCode,
-		patterns.GRPCGatewayDependency,
-		patterns.SectionSeparator,
+		projpatterns.GRPCSection,
+		projpatterns.GRPCUtilityInstallGoProtocHeader,
+		projpatterns.GRPCGenerateGoCodeWithDependencies,
+		projpatterns.GRPCInstallProtocViaGolangEnvOSBased,
+		projpatterns.GRPCInstallGolangProtoc,
+		projpatterns.GRPCGenerateGoCode,
+		projpatterns.GRPCGatewayDependency,
+		projpatterns.SectionSeparator,
 	},
 		[]byte{})
 
-	idxStart := bytes.Index(rscliMkF.Content, patterns.GRPCUtilityInstallGoProtocHeader)
+	idxStart := bytes.Index(rscliMkF.Content, projpatterns.GRPCUtilityInstallGoProtocHeader)
 	if idxStart == -1 {
 		rscliMkF.Content = append(rscliMkF.Content, protocMkfile...)
 	} else {
-		idxEnd := idxStart + bytes.Index(rscliMkF.Content[idxStart:], patterns.SectionSeparator)
+		idxEnd := idxStart + bytes.Index(rscliMkF.Content[idxStart:], projpatterns.SectionSeparator)
 		newContent := make([]byte, idxStart+len(protocMkfile)+len(rscliMkF.Content[idxEnd:]))
 		copy(newContent[:idxStart], rscliMkF.Content[:idxStart])
 		copy(newContent[idxStart:idxEnd], protocMkfile)

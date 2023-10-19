@@ -11,7 +11,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config/server"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
 type Telegram struct {
@@ -20,7 +20,7 @@ type Telegram struct {
 }
 
 func (t Telegram) GetFolderName() string {
-	return patterns.TelegramServer
+	return projpatterns.TelegramServer
 }
 
 func (t Telegram) Do(proj interfaces.Project) error {
@@ -50,8 +50,8 @@ func (t Telegram) applyClient(proj interfaces.Project) error {
 	}
 
 	tgConnFile := &folder.Folder{
-		Name:    path.Join(t.Cfg.Env.PathsToClients[0], t.GetFolderName(), patterns.ConnFileName),
-		Content: patterns.TgConnFile,
+		Name:    path.Join(t.Cfg.Env.PathsToClients[0], t.GetFolderName(), projpatterns.ConnFileName),
+		Content: projpatterns.TgConnFile,
 	}
 
 	go_actions.ReplaceProjectName(proj.GetName(), tgConnFile)
@@ -75,14 +75,14 @@ func (t Telegram) applyFolder(proj interfaces.Project) error {
 
 	tgServer := &folder.Folder{
 
-		Name:    patterns.TelegramServFileName,
-		Content: patterns.TgServFile,
+		Name:    projpatterns.TelegramServFileName,
+		Content: projpatterns.TgServFile,
 	}
 	go_actions.ReplaceProjectName(proj.GetName(), tgServer)
 
 	tgHandlerExample := &folder.Folder{
-		Name:    patterns.TgHandlerFileName,
-		Content: patterns.TgHandlerExampleFile,
+		Name:    projpatterns.TgHandlerFileName,
+		Content: projpatterns.TgHandlerExampleFile,
 	}
 	go_actions.ReplaceProjectName(proj.GetName(), tgHandlerExample)
 
@@ -92,7 +92,7 @@ func (t Telegram) applyFolder(proj interfaces.Project) error {
 			Inner: []*folder.Folder{
 				tgServer,
 				{
-					Name:  path.Join(patterns.HandlersFolderName, patterns.VersionFolderName),
+					Name:  path.Join(projpatterns.HandlersFolderName, projpatterns.VersionFolderName),
 					Inner: []*folder.Folder{tgHandlerExample},
 				},
 			},

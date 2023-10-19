@@ -1,4 +1,4 @@
-package patterns
+package projpatterns
 
 var (
 	MigrationsUtilityPrefix = []byte(`

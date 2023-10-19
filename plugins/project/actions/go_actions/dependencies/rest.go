@@ -12,7 +12,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config/server"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
 type Rest struct {
@@ -57,16 +57,16 @@ func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error 
 		return nil
 	}
 	serverF := &folder.Folder{
-		Name:    path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, patterns.ServerGoFile),
-		Content: renamer.ReplaceProjectName(patterns.RestServFile, proj.GetName()),
+		Name:    path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, projpatterns.ServerGoFile),
+		Content: renamer.ReplaceProjectName(projpatterns.RestServFile, proj.GetName()),
 	}
 	go_actions.ReplaceProjectName(proj.GetName(), serverF)
 
 	proj.GetFolder().Add(
 		serverF,
 		&folder.Folder{
-			Name:    path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, patterns.VersionGoFile),
-			Content: patterns.RestServHandlerExampleFile,
+			Name:    path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, projpatterns.VersionGoFile),
+			Content: projpatterns.RestServHandlerExampleFile,
 		},
 	)
 

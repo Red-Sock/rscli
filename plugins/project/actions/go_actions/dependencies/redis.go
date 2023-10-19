@@ -11,7 +11,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
 type Redis struct {
@@ -45,8 +45,8 @@ func (p Redis) applyClientFolder(proj interfaces.Project) error {
 	}
 
 	redisConn := &folder.Folder{
-		Name:    path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), patterns.ConnFileName),
-		Content: patterns.RedisConnFile,
+		Name:    path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), projpatterns.ConnFileName),
+		Content: projpatterns.RedisConnFile,
 	}
 
 	go_actions.ReplaceProjectName(proj.GetName(), redisConn)

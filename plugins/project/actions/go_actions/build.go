@@ -8,7 +8,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
 type PrepareGoConfigFolderAction struct{}
@@ -16,9 +16,9 @@ type PrepareGoConfigFolderAction struct{}
 func (a PrepareGoConfigFolderAction) Do(p interfaces.Project) error {
 	out := []*folder.Folder{
 		{
-			Name: path.Join(patterns.InternalFolder, patterns.ConfigsFolder, patterns.ConfigFileName),
+			Name: path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder, projpatterns.ConfigFileName),
 			Content: []byte(
-				strings.ReplaceAll(patterns.ConfiguratorFile, "{{projectNAME_}}", strings.ToUpper(p.GetShortName())),
+				strings.ReplaceAll(projpatterns.ConfiguratorFile, "{{projectNAME_}}", strings.ToUpper(p.GetShortName())),
 			),
 		},
 	}
@@ -34,17 +34,17 @@ func (a PrepareGoConfigFolderAction) Do(p interfaces.Project) error {
 		return keysFromCfg[i] < keysFromCfg[j]
 	})
 	keys = []byte(strings.Join(keysFromCfg, "\n\t"))
-	cfgKeysFile := make([]byte, 0, len(patterns.ConfigKeysFile))
+	cfgKeysFile := make([]byte, 0, len(projpatterns.ConfigKeysFile))
 
-	cfgKeysFile = append(cfgKeysFile, patterns.ConfigKeysFile[:bytes.Index(patterns.ConfigKeysFile, []byte("// _start_of_consts_to_replace"))]...)
+	cfgKeysFile = append(cfgKeysFile, projpatterns.ConfigKeysFile[:bytes.Index(projpatterns.ConfigKeysFile, []byte("// _start_of_consts_to_replace"))]...)
 	cfgKeysFile = append(cfgKeysFile, keys...)
 	endOfConstsToReplaceBytes := []byte("// _end_of_consts_to_replace")
-	cfgKeysFile = append(cfgKeysFile, patterns.ConfigKeysFile[bytes.Index(patterns.ConfigKeysFile, endOfConstsToReplaceBytes)+len(endOfConstsToReplaceBytes):]...)
+	cfgKeysFile = append(cfgKeysFile, projpatterns.ConfigKeysFile[bytes.Index(projpatterns.ConfigKeysFile, endOfConstsToReplaceBytes)+len(endOfConstsToReplaceBytes):]...)
 
 	if len(keys) != 0 {
 		out = append(out,
 			&folder.Folder{
-				Name:    path.Join(patterns.InternalFolder, patterns.ConfigsFolder, patterns.ConfigKeysFileName),
+				Name:    path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder, projpatterns.ConfigKeysFileName),
 				Content: cfgKeysFile,
 			})
 	}

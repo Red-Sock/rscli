@@ -1,4 +1,4 @@
-package patterns
+package projpatterns
 
 // data sources (sub-keys) flags
 const (

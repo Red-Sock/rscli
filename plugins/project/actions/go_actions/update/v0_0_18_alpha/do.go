@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
 var Version = interfaces.Version{
@@ -37,24 +37,24 @@ func Do(p interfaces.Project) (err error) {
 	// update migration file
 	{
 		migrationsSection := []byte("\n#==============\n# migrations\n#==============")
-		idxStart := bytes.Index(patterns.RscliMK, migrationsSection)
+		idxStart := bytes.Index(projpatterns.RscliMK, migrationsSection)
 		if idxStart == -1 {
 			return fmt.Errorf("no migration section in rscli.mk source file")
 		}
 		sectionEndBytes := []byte("#==============")
 
-		idxEnd := bytes.Index(patterns.RscliMK[idxStart+len(migrationsSection):], sectionEndBytes)
+		idxEnd := bytes.Index(projpatterns.RscliMK[idxStart+len(migrationsSection):], sectionEndBytes)
 		if idxEnd == -1 {
-			idxEnd = len(patterns.RscliMK)
+			idxEnd = len(projpatterns.RscliMK)
 		} else {
 			idxEnd += idxStart + +len(migrationsSection) + len(sectionEndBytes)
 		}
-		mkFile := p.GetFolder().GetByPath(patterns.RsCliMkFileName)
+		mkFile := p.GetFolder().GetByPath(projpatterns.RsCliMkFileName)
 		if mkFile == nil {
-			return fmt.Errorf("no file %s", patterns.RsCliMkFileName)
+			return fmt.Errorf("no file %s", projpatterns.RsCliMkFileName)
 		}
 
-		mkFile.Content = append(mkFile.Content, patterns.RscliMK[idxStart:idxEnd]...)
+		mkFile.Content = append(mkFile.Content, projpatterns.RscliMK[idxStart:idxEnd]...)
 
 	}
 

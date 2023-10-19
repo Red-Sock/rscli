@@ -12,7 +12,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/utils/cases"
 	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/config/server"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
 type Config struct {
@@ -86,7 +86,7 @@ func (c *Config) BuildTo(cfgFile string) error {
 // GetDataSourceFolders extracts data sources folders
 func (c *Config) GetDataSourceFolders() (*folder.Folder, error) {
 	out := &folder.Folder{
-		Name: patterns.ClientsFolder,
+		Name: projpatterns.ClientsFolder,
 	}
 
 	datasourceUniqueTypes := map[string]struct{}{}
@@ -94,7 +94,7 @@ func (c *Config) GetDataSourceFolders() (*folder.Folder, error) {
 	for dataSourceName := range c.DataSources {
 		dataSourceType := strings.Split(dataSourceName, "_")[0]
 
-		connFolder, err := patterns.GetDatasourceClientFile(dataSourceType)
+		connFolder, err := projpatterns.GetDatasourceClientFile(dataSourceType)
 		if err != nil {
 			return nil, errors.Wrap(err, "error obtaining client conn files for datasource")
 		}
@@ -115,7 +115,7 @@ func (c *Config) GetServerFolders() ([]*folder.Folder, error) {
 	out := make([]*folder.Folder, 0, len(c.Server))
 
 	for serverName := range c.Server {
-		serverPattern, err := patterns.GetServerFiles(strings.Split(serverName, "_")[0])
+		serverPattern, err := projpatterns.GetServerFiles(strings.Split(serverName, "_")[0])
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting server files")
 		}

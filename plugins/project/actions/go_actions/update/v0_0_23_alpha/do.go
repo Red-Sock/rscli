@@ -5,7 +5,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
 var Version = interfaces.Version{
@@ -36,28 +36,28 @@ func Do(p interfaces.Project) (err error) {
 
 	{
 		connFile := p.GetFolder().GetByPath(
-			patterns.InternalFolder,
-			patterns.ClientsFolder,
-			patterns.PostgresFolder,
-			patterns.ConnFileName,
+			projpatterns.InternalFolder,
+			projpatterns.ClientsFolder,
+			projpatterns.PostgresFolder,
+			projpatterns.ConnFileName,
 		)
 		if connFile != nil {
-			connFile.Content = patterns.PgConnFile
+			connFile.Content = projpatterns.PgConnFile
 		}
 	}
 
 	{
 		// add new way handling tx
-		pgFolder := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.ClientsFolder, patterns.PostgresFolder)
+		pgFolder := p.GetFolder().GetByPath(projpatterns.InternalFolder, projpatterns.ClientsFolder, projpatterns.PostgresFolder)
 		if pgFolder != nil {
 			pgFolder.Inner = []*folder.Folder{
 				{
-					Name:    patterns.ConnFileName,
-					Content: patterns.PgConnFile,
+					Name:    projpatterns.ConnFileName,
+					Content: projpatterns.PgConnFile,
 				},
 				{
-					Name:    patterns.PgTxFileName,
-					Content: patterns.PgTxFile,
+					Name:    projpatterns.PgTxFileName,
+					Content: projpatterns.PgTxFile,
 				},
 			}
 		}

@@ -9,7 +9,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/plugins/project"
 	pconfig "github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
 type envConfig struct {
@@ -32,7 +32,7 @@ func (e *envConfig) fetch(cfg *config.RsCliConfig, pathToProjectEnv, pathToProje
 	{
 		srcProjectsDirPth := path.Dir(path.Dir(pathToProjectEnv))
 		projName := path.Base(pathToProjectEnv)
-		projEnvConfigPath := path.Join(srcProjectsDirPth, projName, path.Dir(cfg.Env.PathToConfig), patterns.EnvConfigYamlFile)
+		projEnvConfigPath := path.Join(srcProjectsDirPth, projName, path.Dir(cfg.Env.PathToConfig), projpatterns.EnvConfigYamlFile)
 
 		_, err = os.Stat(projEnvConfigPath)
 		if err != nil {
@@ -70,7 +70,7 @@ func (e *envConfig) fetch(cfg *config.RsCliConfig, pathToProjectEnv, pathToProje
 
 func (e *envConfig) findEnvConfig(cfg *config.RsCliConfig, pathToProjectEnv string) (string, error) {
 	// trying to find env.yaml file in env folder
-	envConfigPath := path.Join(pathToProjectEnv, patterns.EnvConfigYamlFile)
+	envConfigPath := path.Join(pathToProjectEnv, projpatterns.EnvConfigYamlFile)
 
 	s, err := os.Stat(envConfigPath)
 	if err != nil {
@@ -85,7 +85,7 @@ func (e *envConfig) findEnvConfig(cfg *config.RsCliConfig, pathToProjectEnv stri
 
 	srcProjectsDirPth := path.Dir(path.Dir(pathToProjectEnv))
 	projName := path.Base(pathToProjectEnv)
-	projEnvConfigPath := path.Join(srcProjectsDirPth, projName, path.Dir(cfg.Env.PathToConfig), patterns.EnvConfigYamlFile)
+	projEnvConfigPath := path.Join(srcProjectsDirPth, projName, path.Dir(cfg.Env.PathToConfig), projpatterns.EnvConfigYamlFile)
 
 	// trying to find env.yaml file in project folder (might be left from previous "rscli env" use)
 	stat, err := os.Stat(projEnvConfigPath)

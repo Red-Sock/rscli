@@ -10,21 +10,21 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	projpatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
 type PrepareProjectStructureAction struct {
 }
 
 func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
-	cmd := &folder.Folder{Name: patterns.CmdFolder}
+	cmd := &folder.Folder{Name: projpatterns.CmdFolder}
 
 	cmd.Inner = append(cmd.Inner, &folder.Folder{
 		Name: p.GetShortName(),
 		Inner: []*folder.Folder{
 			{
-				Name:    patterns.MainFileName,
-				Content: patterns.MainFile,
+				Name:    projpatterns.MainFileName,
+				Content: projpatterns.MainFile,
 			},
 		},
 	})
@@ -32,21 +32,21 @@ func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 	rootF := p.GetFolder()
 	rootF.Add(cmd)
 
-	rootF.Add(&folder.Folder{Name: patterns.ConfigsFolder})
+	rootF.Add(&folder.Folder{Name: projpatterns.ConfigsFolder})
 
-	rootF.Add(&folder.Folder{Name: patterns.InternalFolder})
+	rootF.Add(&folder.Folder{Name: projpatterns.InternalFolder})
 
 	rootF.Add(&folder.Folder{
-		Name: patterns.PkgFolder,
+		Name: projpatterns.PkgFolder,
 		Inner: []*folder.Folder{
-			{Name: patterns.SwaggerFolder},
-			{Name: patterns.ApiFolder},
+			{Name: projpatterns.SwaggerFolder},
+			{Name: projpatterns.ApiFolder},
 		},
 	})
 
 	rootF.Add(&folder.Folder{
-		Name:    path.Join(patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder, patterns.CloserFile),
-		Content: patterns.UtilsCloserFile,
+		Name:    path.Join(projpatterns.InternalFolder, projpatterns.UtilsFolder, projpatterns.CloserFolder, projpatterns.CloserFile),
+		Content: projpatterns.UtilsCloserFile,
 	})
 
 	return nil
@@ -59,7 +59,7 @@ type PrepareExamplesFoldersAction struct{}
 
 func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 
-	if p.GetFolder().GetByPath(patterns.ExamplesFolder, patterns.ExamplesHttpEnvFile) != nil {
+	if p.GetFolder().GetByPath(projpatterns.ExamplesFolder, projpatterns.ExamplesHttpEnvFile) != nil {
 		return nil
 	}
 
@@ -88,14 +88,14 @@ func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 	}
 
 	p.GetFolder().Add(&folder.Folder{
-		Name: patterns.ExamplesFolder,
+		Name: projpatterns.ExamplesFolder,
 		Inner: []*folder.Folder{
 			{
-				Name:    patterns.ExampleFileName,
-				Content: patterns.ApiHTTP,
+				Name:    projpatterns.ExampleFileName,
+				Content: projpatterns.ApiHTTP,
 			},
 			{
-				Name:    patterns.ExamplesHttpEnvFile,
+				Name:    projpatterns.ExamplesHttpEnvFile,
 				Content: exampleFile,
 			},
 		},
@@ -112,24 +112,24 @@ func (a PrepareEnvironmentFoldersAction) Do(p interfaces.Project) error {
 	p.GetFolder().Add(
 		[]*folder.Folder{
 			{
-				Name:    patterns.Dockerfile.Name,
-				Content: patterns.Dockerfile.Content,
+				Name:    projpatterns.Dockerfile.Name,
+				Content: projpatterns.Dockerfile.Content,
 			},
 			{
-				Name:    patterns.ReadMeFileName,
-				Content: bytes.ReplaceAll(patterns.Readme, []byte("{{PROJECT_NAME}}"), []byte(p.GetName())),
+				Name:    projpatterns.ReadMeFileName,
+				Content: bytes.ReplaceAll(projpatterns.Readme, []byte("{{PROJECT_NAME}}"), []byte(p.GetName())),
 			},
 			{
-				Name:    patterns.GitignoreFileName,
-				Content: patterns.GitIgnore,
+				Name:    projpatterns.GitignoreFileName,
+				Content: projpatterns.GitIgnore,
 			},
 			{
-				Name:    patterns.GolangCIYamlFileName,
-				Content: patterns.Linter,
+				Name:    projpatterns.GolangCIYamlFileName,
+				Content: projpatterns.Linter,
 			},
 			{
-				Name:    patterns.RsCliMkFileName,
-				Content: patterns.RscliMK,
+				Name:    projpatterns.RsCliMkFileName,
+				Content: projpatterns.RscliMK,
 			},
 		}...,
 	)
