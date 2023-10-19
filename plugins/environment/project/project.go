@@ -5,11 +5,12 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/cmd/environment/project/compose"
-	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
-	"github.com/Red-Sock/rscli/cmd/environment/project/makefile"
-	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
-	"github.com/Red-Sock/rscli/cmd/environment/project/ports"
+	"github.com/Red-Sock/rscli/plugins/environment/project/compose"
+	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
+	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
+	"github.com/Red-Sock/rscli/plugins/environment/project/makefile"
+	"github.com/Red-Sock/rscli/plugins/environment/project/ports"
+
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
@@ -102,7 +103,7 @@ func (e *ProjEnv) Tidy(pm *ports.PortManager, serviceEnabled bool) error {
 
 func (e *ProjEnv) flush(projName string) (err error) {
 	{
-		pathToProjectEnvFile := path.Join(e.envProjPath, patterns.EnvFile.Name)
+		pathToProjectEnvFile := path.Join(e.envProjPath, envpatterns.EnvFile.Name)
 
 		envBytes := e.Environment.MarshalEnv()
 		if len(envBytes) != 0 {
@@ -120,7 +121,7 @@ func (e *ProjEnv) flush(projName string) (err error) {
 			return errors.Wrap(err, "error marshalling composer file")
 		}
 
-		pathToDockerComposeFile := path.Join(e.envProjPath, patterns.DockerComposeFile.Name)
+		pathToDockerComposeFile := path.Join(e.envProjPath, envpatterns.DockerComposeFile.Name)
 		err = io.OverrideFile(pathToDockerComposeFile, renamer.ReplaceProjectName(composeFile, projName))
 		if err != nil {
 			return errors.Wrap(err, "error writing docker compose file file")
@@ -143,7 +144,7 @@ func (e *ProjEnv) flush(projName string) (err error) {
 			return errors.Wrap(err, "error marshalling makefile")
 		}
 
-		err = io.OverrideFile(path.Join(e.envProjPath, patterns.Makefile.Name), mkFile)
+		err = io.OverrideFile(path.Join(e.envProjPath, envpatterns.Makefile.Name), mkFile)
 		if err != nil {
 			return errors.Wrap(err, "error writing makefile")
 		}

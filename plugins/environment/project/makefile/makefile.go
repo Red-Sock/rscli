@@ -6,7 +6,7 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
+	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
 )
 
 var (

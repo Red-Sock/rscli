@@ -7,10 +7,10 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
 
-	"github.com/Red-Sock/rscli/cmd/environment/env"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/colors"
 	"github.com/Red-Sock/rscli/internal/io/loader"
+	"github.com/Red-Sock/rscli/plugins/environment/env"
 )
 
 func newInitEnvCmd(ei *envInit) *cobra.Command {

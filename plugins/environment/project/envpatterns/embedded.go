@@ -1,13 +1,10 @@
-package patterns
+package envpatterns
 
 import (
 	_ "embed"
-)
 
-type File struct {
-	Name    string
-	Content []byte
-}
+	"github.com/Red-Sock/rscli/plugins/shared/file"
+)
 
 const (
 	PortSuffix = "PORT"
@@ -37,7 +34,7 @@ const (
 var (
 	//go:embed files/.env
 	envFile []byte
-	EnvFile = File{
+	EnvFile = file.File{
 		Name:    ".env",
 		Content: envFile,
 	}
@@ -46,7 +43,7 @@ var (
 var (
 	//go:embed files/docker-compose.yaml
 	mainServiceComposeFile []byte
-	DockerComposeFile      = File{
+	DockerComposeFile      = file.File{
 		Name:    "docker-compose.yaml",
 		Content: mainServiceComposeFile,
 	}
@@ -55,7 +52,7 @@ var (
 var (
 	//go:embed files/Makefile
 	makefile []byte
-	Makefile = File{
+	Makefile = file.File{
 		Name:    "Makefile",
 		Content: makefile,
 	}

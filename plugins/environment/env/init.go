@@ -8,7 +8,9 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
+	"github.com/Red-Sock/rscli/plugins/shared/file"
+
 	"github.com/Red-Sock/rscli/internal/io"
 )
 
@@ -66,7 +68,7 @@ func (c *Constructor) initProjectDir(d os.DirEntry) error {
 	}
 
 	var f []byte
-	for _, spirit := range []patterns.File{patterns.Makefile} {
+	for _, spirit := range []file.File{envpatterns.Makefile} {
 
 		f, err = os.ReadFile(path.Join(c.envDirPath, spirit.Name))
 		if err != nil {

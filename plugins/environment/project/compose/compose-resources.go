@@ -9,8 +9,9 @@ import (
 	"github.com/Red-Sock/trace-errors"
 	"gopkg.in/yaml.v3"
 
-	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
-	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
+	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
+
 	"github.com/Red-Sock/rscli/internal/utils/copier"
 	"github.com/Red-Sock/rscli/internal/utils/nums"
 	"github.com/Red-Sock/rscli/plugins/project/config"
@@ -38,7 +39,7 @@ type Pattern struct {
 
 func ReadComposePatternsFromFile(pth string) (out PatternManager, err error) {
 	// Basic compose examples: rscli built-in
-	out.Patterns, err = extractComposePatternsFromFile(patterns.BuildInComposeExamples)
+	out.Patterns, err = extractComposePatternsFromFile(envpatterns.BuildInComposeExamples)
 	if err != nil {
 		return PatternManager{}, errors.Wrap(err, "error extracting composePatterns from prepared file")
 	}

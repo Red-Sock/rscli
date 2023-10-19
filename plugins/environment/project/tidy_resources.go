@@ -7,10 +7,11 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/cmd/environment/project/compose"
-	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
-	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
-	"github.com/Red-Sock/rscli/cmd/environment/project/ports"
+	"github.com/Red-Sock/rscli/plugins/environment/project/compose"
+	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
+	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
+	"github.com/Red-Sock/rscli/plugins/environment/project/ports"
+
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 )
@@ -107,7 +108,7 @@ func (e *tidyResources) tidyResource(projName string, resource compose.Pattern, 
 		var basicEnvName string
 		basicEnvName, ev.Value = e.getDefaultValue(patternEnv[idx].Name, resource.GetType())
 
-		if strings.HasSuffix(ev.Name, patterns.PortSuffix) {
+		if strings.HasSuffix(ev.Name, envpatterns.PortSuffix) {
 			ev.Value = e.getPort(ev.Name, patternEnv[idx].Value)
 		} else {
 			ev.Value = renamer.ReplaceProjectNameStr(ev.Value, projName)
@@ -120,15 +121,15 @@ func (e *tidyResources) tidyResource(projName string, resource compose.Pattern, 
 		container.Append(ev)
 	}
 
-	hostName := strings.ToUpper(projName+"_"+resource.GetName()) + patterns.HostEnvSuffix
+	hostName := strings.ToUpper(projName+"_"+resource.GetName()) + envpatterns.HostEnvSuffix
 	hostValue := ""
 	if enableService {
 		hostValue = resource.GetName()
 	} else {
-		hostValue = patterns.Localhost
+		hostValue = envpatterns.Localhost
 	}
 
-	envMap[strings.ToUpper(resource.GetType()+patterns.HostEnvSuffix)] = hostValue
+	envMap[strings.ToUpper(resource.GetType()+envpatterns.HostEnvSuffix)] = hostValue
 	container.AppendRaw(hostName, hostValue)
 
 	e.config.DataSources[resource.GetName()] = e.tidyResourceConfig(resource, envMap)
@@ -153,7 +154,7 @@ func (e *tidyResources) tidyResourceConfig(resource compose.Pattern, env map[str
 
 func (e *tidyResources) getResourceName(varName, resName, projName string) string {
 	newEnvName := strings.ReplaceAll(varName,
-		patterns.ResourceNameCapsPattern, strings.ToUpper(resName))
+		envpatterns.ResourceNameCapsPattern, strings.ToUpper(resName))
 
 	newEnvName = strings.ReplaceAll(newEnvName,
 		"__", "_")
@@ -171,9 +172,9 @@ func (e *tidyResources) getPort(envName, envVal string) string {
 
 func (e *tidyResources) getDefaultValue(resName, resType string) (basicEnvName, envValue string) {
 	basicEnvName = strings.ReplaceAll(resName,
-		patterns.ResourceNameCapsPattern, strings.ToUpper(resType))
+		envpatterns.ResourceNameCapsPattern, strings.ToUpper(resType))
 	basicEnvName = strings.ReplaceAll(basicEnvName,
-		patterns.ProjNameCapsPattern+"_", "")
+		envpatterns.ProjNameCapsPattern+"_", "")
 
 	return basicEnvName, e.environment.envResources.GetByName(basicEnvName)
 }

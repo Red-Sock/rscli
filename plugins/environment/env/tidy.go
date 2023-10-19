@@ -8,9 +8,9 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
 
-	"github.com/Red-Sock/rscli/cmd/environment/project"
-	"github.com/Red-Sock/rscli/cmd/environment/project/ports"
 	"github.com/Red-Sock/rscli/internal/io/loader"
+	"github.com/Red-Sock/rscli/plugins/environment/project"
+	"github.com/Red-Sock/rscli/plugins/environment/project/ports"
 )
 
 type TidyManager struct {

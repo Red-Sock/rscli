@@ -7,8 +7,9 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/cmd/environment/project/compose/env"
-	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
+	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
+
 	projPatterns "github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
@@ -23,7 +24,7 @@ const (
 )
 
 func (e *envVariables) fetch(globalEnvFile *env.Container, pathToProjEnv string) error {
-	dotEnvFilePath := path.Join(pathToProjEnv, projPatterns.ExampleFile+patterns.EnvFile.Name)
+	dotEnvFilePath := path.Join(pathToProjEnv, projPatterns.ExampleFile+envpatterns.EnvFile.Name)
 	envFile, err := os.ReadFile(dotEnvFilePath)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
@@ -52,7 +53,7 @@ func (e *envVariables) fetch(globalEnvFile *env.Container, pathToProjEnv string)
 			continue
 		}
 
-		if strings.HasPrefix(item.Name, patterns.ResourceCapsPattern) {
+		if strings.HasPrefix(item.Name, envpatterns.ResourceCapsPattern) {
 			continue
 		}
 
@@ -81,9 +82,9 @@ func newEnvManager(envContainer *env.Container) envResources {
 
 	for _, item := range envContainer.GetContent() {
 		switch {
-		case strings.HasPrefix(item.Name, patterns.ResourceCapsPattern) &&
-			len(item.Name) > len(patterns.ResourceCapsPattern):
-			name := item.Name[len(patterns.ResourceCapsPattern)+1:]
+		case strings.HasPrefix(item.Name, envpatterns.ResourceCapsPattern) &&
+			len(item.Name) > len(envpatterns.ResourceCapsPattern):
+			name := item.Name[len(envpatterns.ResourceCapsPattern)+1:]
 			if name != "" {
 				r[name] = item.Value
 			}

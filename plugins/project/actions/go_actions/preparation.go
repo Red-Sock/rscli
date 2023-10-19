@@ -112,8 +112,8 @@ func (a PrepareEnvironmentFoldersAction) Do(p interfaces.Project) error {
 	p.GetFolder().Add(
 		[]*folder.Folder{
 			{
-				Name:    patterns.DockerfileFileName,
-				Content: patterns.Dockerfile,
+				Name:    patterns.Dockerfile.Name,
+				Content: patterns.Dockerfile.Content,
 			},
 			{
 				Name:    patterns.ReadMeFileName,

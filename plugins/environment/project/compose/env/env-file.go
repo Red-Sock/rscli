@@ -9,7 +9,7 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
 )
 
 const (
@@ -120,7 +120,7 @@ type IntVariable struct {
 func (e *Container) GetPortValues() ([]IntVariable, error) {
 	out := make([]IntVariable, 0, len(e.Content)/2)
 	for _, item := range e.Content {
-		if strings.HasSuffix(item.Name, patterns.PortSuffix) {
+		if strings.HasSuffix(item.Name, envpatterns.PortSuffix) {
 			port, err := strconv.ParseUint(item.Value, 10, 16)
 			if err == nil {
 				out = append(out, IntVariable{

@@ -2,6 +2,8 @@ package patterns
 
 import (
 	_ "embed"
+
+	"github.com/Red-Sock/rscli/plugins/shared/file"
 )
 
 const (
@@ -18,7 +20,11 @@ const (
 // Build and deploy
 var (
 	//go:embed pattern_c/Dockerfile
-	Dockerfile []byte
+	dockerfile []byte
+	Dockerfile = file.File{
+		Name:    DockerfileFileName,
+		Content: dockerfile,
+	}
 
 	//go:embed pattern_c/.gitignore
 	GitIgnore []byte

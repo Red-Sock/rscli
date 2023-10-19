@@ -3,9 +3,9 @@ package environment
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/Red-Sock/rscli/cmd/environment/env"
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/plugins/environment/env"
 )
 
 func NewCmd() *cobra.Command {

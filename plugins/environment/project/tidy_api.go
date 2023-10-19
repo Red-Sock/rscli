@@ -6,9 +6,9 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/cmd/environment/project/compose"
-	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
-	"github.com/Red-Sock/rscli/cmd/environment/project/ports"
+	"github.com/Red-Sock/rscli/plugins/environment/project/compose"
+	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
+	"github.com/Red-Sock/rscli/plugins/environment/project/ports"
 )
 
 func (e *ProjEnv) tidyServerAPIs(projName string, pm *ports.PortManager) error {
@@ -19,11 +19,11 @@ func (e *ProjEnv) tidyServerAPIs(projName string, pm *ports.PortManager) error {
 
 	service, ok := e.Compose.Services[strings.ReplaceAll(projName, "-", "_")]
 	if !ok {
-		service = e.Compose.Services[patterns.ProjNamePattern]
+		service = e.Compose.Services[envpatterns.ProjNamePattern]
 	}
 
 	for optName := range opts {
-		portName := strings.ToUpper(projName) + "_" + strings.ToUpper(opts[optName].GetName()) + "_" + patterns.PortSuffix
+		portName := strings.ToUpper(projName) + "_" + strings.ToUpper(opts[optName].GetName()) + "_" + envpatterns.PortSuffix
 		portName = strings.ReplaceAll(portName,
 			"__", "_")
 

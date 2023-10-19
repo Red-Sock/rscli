@@ -6,8 +6,9 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/cmd/environment/project/compose"
-	"github.com/Red-Sock/rscli/cmd/environment/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/environment/project/compose"
+	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
+
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 )
 
@@ -16,7 +17,7 @@ type envCompose struct {
 }
 
 func (e *envCompose) fetch(pathToProjectEnv string) error {
-	projectEnvComposeFilePath := path.Join(pathToProjectEnv, patterns.DockerComposeFile.Name)
+	projectEnvComposeFilePath := path.Join(pathToProjectEnv, envpatterns.DockerComposeFile.Name)
 	composeFile, err := os.ReadFile(projectEnvComposeFilePath)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
@@ -25,7 +26,7 @@ func (e *envCompose) fetch(pathToProjectEnv string) error {
 	}
 
 	if len(composeFile) == 0 {
-		globalEnvComposeFilePath := path.Join(path.Dir(pathToProjectEnv), patterns.DockerComposeFile.Name)
+		globalEnvComposeFilePath := path.Join(path.Dir(pathToProjectEnv), envpatterns.DockerComposeFile.Name)
 		composeFile, err = os.ReadFile(globalEnvComposeFilePath)
 		if err != nil {
 			if !errors.Is(err, os.ErrNotExist) {
@@ -36,7 +37,7 @@ func (e *envCompose) fetch(pathToProjectEnv string) error {
 
 	if len(composeFile) == 0 {
 		projName := path.Base(pathToProjectEnv)
-		composeFile = renamer.ReplaceProjectName(patterns.DockerComposeFile.Content, projName)
+		composeFile = renamer.ReplaceProjectName(envpatterns.DockerComposeFile.Content, projName)
 	}
 
 	e.Compose, err = compose.NewComposeAssembler(composeFile)
