@@ -7,14 +7,9 @@ import (
 )
 
 const (
-	RsCliMkFileName      = "rscli.mk"
-	DockerfileFileName   = "Dockerfile"
-	ReadMeFileName       = "README.md"
-	GitignoreFileName    = ".gitignore"
-	GolangCIYamlFileName = ".golangci.yaml"
-	EnvConfigYamlFile    = "env.yaml"
-	DevConfigYamlFile    = "dev.yaml"
-	ConfigYamlFile       = "config.yaml"
+	EnvConfigYamlFile = "env.yaml"
+	DevConfigYamlFile = "dev.yaml"
+	ConfigYamlFile    = "config.yaml"
 )
 
 // Build and deploy
@@ -22,21 +17,33 @@ var (
 	//go:embed pattern_c/Dockerfile
 	dockerfile []byte
 	Dockerfile = &folder.Folder{
-		Name:    DockerfileFileName,
+		Name:    "Dockerfile",
 		Content: dockerfile,
 	}
 
 	//go:embed pattern_c/.gitignore
-	GitIgnore []byte
+	gitIgnore []byte
+	GitIgnore = &folder.Folder{
+		Name:    ".gitignore",
+		Content: gitIgnore,
+	}
 
 	//go:embed pattern_c/.golangci.yaml
-	Linter []byte
+	linter []byte
+	Linter = &folder.Folder{
+		Name:    ".golangci.yaml",
+		Content: linter,
+	}
 )
 
 // Documentation
 var (
 	//go:embed pattern_c/README.md
-	Readme []byte
+	readme []byte
+	Readme = &folder.Folder{
+		Name:    "README.md",
+		Content: readme,
+	}
 )
 
 // Testing files
@@ -51,6 +58,9 @@ var (
 
 var (
 	//go:embed pattern_c/rscli.mk
-
-	RscliMK []byte
+	rscliMK []byte
+	RscliMK = &folder.Folder{
+		Name:    "rscli.mk",
+		Content: rscliMK,
+	}
 )

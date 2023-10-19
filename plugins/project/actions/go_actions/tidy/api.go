@@ -258,7 +258,7 @@ func insertMissingAPI(p interfaces.Project, serverFolders []*folder.Folder, http
 }
 
 func insertGRPCInMakefile(p interfaces.Project) error {
-	rscliMkF := p.GetFolder().GetByPath(projpatterns.RsCliMkFileName)
+	rscliMkF := p.GetFolder().GetByPath(projpatterns.RscliMK.Name)
 	if rscliMkF == nil {
 		return ErrNoMakeFile
 	}

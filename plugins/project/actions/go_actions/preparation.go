@@ -1,7 +1,6 @@
 package go_actions
 
 import (
-	"bytes"
 	"encoding/json"
 	"path"
 	"strconv"
@@ -105,26 +104,11 @@ type PrepareEnvironmentFoldersAction struct{}
 func (a PrepareEnvironmentFoldersAction) Do(p interfaces.Project) error {
 	p.GetFolder().Add(
 		[]*folder.Folder{
-			{
-				Name:    projpatterns.Dockerfile.Name,
-				Content: projpatterns.Dockerfile.Content,
-			},
-			{
-				Name:    projpatterns.ReadMeFileName,
-				Content: bytes.ReplaceAll(projpatterns.Readme, []byte("{{PROJECT_NAME}}"), []byte(p.GetName())),
-			},
-			{
-				Name:    projpatterns.GitignoreFileName,
-				Content: projpatterns.GitIgnore,
-			},
-			{
-				Name:    projpatterns.GolangCIYamlFileName,
-				Content: projpatterns.Linter,
-			},
-			{
-				Name:    projpatterns.RsCliMkFileName,
-				Content: projpatterns.RscliMK,
-			},
+			projpatterns.Dockerfile.Copy(),
+			projpatterns.Readme.Copy(),
+			projpatterns.GitIgnore.Copy(),
+			projpatterns.Linter.Copy(),
+			projpatterns.RscliMK.Copy(),
 		}...,
 	)
 	return nil
