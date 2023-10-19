@@ -83,7 +83,6 @@ func (p *Pattern) GetCompose() ContainerSettings {
 }
 
 func (p *Pattern) RenameVariable(oldName, newName string) {
-
 	p.Envs.Rename(oldName, newName)
 
 	for k, v := range p.ContainerDefinition.Environment {
@@ -96,7 +95,6 @@ func (p *Pattern) RenameVariable(oldName, newName string) {
 	for portIdx := range p.ContainerDefinition.Ports {
 		p.ContainerDefinition.Ports[portIdx] = strings.ReplaceAll(p.ContainerDefinition.Ports[portIdx], oldName, newName)
 	}
-
 }
 
 func (c *PatternManager) GetServiceDependencies(cfg *config.Config) ([]Pattern, error) {

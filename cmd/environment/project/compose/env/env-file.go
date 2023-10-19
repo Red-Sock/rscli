@@ -54,15 +54,10 @@ func (e *Container) GetContent() []Variable {
 	return e.Content
 }
 
-func (e *Container) Append(v Variable) {
-	for idx, item := range e.Content {
-		if item.Name == v.Name {
-			e.Content[idx].Value = v.Value
-			return
-		}
+func (e *Container) Append(v ...Variable) {
+	for _, item := range v {
+		e.append(item)
 	}
-
-	e.Content = append(e.Content, Variable{Name: v.Name, Value: v.Value})
 }
 
 func (e *Container) AppendRaw(name string, content string) {
@@ -84,7 +79,10 @@ func (e *Container) MarshalEnv() []byte {
 
 	for _, v := range e.Content {
 		sb.Write([]byte(v.Name))
-		sb.WriteByte(equals)
+		if v.Name != "" && v.Name[0] != '#' {
+			sb.WriteByte(equals)
+		}
+
 		sb.Write([]byte(v.Value))
 		sb.WriteByte(lineSkip)
 	}
@@ -172,4 +170,15 @@ func (e *Container) Remove(name string) {
 		}
 	}
 	e.Content = e.Content[1:]
+}
+
+func (e *Container) append(v Variable) {
+	for idx, item := range e.Content {
+		if item.Name == v.Name {
+			e.Content[idx].Value = v.Value
+			return
+		}
+	}
+
+	e.Content = append(e.Content, Variable{Name: v.Name, Value: v.Value})
 }

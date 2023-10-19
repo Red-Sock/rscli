@@ -61,6 +61,8 @@ const (
 	ConfigKeysFileName   = "keys.go"
 
 	GoMod = "go.mod"
+
+	ExampleFile = ".example"
 )
 
 // Basic files

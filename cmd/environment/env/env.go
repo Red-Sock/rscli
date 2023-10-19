@@ -26,7 +26,7 @@ type Constructor struct {
 	cfg *config.RsCliConfig
 
 	composePatterns compose.PatternManager
-	envManager      *envManager
+	environment     *env.Container
 	makefile        *makefile.Makefile
 
 	envDirPath  string
@@ -190,7 +190,7 @@ func (c *Constructor) fetchDotEnv() (err error) {
 		}
 	}
 
-	c.envManager = newEnvManager(builtIn)
+	c.environment = builtIn
 
 	return nil
 }

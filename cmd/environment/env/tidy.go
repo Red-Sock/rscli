@@ -17,7 +17,7 @@ type TidyManager struct {
 	PortManager *ports.PortManager
 
 	Progresses []loader.Progress
-	ProjEnvs   []*project.Env
+	ProjEnvs   []*project.ProjEnv
 
 	conflicts map[uint16][]string
 }
@@ -89,7 +89,7 @@ func (c *Constructor) FetchTidyManager() (*TidyManager, error) {
 		PortManager: ports.NewPortManager(),
 
 		Progresses: make([]loader.Progress, len(c.EnvProjDirs)),
-		ProjEnvs:   make([]*project.Env, len(c.EnvProjDirs)),
+		ProjEnvs:   make([]*project.ProjEnv, len(c.EnvProjDirs)),
 
 		conflicts: make(map[uint16][]string),
 	}
@@ -99,10 +99,10 @@ func (c *Constructor) FetchTidyManager() (*TidyManager, error) {
 
 		projName := c.EnvProjDirs[idx].Name()
 
-		var proj *project.Env
+		var proj *project.ProjEnv
 		proj, err = project.LoadProjectEnvironment(
 			c.cfg,
-			c.envManager.resources,
+			c.environment,
 			c.makefile,
 			path.Join(c.envDirPath, projName),
 			path.Join(path.Dir(c.envDirPath), projName),
