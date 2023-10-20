@@ -18,21 +18,26 @@ func (e *ProjEnv) tidyServerAPIs() error {
 
 	service, ok := e.Compose.Services[strings.ReplaceAll(e.projName, "-", "_")]
 	if !ok {
-		service = e.Compose.Services[envpatterns.ProjNamePattern]
+		p, ok := e.globalComposePatternManager.Patterns[envpatterns.ProjNamePattern]
+		if !ok {
+			return errors.New("no pattern for service was found")
+		}
+
+		service = &p.ContainerDefinition
 	}
 
-	for optName := range opts {
-		portName := strings.ToUpper(e.projName) + "_" + strings.ToUpper(opts[optName].GetName()) + "_" + envpatterns.PortSuffix
+	for i := range opts {
+		portName := strings.ToUpper(e.projName) + "_" + strings.ToUpper(opts[i].GetName()) + "_" + envpatterns.PortSuffix
 		portName = strings.ReplaceAll(portName,
 			"__", "_")
 
-		externalPort := opts[optName].GetPort()
+		internalPort := opts[i].GetPort()
 
-		if externalPort == 0 {
+		if internalPort == 0 {
 			continue
 		}
 
-		composePort := compose.AddEnvironmentBrackets(portName) + ":" + strconv.FormatUint(uint64(opts[optName].GetPort()), 10)
+		composePort := compose.AddEnvironmentBrackets(portName) + ":" + strconv.FormatUint(uint64(internalPort), 10)
 		portExists := false
 		for _, item := range service.Ports {
 			if item == composePort {
@@ -44,8 +49,10 @@ func (e *ProjEnv) tidyServerAPIs() error {
 			service.Ports = append(service.Ports, composePort)
 		}
 
-		e.Environment.AppendRaw(portName, strconv.FormatUint(uint64(e.globalPortManager.GetNextPort(opts[optName].GetPort(), portName)), 10))
+		e.Environment.AppendRaw(portName, strconv.FormatUint(uint64(e.globalPortManager.GetNextPort(opts[i].GetPort(), portName)), 10))
 	}
+
+	e.Compose.AppendService(e.projName, *service)
 
 	return nil
 }

@@ -1,5 +1,7 @@
 package server
 
+const DefaultGrpcPort = 50051
+
 type GRPC struct {
 	name string
 	Port uint16
@@ -10,5 +12,9 @@ func (r *GRPC) GetName() string {
 }
 
 func (r *GRPC) GetPort() uint16 {
-	return r.Port
+	if r.Port != 0 {
+		return r.Port
+	}
+
+	return DefaultGrpcPort
 }

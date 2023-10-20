@@ -13,7 +13,6 @@ import (
 )
 
 func (e *GlobalEnvironment) Tidy() error {
-
 	err := e.fetchFiles()
 	if err != nil {
 		return errors.Wrap(err, "error fetching global environment")
