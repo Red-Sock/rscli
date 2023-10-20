@@ -9,7 +9,7 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
+	"github.com/Red-Sock/rscli/internal/envpatterns"
 )
 
 const (

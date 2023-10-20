@@ -7,53 +7,35 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
+	"github.com/Red-Sock/rscli/internal/compose"
+	"github.com/Red-Sock/rscli/internal/compose/env"
+	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
-	"github.com/Red-Sock/rscli/plugins/environment/project/compose"
-	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
-	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
 	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 )
 
-func (e *ProjEnv) tidyResources(projName string, enableService bool) error {
+func (e *ProjEnv) tidyResources(enableService bool) error {
 	dependencies, err := e.globalComposePatternManager.GetServiceDependencies(e.Config.Config)
 	if err != nil {
 		return errors.Wrap(err, "error getting dependencies for service "+e.Config.Config.AppInfo.Name)
 	}
 
-	envs := make([]env.Container, 0, len(dependencies))
+	sort.Slice(dependencies, func(i, j int) bool {
+		return dependencies[i].Name > dependencies[j].Name
+	})
 
 	for _, resource := range dependencies {
-		var resourceEnv env.Container
-		resourceEnv, err = e.tidyResource(projName, resource, enableService)
+		err = e.tidyResource(e.projName, resource, enableService)
 		if err != nil {
 			return errors.Wrap(err, "error tiding resource "+resource.GetName())
 		}
-
-		e.Compose.AppendService(resource.GetName(), resource.GetCompose())
-
-		envs = append(envs, resourceEnv)
-	}
-
-	sort.Slice(envs, func(i, j int) bool {
-		if len(envs[i].Content) == 0 {
-			return true
-		}
-		if len(envs[j].Content) == 0 {
-			return false
-		}
-
-		return envs[i].Content[0].Value > envs[j].Content[0].Name
-	})
-
-	for _, item := range envs {
-		e.Environment.Append(item.Content...)
 	}
 
 	for name := range e.Compose.Services {
 		foundInConfig := false
 
 		for _, cfgRes := range dependencies {
-			if name == cfgRes.GetName() || name == projName {
+			if name == cfgRes.GetName() || name == e.projName {
 				foundInConfig = true
 				break
 			}
@@ -67,11 +49,13 @@ func (e *ProjEnv) tidyResources(projName string, enableService bool) error {
 	return nil
 }
 
-func (e *ProjEnv) tidyResource(projName string, resource compose.Pattern, enableService bool) (container env.Container, err error) {
+func (e *ProjEnv) tidyResource(projName string, resource compose.Pattern, enableService bool) (err error) {
 	patternEnv := resource.GetEnvs().GetContent()
+
 	envMap := make(map[string]string, len(patternEnv))
 
-	container.AppendRaw("# "+resource.GetName(), "")
+	envVars := make([]env.Variable, 0, len(patternEnv)+1)
+	envVars = append(envVars, env.Variable{Name: "# " + resource.GetName()})
 
 	for idx := range patternEnv {
 		var ev env.Variable
@@ -89,8 +73,7 @@ func (e *ProjEnv) tidyResource(projName string, resource compose.Pattern, enable
 		envMap[basicEnvName] = ev.Value
 
 		resource.RenameVariable(patternEnv[idx].Name, ev.Name)
-
-		container.Append(ev)
+		envVars = append(envVars, ev)
 	}
 
 	hostName := strings.ToUpper(projName+"_"+resource.GetName()) + envpatterns.HostEnvSuffix
@@ -102,11 +85,14 @@ func (e *ProjEnv) tidyResource(projName string, resource compose.Pattern, enable
 	}
 
 	envMap[strings.ToUpper(resource.GetType()+envpatterns.HostEnvSuffix)] = hostValue
-	container.AppendRaw(hostName, hostValue)
 
+	envVars = append(envVars, env.Variable{Name: hostName, Value: hostValue})
+
+	e.Environment.Append(envVars...)
+	e.Compose.AppendService(resource.GetName(), resource.GetCompose())
 	e.Config.DataSources[resource.GetName()] = e.tidyResourceConfig(resource, envMap)
 
-	return container, nil
+	return nil
 }
 
 func (e *ProjEnv) tidyResourceConfig(resource compose.Pattern, env map[string]string) interface{} {

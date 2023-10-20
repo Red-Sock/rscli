@@ -1,4 +1,4 @@
-package env
+package environment
 
 import (
 	"os"
@@ -7,13 +7,13 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
+	"github.com/Red-Sock/rscli/internal/compose"
+	"github.com/Red-Sock/rscli/internal/compose/env"
 	"github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/environment/project/compose"
-	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
-	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
-	"github.com/Red-Sock/rscli/plugins/environment/project/makefile"
+	"github.com/Red-Sock/rscli/internal/makefile"
 )
 
 const (

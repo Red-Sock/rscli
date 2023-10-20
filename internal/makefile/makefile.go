@@ -6,11 +6,10 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
+	"github.com/Red-Sock/rscli/internal/compose/env"
 )
 
 var (
-	ErrParsingMakefile     = errors.New("error parsing makefile")
 	ErrMarshallingMakefile = errors.New("error marshalling makefile")
 )
 

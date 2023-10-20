@@ -5,38 +5,37 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/plugins/environment/project/compose"
-	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
-	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
-	"github.com/Red-Sock/rscli/plugins/environment/project/makefile"
-	"github.com/Red-Sock/rscli/plugins/environment/project/ports"
-
+	"github.com/Red-Sock/rscli/internal/compose"
+	"github.com/Red-Sock/rscli/internal/compose/env"
 	"github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/makefile"
+	"github.com/Red-Sock/rscli/internal/ports"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 )
 
 var ErrNoConfig = errors.New("no config found")
 
 type ProjEnv struct {
-	envProjPath string
-	srcProjPath string
+	projName        string
+	pathToProjInEnv string
+	pathToProjSrc   string
 
-	Compose     envCompose
+	Compose     *compose.Compose
 	Environment envVariables
 	Makefile    envMakefile
 	Config      envConfig
 
-	globalEnvFile envVariables
-
-	globalPortManager           *ports.PortManager
+	rscliConfig                 *config.RsCliConfig
 	globalComposePatternManager *compose.PatternManager
 	globalMakefile              *makefile.Makefile
-	rscliConfig                 *config.RsCliConfig
+
+	globalPortManager *ports.PortManager
 }
 
 func LoadProjectEnvironment(
-	cfg *config.RsCliConfig,
+	rscliConfig *config.RsCliConfig,
 	globalEnv *env.Container,
 	globalMakefile *makefile.Makefile,
 	globalComposePatternManager *compose.PatternManager,
@@ -48,18 +47,18 @@ func LoadProjectEnvironment(
 
 ) (p *ProjEnv, err error) {
 	p = &ProjEnv{
-		envProjPath: pathToProjectEnv,
-		srcProjPath: pathToProject,
+		projName:        path.Base(pathToProject),
+		pathToProjInEnv: pathToProjectEnv,
+		pathToProjSrc:   pathToProject,
 
-		rscliConfig:                 cfg,
+		Compose: &compose.Compose{
+			Services: map[string]*compose.ContainerSettings{},
+			Network:  map[string]interface{}{},
+		},
+		rscliConfig:                 rscliConfig,
 		globalPortManager:           globalPortManager,
 		globalMakefile:              globalMakefile,
 		globalComposePatternManager: globalComposePatternManager,
-	}
-
-	err = p.Compose.fetch(pathToProjectEnv)
-	if err != nil {
-		return nil, errors.Wrap(err, "error fetching compose file")
 	}
 
 	err = p.Environment.fetch(globalEnv, pathToProjectEnv)
@@ -67,7 +66,7 @@ func LoadProjectEnvironment(
 		return nil, errors.Wrap(err, "error fetching .env file")
 	}
 
-	err = p.Config.fetch(cfg, pathToProjectEnv, pathToProject)
+	err = p.Config.fetch(rscliConfig, pathToProjectEnv, pathToProject)
 	if err != nil {
 		return nil, errors.Wrap(err, "error fetching config")
 	}
@@ -77,25 +76,25 @@ func LoadProjectEnvironment(
 		return nil, errors.Wrap(err, "error fetching makefile")
 	}
 
-	err = p.globalEnvFile.fetch(globalEnv, pathToProjectEnv)
-	if err != nil {
-		return nil, errors.Wrap(err, "error fetching makefile")
-	}
-
 	return p, nil
 }
 
 func (e *ProjEnv) Tidy(serviceEnabled bool) error {
-	projName := path.Base(e.envProjPath)
+	projName := path.Base(e.pathToProjInEnv)
 
-	err := e.tidyResources(projName, serviceEnabled)
+	err := e.tidyResources(serviceEnabled)
 	if err != nil {
 		return errors.Wrap(err, "error doing tidy on resources")
 	}
 
-	err = e.tidyServerAPIs(projName)
+	err = e.tidyServerAPIs()
 	if err != nil {
 		return errors.Wrap(err, "error doing tidy on server api")
+	}
+
+	err = e.tidyService()
+	if err != nil {
+		return errors.Wrap(err, "error doing tidy on service")
 	}
 
 	err = e.flush(projName)
@@ -105,7 +104,7 @@ func (e *ProjEnv) Tidy(serviceEnabled bool) error {
 
 func (e *ProjEnv) flush(projName string) (err error) {
 	{
-		pathToProjectEnvFile := path.Join(e.envProjPath, envpatterns.EnvFile.Name)
+		pathToProjectEnvFile := path.Join(e.pathToProjInEnv, envpatterns.EnvFile.Name)
 
 		envBytes := e.Environment.MarshalEnv()
 		if len(envBytes) != 0 {
@@ -123,7 +122,7 @@ func (e *ProjEnv) flush(projName string) (err error) {
 			return errors.Wrap(err, "error marshalling composer file")
 		}
 
-		pathToDockerComposeFile := path.Join(e.envProjPath, envpatterns.DockerComposeFile.Name)
+		pathToDockerComposeFile := path.Join(e.pathToProjInEnv, envpatterns.DockerComposeFile.Name)
 		err = io.OverrideFile(pathToDockerComposeFile, renamer.ReplaceProjectName(composeFile, projName))
 		if err != nil {
 			return errors.Wrap(err, "error writing docker compose file file")
@@ -138,7 +137,7 @@ func (e *ProjEnv) flush(projName string) (err error) {
 	}
 
 	{
-		e.tidyMakeFile(projName)
+		e.tidyMakeFile()
 
 		var mkFile []byte
 		mkFile, err = e.Makefile.Marshal()
@@ -146,7 +145,7 @@ func (e *ProjEnv) flush(projName string) (err error) {
 			return errors.Wrap(err, "error marshalling makefile")
 		}
 
-		err = io.OverrideFile(path.Join(e.envProjPath, envpatterns.Makefile.Name), mkFile)
+		err = io.OverrideFile(path.Join(e.pathToProjInEnv, envpatterns.Makefile.Name), mkFile)
 		if err != nil {
 			return errors.Wrap(err, "error writing makefile")
 		}

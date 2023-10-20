@@ -1,4 +1,4 @@
-package env
+package environment
 
 import (
 	"context"
@@ -8,8 +8,8 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/io/loader"
+	"github.com/Red-Sock/rscli/internal/ports"
 	"github.com/Red-Sock/rscli/plugins/environment/project"
-	"github.com/Red-Sock/rscli/plugins/environment/project/ports"
 )
 
 func (e *GlobalEnvironment) Tidy() error {

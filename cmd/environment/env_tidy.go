@@ -7,9 +7,9 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/plugins/environment/env"
-	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
+	"github.com/Red-Sock/rscli/plugins/environment"
 )
 
 func newTidyEnvCmd(io io.IO, cfg *config.RsCliConfig) *cobra.Command {
@@ -27,8 +27,8 @@ func newTidyEnvCmd(io io.IO, cfg *config.RsCliConfig) *cobra.Command {
 		SilenceUsage:  true,
 	}
 
-	c.Flags().StringP(env.PathFlag, env.PathFlag[:1], "", `Path to folder with projects`)
-	c.Flags().BoolP(env.ServiceInContainer, env.ServiceInContainer[:1], false, "Service will be run in container")
+	c.Flags().StringP(environment.PathFlag, environment.PathFlag[:1], "", `Path to folder with projects`)
+	c.Flags().BoolP(environment.ServiceInContainer, environment.ServiceInContainer[:1], false, "Service will be run in container")
 
 	return c
 }
@@ -41,7 +41,7 @@ type envTidy struct {
 func (e *envTidy) RunTidy(cmd *cobra.Command, arg []string) error {
 	e.io.Println("Running rscli env tidy")
 
-	constructor, err := env.NewGlobalEnv(e.io, e.cfg, e.getEnvDirPath(cmd))
+	constructor, err := environment.NewGlobalEnv(e.io, e.cfg, e.getEnvDirPath(cmd))
 	if err != nil {
 		return errors.Wrap(err, "error creating global environment struct")
 	}
@@ -56,7 +56,7 @@ func (e *envTidy) RunTidy(cmd *cobra.Command, arg []string) error {
 }
 
 func (e *envTidy) getEnvDirPath(cmd *cobra.Command) string {
-	envDirPath := cmd.Flag(env.PathFlag).Value.String()
+	envDirPath := cmd.Flag(environment.PathFlag).Value.String()
 
 	if envDirPath == "" {
 		envDirPath = io.GetWd()

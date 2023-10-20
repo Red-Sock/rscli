@@ -9,9 +9,8 @@ import (
 	"github.com/Red-Sock/trace-errors"
 	"gopkg.in/yaml.v3"
 
-	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
-	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
-
+	"github.com/Red-Sock/rscli/internal/compose/env"
+	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/utils/copier"
 	"github.com/Red-Sock/rscli/internal/utils/nums"
 	"github.com/Red-Sock/rscli/plugins/project/config"
