@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/spf13/cobra"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
@@ -22,60 +21,31 @@ const (
 	ServiceInContainer = "service-enabled"
 )
 
-type Constructor struct {
-	io  io.IO
-	cfg *config.RsCliConfig
+type GlobalEnvironment struct {
+	io          io.IO
+	rsCliConfig *config.RsCliConfig
+	envDirPath  string
 
-	composePatterns compose.PatternManager
+	composePatterns *compose.PatternManager
 	environment     *env.Container
 	makefile        *makefile.Makefile
 
-	envDirPath  string
 	srcProjDirs []os.DirEntry
-	EnvProjDirs []os.DirEntry
+	envProjDirs []os.DirEntry
 }
 
-func NewConstructor(io io.IO, cfg *config.RsCliConfig) *Constructor {
-	return &Constructor{
-		io:  io,
-		cfg: cfg,
+func NewGlobalEnv(io io.IO, cfg *config.RsCliConfig, envDirPath string) (*GlobalEnvironment, error) {
+	c := &GlobalEnvironment{
+		io:          io,
+		rsCliConfig: cfg,
+		envDirPath:  envDirPath,
 	}
+
+	return c, c.fetchSrcProjectDirs()
 }
 
-func (c *Constructor) FetchConstructor(cmd *cobra.Command, _ []string) error {
-	var err error
-
-	err = c.getWd(cmd)
-	if err != nil {
-		return errors.Wrap(err, "error fetching working directory")
-	}
-
-	err = c.fetchFolders()
-	if err != nil {
-		return errors.Wrap(err, "error fetching folders for environment")
-	}
-
-	err = c.fetchCompose()
-	if err != nil {
-		return errors.Wrap(err, "error fetching compose")
-	}
-
-	err = c.fetchDotEnv()
-	if err != nil {
-		return errors.Wrap(err, "error fetching dot env file")
-	}
-
-	err = c.fetchMakefile()
-	if err != nil {
-		return errors.Wrap(err, "error fetching makefile")
-	}
-
-	return nil
-
-}
-
-func (c *Constructor) IsEnvExist() bool {
-	for _, d := range c.srcProjDirs {
+func (e *GlobalEnvironment) IsEnvExist() bool {
+	for _, d := range e.srcProjDirs {
 		if d.Name() == envpatterns.EnvDir {
 			return true
 		}
@@ -84,21 +54,34 @@ func (c *Constructor) IsEnvExist() bool {
 	return false
 }
 
-func (c *Constructor) getWd(cmd *cobra.Command) error {
-	c.envDirPath = cmd.Flag(PathFlag).Value.String()
+func (e *GlobalEnvironment) fetchFiles() error {
+	var err error
 
-	if c.envDirPath == "" {
-		c.envDirPath = io.GetWd()
+	err = e.fetchSrcProjectDirs()
+	if err != nil {
+		return errors.Wrap(err, "error fetching folders for environment")
 	}
 
-	if path.Base(c.envDirPath) != envpatterns.EnvDir {
-		c.envDirPath = path.Join(c.envDirPath, envpatterns.EnvDir)
+	err = e.fetchCompose()
+	if err != nil {
+		return errors.Wrap(err, "error fetching compose")
+	}
+
+	err = e.fetchDotEnv()
+	if err != nil {
+		return errors.Wrap(err, "error fetching dot env file")
+	}
+
+	err = e.fetchMakefile()
+	if err != nil {
+		return errors.Wrap(err, "error fetching makefile")
 	}
 
 	return nil
+
 }
 
-func (c *Constructor) fetchFolders() (err error) {
+func (e *GlobalEnvironment) fetchSrcProjectDirs() (err error) {
 	filter := func(dirs []os.DirEntry, srcProjDir string) ([]os.DirEntry, error) {
 		var idx int
 		for idx = 0; idx < len(dirs); idx++ {
@@ -106,7 +89,7 @@ func (c *Constructor) fetchFolders() (err error) {
 			if dirs[idx].IsDir() && name != envpatterns.EnvDir {
 				// validate whether this directory contains main file in specified location
 				pathToMainFile := path.Join(srcProjDir, name,
-					strings.ReplaceAll(c.cfg.Env.PathToMain, envpatterns.ProjNamePattern, name))
+					strings.ReplaceAll(e.rsCliConfig.Env.PathToMain, envpatterns.ProjNamePattern, name))
 
 				fi, err := os.Stat(pathToMainFile)
 				if err != nil {
@@ -133,25 +116,25 @@ func (c *Constructor) fetchFolders() (err error) {
 	}
 
 	{
-		c.srcProjDirs, err = os.ReadDir(path.Dir(c.envDirPath))
+		e.srcProjDirs, err = os.ReadDir(path.Dir(e.envDirPath))
 		if err != nil {
-			return errors.Wrapf(err, "error reading directory projects %s ", c.envDirPath)
+			return errors.Wrapf(err, "error reading directory projects %s ", e.envDirPath)
 		}
-		c.srcProjDirs, err = filter(c.srcProjDirs, path.Dir(c.envDirPath))
+		e.srcProjDirs, err = filter(e.srcProjDirs, path.Dir(e.envDirPath))
 		if err != nil {
 			return errors.Wrap(err, "error filtering source projects directories")
 		}
 	}
 
 	{
-		c.EnvProjDirs, err = os.ReadDir(c.envDirPath)
+		e.envProjDirs, err = os.ReadDir(e.envDirPath)
 		if err != nil {
 			if !errors.Is(err, os.ErrNotExist) {
-				return errors.Wrapf(err, "error reading environment directory  %s ", c.envDirPath)
+				return errors.Wrapf(err, "error reading environment directory  %s ", e.envDirPath)
 			}
 		}
 
-		c.EnvProjDirs, err = filter(c.EnvProjDirs, path.Dir(c.envDirPath))
+		e.envProjDirs, err = filter(e.envProjDirs, path.Dir(e.envDirPath))
 		if err != nil {
 			return errors.Wrap(err, "error filtering environment projects directories")
 		}
@@ -160,10 +143,10 @@ func (c *Constructor) fetchFolders() (err error) {
 	return nil
 }
 
-func (c *Constructor) fetchCompose() (err error) {
-	composePatternsPath := path.Join(c.envDirPath, envpatterns.DockerComposeFile.Name)
+func (e *GlobalEnvironment) fetchCompose() (err error) {
+	composePatternsPath := path.Join(e.envDirPath, envpatterns.DockerComposeFile.Name)
 
-	c.composePatterns, err = compose.ReadComposePatternsFromFile(composePatternsPath)
+	e.composePatterns, err = compose.ReadComposePatternsFromFile(composePatternsPath)
 	if err != nil {
 		return errors.Wrap(err, "error creating compose file at "+composePatternsPath)
 	}
@@ -171,13 +154,13 @@ func (c *Constructor) fetchCompose() (err error) {
 	return nil
 }
 
-func (c *Constructor) fetchDotEnv() (err error) {
+func (e *GlobalEnvironment) fetchDotEnv() (err error) {
 	builtIn, err := env.NewEnvContainer(envpatterns.EnvFile.Content)
 	if err != nil {
 		return errors.Wrap(err, "error parsing env container")
 	}
 
-	envPattern := path.Join(c.envDirPath, envpatterns.EnvFile.Name)
+	envPattern := path.Join(e.envDirPath, envpatterns.EnvFile.Name)
 	globalEnv, err := env.ReadContainer(envPattern)
 	if err != nil {
 		return errors.Wrap(err, "can't open env file at "+envPattern)
@@ -191,18 +174,18 @@ func (c *Constructor) fetchDotEnv() (err error) {
 		}
 	}
 
-	c.environment = builtIn
+	e.environment = builtIn
 
 	return nil
 }
 
-func (c *Constructor) fetchMakefile() (err error) {
-	c.makefile, err = makefile.NewMakeFile(envpatterns.Makefile.Content)
+func (e *GlobalEnvironment) fetchMakefile() (err error) {
+	e.makefile, err = makefile.NewMakeFile(envpatterns.Makefile.Content)
 	if err != nil {
 		return errors.Wrap(err, "error parsing built in makefile")
 	}
 
-	userDefinedMakefilePath := path.Join(c.envDirPath, envpatterns.Makefile.Name)
+	userDefinedMakefilePath := path.Join(e.envDirPath, envpatterns.Makefile.Name)
 	_, err = os.Stat(userDefinedMakefilePath)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -216,12 +199,12 @@ func (c *Constructor) fetchMakefile() (err error) {
 		return errors.Wrap(err, "error parsing user defined config")
 	}
 
-	m.Merge(c.makefile)
-	c.makefile = m
+	m.Merge(e.makefile)
+	e.makefile = m
 
 	return nil
 }
 
-func (c *Constructor) getSpirits() []folder.Folder {
+func (e *GlobalEnvironment) getSpirits() []folder.Folder {
 	return []folder.Folder{envpatterns.EnvFile, envpatterns.DockerComposeFile, envpatterns.Makefile}
 }

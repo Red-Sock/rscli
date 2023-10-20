@@ -8,10 +8,9 @@ import (
 
 	"github.com/Red-Sock/rscli/plugins/environment/project/compose"
 	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
-	"github.com/Red-Sock/rscli/plugins/environment/project/ports"
 )
 
-func (e *ProjEnv) tidyServerAPIs(projName string, pm *ports.PortManager) error {
+func (e *ProjEnv) tidyServerAPIs(projName string) error {
 	opts, err := e.Config.GetServerOptions()
 	if err != nil {
 		return errors.Wrap(err, "error obtaining server options")
@@ -45,7 +44,7 @@ func (e *ProjEnv) tidyServerAPIs(projName string, pm *ports.PortManager) error {
 			service.Ports = append(service.Ports, composePort)
 		}
 
-		e.Environment.AppendRaw(portName, strconv.FormatUint(uint64(pm.GetNextPort(opts[optName].GetPort(), portName)), 10))
+		e.Environment.AppendRaw(portName, strconv.FormatUint(uint64(e.globalPortManager.GetNextPort(opts[optName].GetPort(), portName)), 10))
 	}
 
 	return nil

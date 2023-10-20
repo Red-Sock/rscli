@@ -6,60 +6,87 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/spf13/cobra"
 
 	"github.com/Red-Sock/rscli/internal/io/loader"
 	"github.com/Red-Sock/rscli/plugins/environment/project"
 	"github.com/Red-Sock/rscli/plugins/environment/project/ports"
 )
 
-type TidyManager struct {
-	PortManager *ports.PortManager
+func (e *GlobalEnvironment) Tidy() error {
 
-	Progresses []loader.Progress
-	ProjEnvs   []*project.ProjEnv
+	err := e.fetchFiles()
+	if err != nil {
+		return errors.Wrap(err, "error fetching global environment")
+	}
 
-	conflicts map[uint16][]string
+	progresses, projEnvs, err := e.collectProjectEnvironments()
+	if err != nil {
+		return errors.Wrap(err, "error collecting environment info")
+	}
+
+	return e.run(progresses, projEnvs)
 }
 
-func (c *Constructor) RunTidy(cmd *cobra.Command, arg []string) error {
-	c.io.Println("Running rscli env tidy")
+func (e *GlobalEnvironment) collectProjectEnvironments() ([]loader.Progress, []*project.ProjEnv, error) {
+	portManager := ports.NewPortManager()
 
-	err := c.InitProjectsDirs()
-	if err != nil {
-		return errors.Wrap(err, "error during init of additional projects env dirs ")
+	progresses := make([]loader.Progress, len(e.envProjDirs))
+	projEnvs := make([]*project.ProjEnv, len(e.envProjDirs))
+	conflicts := make(map[uint16][]string)
+
+	for idx := range e.envProjDirs {
+		progresses[idx] = loader.NewInfiniteLoader(e.envProjDirs[idx].Name(), loader.RectSpinner())
+
+		projName := e.envProjDirs[idx].Name()
+
+		proj, err := project.LoadProjectEnvironment(
+			e.rsCliConfig,
+			e.environment,
+			e.makefile,
+			e.composePatterns,
+
+			portManager,
+
+			path.Join(e.envDirPath, projName),
+			path.Join(path.Dir(e.envDirPath), projName),
+		)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "error loading environment for project "+projName)
+		}
+
+		envPorts, err := proj.Environment.GetPortValues()
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "error fetching ports for environment of "+projName)
+		}
+
+		for _, item := range envPorts {
+			conflictServiceName := portManager.SaveIfNotExist(item.Value, item.Name)
+			if conflictServiceName != "" {
+				conflicts[item.Value] = []string{conflictServiceName, item.Name}
+			}
+		}
+
+		projEnvs[idx] = proj
 	}
+	return progresses, projEnvs, nil
+}
 
-	err = c.FetchConstructor(cmd, arg)
-	if err != nil {
-		return errors.Wrap(err, "error fetching updated dirs")
-	}
-
-	tidyMngr, err := c.FetchTidyManager()
-	if err != nil {
-		return errors.Wrap(err, "error fetching tidy manager")
-	}
-
-	done := loader.RunMultiLoader(context.Background(), c.io, tidyMngr.Progresses)
+func (e *GlobalEnvironment) run(progresses []loader.Progress, envs []*project.ProjEnv) error {
+	done := loader.RunMultiLoader(context.Background(), e.io, progresses)
 	defer func() {
 		<-done()
-		c.io.Println("rscli env tidyMngr done")
+		e.io.Println("rscli env tidyMngr done")
 	}()
 
-	var serviceEnabled bool
-
-	if cmd.Flag(ServiceInContainer).Value.String() == "true" {
-		serviceEnabled = true
-	}
-
 	errC := make(chan error)
-	for idx := range tidyMngr.ProjEnvs {
+	for idx := range envs {
 		go func(i int) {
-			tidyErr := tidyMngr.ProjEnvs[i].Tidy(tidyMngr.PortManager, serviceEnabled)
+			// TODO
+			tidyErr := envs[i].Tidy(false)
 			if tidyErr != nil {
-				tidyMngr.Progresses[i].Done(loader.DoneFailed)
+				progresses[i].Done(loader.DoneFailed)
 			} else {
-				tidyMngr.Progresses[i].Done(loader.DoneSuccessful)
+				progresses[i].Done(loader.DoneSuccessful)
 			}
 
 			errC <- tidyErr
@@ -67,7 +94,7 @@ func (c *Constructor) RunTidy(cmd *cobra.Command, arg []string) error {
 	}
 
 	var errs []error
-	for i := 0; i < len(c.EnvProjDirs); i++ {
+	for i := 0; i < len(e.envProjDirs); i++ {
 		err, ok := <-errC
 		if !ok {
 			break
@@ -80,52 +107,4 @@ func (c *Constructor) RunTidy(cmd *cobra.Command, arg []string) error {
 	}
 
 	return stderrs.Join(errs...)
-}
-
-func (c *Constructor) FetchTidyManager() (*TidyManager, error) {
-	var err error
-
-	out := &TidyManager{
-		PortManager: ports.NewPortManager(),
-
-		Progresses: make([]loader.Progress, len(c.EnvProjDirs)),
-		ProjEnvs:   make([]*project.ProjEnv, len(c.EnvProjDirs)),
-
-		conflicts: make(map[uint16][]string),
-	}
-
-	for idx := range c.EnvProjDirs {
-		out.Progresses[idx] = loader.NewInfiniteLoader(c.EnvProjDirs[idx].Name(), loader.RectSpinner())
-
-		projName := c.EnvProjDirs[idx].Name()
-
-		var proj *project.ProjEnv
-		proj, err = project.LoadProjectEnvironment(
-			c.cfg,
-			c.environment,
-			c.makefile,
-			path.Join(c.envDirPath, projName),
-			path.Join(path.Dir(c.envDirPath), projName),
-		)
-		if err != nil {
-			return nil, errors.Wrap(err, "error loading environment for project "+projName)
-		}
-
-		envPorts, err := proj.Environment.GetPortValues()
-		if err != nil {
-			return nil, errors.Wrap(err, "error fetching ports for environment of "+projName)
-		}
-
-		for _, item := range envPorts {
-			conflictServiceName := out.PortManager.SaveIfNotExist(item.Value, item.Name)
-			if conflictServiceName != "" {
-				out.conflicts[item.Value] = []string{conflictServiceName, item.Name}
-			}
-		}
-		proj.ComposePatterns = c.composePatterns
-
-		out.ProjEnvs[idx] = proj
-	}
-
-	return out, nil
 }

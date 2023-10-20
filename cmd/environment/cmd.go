@@ -5,7 +5,6 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/plugins/environment/env"
 )
 
 func NewCmd() *cobra.Command {
@@ -19,17 +18,7 @@ func NewCmd() *cobra.Command {
 
 	stdIO := io.StdIO{}
 
-	cfg := config.GetConfig()
-
-	cmd.AddCommand(newInitEnvCmd(&envInit{
-		io:          stdIO,
-		constructor: env.NewConstructor(stdIO, cfg),
-	}))
-
-	cmd.AddCommand(newTidyEnvCmd(&envTidy{
-		io:          stdIO,
-		constructor: env.NewConstructor(stdIO, cfg),
-	}))
+	cmd.AddCommand(newTidyEnvCmd(stdIO, config.GetConfig()))
 
 	return cmd
 }

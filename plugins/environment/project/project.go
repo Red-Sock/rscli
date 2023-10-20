@@ -18,10 +18,6 @@ import (
 
 var ErrNoConfig = errors.New("no config found")
 
-type globalEnvConfig interface {
-	GetByName(envName string) (value string)
-}
-
 type ProjEnv struct {
 	envProjPath string
 	srcProjPath string
@@ -31,17 +27,21 @@ type ProjEnv struct {
 	Makefile    envMakefile
 	Config      envConfig
 
-	ComposePatterns compose.PatternManager
+	globalEnvFile envVariables
 
-	globalEnvFile  envVariables
-	globalMakefile *makefile.Makefile
-	rscliConfig    *config.RsCliConfig
+	globalPortManager           *ports.PortManager
+	globalComposePatternManager *compose.PatternManager
+	globalMakefile              *makefile.Makefile
+	rscliConfig                 *config.RsCliConfig
 }
 
 func LoadProjectEnvironment(
 	cfg *config.RsCliConfig,
 	globalEnv *env.Container,
 	globalMakefile *makefile.Makefile,
+	globalComposePatternManager *compose.PatternManager,
+
+	globalPortManager *ports.PortManager,
 
 	pathToProjectEnv string,
 	pathToProject string,
@@ -51,8 +51,10 @@ func LoadProjectEnvironment(
 		envProjPath: pathToProjectEnv,
 		srcProjPath: pathToProject,
 
-		globalMakefile: globalMakefile,
-		rscliConfig:    cfg,
+		rscliConfig:                 cfg,
+		globalPortManager:           globalPortManager,
+		globalMakefile:              globalMakefile,
+		globalComposePatternManager: globalComposePatternManager,
 	}
 
 	err = p.Compose.fetch(pathToProjectEnv)
@@ -83,15 +85,15 @@ func LoadProjectEnvironment(
 	return p, nil
 }
 
-func (e *ProjEnv) Tidy(pm *ports.PortManager, serviceEnabled bool) error {
+func (e *ProjEnv) Tidy(serviceEnabled bool) error {
 	projName := path.Base(e.envProjPath)
 
-	err := e.tidyResources(pm, projName, serviceEnabled)
+	err := e.tidyResources(projName, serviceEnabled)
 	if err != nil {
 		return errors.Wrap(err, "error doing tidy on resources")
 	}
 
-	err = e.tidyServerAPIs(projName, pm)
+	err = e.tidyServerAPIs(projName)
 	if err != nil {
 		return errors.Wrap(err, "error doing tidy on server api")
 	}

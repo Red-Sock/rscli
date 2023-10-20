@@ -14,11 +14,25 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 )
 
-func (c *Constructor) InitBasis() error {
-	err := io.CreateFolderIfNotExists(c.envDirPath)
+func (e *GlobalEnvironment) Init() error {
+	err := e.initBasis()
+	if err != nil {
+		return errors.Wrap(err, "error initiating basis")
+	}
 
-	for _, f := range c.getSpirits() {
-		err = io.CreateFileIfNotExists(path.Join(c.envDirPath, f.Name), f.Content)
+	err = e.initProjectsDirs()
+	if err != nil {
+		return errors.Wrap(err, "error initiating project dirs")
+	}
+
+	return nil
+}
+
+func (e *GlobalEnvironment) initBasis() error {
+	err := io.CreateFolderIfNotExists(e.envDirPath)
+
+	for _, f := range e.getSpirits() {
+		err = io.CreateFileIfNotExists(path.Join(e.envDirPath, f.Name), f.Content)
 		if err != nil {
 			return errors.Wrap(err, "error creating file "+f.Name+" file")
 		}
@@ -26,16 +40,16 @@ func (c *Constructor) InitBasis() error {
 
 	return nil
 }
-func (c *Constructor) InitProjectsDirs() error {
+func (e *GlobalEnvironment) initProjectsDirs() error {
 	wg := &sync.WaitGroup{}
-	errC := make(chan error, len(c.srcProjDirs))
+	errC := make(chan error, len(e.srcProjDirs))
 
-	wg.Add(len(c.srcProjDirs))
-	for _, d := range c.srcProjDirs {
+	wg.Add(len(e.srcProjDirs))
+	for _, d := range e.srcProjDirs {
 		go func(d os.DirEntry) {
 			defer wg.Done()
 
-			err := c.initProjectDir(d)
+			err := e.initProjectDir(d)
 			if err != nil {
 				errC <- errors.Wrap(err, "error creating "+d.Name())
 			}
@@ -59,8 +73,8 @@ func (c *Constructor) InitProjectsDirs() error {
 	return stderrs.Join(errors.New("error preparing projects dirs"), stderrs.Join(errs...))
 }
 
-func (c *Constructor) initProjectDir(d os.DirEntry) error {
-	envProjDir := path.Join(c.envDirPath, d.Name())
+func (e *GlobalEnvironment) initProjectDir(d os.DirEntry) error {
+	envProjDir := path.Join(e.envDirPath, d.Name())
 
 	err := io.CreateFolderIfNotExists(envProjDir)
 	if err != nil {
@@ -70,7 +84,7 @@ func (c *Constructor) initProjectDir(d os.DirEntry) error {
 	var f []byte
 	for _, spirit := range []folder.Folder{envpatterns.Makefile} {
 
-		f, err = os.ReadFile(path.Join(c.envDirPath, spirit.Name))
+		f, err = os.ReadFile(path.Join(e.envDirPath, spirit.Name))
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				continue

@@ -37,11 +37,12 @@ type Pattern struct {
 	Envs                *env.Container
 }
 
-func ReadComposePatternsFromFile(pth string) (out PatternManager, err error) {
+func ReadComposePatternsFromFile(pth string) (out *PatternManager, err error) {
+	out = &PatternManager{}
 	// Basic compose examples: rscli built-in
 	out.Patterns, err = extractComposePatternsFromFile(envpatterns.BuildInComposeExamples.Content)
 	if err != nil {
-		return PatternManager{}, errors.Wrap(err, "error extracting composePatterns from prepared file")
+		return nil, errors.Wrap(err, "error extracting composePatterns from prepared file")
 	}
 
 	// User's defined compose examples from

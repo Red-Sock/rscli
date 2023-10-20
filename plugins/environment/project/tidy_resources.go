@@ -7,57 +7,29 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
+	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	"github.com/Red-Sock/rscli/plugins/environment/project/compose"
 	"github.com/Red-Sock/rscli/plugins/environment/project/compose/env"
 	"github.com/Red-Sock/rscli/plugins/environment/project/envpatterns"
-	"github.com/Red-Sock/rscli/plugins/environment/project/ports"
-
-	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 )
 
-func (e *ProjEnv) tidyResources(pm *ports.PortManager, projName string, enableService bool) error {
-	tr := tidyResources{
-		config:          e.Config,
-		compose:         e.Compose,
-		environment:     e.Environment,
-		composePatterns: e.ComposePatterns,
-		globalEnvConfig: e.globalEnvFile,
-
-		pm:       pm,
-		projName: projName,
-	}
-	return tr.tidyResources(enableService)
-}
-
-type tidyResources struct {
-	config      envConfig
-	compose     envCompose
-	environment envVariables
-
-	composePatterns compose.PatternManager
-	globalEnvConfig envVariables
-	pm              *ports.PortManager
-
-	projName string
-}
-
-func (e *tidyResources) tidyResources(enableService bool) error {
-	dependencies, err := e.composePatterns.GetServiceDependencies(e.config.Config)
+func (e *ProjEnv) tidyResources(projName string, enableService bool) error {
+	dependencies, err := e.globalComposePatternManager.GetServiceDependencies(e.Config.Config)
 	if err != nil {
-		return errors.Wrap(err, "error getting dependencies for service "+e.config.AppInfo.Name)
+		return errors.Wrap(err, "error getting dependencies for service "+e.Config.Config.AppInfo.Name)
 	}
 
 	envs := make([]env.Container, 0, len(dependencies))
 
 	for _, resource := range dependencies {
 		var resourceEnv env.Container
-		resourceEnv, err = e.tidyResource(e.projName, resource, enableService)
+		resourceEnv, err = e.tidyResource(projName, resource, enableService)
 		if err != nil {
 			return errors.Wrap(err, "error tiding resource "+resource.GetName())
 		}
 
-		e.compose.AppendService(resource.GetName(), resource.GetCompose())
+		e.Compose.AppendService(resource.GetName(), resource.GetCompose())
 
 		envs = append(envs, resourceEnv)
 	}
@@ -74,28 +46,28 @@ func (e *tidyResources) tidyResources(enableService bool) error {
 	})
 
 	for _, item := range envs {
-		e.environment.Append(item.Content...)
+		e.Environment.Append(item.Content...)
 	}
 
-	for name := range e.compose.Services {
+	for name := range e.Compose.Services {
 		foundInConfig := false
 
 		for _, cfgRes := range dependencies {
-			if name == cfgRes.GetName() || name == e.projName {
+			if name == cfgRes.GetName() || name == projName {
 				foundInConfig = true
 				break
 			}
 		}
 
 		if !foundInConfig {
-			delete(e.compose.Services, name)
+			delete(e.Compose.Services, name)
 		}
 	}
 
 	return nil
 }
 
-func (e *tidyResources) tidyResource(projName string, resource compose.Pattern, enableService bool) (container env.Container, err error) {
+func (e *ProjEnv) tidyResource(projName string, resource compose.Pattern, enableService bool) (container env.Container, err error) {
 	patternEnv := resource.GetEnvs().GetContent()
 	envMap := make(map[string]string, len(patternEnv))
 
@@ -132,12 +104,12 @@ func (e *tidyResources) tidyResource(projName string, resource compose.Pattern, 
 	envMap[strings.ToUpper(resource.GetType()+envpatterns.HostEnvSuffix)] = hostValue
 	container.AppendRaw(hostName, hostValue)
 
-	e.config.DataSources[resource.GetName()] = e.tidyResourceConfig(resource, envMap)
+	e.Config.DataSources[resource.GetName()] = e.tidyResourceConfig(resource, envMap)
 
 	return container, nil
 }
 
-func (e *tidyResources) tidyResourceConfig(resource compose.Pattern, env map[string]string) interface{} {
+func (e *ProjEnv) tidyResourceConfig(resource compose.Pattern, env map[string]string) interface{} {
 	switch resource.GetType() {
 	case resources.DataSourcePostgres:
 		pgConf := resources.Postgres{}
@@ -152,7 +124,7 @@ func (e *tidyResources) tidyResourceConfig(resource compose.Pattern, env map[str
 	}
 }
 
-func (e *tidyResources) getResourceName(varName, resName, projName string) string {
+func (e *ProjEnv) getResourceName(varName, resName, projName string) string {
 	newEnvName := strings.ReplaceAll(varName,
 		envpatterns.ResourceNameCapsPattern, strings.ToUpper(resName))
 
@@ -161,20 +133,20 @@ func (e *tidyResources) getResourceName(varName, resName, projName string) strin
 	return renamer.ReplaceProjectNameStr(newEnvName, projName)
 }
 
-func (e *tidyResources) getPort(envName, envVal string) string {
+func (e *ProjEnv) getPort(envName, envVal string) string {
 	port, err := strconv.ParseUint(envVal, 10, 16)
 	if err != nil {
 		port = 10_000
 	}
 
-	return strconv.FormatUint(uint64(e.pm.GetNextPort(uint16(port), envName)), 10)
+	return strconv.FormatUint(uint64(e.globalPortManager.GetNextPort(uint16(port), envName)), 10)
 }
 
-func (e *tidyResources) getDefaultValue(resName, resType string) (basicEnvName, envValue string) {
+func (e *ProjEnv) getDefaultValue(resName, resType string) (basicEnvName, envValue string) {
 	basicEnvName = strings.ReplaceAll(resName,
 		envpatterns.ResourceNameCapsPattern, strings.ToUpper(resType))
 	basicEnvName = strings.ReplaceAll(basicEnvName,
 		envpatterns.ProjNameCapsPattern+"_", "")
 
-	return basicEnvName, e.environment.envResources.GetByName(basicEnvName)
+	return basicEnvName, e.Environment.envResources.GetByName(basicEnvName)
 }
