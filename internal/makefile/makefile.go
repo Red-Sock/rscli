@@ -16,10 +16,11 @@ var (
 const phony = ".PHONY"
 
 type Rule struct {
-	Name      []byte
-	PhonyName []byte
-	Commands  [][]byte
-	isInline  bool // flag showing that this part is for calling multiple other make rules
+	Name       []byte
+	PhonyName  []byte
+	Commands   [][]byte
+	isShortCut bool // flag indicating that each command is call of another make rule
+	isInline   bool // flag showing that this part is for calling multiple other make rules
 }
 
 type Makefile struct {
@@ -150,20 +151,26 @@ func (m *Makefile) Marshal() ([]byte, error) {
 
 		sb.Write(rule.Name)
 		sb.WriteByte(':')
-		sb.WriteByte('\n')
 
-		for _, r := range rule.Commands {
-			if len(r) == 0 {
-				return nil, errors.Wrap(ErrMarshallingMakefile, "empty command rule in "+string(rule.Name))
-			}
-			if r[0] != '\t' {
-				sb.WriteByte('\t')
-			}
+		if !rule.isShortCut {
+			sb.WriteByte('\n')
 
-			sb.Write(r)
+			for _, r := range rule.Commands {
+				if len(r) == 0 {
+					return nil, errors.Wrap(ErrMarshallingMakefile, "empty command rule in "+string(rule.Name))
+				}
+
+				if r[0] != '\t' {
+					sb.WriteByte('\t')
+				}
+
+				sb.Write(r)
+				sb.WriteByte('\n')
+			}
+		} else {
+			sb.Write(bytes.Join(rule.Commands, []byte(" ")))
 			sb.WriteByte('\n')
 		}
-
 		sb.WriteByte('\n')
 	}
 
@@ -194,6 +201,13 @@ func parseRule(b [][]byte) (rule Rule, idx int, err error) {
 				"A proper format is \"rule-name:\", but \""+string(b[idx])+"\" is given")
 		}
 		rule.Name = b[idx][:delimeterIdx]
+
+	}
+
+	if delimeterIdx != len(b[idx])-1 {
+		rule.isShortCut = true
+		rule.Commands = bytes.Split(b[idx][delimeterIdx+1:], []byte(" "))
+		return
 	}
 
 	idx++

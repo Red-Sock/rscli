@@ -18,6 +18,7 @@ import (
 
 const (
 	servicesPart = "services"
+	networkPart  = "networks"
 )
 
 var (
@@ -27,6 +28,7 @@ var (
 
 type PatternManager struct {
 	Patterns map[string]Pattern
+	Network  map[string]interface{} // TODO
 }
 
 type Pattern struct {
@@ -39,7 +41,7 @@ type Pattern struct {
 func ReadComposePatternsFromFile(pth string) (out *PatternManager, err error) {
 	out = &PatternManager{}
 	// Basic compose examples: rscli built-in
-	out.Patterns, err = extractComposePatternsFromFile(envpatterns.BuildInComposeExamples.Content)
+	out, err = extractComposePatternsFromFile(envpatterns.BuildInComposeExamples.Content)
 	if err != nil {
 		return nil, errors.Wrap(err, "error extracting composePatterns from prepared file")
 	}
@@ -59,9 +61,13 @@ func ReadComposePatternsFromFile(pth string) (out *PatternManager, err error) {
 		return out, errors.Wrap(err, "error extracting composePatterns from prepared file")
 	}
 
-	for serviceName, content := range userServicesDefinitions {
+	for serviceName, content := range userServicesDefinitions.Patterns {
 		// override predefined service description with user's defined one
 		out.Patterns[serviceName] = content
+	}
+
+	if userServicesDefinitions.Network != nil {
+		out.Network = userServicesDefinitions.Network
 	}
 
 	return out, nil
@@ -147,7 +153,8 @@ func AddEnvironmentBrackets(in string) string {
 	return "${" + in + "}"
 }
 
-func extractComposePatternsFromFile(dockerComposeFile []byte) (out map[string]Pattern, err error) {
+func extractComposePatternsFromFile(dockerComposeFile []byte) (out *PatternManager, err error) {
+	out = &PatternManager{}
 	composeServices := map[string]interface{}{}
 	{
 		// validating prepared config
@@ -156,6 +163,9 @@ func extractComposePatternsFromFile(dockerComposeFile []byte) (out map[string]Pa
 			return nil, errors.Wrap(err, "error validating prepared config")
 		}
 
+		network := composeServices[networkPart]
+		out.Network, _ = network.(map[string]interface{})
+
 		examplesMap, ok := composeServices[servicesPart]
 		if !ok {
 			return nil, errors.Wrapf(ErrInvalidComposeFileFormat, "expected to have \"%s\" object", servicesPart)
@@ -163,7 +173,7 @@ func extractComposePatternsFromFile(dockerComposeFile []byte) (out map[string]Pa
 		composeServices = examplesMap.(map[string]interface{})
 	}
 
-	services := make(map[string]Pattern, len(composeServices))
+	out.Patterns = make(map[string]Pattern, len(composeServices))
 
 	for serviceName, content := range composeServices {
 		cs := Pattern{
@@ -187,10 +197,10 @@ func extractComposePatternsFromFile(dockerComposeFile []byte) (out map[string]Pa
 			return nil, errors.Wrap(err, "error extracting environment variables")
 		}
 
-		services[serviceName] = cs
+		out.Patterns[serviceName] = cs
 	}
 
-	return services, nil
+	return out, nil
 }
 
 // extractEnvsFromComposeFile walks thought compose service description

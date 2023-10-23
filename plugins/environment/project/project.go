@@ -53,7 +53,7 @@ func LoadProjectEnvironment(
 
 		Compose: &compose.Compose{
 			Services: map[string]*compose.ContainerSettings{},
-			Network:  map[string]interface{}{},
+			Network:  globalComposePatternManager.Network,
 		},
 		rscliConfig:                 rscliConfig,
 		globalPortManager:           globalPortManager,
@@ -139,6 +139,8 @@ func (e *ProjEnv) flush(projName string) (err error) {
 		if err != nil {
 			return errors.Wrap(err, "error marshalling makefile")
 		}
+
+		mkFile = renamer.ReplaceProjectName(mkFile, projName)
 
 		err = io.OverrideFile(path.Join(e.pathToProjInEnv, envpatterns.Makefile.Name), mkFile)
 		if err != nil {

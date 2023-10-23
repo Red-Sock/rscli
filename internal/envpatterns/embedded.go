@@ -28,6 +28,7 @@ const (
 
 const (
 	MakefileEnvUpRuleName   = "env-up"
+	MakefileServiceUpName   = "service-up"
 	MakefileEnvDownRuleName = "env-down"
 )
 
