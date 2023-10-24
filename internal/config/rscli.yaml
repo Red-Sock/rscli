@@ -5,4 +5,5 @@ env:
     - internal/clients
   path_to_servers:
     - internal/transport
+  path_to_migrations: 'migrations'
 default_project_git_path: github.com/Red-Sock

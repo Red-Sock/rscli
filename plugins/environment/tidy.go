@@ -80,7 +80,6 @@ func (e *GlobalEnvironment) run(progresses []loader.Progress, envs []*project.Pr
 	errC := make(chan error)
 	for idx := range envs {
 		go func(i int) {
-			// TODO
 			tidyErr := envs[i].Tidy(false)
 			if tidyErr != nil {
 				progresses[i].Done(loader.DoneFailed)

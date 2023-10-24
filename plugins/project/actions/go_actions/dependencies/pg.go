@@ -19,7 +19,7 @@ type Postgres struct {
 }
 
 func (Postgres) GetFolderName() string {
-	return "postgres"
+	return resources.DataSourcePostgres
 }
 
 func (p Postgres) Do(proj interfaces.Project) error {

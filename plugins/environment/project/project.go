@@ -92,6 +92,8 @@ func (e *ProjEnv) Tidy(serviceEnabled bool) error {
 		return errors.Wrap(err, "error doing tidy on server api")
 	}
 
+	e.tidyMigrations()
+
 	err = e.flush(projName)
 
 	return nil

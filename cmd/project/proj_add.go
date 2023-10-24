@@ -10,12 +10,13 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
+	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 const (
-	postgresArgument = "postgres"
+	postgresArgument = resources.DataSourcePostgres
 	redisArgument    = "redis"
 
 	telegramArgument = projpatterns.TelegramServer

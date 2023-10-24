@@ -13,6 +13,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/colors"
+	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 	"github.com/Red-Sock/rscli/tests/mocks"
 )
@@ -193,7 +194,7 @@ func (r redisValidator) getName() string {
 	return redisArgument
 }
 func (r redisValidator) validate(t *testing.T, pth string) {
-	pathToRedisConn := path.Join(pth, configPathToClient, projpatterns.SourceNameRedis, projpatterns.ConnFileName)
+	pathToRedisConn := path.Join(pth, configPathToClient, resources.DataSourceRedis, projpatterns.ConnFileName)
 	f, err := os.ReadFile(pathToRedisConn)
 	require.NoError(t, err, "error reading redis conn file")
 
@@ -206,7 +207,7 @@ func (r postgresValidator) getName() string {
 	return postgresArgument
 }
 func (r postgresValidator) validate(t *testing.T, pth string) {
-	pathToPGFolder := path.Join(pth, configPathToClient, projpatterns.SourceNamePostgres)
+	pathToPGFolder := path.Join(pth, configPathToClient, resources.DataSourcePostgres)
 
 	f, err := os.ReadFile(path.Join(pathToPGFolder, projpatterns.PgConnFile.Name))
 	require.NoError(t, err, "error reading postgres conn file")
