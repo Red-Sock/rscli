@@ -4,7 +4,7 @@ import (
 	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 func DataSources(p interfaces.Project) error {
@@ -27,13 +27,13 @@ func applyDatasourceFolders(p interfaces.Project) error {
 		return nil
 	}
 
-	clientsFolderSrc := p.GetFolder().GetByPath(patterns.InternalFolder, patterns.ClientsFolder)
+	clientsFolderSrc := p.GetFolder().GetByPath(projpatterns.InternalFolder, projpatterns.ClientsFolder)
 	if clientsFolderSrc != nil {
 		clientsFolderSrc.Inner = nil
 	}
 
 	if len(clientsFolder.Inner) != 0 {
-		p.GetFolder().GetByPath(patterns.InternalFolder).Add(clientsFolder)
+		p.GetFolder().GetByPath(projpatterns.InternalFolder).Add(clientsFolder)
 	}
 
 	err = p.GetFolder().Build()

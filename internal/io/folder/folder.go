@@ -171,3 +171,21 @@ func (f *Folder) build(root string) error {
 func (f *Folder) Delete() {
 	f.isToBeDeleted = true
 }
+
+func (f *Folder) Copy() *Folder {
+	var newF Folder
+
+	newF.Name = f.Name
+	copy(newF.Content, f.Content)
+
+	return &newF
+}
+
+func (f *Folder) CopyWithNewName(name string) *Folder {
+	var newF Folder
+
+	newF.Name = name
+	copy(newF.Content, f.Content)
+
+	return &newF
+}

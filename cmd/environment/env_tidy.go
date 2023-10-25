@@ -1,91 +1,70 @@
 package environment
 
 import (
-	"context"
-	stderrs "errors"
+	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
 
-	"github.com/Red-Sock/rscli/cmd/environment/env"
+	"github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/internal/io/loader"
+	"github.com/Red-Sock/rscli/plugins/environment"
 )
 
-func newTidyEnvCmd(et *envTidy) *cobra.Command {
+func newTidyEnvCmd(io io.IO, cfg *config.RsCliConfig) *cobra.Command {
+	et := &envTidy{
+		io:  io,
+		cfg: cfg,
+	}
 	c := &cobra.Command{
 		Use:   "tidy",
 		Short: "Adds new dependencies to existing environment. Clears unused dependencies",
 
-		PreRunE: et.constructor.FetchConstructor,
-		RunE:    et.RunTidy,
+		RunE: et.RunTidy,
 
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
 
-	c.Flags().StringP(env.PathFlag, env.PathFlag[:1], "", `Path to folder with projects`)
-	c.Flags().BoolP(env.ServiceInContainer, env.ServiceInContainer[:1], false, "Service will be run in container")
+	c.Flags().StringP(environment.PathFlag, environment.PathFlag[:1], "", `Path to folder with projects`)
+	c.Flags().BoolP(environment.ServiceInContainer, environment.ServiceInContainer[:1], false, "Service will be run in container")
 
 	return c
 }
 
 type envTidy struct {
-	io          io.IO
-	constructor *env.Constructor
+	io  io.IO
+	cfg *config.RsCliConfig
 }
 
-func (c *envTidy) RunTidy(cmd *cobra.Command, arg []string) error {
-	c.io.Println("Running rscli env tidy")
+func (e *envTidy) RunTidy(cmd *cobra.Command, arg []string) error {
+	e.io.Println("Running rscli env tidy")
 
-	err := c.constructor.InitProjectsDirs()
+	constructor, err := environment.NewGlobalEnv(e.io, e.cfg, e.getEnvDirPath(cmd))
 	if err != nil {
-		return errors.Wrap(err, "error during init of additional projects env dirs ")
+		return errors.Wrap(err, "error creating global environment struct")
 	}
-
-	tidyMngr, err := c.constructor.FetchTidyManager()
-	if err != nil {
-		return errors.Wrap(err, "error fetching tidy manager")
-	}
-
-	done := loader.RunMultiLoader(context.Background(), c.io, tidyMngr.Progresses)
-	defer func() {
-		<-done()
-		c.io.Println("rscli env tidyMngr done")
-	}()
-
-	var serviceEnabled bool
-
-	if cmd.Flag(env.ServiceInContainer).Value.String() == "true" {
-		serviceEnabled = true
-	}
-
-	errC := make(chan error)
-	for idx := range tidyMngr.ProjEnvs {
-		go func(i int) {
-			tidyErr := tidyMngr.ProjEnvs[i].Tidy(tidyMngr.PortManager, serviceEnabled)
-			if tidyErr != nil {
-				tidyMngr.Progresses[i].Done(loader.DoneFailed)
-			} else {
-				tidyMngr.Progresses[i].Done(loader.DoneSuccessful)
-			}
-
-			errC <- tidyErr
-		}(idx)
-	}
-
-	var errs []error
-	for i := 0; i < len(c.constructor.EnvProjDirs); i++ {
-		err, ok := <-errC
-		if !ok {
-			break
+	if !constructor.IsEnvExist() {
+		err := constructor.Init()
+		if err != nil {
+			return errors.Wrap(err, "error initializing environment")
 		}
-
-		errs = append(errs, err)
-	}
-	if len(errs) == 0 {
-		return nil
 	}
 
-	return stderrs.Join(errs...)
+	return constructor.Tidy()
+}
+
+func (e *envTidy) getEnvDirPath(cmd *cobra.Command) string {
+	envDirPath := cmd.Flag(environment.PathFlag).Value.String()
+
+	if envDirPath == "" {
+		envDirPath = io.GetWd()
+	}
+
+	if path.Base(envDirPath) != envpatterns.EnvDir {
+		envDirPath = path.Join(envDirPath, envpatterns.EnvDir)
+	}
+
+	return envDirPath
 }

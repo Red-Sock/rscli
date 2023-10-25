@@ -6,7 +6,7 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/utils/copier"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 var ErrUnknownResource = errors.New("unknown resource")
@@ -22,15 +22,15 @@ func ParseServerOption(name string, in interface{}) (Server, error) {
 	var r Server
 
 	switch dataSourceType {
-	case patterns.TelegramServer:
+	case projpatterns.TelegramServer:
 		r = &Telegram{
 			name: name,
 		}
-	case patterns.RESTHTTPServer:
+	case projpatterns.RESTHTTPServer:
 		r = &Rest{
 			name: name,
 		}
-	case patterns.GRPCServer:
+	case projpatterns.GRPCServer:
 		r = &GRPC{
 			name: name,
 		}

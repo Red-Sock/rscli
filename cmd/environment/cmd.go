@@ -3,7 +3,6 @@ package environment
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/Red-Sock/rscli/cmd/environment/env"
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 )
@@ -19,17 +18,7 @@ func NewCmd() *cobra.Command {
 
 	stdIO := io.StdIO{}
 
-	cfg := config.GetConfig()
-
-	cmd.AddCommand(newInitEnvCmd(&envInit{
-		io:          stdIO,
-		constructor: env.NewConstructor(stdIO, cfg),
-	}))
-
-	cmd.AddCommand(newTidyEnvCmd(&envTidy{
-		io:          stdIO,
-		constructor: env.NewConstructor(stdIO, cfg),
-	}))
+	cmd.AddCommand(newTidyEnvCmd(stdIO, config.GetConfig()))
 
 	return cmd
 }

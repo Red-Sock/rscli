@@ -12,7 +12,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/config"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 const (
@@ -40,7 +40,7 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 
 	modName := c.ExtractName()
 
-	goModFile := f.GetByPath(patterns.GoMod)
+	goModFile := f.GetByPath(projpatterns.GoMod)
 	moduleBts := goModFile.Content[:bytes.IndexByte(goModFile.Content, '\n')]
 	moduleBts = moduleBts[1+bytes.IndexByte(moduleBts, ' '):]
 

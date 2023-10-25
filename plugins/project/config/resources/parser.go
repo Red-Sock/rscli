@@ -6,7 +6,6 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/utils/copier"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
 )
 
 var ErrUnknownResource = errors.New("unknown resource")
@@ -43,19 +42,17 @@ func ParseResource(name string, in interface{}) (Resource, error) {
 
 	if splitIdx == -1 {
 		dataSourceType = name
-		name = ""
 	} else {
 		dataSourceType = name[:splitIdx]
-		name = name[splitIdx+1:]
 	}
 
 	var r Resource
 	switch dataSourceType {
-	case patterns.SourceNamePostgres:
+	case DataSourcePostgres:
 		r = &Postgres{
 			ResourceName: name,
 		}
-	case patterns.SourceNameRedis:
+	case DataSourceRedis:
 		r = &Redis{
 			ResourceName: name,
 		}

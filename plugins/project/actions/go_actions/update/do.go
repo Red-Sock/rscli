@@ -1,13 +1,6 @@
 package update
 
 import (
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update/v0_0_10_alpha"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update/v0_0_17_alpha"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update/v0_0_18_alpha"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update/v0_0_20_alpha"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update/v0_0_21_alpha"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update/v0_0_23_alpha"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update/v0_0_24_alpha"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/update/v0_0_26_alpha"
 	interfaces2 "github.com/Red-Sock/rscli/plugins/project/interfaces"
 )
@@ -42,34 +35,6 @@ func GetLatestVersion() *Version {
 }
 
 var updates = []Version{
-	{
-		Version: v0_0_10_alpha.Version,
-		do:      v0_0_10_alpha.Do,
-	},
-	{
-		Version: v0_0_17_alpha.Version,
-		do:      v0_0_17_alpha.Do,
-	},
-	{
-		Version: v0_0_18_alpha.Version,
-		do:      v0_0_18_alpha.Do,
-	},
-	{
-		Version: v0_0_20_alpha.Version,
-		do:      v0_0_20_alpha.Do,
-	},
-	{
-		Version: v0_0_21_alpha.Version,
-		do:      v0_0_21_alpha.Do,
-	},
-	{
-		Version: v0_0_23_alpha.Version,
-		do:      v0_0_23_alpha.Do,
-	},
-	{
-		Version: v0_0_24_alpha.Version,
-		do:      v0_0_24_alpha.Do,
-	},
 	{
 		Version: v0_0_26_alpha.Version,
 		do:      v0_0_26_alpha.Do,
