@@ -19,7 +19,15 @@ var (
 )
 
 func (e *ProjEnv) tidyMigrations() error {
-	migs, err := os.ReadDir(path.Join(e.pathToProjSrc, e.rscliConfig.Env.PathToMigrations))
+	srcMigrationsFolder := path.Join(e.pathToProjSrc, e.rscliConfig.Env.PathToMigrations)
+	targetMigrationFolder := path.Join(e.pathToProjInEnv, e.rscliConfig.Env.PathToMigrations)
+
+	err := os.MkdirAll(targetMigrationFolder, os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "error creating migrations folder in env")
+	}
+
+	migs, err := os.ReadDir(srcMigrationsFolder)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return nil
@@ -33,24 +41,82 @@ func (e *ProjEnv) tidyMigrations() error {
 		return errors.Wrap(err, "error getting datasource options")
 	}
 
+	toolToMigrations := make(map[migrations.MigrationTool][]resources.Resource)
+
 	for _, mig := range migs {
 		if !mig.IsDir() {
 			continue
 		}
 
 		var d resources.Resource
-		for _, d = range ds {
-			if d.GetName() == mig.Name() {
+		for _, item := range ds {
+			if item.GetName() == mig.Name() {
+				d = item
 				break
 			}
+		}
+
+		if d == nil {
+			continue
 		}
 
 		mt, ok := migrators[d.GetType()]
 		if !ok {
 			continue
 		}
-		_ = mt
-		// TODO use migration tool
+
+		toolToMigrations[mt] = append(toolToMigrations[mt], d)
+	}
+
+	var errs []error
+
+	for tool, migPaths := range toolToMigrations {
+		err = tool.Install()
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		var currentVersion, latestVersion string
+		currentVersion, err = tool.Version()
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		latestVersion, err = tool.GetLatestVersion()
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		if latestVersion > currentVersion {
+			// TODO suggest to upgrade
+		}
+
+		for _, p := range migPaths {
+			srcMigrations := path.Join(srcMigrationsFolder, p.GetName())
+			targetMigrations := path.Join(targetMigrationFolder, p.GetName())
+			err = os.RemoveAll(targetMigrations)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+
+			err = os.Symlink(
+				srcMigrations,
+				targetMigrations,
+			)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+
+			err = tool.Migrate(srcMigrations, p)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+		}
 	}
 
 	return nil

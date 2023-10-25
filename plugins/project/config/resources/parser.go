@@ -42,10 +42,8 @@ func ParseResource(name string, in interface{}) (Resource, error) {
 
 	if splitIdx == -1 {
 		dataSourceType = name
-		name = ""
 	} else {
 		dataSourceType = name[:splitIdx]
-		name = name[splitIdx+1:]
 	}
 
 	var r Resource
