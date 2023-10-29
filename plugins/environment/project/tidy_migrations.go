@@ -1,6 +1,7 @@
 package project
 
 import (
+	stderrs "errors"
 	"os"
 	"path"
 
@@ -18,7 +19,7 @@ var (
 	}
 )
 
-func (e *ProjEnv) tidyMigrations() error {
+func (e *ProjEnv) tidyMigrationDirs() error {
 	srcMigrationsFolder := path.Join(e.pathToProjSrc, e.rscliConfig.Env.PathToMigrations)
 	targetMigrationFolder := path.Join(e.pathToProjInEnv, e.rscliConfig.Env.PathToMigrations)
 
@@ -76,22 +77,6 @@ func (e *ProjEnv) tidyMigrations() error {
 			errs = append(errs, err)
 			continue
 		}
-		var currentVersion, latestVersion string
-		currentVersion, err = tool.Version()
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		latestVersion, err = tool.GetLatestVersion()
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		if latestVersion > currentVersion {
-			// TODO suggest to upgrade
-		}
 
 		for _, p := range migPaths {
 			srcMigrations := path.Join(srcMigrationsFolder, p.GetName())
@@ -110,14 +95,8 @@ func (e *ProjEnv) tidyMigrations() error {
 				errs = append(errs, err)
 				continue
 			}
-
-			err = tool.Migrate(srcMigrations, p)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
 		}
 	}
 
-	return nil
+	return stderrs.Join(errs...)
 }
