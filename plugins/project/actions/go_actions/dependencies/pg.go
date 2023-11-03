@@ -34,7 +34,7 @@ func (p Postgres) Do(proj interfaces.Project) error {
 }
 
 func (p Postgres) applyClientFolder(proj interfaces.Project) error {
-	ok, err := containsDependency(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
+	ok, err := containsDependencyFolder(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding dependency path")
 	}

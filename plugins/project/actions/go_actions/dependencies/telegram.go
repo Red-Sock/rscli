@@ -40,7 +40,7 @@ func (t Telegram) Do(proj interfaces.Project) error {
 }
 
 func (t Telegram) applyClient(proj interfaces.Project) error {
-	ok, err := containsDependency(t.Cfg.Env.PathsToClients, proj.GetFolder(), t.GetFolderName())
+	ok, err := containsDependencyFolder(t.Cfg.Env.PathsToClients, proj.GetFolder(), t.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding dependency path")
 	}
@@ -62,7 +62,7 @@ func (t Telegram) applyClient(proj interfaces.Project) error {
 }
 
 func (t Telegram) applyFolder(proj interfaces.Project) error {
-	ok, err := containsDependency(t.Cfg.Env.PathToServers, proj.GetFolder(), t.GetFolderName())
+	ok, err := containsDependencyFolder(t.Cfg.Env.PathToServers, proj.GetFolder(), t.GetFolderName())
 	if err != nil {
 		return err
 	}

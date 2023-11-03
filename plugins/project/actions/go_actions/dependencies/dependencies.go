@@ -10,10 +10,10 @@ var (
 	ErrNoFolderInConfig = errors.New("no folder path in rscli config")
 )
 
-// containsDependency - searches through RSCLI_PATH_TO_CLIENTS
+// containsDependencyFolder - searches through RSCLI_PATH_TO_CLIENTS
 // folders in order to find depName
 // IF dependency already placed - returns path to it
-func containsDependency(paths []string, rootF *folder.Folder, depName string) (ok bool, err error) {
+func containsDependencyFolder(paths []string, rootF *folder.Folder, depName string) (ok bool, err error) {
 	if len(paths) == 0 {
 		return false, errors.Wrap(ErrNoFolderInConfig, "no client")
 	}

@@ -50,7 +50,7 @@ func (r Rest) applyConfig(proj interfaces.Project, defaultApiName string) {
 }
 
 func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error {
-	ok, err := containsDependency(r.Cfg.Env.PathToServers, proj.GetFolder(), r.GetFolderName())
+	ok, err := containsDependencyFolder(r.Cfg.Env.PathToServers, proj.GetFolder(), r.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error searching dependencies")
 	}

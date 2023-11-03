@@ -75,7 +75,7 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "error building config")
 	}
 
-	err = os.WriteFile(p.proj.GetConfig().GetPath(), b, os.ModePerm)
+	err = os.WriteFile(p.proj.GetConfig().Path, b, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "error writing config to file")
 	}

@@ -118,7 +118,6 @@ func (f *Folder) Build() error {
 }
 
 func (f *Folder) build(root string) error {
-
 	pth := path.Join(root, path.Base(f.Name))
 
 	if f.isToBeDeleted {
@@ -173,18 +172,22 @@ func (f *Folder) Delete() {
 }
 
 func (f *Folder) Copy() *Folder {
-	var newF Folder
+	newF := Folder{
+		Name:    f.Name,
+		Content: make([]byte, len(f.Content)),
+	}
 
-	newF.Name = f.Name
 	copy(newF.Content, f.Content)
 
 	return &newF
 }
 
 func (f *Folder) CopyWithNewName(name string) *Folder {
-	var newF Folder
+	newF := Folder{
+		Name:    name,
+		Content: make([]byte, len(f.Content)),
+	}
 
-	newF.Name = name
 	copy(newF.Content, f.Content)
 
 	return &newF

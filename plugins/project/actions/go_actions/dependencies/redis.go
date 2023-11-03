@@ -34,7 +34,7 @@ func (p Redis) Do(proj interfaces.Project) error {
 }
 
 func (p Redis) applyClientFolder(proj interfaces.Project) error {
-	ok, err := containsDependency(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
+	ok, err := containsDependencyFolder(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding dependency path")
 	}
