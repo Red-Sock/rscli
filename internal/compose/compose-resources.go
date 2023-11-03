@@ -7,13 +7,13 @@ import (
 	"strings"
 
 	"github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka"
 	"gopkg.in/yaml.v3"
 
 	"github.com/Red-Sock/rscli/internal/compose/env"
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/utils/copier"
 	"github.com/Red-Sock/rscli/internal/utils/nums"
-	"github.com/Red-Sock/rscli/plugins/project/config"
 )
 
 const (
@@ -104,20 +104,19 @@ func (p *Pattern) RenameVariable(oldName, newName string) {
 	}
 }
 
-func (c *PatternManager) GetServiceDependencies(cfg *config.Config) ([]Pattern, error) {
-	resource, err := cfg.GetDataSourceOptions()
-	if err != nil {
-		return nil, errors.Wrap(err, "error obtaining data source options")
-	}
+func (c *PatternManager) GetServiceDependencies(cfg *matreshka.AppConfig) ([]Pattern, error) {
 
-	clients := make([]Pattern, 0, len(resource))
+	clients := make([]Pattern, 0, len(cfg.DataSources))
 
-	for _, resourceDependency := range resource {
-		originalPattern, ok := c.Patterns[string(resourceDependency.GetType())]
+	for _, resourceDependency := range cfg.DataSources {
+		resType := strings.Split(resourceDependency.GetName(), "_")[0]
+
+		originalPattern, ok := c.Patterns[resType]
 		if !ok {
 			// TODO handle unknown data sources
 			continue
 		}
+
 		var pattern Pattern
 		err := copier.Copy(&originalPattern, &pattern)
 		if err != nil {
@@ -125,7 +124,7 @@ func (c *PatternManager) GetServiceDependencies(cfg *config.Config) ([]Pattern, 
 		}
 
 		if resourceDependency.GetName() != "" {
-			pattern.Name += "_" + resourceDependency.GetName()
+			pattern.Name += resourceDependency.GetName()
 		}
 
 		// if value for environment variable is defined in source config
@@ -136,7 +135,7 @@ func (c *PatternManager) GetServiceDependencies(cfg *config.Config) ([]Pattern, 
 		//
 		// will set environment variable for POSTGRES_PASSWORD
 		// by setting variable PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_PWD in .env file to 123
-		for name, val := range resourceDependency.GetEnv() {
+		for name, val := range resourceDependency.ToEnv() {
 			if envVariable, ok := pattern.ContainerDefinition.Environment[name]; ok {
 				pattern.Envs.AppendRaw(removeEnvironmentBrackets(envVariable), val)
 			}

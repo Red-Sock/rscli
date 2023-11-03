@@ -4,11 +4,11 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
-	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
@@ -54,14 +54,16 @@ func (p Redis) applyClientFolder(proj interfaces.Project) error {
 }
 
 func (p Redis) applyConfig(proj interfaces.Project) {
-	ds := proj.GetConfig().DataSources
-	if _, ok := ds[p.GetFolderName()]; ok {
-		return
+	for _, item := range proj.GetConfig().DataSources {
+		if item.GetName() == p.GetFolderName() {
+			return
+		}
 	}
 
-	ds[p.GetFolderName()] = resources.Redis{
-		ResourceName: "redis",
-		Host:         "localhost",
-		Port:         6379,
-	}
+	proj.GetConfig().DataSources = append(proj.GetConfig().DataSources,
+		&resources.Redis{
+			AppResource: resources.AppResource{ResourceName: p.GetFolderName()},
+			Host:        "localhost",
+			Port:        6379,
+		})
 }

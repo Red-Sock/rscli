@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
@@ -38,7 +39,7 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 		return nil, err
 	}
 
-	modName := c.ExtractName()
+	modName := c.AppInfo.Name
 
 	goModFile := f.GetByPath(projpatterns.GoMod)
 	moduleBts := goModFile.Content[:bytes.IndexByte(goModFile.Content, '\n')]
@@ -66,6 +67,8 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 }
 
 func LoadProjectConfig(projectPath string, cfg *rscliconfig.RsCliConfig) (c *config.Config, err error) {
+	c = &config.Config{}
+
 	configDirPath := path.Join(projectPath, path.Dir(cfg.Env.PathToConfig))
 
 	dir, err := os.ReadDir(configDirPath)
@@ -92,7 +95,7 @@ func LoadProjectConfig(projectPath string, cfg *rscliconfig.RsCliConfig) (c *con
 
 	configPath = path.Join(configDirPath, configPath)
 
-	c, err = config.ReadConfig(configPath)
+	c.AppConfig, err = matreshka.ReadConfig(configPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "error parsing config")
 	}

@@ -4,11 +4,11 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
-	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
@@ -19,7 +19,7 @@ type Postgres struct {
 }
 
 func (Postgres) GetFolderName() string {
-	return resources.DataSourcePostgres
+	return resources.PostgresResourceName
 }
 
 func (p Postgres) Do(proj interfaces.Project) error {
@@ -62,18 +62,19 @@ func (p Postgres) applyClientFolder(proj interfaces.Project) error {
 }
 
 func (p Postgres) applyConfig(proj interfaces.Project) {
-	ds := proj.GetConfig().DataSources
-	if _, ok := ds[p.GetFolderName()]; ok {
-		return
+	for _, item := range proj.GetConfig().DataSources {
+		if item.GetName() == p.GetFolderName() {
+			return
+		}
 	}
 
-	ds[p.GetFolderName()] = resources.Postgres{
-		ResourceName: p.GetFolderName(),
-		Host:         "localhost",
-		Port:         5432,
-		Name:         "",
-		User:         "",
-		Pwd:          "",
-		SSLMode:      "",
-	}
+	proj.GetConfig().DataSources = append(proj.GetConfig().DataSources, &resources.Postgres{
+		AppResource: resources.AppResource{ResourceName: p.GetFolderName()},
+		Host:        "localhost",
+		Port:        5432,
+		DbName:      "",
+		User:        "",
+		Pwd:         "",
+		SSLMode:     "",
+	})
 }

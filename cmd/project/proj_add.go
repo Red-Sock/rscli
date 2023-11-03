@@ -1,7 +1,10 @@
 package project
 
 import (
+	"os"
+
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 	"github.com/spf13/cobra"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
@@ -10,18 +13,8 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
-	"github.com/Red-Sock/rscli/plugins/project/config/resources"
+
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
-)
-
-const (
-	postgresArgument = resources.DataSourcePostgres
-	redisArgument    = "redis"
-
-	telegramArgument = projpatterns.TelegramServer
-
-	restArgument = "rest"
 )
 
 type dependency interface {
@@ -77,9 +70,14 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "error building folders")
 	}
 
-	err = p.proj.GetConfig().BuildTo(p.proj.GetConfig().GetPath())
+	b, err := p.proj.GetConfig().Marshal()
 	if err != nil {
 		return errors.Wrap(err, "error building config")
+	}
+
+	err = os.WriteFile(p.proj.GetConfig().GetPath(), b, os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "error writing config to file")
 	}
 
 	return nil
@@ -105,13 +103,14 @@ func (p *projectAdd) getDependenciesFromUser(args []string) []dependency {
 	for _, arg := range args {
 		var dep dependency
 		switch arg {
-		case postgresArgument:
+		case resources.PostgresResourceName:
 			dep = dependencies.Postgres{Cfg: p.config}
-		case redisArgument:
+		case resources.RedisResourceName:
 			dep = dependencies.Redis{Cfg: p.config}
-		case telegramArgument:
+		case resources.TelegramResourceName:
 			dep = dependencies.Telegram{Cfg: p.config}
-		case restArgument:
+		case "TODO":
+			// TODO
 			dep = dependencies.Rest{Cfg: p.config}
 		default:
 			p.io.PrintlnColored(colors.ColorRed, "unknown dependency: "+arg)

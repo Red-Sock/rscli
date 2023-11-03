@@ -68,11 +68,7 @@ func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 		DevDocker: map[string]string{},
 	}
 
-	servers, err := p.GetConfig().GetServerOptions()
-	if err != nil {
-		return errors.Wrap(err, "error obtaining server options")
-	}
-	for _, item := range servers {
+	for _, item := range p.GetConfig().Server {
 		portStr := strconv.FormatUint(uint64(item.GetPort()), 10)
 		e.Dev[item.GetName()] = "0.0.0.0:" + portStr
 		e.DevDocker[item.GetName()] = "0.0.0.0:1" + portStr

@@ -47,21 +47,22 @@ func Api(p interfaces.Project) error {
 }
 
 func tidyAPI(p interfaces.Project, cfg *config.Config, projMainFile *folder.Folder) error {
-	serverFolders, err := cfg.GetServerFolders()
-	if err != nil {
-		return err
-	}
+	// todo
+	//serverFolders, err := cfg.GetServerFolders()
+	//if err != nil {
+	//	return err
+	//}
 
-	if serverFolders == nil {
-		return nil
-	}
-
-	insertApiSetupInMainIfNotExists(p, projMainFile)
-
-	err = tidyAPIFile(p, serverFolders)
-	if err != nil {
-		return errors.Wrap(err, "error tiding api file")
-	}
+	//if serverFolders == nil {
+	//	return nil
+	//}
+	//
+	//insertApiSetupInMainIfNotExists(p, projMainFile)
+	//
+	//err = tidyAPIFile(p, serverFolders)
+	//if err != nil {
+	//	return errors.Wrap(err, "error tiding api file")
+	//}
 
 	return nil
 }

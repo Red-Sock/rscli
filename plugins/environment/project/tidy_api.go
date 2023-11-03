@@ -11,10 +11,6 @@ import (
 )
 
 func (e *ProjEnv) tidyServerAPIs() error {
-	opts, err := e.Config.GetServerOptions()
-	if err != nil {
-		return errors.Wrap(err, "error obtaining server options")
-	}
 
 	service, ok := e.Compose.Services[strings.ReplaceAll(e.projName, "-", "_")]
 	if !ok {
@@ -26,12 +22,12 @@ func (e *ProjEnv) tidyServerAPIs() error {
 		service = &p.ContainerDefinition
 	}
 
-	for i := range opts {
-		portName := strings.ToUpper(e.projName) + "_" + strings.ToUpper(opts[i].GetName()) + "_" + envpatterns.PortSuffix
+	for i := range e.Config.Server {
+		portName := strings.ToUpper(e.projName) + "_" + strings.ToUpper(e.Config.Server[i].GetName()) + "_" + envpatterns.PortSuffix
 		portName = strings.ReplaceAll(portName,
 			"__", "_")
 
-		internalPort := opts[i].GetPort()
+		internalPort := e.Config.Server[i].GetPort()
 
 		if internalPort == 0 {
 			continue
@@ -49,7 +45,7 @@ func (e *ProjEnv) tidyServerAPIs() error {
 			service.Ports = append(service.Ports, composePort)
 		}
 
-		e.Environment.AppendRaw(portName, strconv.FormatUint(uint64(e.globalPortManager.GetNextPort(opts[i].GetPort(), portName)), 10))
+		e.Environment.AppendRaw(portName, strconv.FormatUint(uint64(e.globalPortManager.GetNextPort(e.Config.Server[i].GetPort(), portName)), 10))
 	}
 
 	e.Compose.AppendService(e.projName, *service)

@@ -5,18 +5,18 @@ import (
 	"fmt"
 
 	"github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/cases"
-	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 )
 
 func GetDatasourceClientFile(datasourceName string) (*folder.Folder, error) {
 	out := &folder.Folder{Name: datasourceName}
 	switch datasourceName {
-	case resources.DataSourceRedis:
+	case resources.RedisResourceName:
 		out.Inner = []*folder.Folder{RedisConnFile.Copy()}
-	case resources.DataSourcePostgres:
+	case resources.PostgresResourceName:
 		out.Inner = []*folder.Folder{PgConnFile.Copy(), PgTxFile.Copy()}
 	case TelegramServer:
 		out.Inner = []*folder.Folder{TgConnFile.Copy()}

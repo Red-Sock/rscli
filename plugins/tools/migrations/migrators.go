@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"github.com/Red-Sock/rscli/plugins/project/config/resources"
+	"github.com/godverv/matreshka/resources"
 )
 
 type MigrationTool interface {

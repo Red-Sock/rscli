@@ -133,10 +133,12 @@ func (e *ProjEnv) flush(projName string) (err error) {
 	}
 
 	{
-		err = e.Config.BuildTo(e.Config.GetPath())
-		if err != nil {
-			return errors.Wrap(err, "error writing env config")
-		}
+
+		// TODO
+		//err = e.Config.BuildTo(e.Config.GetPath())
+		//if err != nil {
+		//	return errors.Wrap(err, "error writing env config")
+		//}
 	}
 
 	{

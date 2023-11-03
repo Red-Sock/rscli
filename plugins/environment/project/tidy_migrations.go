@@ -6,16 +6,16 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 
-	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/tools/migrations"
 	"github.com/Red-Sock/rscli/plugins/tools/migrations/goose"
 )
 
 var (
 	gooseMig  = &goose.Tool{}
-	migrators = map[resources.DataSourceName]migrations.MigrationTool{
-		resources.DataSourcePostgres: gooseMig,
+	migrators = map[string]migrations.MigrationTool{
+		resources.PostgresResourceName: gooseMig,
 	}
 )
 
@@ -37,11 +37,6 @@ func (e *ProjEnv) tidyMigrationDirs() error {
 		return errors.Wrap(err, "error reading migrations dir")
 	}
 
-	ds, err := e.Config.GetDataSourceOptions()
-	if err != nil {
-		return errors.Wrap(err, "error getting datasource options")
-	}
-
 	toolToMigrations := make(map[migrations.MigrationTool][]resources.Resource)
 
 	for _, mig := range migs {
@@ -50,7 +45,7 @@ func (e *ProjEnv) tidyMigrationDirs() error {
 		}
 
 		var d resources.Resource
-		for _, item := range ds {
+		for _, item := range e.Config.DataSources {
 			if item.GetName() == mig.Name() {
 				d = item
 				break

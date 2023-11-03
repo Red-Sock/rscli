@@ -1,6 +1,7 @@
 package tidy
 
 import (
+	"os"
 	"path"
 
 	"github.com/Red-Sock/trace-errors"
@@ -32,17 +33,20 @@ func Config(p interfaces.Project) error {
 		Content: b,
 	})
 
-	appInfo := config.GetProjInfo()
-
-	if appInfo.Name != "" {
+	if config.AppInfo.Name != "" {
 		modName := p.GetName()
 
-		if modName != appInfo.Name {
-			appInfo.Name = modName
-			//todo change to path to project + path to config
-			err = config.BuildTo(path.Join(p.GetProjectPath(), projpatterns.ConfigsFolder, projpatterns.ConfigYamlFile))
+		if modName != config.AppInfo.Name {
+			config.AppInfo.Name = modName
+			cfgPath := path.Join(p.GetProjectPath(), projpatterns.ConfigsFolder, projpatterns.ConfigYamlFile)
+			b, err := p.GetConfig().Marshal()
 			if err != nil {
-				return errors.Wrap(err, "error during rebuilding")
+				return errors.Wrap(err, "error marshalling config")
+			}
+
+			err = os.WriteFile(cfgPath, b, os.ModePerm)
+			if err != nil {
+				return errors.Wrap(err, "error writing config file")
 			}
 		}
 	}

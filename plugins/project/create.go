@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
@@ -31,8 +32,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 	proj := &Project{
 		Name: args.Name,
 		Actions: append([]actions.Action{
-			go_actions.PrepareProjectStructureAction{}, // basic go project structure
-			//go_actions.PrepareExamplesFoldersAction{},    // sets up examples folder for http
+			go_actions.PrepareProjectStructureAction{},   // basic go project structure
 			go_actions.PrepareEnvironmentFoldersAction{}, // prepares environment files
 			go_actions.PrepareGoConfigFolderAction{},     // config driver
 
@@ -63,11 +63,14 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 		Name: proj.ProjectPath,
 	}
 
-	proj.Cfg = config.NewEmptyConfig()
-	proj.Cfg.AppInfo = config.AppInfo{
-		Name:            proj.GetName(),
-		Version:         defaultVersion,
-		StartupDuration: startupDuration,
+	proj.Cfg = &config.Config{
+		AppConfig: &matreshka.AppConfig{
+			AppInfo: matreshka.AppInfo{
+				Name:            proj.GetName(),
+				Version:         defaultVersion,
+				StartupDuration: startupDuration,
+			},
+		},
 	}
 
 	return proj, nil

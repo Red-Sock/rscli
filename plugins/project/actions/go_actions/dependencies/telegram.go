@@ -4,12 +4,12 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
-	"github.com/Red-Sock/rscli/plugins/project/config/server"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
@@ -96,11 +96,15 @@ func (t Telegram) applyFolder(proj interfaces.Project) error {
 }
 
 func (t Telegram) applyConfig(proj interfaces.Project) {
-	ds := proj.GetConfig().Server
-
-	if _, ok := ds[t.GetFolderName()]; ok {
-		return
+	for _, srv := range proj.GetConfig().Server {
+		if srv.GetName() == t.GetFolderName() {
+			return
+		}
 	}
 
-	ds[t.GetFolderName()] = server.Telegram{}
+	proj.GetConfig().DataSources = append(proj.GetConfig().DataSources, &resources.Telegram{
+		AppResource: resources.AppResource{
+			ResourceName: t.GetFolderName(),
+		},
+	})
 }

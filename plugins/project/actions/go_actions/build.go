@@ -6,6 +6,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/godverv/matreshka"
+
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
@@ -21,7 +23,7 @@ func (a PrepareGoConfigFolderAction) Do(p interfaces.Project) error {
 		},
 	}
 
-	keys, err := p.GetConfig().GenerateGoConfigKeys(p.GetName())
+	keys, err := matreshka.GenerateGoConfigKeys(p.GetShortName(), p.GetConfig().AppConfig)
 	if err != nil {
 		return err
 	}

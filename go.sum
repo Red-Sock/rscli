@@ -1,5 +1,3 @@
-github.com/Red-Sock/rscli-uikit v1.1.4 h1:O4dLXC30r75ONXg1m7R4AU1j/of2+11GUUQEM0AF+iw=
-github.com/Red-Sock/rscli-uikit v1.1.4/go.mod h1:7saG2idzB8j/JpEDP+z9ylSa4ttWbNMzsliDlPqhfzM=
 github.com/Red-Sock/trace-errors v0.0.3 h1:5egvL23Sz/eseV9s0AErY6O/MoYq3t/j3McfAmWl/1U=
 github.com/Red-Sock/trace-errors v0.0.3/go.mod h1:rvIxpJ2M7/XkEnXjXfmQjsaKXYRVGM4TFQ8R5Zo4mSk=
 github.com/bradleyjkemp/cupaloy v2.3.0+incompatible h1:UafIjBvWQmS9i/xRg+CamMrnLTKNzo+bdmT/oH34c2Y=
@@ -7,6 +5,8 @@ github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46t
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/godverv/matreshka v0.0.0-20231030122553-8dc25e3a6717 h1:GLZBU78XTXkU+LZ/DhVhWVnZy9KZ+XZSwL+RKY+9gww=
+github.com/godverv/matreshka v0.0.0-20231030122553-8dc25e3a6717/go.mod h1:V/L8pRtTQHTl9JJBA7DtB7FdWI6OF+AbfdzQuML2C8o=
 github.com/gojuno/minimock/v3 v3.1.3 h1:9jakBeOqffZvR9BGBTulphLwiUfiju1w7JspU5eX/fY=
 github.com/gojuno/minimock/v3 v3.1.3/go.mod h1:WylRuaQInND/eg0HqP0/6etOdtv67AIfOgPW1z8QtKU=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=

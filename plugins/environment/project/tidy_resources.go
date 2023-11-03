@@ -6,18 +6,18 @@ import (
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/compose"
 	"github.com/Red-Sock/rscli/internal/compose/env"
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
-	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 )
 
 func (e *ProjEnv) tidyResources(enableService bool) error {
-	dependencies, err := e.globalComposePatternManager.GetServiceDependencies(e.Config.Config)
+	dependencies, err := e.globalComposePatternManager.GetServiceDependencies(e.Config.AppConfig)
 	if err != nil {
-		return errors.Wrap(err, "error getting dependencies for service "+e.Config.Config.AppInfo.Name)
+		return errors.Wrap(err, "error getting dependencies for service "+e.Config.AppConfig.AppInfo.Name)
 	}
 
 	sort.Slice(dependencies, func(i, j int) bool {
@@ -90,24 +90,25 @@ func (e *ProjEnv) tidyResource(projName string, resource compose.Pattern, enable
 
 	e.Environment.Append(envVars...)
 	e.Compose.AppendService(resource.GetName(), resource.GetCompose())
-	e.Config.DataSources[resource.GetName()] = e.tidyResourceConfig(resource, envMap)
+
+	ds, err := e.tidyResourceConfig(resource, envMap)
+	if err != nil {
+		return errors.Wrap(err, "error tidy resource config")
+	}
+
+	e.Config.DataSources = append(e.Config.DataSources, ds)
 
 	return nil
 }
 
-func (e *ProjEnv) tidyResourceConfig(resource compose.Pattern, env map[string]string) interface{} {
-	switch resource.GetType() {
-	case resources.DataSourcePostgres:
-		pgConf := resources.Postgres{}
-		_ = pgConf.FillFromEnv(env)
-		return pgConf
-	case resources.DataSourceRedis:
-		rdsConf := resources.Redis{}
-		_ = rdsConf.FillFromEnv(env)
-		return rdsConf
-	default:
-		return nil
+func (e *ProjEnv) tidyResourceConfig(resource compose.Pattern, env map[string]string) (resources.Resource, error) {
+	res := resources.GetResourceByName(resource.GetType())
+
+	err := res.FromEnv(env)
+	if err != nil {
+		return nil, errors.Wrap(err, "error filling config from env")
 	}
+	return res, nil
 }
 
 func (e *ProjEnv) getResourceName(varName, resName, projName string) string {

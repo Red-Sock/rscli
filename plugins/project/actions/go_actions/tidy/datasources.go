@@ -4,7 +4,6 @@ import (
 	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 func DataSources(p interfaces.Project) error {
@@ -17,29 +16,30 @@ func DataSources(p interfaces.Project) error {
 }
 
 func applyDatasourceFolders(p interfaces.Project) error {
-	cfg := p.GetConfig()
+	// TODO
+	//cfg := p.GetConfig()
 
-	clientsFolder, err := cfg.GetDataSourceFolders()
-	if err != nil {
-		return errors.Wrap(err, "error obtaining clients folders from config")
-	}
-	if clientsFolder == nil {
-		return nil
-	}
-
-	clientsFolderSrc := p.GetFolder().GetByPath(projpatterns.InternalFolder, projpatterns.ClientsFolder)
-	if clientsFolderSrc != nil {
-		clientsFolderSrc.Inner = nil
-	}
-
-	if len(clientsFolder.Inner) != 0 {
-		p.GetFolder().GetByPath(projpatterns.InternalFolder).Add(clientsFolder)
-	}
-
-	err = p.GetFolder().Build()
-	if err != nil {
-		return errors.Wrap(err, "error building project after added clients")
-	}
+	//clientsFolder, err := cfg.GetDataSourceFolders()
+	//if err != nil {
+	//	return errors.Wrap(err, "error obtaining clients folders from config")
+	//}
+	//if clientsFolder == nil {
+	//	return nil
+	//}
+	//
+	//clientsFolderSrc := p.GetFolder().GetByPath(projpatterns.InternalFolder, projpatterns.ClientsFolder)
+	//if clientsFolderSrc != nil {
+	//	clientsFolderSrc.Inner = nil
+	//}
+	//
+	//if len(clientsFolder.Inner) != 0 {
+	//	p.GetFolder().GetByPath(projpatterns.InternalFolder).Add(clientsFolder)
+	//}
+	//
+	//err = p.GetFolder().Build()
+	//if err != nil {
+	//	return errors.Wrap(err, "error building project after added clients")
+	//}
 
 	return nil
 }
