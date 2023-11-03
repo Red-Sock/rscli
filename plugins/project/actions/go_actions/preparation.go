@@ -9,53 +9,54 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	patterns "github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type PrepareProjectStructureAction struct {
 }
 
 func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
-	cmd := &folder.Folder{Name: projpatterns.CmdFolder}
-
-	cmd.Inner = append(cmd.Inner, &folder.Folder{
-		Name: p.GetShortName(),
-		Inner: []*folder.Folder{
-			projpatterns.MainFile,
-		},
-	})
-
 	rootF := p.GetFolder()
-	rootF.Add(cmd)
 
-	rootF.Add(&folder.Folder{Name: projpatterns.ConfigsFolder})
+	{
+		cmd := &folder.Folder{Name: patterns.CmdFolder}
 
-	rootF.Add(&folder.Folder{Name: projpatterns.InternalFolder})
+		mainFilePath := path.Join(p.GetShortName(), patterns.MainFile.Name)
 
-	rootF.Add(&folder.Folder{
-		Name: projpatterns.PkgFolder,
-		Inner: []*folder.Folder{
-			{Name: projpatterns.SwaggerFolder},
-			{Name: projpatterns.ApiFolder},
-		},
-	})
+		cmd.Add(patterns.MainFile.CopyWithNewName(mainFilePath))
 
-	rootF.Add(
-		projpatterns.UtilsCloserFile.CopyWithNewName(
-			path.Join(projpatterns.InternalFolder, projpatterns.UtilsFolder, projpatterns.CloserFolder, projpatterns.UtilsCloserFile.Name)),
-	)
+		rootF.Add(cmd)
+	}
 
+	{
+		rootF.Add(&folder.Folder{Name: patterns.ConfigsFolder})
+		rootF.Add(&folder.Folder{Name: patterns.InternalFolder})
+	}
+
+	{
+		rootF.Add(&folder.Folder{
+			Name: patterns.PkgFolder,
+			Inner: []*folder.Folder{
+				{Name: patterns.SwaggerFolder},
+				{Name: patterns.ApiFolder},
+			},
+		})
+
+		closerFilePath := path.Join(patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder, patterns.UtilsCloserFile.Name)
+		rootF.Add(patterns.UtilsCloserFile.CopyWithNewName(closerFilePath))
+	}
 	return nil
 }
 func (a PrepareProjectStructureAction) NameInAction() string {
 	return "Preparing project structure"
 }
 
+// TODO
 type PrepareExamplesFoldersAction struct{}
 
+// TODO
 func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
-
-	if p.GetFolder().GetByPath(projpatterns.ExamplesFolder, projpatterns.ExamplesHttpEnvFile) != nil {
+	if p.GetFolder().GetByPath(patterns.ExamplesFolder, patterns.ExamplesHttpEnvFile) != nil {
 		return nil
 	}
 
@@ -80,17 +81,19 @@ func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 	}
 
 	p.GetFolder().Add(&folder.Folder{
-		Name: projpatterns.ExamplesFolder,
+		Name: patterns.ExamplesFolder,
 		Inner: []*folder.Folder{
-			projpatterns.ApiHTTP.Copy(),
+			patterns.ApiHTTP.Copy(),
 			{
-				Name:    projpatterns.ExamplesHttpEnvFile,
+				Name:    patterns.ExamplesHttpEnvFile,
 				Content: exampleFile,
 			},
 		},
 	})
 	return nil
 }
+
+// TODO
 func (a PrepareExamplesFoldersAction) NameInAction() string {
 	return "Preparing examples folders"
 }
@@ -99,13 +102,11 @@ type PrepareEnvironmentFoldersAction struct{}
 
 func (a PrepareEnvironmentFoldersAction) Do(p interfaces.Project) error {
 	p.GetFolder().Add(
-		[]*folder.Folder{
-			projpatterns.Dockerfile.Copy(),
-			projpatterns.Readme.Copy(),
-			projpatterns.GitIgnore.Copy(),
-			projpatterns.Linter.Copy(),
-			projpatterns.RscliMK.Copy(),
-		}...,
+		patterns.Dockerfile.Copy(),
+		patterns.Readme.Copy(),
+		patterns.GitIgnore.Copy(),
+		patterns.Linter.Copy(),
+		patterns.RscliMK.Copy(),
 	)
 	return nil
 }

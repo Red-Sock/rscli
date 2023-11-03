@@ -34,7 +34,6 @@ func (f *Folder) Add(folders ...*Folder) {
 			if !found {
 				f.Inner = append(f.Inner, fl)
 			}
-
 		} else {
 			fl.Name = name
 			f.addWithPath(dir, fl)
@@ -91,7 +90,7 @@ func (f *Folder) GetByPath(pth ...string) *Folder {
 	currentFolder := f
 	splitPath := make([]string, 0, len(pth))
 	for _, p := range pth {
-		sp := strings.Split(p, string(os.PathListSeparator))
+		sp := strings.Split(p, string(os.PathSeparator))
 		splitPath = append(splitPath, sp...)
 	}
 

@@ -7,7 +7,6 @@ import (
 	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/tidy"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 )
 
@@ -46,20 +45,10 @@ func (a InitGoModAction) NameInAction() string {
 	return "Initiating go project"
 }
 
-type FixupProjectAction struct{}
+type FormatAction struct{}
 
-func (a FixupProjectAction) Do(p interfaces.Project) error {
-
+func (a FormatAction) Do(p interfaces.Project) error {
 	_, err := cmd.Execute(cmd.Request{
-		Tool:    goBin,
-		Args:    []string{"mod", "tidy"},
-		WorkDir: p.GetProjectPath(),
-	})
-	if err != nil {
-		return errors.Wrap(err, "error executing go mod tidy")
-	}
-
-	_, err = cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"fmt", "./..."},
 		WorkDir: p.GetProjectPath(),
@@ -70,31 +59,16 @@ func (a FixupProjectAction) Do(p interfaces.Project) error {
 
 	return nil
 }
-func (a FixupProjectAction) NameInAction() string {
+func (a FormatAction) NameInAction() string {
 	return "Performing project fix up"
 }
 
 type TidyAction struct{}
 
 func (a TidyAction) Do(p interfaces.Project) error {
-	err := tidy.Api(p)
-	if err != nil {
-		return errors.Wrap(err, "error during api tiding")
-	}
-
-	err = tidy.Config(p)
-	if err != nil {
-		return errors.Wrap(err, "error during config tiding")
-	}
-
-	err = tidy.DataSources(p)
-	if err != nil {
-		return errors.Wrap(err, "error during data source tiding")
-	}
-
 	ReplaceProjectName(p.GetName(), p.GetFolder())
 
-	err = PrepareGoConfigFolderAction{}.Do(p)
+	err := PrepareGoConfigFolderAction{}.Do(p)
 	if err != nil {
 		return errors.Wrap(err, "error building go config folder")
 	}
@@ -108,5 +82,3 @@ func (a TidyAction) Do(p interfaces.Project) error {
 func (a TidyAction) NameInAction() string {
 	return "Cleaning up the project"
 }
-
-// helping functions

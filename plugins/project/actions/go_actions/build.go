@@ -1,10 +1,7 @@
 package go_actions
 
 import (
-	"bytes"
 	"path"
-	"sort"
-	"strings"
 
 	"github.com/godverv/matreshka"
 
@@ -16,40 +13,26 @@ import (
 type PrepareGoConfigFolderAction struct{}
 
 func (a PrepareGoConfigFolderAction) Do(p interfaces.Project) error {
-	out := []*folder.Folder{
-		{
-			Name:    path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder, projpatterns.ConfigFile.Name),
-			Content: bytes.ReplaceAll(projpatterns.ConfigFile.Copy().Content, []byte("{{projectNAME_}}"), bytes.ToUpper([]byte(p.GetShortName()))),
-		},
-	}
+	configFolderPath := path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder)
+	p.GetFolder().Add(&folder.Folder{
+		Name: configFolderPath,
+	})
+
+	configFolder := p.GetFolder().GetByPath(configFolderPath)
+	configFolder.Add(projpatterns.ConfigFile.Copy())
 
 	keys, err := matreshka.GenerateGoConfigKeys(p.GetShortName(), p.GetConfig().AppConfig)
 	if err != nil {
 		return err
 	}
 
-	keysFromCfg := strings.Split(string(keys), "\n")
-	keysFromCfg = keysFromCfg[:len(keysFromCfg)-1]
-	sort.Slice(keysFromCfg, func(i, j int) bool {
-		return keysFromCfg[i] < keysFromCfg[j]
-	})
-	keys = []byte(strings.Join(keysFromCfg, "\n\t"))
-	cfgKeysFile := make([]byte, 0, len(projpatterns.ConfigKeysFile.Content))
+	cfgKeysFile := projpatterns.ConfigKeysFile.Copy()
 
-	cfgKeysFile = append(cfgKeysFile, projpatterns.ConfigKeysFile.Content[:bytes.Index(projpatterns.ConfigKeysFile.Content, []byte("// _start_of_consts_to_replace"))]...)
-	cfgKeysFile = append(cfgKeysFile, keys...)
-	endOfConstsToReplaceBytes := []byte("// _end_of_consts_to_replace")
-	cfgKeysFile = append(cfgKeysFile, projpatterns.ConfigKeysFile.Content[bytes.Index(projpatterns.ConfigKeysFile.Content, endOfConstsToReplaceBytes)+len(endOfConstsToReplaceBytes):]...)
+	cfgKeysFile.Content = append(cfgKeysFile.Content, []byte("const (\n")...)
+	cfgKeysFile.Content = append(cfgKeysFile.Content, keys...)
+	cfgKeysFile.Content = append(cfgKeysFile.Content, ')')
 
-	if len(keys) != 0 {
-		out = append(out,
-			&folder.Folder{
-				Name:    path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder, projpatterns.ConfigKeysFile.Name),
-				Content: cfgKeysFile,
-			})
-	}
-
-	p.GetFolder().Add(out...)
+	configFolder.Add(cfgKeysFile)
 
 	return nil
 }
@@ -60,7 +43,6 @@ func (a PrepareGoConfigFolderAction) NameInAction() string {
 type BuildProjectAction struct{}
 
 func (a BuildProjectAction) Do(p interfaces.Project) error {
-
 	ReplaceProjectName(p.GetName(), p.GetFolder())
 
 	err := p.GetFolder().Build()

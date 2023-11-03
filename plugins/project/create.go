@@ -38,9 +38,9 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 
 			go_actions.BuildProjectAction{}, // build project in file system
 
-			go_actions.InitGoModAction{},    // executes go mod
-			go_actions.TidyAction{},         // adds/clears project initialization(api, resources) and replaces project name template with actual project name
-			go_actions.FixupProjectAction{}, // fetches dependencies and formats go code
+			go_actions.TidyAction{},      // adds/clears project initialization(api, resources) and replaces project name template with actual project name
+			go_actions.InitGoModAction{}, // executes go mod
+			go_actions.FormatAction{},    // fetches dependencies and formats go code
 
 			actions.InitGit{}, // initializing and committing project as git repo
 		}, args.Actions...),
