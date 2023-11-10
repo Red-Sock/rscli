@@ -106,9 +106,9 @@ func (p *Pattern) RenameVariable(oldName, newName string) {
 
 func (c *PatternManager) GetServiceDependencies(cfg *matreshka.AppConfig) ([]Pattern, error) {
 
-	clients := make([]Pattern, 0, len(cfg.DataSources))
+	clients := make([]Pattern, 0, len(cfg.Resources))
 
-	for _, resourceDependency := range cfg.DataSources {
+	for _, resourceDependency := range cfg.Resources {
 		resType := strings.Split(resourceDependency.GetName(), "_")[0]
 
 		originalPattern, ok := c.Patterns[resType]

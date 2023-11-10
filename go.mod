@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/Red-Sock/trace-errors v0.0.3
-	github.com/godverv/matreshka v0.0.0-20231030122553-8dc25e3a6717
+	github.com/godverv/matreshka v0.0.1
 	github.com/gojuno/minimock/v3 v3.1.3
 	github.com/morikuni/aec v1.0.0
 	github.com/nsf/termbox-go v1.1.1
@@ -22,5 +22,3 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 )
-
-replace github.com/godverv/matreshka v0.0.0-20231030122553-8dc25e3a6717 => /Users/alexbukov/Yandex.Disk.localized/redsock/Matreshka

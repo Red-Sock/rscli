@@ -62,19 +62,19 @@ func (p Postgres) applyClientFolder(proj interfaces.Project) error {
 }
 
 func (p Postgres) applyConfig(proj interfaces.Project) {
-	for _, item := range proj.GetConfig().DataSources {
+	for _, item := range proj.GetConfig().Resources {
 		if item.GetName() == p.GetFolderName() {
 			return
 		}
 	}
 
-	proj.GetConfig().DataSources = append(proj.GetConfig().DataSources, &resources.Postgres{
-		AppResource: resources.AppResource{ResourceName: p.GetFolderName()},
-		Host:        "localhost",
-		Port:        5432,
-		DbName:      "",
-		User:        "",
-		Pwd:         "",
-		SSLMode:     "",
+	proj.GetConfig().Resources = append(proj.GetConfig().Resources, &resources.Postgres{
+		Name:    resources.Name(p.GetFolderName()),
+		Host:    "localhost",
+		Port:    5432,
+		DbName:  "",
+		User:    "",
+		Pwd:     "",
+		SSLMode: "",
 	})
 }

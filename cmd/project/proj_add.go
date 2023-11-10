@@ -4,6 +4,7 @@ import (
 	"os"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/api"
 	"github.com/godverv/matreshka/resources"
 	"github.com/spf13/cobra"
 
@@ -109,8 +110,7 @@ func (p *projectAdd) getDependenciesFromUser(args []string) []dependency {
 			dep = dependencies.Redis{Cfg: p.config}
 		case resources.TelegramResourceName:
 			dep = dependencies.Telegram{Cfg: p.config}
-		case "TODO":
-			// TODO
+		case api.RestServerType:
 			dep = dependencies.Rest{Cfg: p.config}
 		default:
 			p.io.PrintlnColored(colors.ColorRed, "unknown dependency: "+arg)

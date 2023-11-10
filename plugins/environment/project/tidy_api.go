@@ -22,12 +22,12 @@ func (e *ProjEnv) tidyServerAPIs() error {
 		service = &p.ContainerDefinition
 	}
 
-	for i := range e.Config.Server {
-		portName := strings.ToUpper(e.projName) + "_" + strings.ToUpper(e.Config.Server[i].GetName()) + "_" + envpatterns.PortSuffix
+	for i := range e.Config.Servers {
+		portName := strings.ToUpper(e.projName) + "_" + strings.ToUpper(e.Config.Servers[i].GetName()) + "_" + envpatterns.PortSuffix
 		portName = strings.ReplaceAll(portName,
 			"__", "_")
 
-		internalPort := e.Config.Server[i].GetPort()
+		internalPort := e.Config.Servers[i].GetPort()
 
 		if internalPort == 0 {
 			continue
@@ -45,7 +45,7 @@ func (e *ProjEnv) tidyServerAPIs() error {
 			service.Ports = append(service.Ports, composePort)
 		}
 
-		e.Environment.AppendRaw(portName, strconv.FormatUint(uint64(e.globalPortManager.GetNextPort(e.Config.Server[i].GetPort(), portName)), 10))
+		e.Environment.AppendRaw(portName, strconv.FormatUint(uint64(e.globalPortManager.GetNextPort(e.Config.Servers[i].GetPort(), portName)), 10))
 	}
 
 	e.Compose.AppendService(e.projName, *service)

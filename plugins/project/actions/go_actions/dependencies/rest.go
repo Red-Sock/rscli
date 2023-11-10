@@ -4,7 +4,7 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/server"
+	"github.com/godverv/matreshka/api"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
@@ -38,15 +38,16 @@ func (r Rest) Do(proj interfaces.Project) error {
 
 func (r Rest) applyConfig(proj interfaces.Project, defaultApiName string) {
 
-	for _, item := range proj.GetConfig().Server {
+	for _, item := range proj.GetConfig().Servers {
 		if item.GetName() == defaultApiName {
 			return
 		}
 	}
 
-	proj.GetConfig().Server = append(proj.GetConfig().Server, &server.Rest{
-		Name: defaultApiName,
-	})
+	proj.GetConfig().Servers = append(proj.GetConfig().Servers,
+		&api.Rest{
+			Name: api.Name(defaultApiName),
+		})
 }
 
 func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error {

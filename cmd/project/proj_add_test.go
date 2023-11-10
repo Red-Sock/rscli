@@ -9,11 +9,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/godverv/matreshka/resources"
 	"github.com/stretchr/testify/require"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/colors"
-	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 	"github.com/Red-Sock/rscli/tests/mocks"
 )
@@ -176,7 +176,7 @@ at %s`, tmpTestDir)},
 			cmd := newAddCmd(projAdd)
 			err := cmd.Flags().Set(pathFlag, tmpTestDir)
 			require.NoError(t, err, "error setting path flag value")
-			cmd.SetArgs([]string{postgresArgument, redisArgument, telegramArgument})
+			cmd.SetArgs([]string{resources.PostgresResourceName, resources.RedisResourceName, resources.TelegramResourceName})
 
 			err = cmd.Execute()
 			require.NoError(t, err, "error while initiating project")
@@ -191,10 +191,10 @@ at %s`, tmpTestDir)},
 type redisValidator struct{}
 
 func (r redisValidator) getName() string {
-	return redisArgument
+	return resources.RedisResourceName
 }
 func (r redisValidator) validate(t *testing.T, pth string) {
-	pathToRedisConn := path.Join(pth, configPathToClient, resources.DataSourceRedis, projpatterns.ConnFileName)
+	pathToRedisConn := path.Join(pth, configPathToClient, resources.RedisResourceName, projpatterns.ConnFileName)
 	f, err := os.ReadFile(pathToRedisConn)
 	require.NoError(t, err, "error reading redis conn file")
 
@@ -204,10 +204,10 @@ func (r redisValidator) validate(t *testing.T, pth string) {
 type postgresValidator struct{}
 
 func (r postgresValidator) getName() string {
-	return postgresArgument
+	return resources.PostgresResourceName
 }
 func (r postgresValidator) validate(t *testing.T, pth string) {
-	pathToPGFolder := path.Join(pth, configPathToClient, resources.DataSourcePostgres)
+	pathToPGFolder := path.Join(pth, configPathToClient, resources.PostgresResourceName)
 
 	f, err := os.ReadFile(path.Join(pathToPGFolder, projpatterns.PgConnFile.Name))
 	require.NoError(t, err, "error reading postgres conn file")
@@ -221,10 +221,10 @@ func (r postgresValidator) validate(t *testing.T, pth string) {
 type telegramValidator struct{}
 
 func (r telegramValidator) getName() string {
-	return telegramArgument
+	return resources.TelegramResourceName
 }
 func (r telegramValidator) validate(t *testing.T, pth string) {
-	pathToTgFolder := path.Join(pth, configPathToClient, telegramArgument)
+	pathToTgFolder := path.Join(pth, configPathToClient, resources.TelegramResourceName)
 
 	f, err := os.ReadFile(path.Join(pathToTgFolder, projpatterns.ConnFileName))
 	require.NoError(t, err, "error reading telegram conn file")

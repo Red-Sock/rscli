@@ -96,7 +96,7 @@ func (e *ProjEnv) tidyResource(projName string, resource compose.Pattern, enable
 		return errors.Wrap(err, "error tidy resource config")
 	}
 
-	e.Config.DataSources = append(e.Config.DataSources, ds)
+	e.Config.Resources = append(e.Config.Resources, ds)
 
 	return nil
 }

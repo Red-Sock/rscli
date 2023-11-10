@@ -54,16 +54,16 @@ func (p Redis) applyClientFolder(proj interfaces.Project) error {
 }
 
 func (p Redis) applyConfig(proj interfaces.Project) {
-	for _, item := range proj.GetConfig().DataSources {
+	for _, item := range proj.GetConfig().Resources {
 		if item.GetName() == p.GetFolderName() {
 			return
 		}
 	}
 
-	proj.GetConfig().DataSources = append(proj.GetConfig().DataSources,
+	proj.GetConfig().Resources = append(proj.GetConfig().Resources,
 		&resources.Redis{
-			AppResource: resources.AppResource{ResourceName: p.GetFolderName()},
-			Host:        "localhost",
-			Port:        6379,
+			Name: resources.Name(p.GetFolderName()),
+			Host: "localhost",
+			Port: 6379,
 		})
 }

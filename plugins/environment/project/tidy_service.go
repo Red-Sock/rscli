@@ -24,7 +24,7 @@ func (e *ProjEnv) tidyService() error {
 		return errors.Wrap(err, "error coping proj pattern")
 	}
 
-	for _, s := range e.Config.Server {
+	for _, s := range e.Config.Servers {
 		port := s.GetPort()
 
 		pattern.ContainerDefinition.Ports = append(

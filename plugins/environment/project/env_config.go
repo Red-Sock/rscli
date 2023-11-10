@@ -54,24 +54,24 @@ func (e *envConfig) fetch(cfg *config.RsCliConfig, pathToProjectEnv, pathToProje
 	}
 
 	idx := 0
-	for i := len(e.AppConfig.DataSources) - 1; i > 0; i-- {
+	for i := len(e.AppConfig.Resources) - 1; i > 0; i-- {
 		var contains bool
-		for _, projectConfig := range projConfig.DataSources {
-			if projectConfig.GetName() == e.AppConfig.DataSources[i].GetName() {
+		for _, projectConfig := range projConfig.Resources {
+			if projectConfig.GetName() == e.AppConfig.Resources[i].GetName() {
 				contains = true
 				break
 			}
 		}
 		if !contains {
-			e.AppConfig.DataSources[idx], e.AppConfig.DataSources[i] = e.AppConfig.DataSources[i], e.AppConfig.DataSources[idx]
+			e.AppConfig.Resources[idx], e.AppConfig.Resources[i] = e.AppConfig.Resources[i], e.AppConfig.Resources[idx]
 			idx++
 		}
 
 	}
 
-	for _, pc := range projConfig.DataSources {
+	for _, pc := range projConfig.Resources {
 		var contains bool
-		for _, ec := range e.AppConfig.DataSources {
+		for _, ec := range e.AppConfig.Resources {
 			if pc.GetName() == ec.GetName() {
 				contains = true
 				break
@@ -79,7 +79,7 @@ func (e *envConfig) fetch(cfg *config.RsCliConfig, pathToProjectEnv, pathToProje
 		}
 
 		if !contains {
-			e.AppConfig.DataSources = append(e.AppConfig.DataSources, pc)
+			e.AppConfig.Resources = append(e.AppConfig.Resources, pc)
 		}
 	}
 

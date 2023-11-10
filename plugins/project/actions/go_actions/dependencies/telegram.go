@@ -96,15 +96,13 @@ func (t Telegram) applyFolder(proj interfaces.Project) error {
 }
 
 func (t Telegram) applyConfig(proj interfaces.Project) {
-	for _, srv := range proj.GetConfig().Server {
+	for _, srv := range proj.GetConfig().Servers {
 		if srv.GetName() == t.GetFolderName() {
 			return
 		}
 	}
 
-	proj.GetConfig().DataSources = append(proj.GetConfig().DataSources, &resources.Telegram{
-		AppResource: resources.AppResource{
-			ResourceName: t.GetFolderName(),
-		},
+	proj.GetConfig().Resources = append(proj.GetConfig().Resources, &resources.Telegram{
+		Name: resources.Name(t.GetFolderName()),
 	})
 }

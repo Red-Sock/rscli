@@ -167,6 +167,10 @@ func (f *Folder) build(root string) error {
 }
 
 func (f *Folder) Delete() {
+	if f == nil {
+		return
+	}
+
 	f.isToBeDeleted = true
 }
 

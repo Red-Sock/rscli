@@ -18,12 +18,12 @@ func main() {
 
 	ctx := context.Background()
 
-	cfg, err := config.ReadConfig()
+	cfg, err := config.GetConfig()
 	if err != nil {
 		logrus.Fatalf("error reading config %s", err.Error())
 	}
 
-	startupDuration, err := cfg.GetDuration(config.AppInfoStartupDuration)
+	startupDuration, err := cfg.TryGetDuration(config.AppInfoStartupDuration)
 	if err != nil {
 		logrus.Fatalf("error extracting startup duration %s", err)
 	}

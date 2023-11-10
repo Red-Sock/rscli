@@ -51,10 +51,10 @@ func (a PrepareProjectStructureAction) NameInAction() string {
 	return "Preparing project structure"
 }
 
-// TODO
+// TODO RSI-199
 type PrepareExamplesFoldersAction struct{}
 
-// TODO
+// TODO RSI-199
 func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 	if p.GetFolder().GetByPath(patterns.ExamplesFolder, patterns.ExamplesHttpEnvFile) != nil {
 		return nil
@@ -69,7 +69,7 @@ func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 		DevDocker: map[string]string{},
 	}
 
-	for _, item := range p.GetConfig().Server {
+	for _, item := range p.GetConfig().Servers {
 		portStr := strconv.FormatUint(uint64(item.GetPort()), 10)
 		e.Dev[item.GetName()] = "0.0.0.0:" + portStr
 		e.DevDocker[item.GetName()] = "0.0.0.0:1" + portStr
