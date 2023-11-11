@@ -47,6 +47,7 @@ func (r Rest) applyConfig(proj interfaces.Project, defaultApiName string) {
 	proj.GetConfig().Servers = append(proj.GetConfig().Servers,
 		&api.Rest{
 			Name: api.Name(defaultApiName),
+			Port: api.DefaultRestPort,
 		})
 }
 

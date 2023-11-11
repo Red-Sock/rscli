@@ -28,7 +28,7 @@ func (a PrepareGoConfigFolderAction) Do(p interfaces.Project) (err error) {
 		return errors.Wrap(err, "error generating keys go-file")
 	}
 
-	a.generateGoConfigFile(goConfigFolder)
+	a.generateGoConfigFiles(goConfigFolder)
 
 	err = a.generateConfigYamlFile(p)
 	if err != nil {
@@ -48,32 +48,35 @@ func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, go
 	}
 
 	if len(keys) == 0 {
-		goConfigFolder.GetByPath(projpatterns.ConfigKeysFile.Name).Delete()
+		goConfigFolder.GetByPath(projpatterns.ConfigKeysFileName).Delete()
 		return nil
 	}
 
 	sb := rw.RW{}
+	_, _ = sb.WriteString("package config\n\nconst (\n")
 	for _, key := range keys {
 		_ = sb.WriteByte('\t')
-		_, _ = sb.Write([]byte(cases.SnakeToPascal(key.Name)))
+		_, _ = sb.WriteString(cases.SnakeToPascal(key.Name))
 		_ = sb.WriteByte('=')
-		_, _ = sb.Write([]byte(key.Name))
+		_, _ = sb.WriteString(key.Name)
 		_ = sb.WriteByte('\n')
 	}
+	_ = sb.WriteByte(')')
 
-	cfgKeysFile := projpatterns.ConfigKeysFile.Copy()
-
-	cfgKeysFile.Content = append(cfgKeysFile.Content, []byte("const (\n")...)
-	cfgKeysFile.Content = append(cfgKeysFile.Content, sb.Bytes()...)
-	cfgKeysFile.Content = append(cfgKeysFile.Content, ')')
+	cfgKeysFile := &folder.Folder{
+		Name:    projpatterns.ConfigKeysFileName,
+		Content: sb.Bytes(),
+	}
 
 	goConfigFolder.Add(cfgKeysFile)
 
 	return nil
 }
 
-func (a PrepareGoConfigFolderAction) generateGoConfigFile(goConfigFolder *folder.Folder) {
+func (a PrepareGoConfigFolderAction) generateGoConfigFiles(goConfigFolder *folder.Folder) {
 	goConfigFolder.Add(projpatterns.ConfigFile.Copy())
+	goConfigFolder.Add(projpatterns.AutoloadConfigFile.Copy())
+	goConfigFolder.Add(projpatterns.StaticConfigFile.Copy())
 }
 
 func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p interfaces.Project) error {

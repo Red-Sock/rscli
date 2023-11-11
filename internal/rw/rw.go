@@ -28,6 +28,10 @@ func (r *RW) WriteByte(b byte) error {
 	return nil
 }
 
+func (r *RW) WriteString(str string) (int, error) {
+	return r.Write([]byte(str))
+}
+
 func (r *RW) GetReader() io.Reader {
 	r.l.Lock()
 
