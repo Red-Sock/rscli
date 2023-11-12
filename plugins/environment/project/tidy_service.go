@@ -24,12 +24,7 @@ func (e *ProjEnv) tidyService() error {
 		return errors.Wrap(err, "error coping proj pattern")
 	}
 
-	srvs, err := e.Config.GetServerOptions()
-	if err != nil {
-		return errors.Wrap(err, "error getting server options")
-	}
-
-	for _, s := range srvs {
+	for _, s := range e.Config.Servers {
 		port := s.GetPort()
 
 		pattern.ContainerDefinition.Ports = append(

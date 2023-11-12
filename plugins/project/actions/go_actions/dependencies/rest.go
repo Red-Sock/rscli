@@ -4,12 +4,12 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/api"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
-	"github.com/Red-Sock/rscli/plugins/project/config/server"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
@@ -37,17 +37,22 @@ func (r Rest) Do(proj interfaces.Project) error {
 }
 
 func (r Rest) applyConfig(proj interfaces.Project, defaultApiName string) {
-	ds := proj.GetConfig().Server
 
-	if _, ok := ds[defaultApiName]; ok {
-		return
+	for _, item := range proj.GetConfig().Servers {
+		if item.GetName() == defaultApiName {
+			return
+		}
 	}
 
-	ds[defaultApiName] = server.Rest{}
+	proj.GetConfig().Servers = append(proj.GetConfig().Servers,
+		&api.Rest{
+			Name: api.Name(defaultApiName),
+			Port: api.DefaultRestPort,
+		})
 }
 
 func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error {
-	ok, err := containsDependency(r.Cfg.Env.PathToServers, proj.GetFolder(), r.GetFolderName())
+	ok, err := containsDependencyFolder(r.Cfg.Env.PathToServers, proj.GetFolder(), r.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error searching dependencies")
 	}

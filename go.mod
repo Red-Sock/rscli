@@ -3,8 +3,8 @@ module github.com/Red-Sock/rscli
 go 1.20
 
 require (
-	github.com/Red-Sock/rscli-uikit v1.1.4
 	github.com/Red-Sock/trace-errors v0.0.3
+	github.com/godverv/matreshka v0.0.2-0.20231112041313-363115236072
 	github.com/gojuno/minimock/v3 v3.1.3
 	github.com/morikuni/aec v1.0.0
 	github.com/nsf/termbox-go v1.1.1

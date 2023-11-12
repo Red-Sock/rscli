@@ -4,11 +4,11 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
-	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
@@ -34,7 +34,7 @@ func (p Redis) Do(proj interfaces.Project) error {
 }
 
 func (p Redis) applyClientFolder(proj interfaces.Project) error {
-	ok, err := containsDependency(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
+	ok, err := containsDependencyFolder(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding dependency path")
 	}
@@ -54,14 +54,16 @@ func (p Redis) applyClientFolder(proj interfaces.Project) error {
 }
 
 func (p Redis) applyConfig(proj interfaces.Project) {
-	ds := proj.GetConfig().DataSources
-	if _, ok := ds[p.GetFolderName()]; ok {
-		return
+	for _, item := range proj.GetConfig().Resources {
+		if item.GetName() == p.GetFolderName() {
+			return
+		}
 	}
 
-	ds[p.GetFolderName()] = resources.Redis{
-		ResourceName: "redis",
-		Host:         "localhost",
-		Port:         6379,
-	}
+	proj.GetConfig().Resources = append(proj.GetConfig().Resources,
+		&resources.Redis{
+			Name: resources.Name(p.GetFolderName()),
+			Host: "localhost",
+			Port: 6379,
+		})
 }

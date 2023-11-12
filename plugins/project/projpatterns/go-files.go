@@ -31,25 +31,21 @@ const (
 	ExamplesHttpEnvFile = "http-client.env.json"
 
 	InternalFolder = "internal"
-	ClientsFolder  = "clients"
 	ConnFileName   = "conn.go"
 	PgTxFileName   = "tx.go"
 
-	PkgFolder          = "pkg"
-	SwaggerFolder      = "swagger"
-	ProtoFolder        = "proto"
-	ProtoFileExtension = ".proto"
+	PkgFolder     = "pkg"
+	SwaggerFolder = "swagger"
 
 	UtilsFolder  = "utils"
 	CloserFolder = "closer"
 
-	TransportFolder    = "transport"
-	ApiManagerFileName = "manager.go"
-
 	HandlersFolderName = "handlers"
 	VersionFolderName  = "version"
+
 	ConfigsFolder      = "config"
 	ConfigTemplate     = "config_template.yaml"
+	ConfigKeysFileName = "keys.go"
 
 	GoMod = "go.mod"
 
@@ -111,12 +107,17 @@ var (
 		Name:    "config.go",
 		Content: configFile,
 	}
-
-	//go:embed pattern_c/internal/config/keys.go.pattern
-	configKeysFile []byte
-	ConfigKeysFile = &folder.Folder{
-		Name:    "keys.go",
-		Content: configKeysFile,
+	//go:embed pattern_c/internal/config/autoload.go.pattern
+	autoloadConfigFile []byte
+	AutoloadConfigFile = &folder.Folder{
+		Name:    "autoload.go",
+		Content: autoloadConfigFile,
+	}
+	//go:embed pattern_c/internal/config/static.go.pattern
+	staticConfigFile []byte
+	StaticConfigFile = &folder.Folder{
+		Name:    "static.go",
+		Content: staticConfigFile,
 	}
 )
 

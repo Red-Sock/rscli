@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
-	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/tools/shared/ghversion"
 )
 
@@ -75,14 +75,14 @@ func (t *Tool) GetLatestVersion() (version string, err error) {
 func (t *Tool) Migrate(pathToFolder string, resource resources.Resource) error {
 	command := cmd.Request{
 		Tool:    "goose",
-		Args:    []string{string(resource.GetType()), "", "up"},
+		Args:    []string{resource.GetType(), "", "up"},
 		WorkDir: pathToFolder,
 	}
 
-	envs := resource.GetEnv()
+	envs := resource.ToEnv()
 
 	switch resource.GetType() {
-	case resources.DataSourcePostgres:
+	case resources.PostgresResourceName:
 		command.Args[1] = fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
 			envs[resources.EnvVarPostgresUser],
 			envs[resources.EnvVarPostgresPassword],

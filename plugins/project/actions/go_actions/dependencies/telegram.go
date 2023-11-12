@@ -4,12 +4,12 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
-	"github.com/Red-Sock/rscli/plugins/project/config/server"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
@@ -40,7 +40,7 @@ func (t Telegram) Do(proj interfaces.Project) error {
 }
 
 func (t Telegram) applyClient(proj interfaces.Project) error {
-	ok, err := containsDependency(t.Cfg.Env.PathsToClients, proj.GetFolder(), t.GetFolderName())
+	ok, err := containsDependencyFolder(t.Cfg.Env.PathsToClients, proj.GetFolder(), t.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding dependency path")
 	}
@@ -62,7 +62,7 @@ func (t Telegram) applyClient(proj interfaces.Project) error {
 }
 
 func (t Telegram) applyFolder(proj interfaces.Project) error {
-	ok, err := containsDependency(t.Cfg.Env.PathToServers, proj.GetFolder(), t.GetFolderName())
+	ok, err := containsDependencyFolder(t.Cfg.Env.PathToServers, proj.GetFolder(), t.GetFolderName())
 	if err != nil {
 		return err
 	}
@@ -96,11 +96,13 @@ func (t Telegram) applyFolder(proj interfaces.Project) error {
 }
 
 func (t Telegram) applyConfig(proj interfaces.Project) {
-	ds := proj.GetConfig().Server
-
-	if _, ok := ds[t.GetFolderName()]; ok {
-		return
+	for _, srv := range proj.GetConfig().Servers {
+		if srv.GetName() == t.GetFolderName() {
+			return
+		}
 	}
 
-	ds[t.GetFolderName()] = server.Telegram{}
+	proj.GetConfig().Resources = append(proj.GetConfig().Resources, &resources.Telegram{
+		Name: resources.Name(t.GetFolderName()),
+	})
 }

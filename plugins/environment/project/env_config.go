@@ -5,15 +5,15 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/plugins/project"
-	pconfig "github.com/Red-Sock/rscli/plugins/project/config"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type envConfig struct {
-	*pconfig.Config
+	*matreshka.AppConfig
 }
 
 // fetch - searches for config in two places
@@ -43,7 +43,7 @@ func (e *envConfig) fetch(cfg *config.RsCliConfig, pathToProjectEnv, pathToProje
 		}
 	}
 
-	e.Config, err = pconfig.ReadConfig(confPath)
+	e.AppConfig, err = matreshka.ReadConfig(confPath)
 	if err != nil {
 		return errors.Wrap(err, "error parsing config")
 	}
@@ -53,15 +53,33 @@ func (e *envConfig) fetch(cfg *config.RsCliConfig, pathToProjectEnv, pathToProje
 		return nil
 	}
 
-	for k := range e.Config.DataSources {
-		if _, ok := projConfig.DataSources[k]; !ok {
-			delete(e.Config.DataSources, k)
+	idx := 0
+	for i := len(e.AppConfig.Resources) - 1; i > 0; i-- {
+		var contains bool
+		for _, projectConfig := range projConfig.Resources {
+			if projectConfig.GetName() == e.AppConfig.Resources[i].GetName() {
+				contains = true
+				break
+			}
 		}
+		if !contains {
+			e.AppConfig.Resources[idx], e.AppConfig.Resources[i] = e.AppConfig.Resources[i], e.AppConfig.Resources[idx]
+			idx++
+		}
+
 	}
 
-	for k, v := range projConfig.DataSources {
-		if _, ok := e.Config.DataSources[k]; !ok {
-			e.Config.DataSources[k] = v
+	for _, pc := range projConfig.Resources {
+		var contains bool
+		for _, ec := range e.AppConfig.Resources {
+			if pc.GetName() == ec.GetName() {
+				contains = true
+				break
+			}
+		}
+
+		if !contains {
+			e.AppConfig.Resources = append(e.AppConfig.Resources, pc)
 		}
 	}
 

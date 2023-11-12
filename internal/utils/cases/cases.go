@@ -6,7 +6,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/utils/slices"
 )
 
-func SnakeToCamel(v string) string {
+func SnakeToPascal(v string) string {
 	parts := strings.Split(v, "_")
 	for i := range parts {
 		if slices.Contains(initialisms, parts[i]) {

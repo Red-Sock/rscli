@@ -18,16 +18,16 @@ func main() {
 
 	ctx := context.Background()
 
-	cfg, err := config.ReadConfig()
+	cfg, err := config.Load()
 	if err != nil {
 		logrus.Fatalf("error reading config %s", err.Error())
 	}
 
-	startupDuration, err := cfg.GetDuration(config.AppInfoStartupDuration)
-	if err != nil {
-		logrus.Fatalf("error extracting startup duration %s", err)
+	if cfg.AppInfo().StartupDuration == 0 {
+		logrus.Fatalf("no startup duration in config")
 	}
-	ctx, cancel := context.WithTimeout(ctx, startupDuration)
+
+	ctx, cancel := context.WithTimeout(ctx, cfg.AppInfo().StartupDuration)
 	closer.Add(func() error {
 		cancel()
 		return nil

@@ -92,9 +92,15 @@ func (e *ProjEnv) Tidy(serviceEnabled bool) error {
 		return errors.Wrap(err, "error doing tidy on server api")
 	}
 
-	e.tidyMigrations()
-
 	err = e.flush(projName)
+	if err != nil {
+		return errors.Wrap(err, "error flushing files")
+	}
+
+	err = e.tidyMigrationDirs()
+	if err != nil {
+		return errors.Wrap(err, "error")
+	}
 
 	return nil
 }
@@ -127,10 +133,12 @@ func (e *ProjEnv) flush(projName string) (err error) {
 	}
 
 	{
-		err = e.Config.BuildTo(e.Config.GetPath())
-		if err != nil {
-			return errors.Wrap(err, "error writing env config")
-		}
+
+		// TODO
+		//err = e.Config.BuildTo(e.Config.GetPath())
+		//if err != nil {
+		//	return errors.Wrap(err, "error writing env config")
+		//}
 	}
 
 	{
