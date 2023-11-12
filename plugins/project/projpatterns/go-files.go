@@ -143,13 +143,13 @@ var (
 		Content: restServHandlerVersionExampleFile,
 	}
 
-	//go:embed pattern_c/internal/transport/tg/listener.go.pattern
+	//go:embed pattern_c/internal/transport/telegram/listener.go.pattern
 	tgServFile []byte
 	TgServFile = &folder.Folder{
 		Name:    "listener.go",
 		Content: tgServFile,
 	}
-	//go:embed pattern_c/internal/transport/tg/handlers/version/handler.go.pattern
+	//go:embed pattern_c/internal/transport/telegram/version/handler.go.pattern
 	tgHandlerExampleFile []byte
 	TgHandlerExampleFile = &folder.Folder{
 		Name:    "handler.go",

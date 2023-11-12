@@ -19,7 +19,7 @@ type Server struct {
 	version string
 }
 
-func NewServer(cfg config.Config, server api.Api) *Server {
+func NewServer(cfg config.Config, server *api.Rest) *Server {
 	r := mux.NewRouter()
 
 	s := &Server{

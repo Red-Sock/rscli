@@ -1,4 +1,4 @@
-package tg
+package telegram
 
 import (
 	"context"
@@ -6,14 +6,14 @@ import (
 	"github.com/Red-Sock/go_tg/client"
 
 	"financial-microservice/internal/config"
-	"financial-microservice/internal/transport/tg/handlers/version"
+	"financial-microservice/internal/transport/telegram/version"
 )
 
 type Server struct {
 	bot *client.Bot
 }
 
-func NewServer(cfg *config.Config, bot *client.Bot) (s *Server) {
+func NewServer(cfg config.Config, bot *client.Bot) (s *Server) {
 	s = &Server{
 		bot: bot,
 	}
@@ -28,8 +28,7 @@ func NewServer(cfg *config.Config, bot *client.Bot) (s *Server) {
 }
 
 func (s *Server) Start(_ context.Context) error {
-	s.bot.Start()
-	return nil
+	return s.bot.Start()
 }
 
 func (s *Server) Stop(_ context.Context) error {
