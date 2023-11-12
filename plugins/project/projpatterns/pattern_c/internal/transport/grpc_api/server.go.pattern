@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 
+	"github.com/godverv/matreshka/api"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
@@ -18,7 +19,7 @@ type GrpcServer struct {
 	address     string
 }
 
-func NewServer(cfg *config.Config) *GrpcServer {
+func NewServer(cfg config.Config, server *api.GRPC) *GrpcServer {
 	srv := grpc.NewServer()
 
 	pb.RegisterFinancialAPIServer(srv, &Pinger{})
@@ -26,7 +27,7 @@ func NewServer(cfg *config.Config) *GrpcServer {
 	return &GrpcServer{
 		srv:         srv,
 		networkType: "tcp",
-		address:     "0.0.0.0:" + cfg.GetString(config.ServerGRPCApiPort),
+		address:     "0.0.0.0:" + server.GetPortStr(),
 	}
 }
 
@@ -35,6 +36,7 @@ func (s *GrpcServer) Start(_ context.Context) error {
 	if err != nil {
 		return errors.Wrapf(err, "error when tried to listen for %s, %s", s.networkType, s.address)
 	}
+
 	err = s.srv.Serve(lis)
 	if err != nil {
 		return errors.Wrap(err, "error serving grpc")

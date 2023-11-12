@@ -7,16 +7,16 @@ import (
 	"fmt"
 
 	"github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 	"github.com/jackc/pgx/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/sirupsen/logrus"
 
-	"financial-microservice/internal/config"
 	"financial-microservice/internal/utils/closer"
 )
 
-func New(ctx context.Context, cfg *config.Config) (TxManager, error) {
+func New(ctx context.Context, cfg *resources.Postgres) (TxManager, error) {
 	conbStr := createConnectionString(cfg)
 
 	conn, err := pgx.Connect(ctx, conbStr)
@@ -36,13 +36,13 @@ func New(ctx context.Context, cfg *config.Config) (TxManager, error) {
 	return &tx{Conn: conn}, nil
 }
 
-func createConnectionString(cfg *config.Config) string {
+func createConnectionString(cfg *resources.Postgres) string {
 	return fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
-		cfg.GetString(config.DataSourcesPostgresUser),
-		cfg.GetString(config.DataSourcesPostgresPwd),
-		cfg.GetString(config.DataSourcesPostgresHost),
-		cfg.GetString(config.DataSourcesPostgresPort),
-		cfg.GetString(config.DataSourcesPostgresName),
+		cfg.User,
+		cfg.Pwd,
+		cfg.Host,
+		cfg.Port,
+		cfg.Name,
 	)
 }
 

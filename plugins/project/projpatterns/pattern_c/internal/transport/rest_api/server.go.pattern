@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/api"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
@@ -18,12 +19,12 @@ type Server struct {
 	version string
 }
 
-func NewServer(cfg config.Config) *Server {
+func NewServer(cfg config.Config, server *api.Rest) *Server {
 	r := mux.NewRouter()
 
 	s := &Server{
 		HttpServer: &http.Server{
-			Addr:    "0.0.0.0:" + cfg.Api().Get(config.ApiRestAPI).GetPortStr(),
+			Addr:    "0.0.0.0:" + server.GetPortStr(),
 			Handler: r,
 		},
 
