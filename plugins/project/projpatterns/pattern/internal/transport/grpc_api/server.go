@@ -19,7 +19,7 @@ type GrpcServer struct {
 	address     string
 }
 
-func NewServer(cfg config.Config, server api.Api) *GrpcServer {
+func NewServer(cfg config.Config, server *api.GRPC) *GrpcServer {
 	srv := grpc.NewServer()
 
 	pb.RegisterFinancialAPIServer(srv, &Pinger{})
