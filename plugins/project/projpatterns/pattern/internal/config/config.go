@@ -29,10 +29,13 @@ type Config interface {
 	TryGetDuration(key string) (t time.Duration, err error)
 }
 type API interface {
-	Get(name string) api.Api
+	REST(name string) (*api.Rest, error)
+	GRPC(name string) (*api.GRPC, error)
 }
 type Resource interface {
-	Get(name string) resources.Resource
+	Postgres(name string) (*resources.Postgres, error)
+	Telegram(name string) (*resources.Telegram, error)
+	Redis(name string) (*resources.Redis, error)
 }
 
 var defaultConfig *config
