@@ -4,10 +4,9 @@ package telegram
 
 import (
 	"github.com/Red-Sock/go_tg/client"
-
-	"financial-microservice/internal/config"
+	"github.com/godverv/matreshka/resources"
 )
 
-func New(cfg *config.Config) *client.Bot {
-	return client.NewBot(cfg.GetString(config.ServerTelegramAPIKey))
+func New(cfg *resources.Telegram) *client.Bot {
+	return client.NewBot(cfg.ApiKey)
 }

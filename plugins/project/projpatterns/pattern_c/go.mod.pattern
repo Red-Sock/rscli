@@ -6,7 +6,7 @@ require (
 	github.com/Red-Sock/go_tg v0.0.16
 	github.com/Red-Sock/trace-errors v0.0.3
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/godverv/matreshka v0.0.1
+	github.com/godverv/matreshka v0.0.2-0.20231112041313-363115236072
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/pkg/errors v0.9.1
@@ -31,5 +31,3 @@ require (
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 )
-
-replace github.com/godverv/matreshka v0.0.1 => /Users/alexbukov/Yandex.Disk.localized/redsock/Matreshka

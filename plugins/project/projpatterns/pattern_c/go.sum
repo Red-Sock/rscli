@@ -164,6 +164,7 @@ github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1/go.mod h1:A2S0CWkNylc2
 github.com/godverv/matreshka v0.0.0-20231108085551-080a147d17d2 h1:5D+JDswO1tTXIh2kAKkgObYpdBoublcpBOEH8Re/Fd0=
 github.com/godverv/matreshka v0.0.0-20231108085551-080a147d17d2/go.mod h1:tr7Dg6VKy8AOIHmz0xdxw3Q4gQtoIXA5MKhqn6zc/yo=
 github.com/godverv/matreshka v0.0.1/go.mod h1:tr7Dg6VKy8AOIHmz0xdxw3Q4gQtoIXA5MKhqn6zc/yo=
+github.com/godverv/matreshka v0.0.2-0.20231112041313-363115236072/go.mod h1:tr7Dg6VKy8AOIHmz0xdxw3Q4gQtoIXA5MKhqn6zc/yo=
 github.com/gogo/protobuf v1.3.2 h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=
 github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 h1:au07oEsX2xN0ktxqI+Sida1w446QrXBRJ0nee3SNZlA=
 github.com/golang-sql/sqlexp v0.1.0 h1:ZCD6MBpcuOVfGVqsEmY5/4FtYiKz6tSyUv9LPEDei6A=
