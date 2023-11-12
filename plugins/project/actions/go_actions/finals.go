@@ -77,6 +77,21 @@ func (a TidyAction) Do(p interfaces.Project) error {
 	if err != nil {
 		return errors.Wrap(err, "error building project")
 	}
+
+	_, err = cmd.Execute(cmd.Request{
+		Tool:    goBin,
+		Args:    []string{"mod", "tidy"},
+		WorkDir: p.GetProjectPath(),
+	})
+	if err != nil {
+		return errors.Wrap(err, "error executing go mod tidy")
+	}
+
+	err = FormatAction{}.Do(p)
+	if err != nil {
+		return errors.Wrap(err, "error formatting project")
+	}
+
 	return nil
 }
 func (a TidyAction) NameInAction() string {

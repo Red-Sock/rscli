@@ -13,4 +13,8 @@ mock:
 
 
 testproj:
-	cd test && rm -rf test && go run ./../main.go project init -n testproj
+	cd test &&\
+	rm -rf testproj &&\
+    go run ./../main.go project init -n testproj &&\
+    cd testproj &&\
+    go mod tidy

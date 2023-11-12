@@ -61,11 +61,6 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	err = go_actions.PrepareGoConfigFolderAction{}.Do(p.proj)
-	if err != nil {
-		return errors.Wrap(err, "error building golang config")
-	}
-
 	err = p.proj.GetFolder().Build()
 	if err != nil {
 		return errors.Wrap(err, "error building folders")
@@ -79,6 +74,11 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 	err = os.WriteFile(p.proj.GetConfig().Path, b, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "error writing config to file")
+	}
+
+	err = go_actions.TidyAction{}.Do(p.proj)
+	if err != nil {
+		return errors.Wrap(err, "error building golang config")
 	}
 
 	return nil

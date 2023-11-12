@@ -42,7 +42,7 @@ func (a PrepareGoConfigFolderAction) NameInAction() string {
 }
 
 func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, goConfigFolder *folder.Folder) error {
-	keys, err := matreshka.GenerateEnvironmentKeys(*p.GetConfig().AppConfig)
+	keys, err := matreshka.GenerateKeys(*p.GetConfig().AppConfig)
 	if err != nil {
 		return errors.Wrap(err, "error generating environment keys")
 	}
@@ -58,7 +58,9 @@ func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, go
 		_ = sb.WriteByte('\t')
 		_, _ = sb.WriteString(cases.SnakeToPascal(key.Name))
 		_ = sb.WriteByte('=')
+		_ = sb.WriteByte('"')
 		_, _ = sb.WriteString(key.Name)
+		_ = sb.WriteByte('"')
 		_ = sb.WriteByte('\n')
 	}
 	_ = sb.WriteByte(')')

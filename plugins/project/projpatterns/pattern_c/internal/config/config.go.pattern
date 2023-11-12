@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/godverv/matreshka"
+	"github.com/godverv/matreshka/api"
+	"github.com/godverv/matreshka/resources"
 )
 
 const (
@@ -13,8 +15,8 @@ const (
 
 type Config interface {
 	AppInfo() matreshka.AppInfo
-	Api() matreshka.Servers
-	Resources() matreshka.Resources
+	Api() API
+	Resources() Resource
 
 	GetInt(key string) (out int)
 	GetString(key string) (out string)
@@ -25,6 +27,12 @@ type Config interface {
 	TryGetString(key string) (out string, err error)
 	TryGetBool(key string) (out bool, err error)
 	TryGetDuration(key string) (t time.Duration, err error)
+}
+type API interface {
+	Get(name string) api.Api
+}
+type Resource interface {
+	Get(name string) resources.Resource
 }
 
 var defaultConfig *config
@@ -41,10 +49,10 @@ func (c *config) AppInfo() matreshka.AppInfo {
 	return c.AppConfig.AppInfo
 }
 
-func (c *config) Api() matreshka.Servers {
-	return c.AppConfig.Servers
+func (c *config) Api() API {
+	return &c.AppConfig.Servers
 }
 
-func (c *config) Resources() matreshka.Resources {
-	return c.AppConfig.Resources
+func (c *config) Resources() Resource {
+	return &c.AppConfig.Resources
 }
