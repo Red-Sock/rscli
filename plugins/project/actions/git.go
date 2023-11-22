@@ -96,6 +96,14 @@ func GitCommit(pth, msg string) error {
 		return errors.Wrap(err, "error adding files to git repository")
 	}
 
+	status, err := GitStatus(pth)
+	if err != nil {
+		return errors.Wrap(err, "error getting git status")
+	}
+	if len(status) == 0 {
+		return nil
+	}
+
 	_, err = cmd.Execute(cmd.Request{
 		Tool:    "git",
 		Args:    []string{"commit", "-m", "\"" + msg + "\""},
@@ -108,11 +116,11 @@ func GitCommit(pth, msg string) error {
 	return nil
 }
 
-func GitStatus(p interfaces.Project) (uncommitted Status, err error) {
+func GitStatus(pth string) (uncommitted Status, err error) {
 	executeOut, err := cmd.Execute(cmd.Request{
 		Tool:    "git",
 		Args:    []string{"status"},
-		WorkDir: p.GetProjectPath(),
+		WorkDir: pth,
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting git status")

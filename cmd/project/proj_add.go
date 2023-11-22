@@ -2,6 +2,7 @@ package project
 
 import (
 	"os"
+	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/api"
@@ -12,6 +13,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/colors"
 	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 
@@ -19,7 +21,7 @@ import (
 )
 
 type dependency interface {
-	Do(proj interfaces.Project) error
+	AppendToProject(proj interfaces.Project) error
 }
 
 type projectAdd struct {
@@ -55,7 +57,7 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 
 	deps := p.getDependenciesFromUser(args)
 	for _, d := range deps {
-		err = d.Do(p.proj)
+		err = d.AppendToProject(p.proj)
 		if err != nil {
 			return errors.Wrap(err, "error adding dependency to project")
 		}
@@ -79,6 +81,11 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 	err = go_actions.TidyAction{}.Do(p.proj)
 	if err != nil {
 		return errors.Wrap(err, "error building golang config")
+	}
+
+	err = actions.GitCommit(p.proj.GetProjectPath(), "added "+strings.Join(args, "; "))
+	if err != nil {
+		return errors.Wrap(err, "error performing git commit")
 	}
 
 	return nil
@@ -112,8 +119,11 @@ func (p *projectAdd) getDependenciesFromUser(args []string) []dependency {
 			dep = dependencies.Telegram{Cfg: p.config}
 		case api.RestServerType:
 			dep = dependencies.Rest{Cfg: p.config}
+		case api.GRPSServerType:
+			dep = dependencies.Grpc{Cfg: p.config}
 		default:
 			p.io.PrintlnColored(colors.ColorRed, "unknown dependency: "+arg)
+			continue
 		}
 
 		serverOpts = append(serverOpts, dep)

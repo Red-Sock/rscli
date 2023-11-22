@@ -22,7 +22,7 @@ func (Postgres) GetFolderName() string {
 	return resources.PostgresResourceName
 }
 
-func (p Postgres) Do(proj interfaces.Project) error {
+func (p Postgres) AppendToProject(proj interfaces.Project) error {
 	err := p.applyClientFolder(proj)
 	if err != nil {
 		return errors.Wrap(err, "error applying client folder")

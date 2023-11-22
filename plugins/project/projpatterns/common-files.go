@@ -56,11 +56,28 @@ var (
 	}
 )
 
+// Scripts
 var (
 	//go:embed pattern_c/rscli.mk
 	rscliMK []byte
 	RscliMK = &folder.Folder{
 		Name:    "rscli.mk",
 		Content: rscliMK,
+	}
+
+	//go:embed pattern_c/grpc.mk
+	grpcMK []byte
+	GrpcMK = &folder.Folder{
+		Name:    "grpc.mk",
+		Content: grpcMK,
+	}
+)
+
+var (
+	//go:embed pattern_c/pkg/proto/api.proto
+	protoServer []byte
+	ProtoServer = &folder.Folder{
+		Name:    "api.proto",
+		Content: protoServer,
 	}
 )

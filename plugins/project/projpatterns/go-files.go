@@ -155,25 +155,6 @@ var (
 		Name:    "handler.go",
 		Content: tgHandlerExampleFile,
 	}
-
-	//go:embed pattern_c/internal/transport/grpc_api/server.go.pattern
-	grpcServFile []byte
-	GrpcServFile = &folder.Folder{
-		Name:    ServerGoFile,
-		Content: grpcServFile,
-	}
-	//go:embed pattern_c/internal/transport/grpc_api/pinger.go.pattern
-	grpcServExampleFile []byte
-	GrpcServExampleFile = &folder.Folder{
-		Name:    "pinger.go",
-		Content: grpcServExampleFile,
-	}
-	//go:embed pattern_c/pkg/proto/grpc_realisation/financial-microservice.proto
-	grpcProtoExampleFile []byte
-	GrpcProtoExampleFile = &folder.Folder{
-		Name:    "financial-microservice.proto",
-		Content: grpcProtoExampleFile,
-	}
 )
 
 // Utils

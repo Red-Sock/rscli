@@ -13,7 +13,7 @@ type Server struct {
 	bot *client.Bot
 }
 
-func NewServer(cfg *config.Config, bot *client.Bot) (s *Server) {
+func NewServer(cfg config.Config, bot *client.Bot) (s *Server) {
 	s = &Server{
 		bot: bot,
 	}
