@@ -22,7 +22,7 @@ func (Redis) GetFolderName() string {
 	return "redis"
 }
 
-func (p Redis) Do(proj interfaces.Project) error {
+func (p Redis) AppendToProject(proj interfaces.Project) error {
 	err := p.applyClientFolder(proj)
 	if err != nil {
 		return errors.Wrap(err, "error applying client folder")

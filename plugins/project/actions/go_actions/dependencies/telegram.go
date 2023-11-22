@@ -23,7 +23,7 @@ func (t Telegram) GetFolderName() string {
 	return projpatterns.TelegramServer
 }
 
-func (t Telegram) Do(proj interfaces.Project) error {
+func (t Telegram) AppendToProject(proj interfaces.Project) error {
 	err := t.applyClient(proj)
 	if err != nil {
 		return errors.Wrap(err, "error applying tg client")

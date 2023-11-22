@@ -23,7 +23,7 @@ func (r Rest) GetFolderName() string {
 	return "rest"
 }
 
-func (r Rest) Do(proj interfaces.Project) error {
+func (r Rest) AppendToProject(proj interfaces.Project) error {
 	defaultApiName := r.GetFolderName() + "_api"
 
 	err := r.applyFolder(proj, defaultApiName)
@@ -37,7 +37,6 @@ func (r Rest) Do(proj interfaces.Project) error {
 }
 
 func (r Rest) applyConfig(proj interfaces.Project, defaultApiName string) {
-
 	for _, item := range proj.GetConfig().Servers {
 		if item.GetName() == defaultApiName {
 			return

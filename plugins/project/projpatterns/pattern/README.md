@@ -1,1 +1,1 @@
-### {{PROJECT_NAME}}
+### {{proj_name}}

@@ -11,7 +11,6 @@ compile-pattern:
 mock:
 	minimock -i github.com/Red-Sock/rscli/internal/stdio.* -o tests/mocks -g -s "_mock.go"
 
-
 testproj:
 	cd test &&\
 	rm -rf testproj &&\
