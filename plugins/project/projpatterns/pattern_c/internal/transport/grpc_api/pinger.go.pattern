@@ -4,17 +4,17 @@ import (
 	"context"
 	"time"
 
-	"financial-microservice/pkg/gen/finance_api"
+	"financial-microservice/pkg/api/proj_name_api"
 )
 
 type Pinger struct {
 	calcFunc func(time time.Time) (diff int32)
-	finance_api.UnimplementedFinancialAPIServer
+	proj_name_api.UnimplementedProjNameAPIServer
 }
 
-func (p *Pinger) Version(_ context.Context, req *finance_api.PingRequest) (rsp *finance_api.PingResponse, err error) {
+func (p *Pinger) Version(_ context.Context, req *proj_name_api.PingRequest) (rsp *proj_name_api.PingResponse, err error) {
 
 	diff := time.Since(req.ClientTimestamp.AsTime())
 
-	return &finance_api.PingResponse{Took: uint32(diff)}, nil
+	return &proj_name_api.PingResponse{Took: uint32(diff)}, nil
 }

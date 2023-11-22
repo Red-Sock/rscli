@@ -8,6 +8,7 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/api"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
 
 	"financial-microservice/internal/config"
@@ -25,7 +26,7 @@ func NewServer(cfg config.Config, server *api.Rest) *Server {
 	s := &Server{
 		HttpServer: &http.Server{
 			Addr:    "0.0.0.0:" + server.GetPortStr(),
-			Handler: r,
+			Handler: setUpCors().Handler(r),
 		},
 
 		version: cfg.AppInfo().Version,
@@ -53,4 +54,16 @@ func (s *Server) Stop(ctx context.Context) error {
 
 func (s *Server) formResponse(r interface{}) ([]byte, error) {
 	return json.Marshal(r)
+}
+
+func setUpCors() *cors.Cors {
+	return cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{
+			http.MethodPost,
+			http.MethodGet,
+		},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: false,
+	})
 }

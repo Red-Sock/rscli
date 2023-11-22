@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package proj_name;
+package proj_name_api;
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 
-option go_package = "/proj_name";
+option go_package = "/proj_name_api";
 
 service proj_nameAPI {
   rpc Version(PingRequest) returns (PingResponse) {
