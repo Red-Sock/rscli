@@ -10,6 +10,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
+	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config"
 	"github.com/Red-Sock/rscli/plugins/project/validators"
@@ -42,7 +43,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 			go_actions.TidyAction{},      // adds/clears project initialization(api, resources) and replaces project name template with actual project name
 			go_actions.FormatAction{},    // fetches dependencies and formats go code
 
-			actions.InitGit{}, // initializing and committing project as git repo
+			git.InitGit{}, // initializing and committing project as git repo
 		}, args.Actions...),
 		validators: append(args.Validators, validators.ValidateProjectName),
 	}
