@@ -11,7 +11,7 @@ import (
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
 
-	"financial-microservice/internal/config"
+	"proj_name/internal/config"
 )
 
 type Server struct {

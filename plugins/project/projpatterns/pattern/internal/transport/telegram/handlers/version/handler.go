@@ -5,7 +5,7 @@ import (
 	"github.com/Red-Sock/go_tg/model"
 	"github.com/Red-Sock/go_tg/model/response"
 
-	"financial-microservice/internal/config"
+	"proj_name/internal/config"
 )
 
 const Command = "/version"

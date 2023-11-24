@@ -7,7 +7,7 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/godverv/matreshka/resources"
 
-	"financial-microservice/internal/utils/closer"
+	"proj_name/internal/utils/closer"
 )
 
 var ErrUnexpectedPing = errors.New("error pinging redis")

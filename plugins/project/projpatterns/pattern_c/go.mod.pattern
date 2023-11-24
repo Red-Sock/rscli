@@ -1,4 +1,4 @@
-module financial-microservice
+module proj_name
 
 go 1.20
 

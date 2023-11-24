@@ -8,8 +8,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"financial-microservice/internal/config"
-	"financial-microservice/internal/utils/closer"
+	"proj_name/internal/config"
+	"proj_name/internal/utils/closer"
 	//_transport_imports
 )
 

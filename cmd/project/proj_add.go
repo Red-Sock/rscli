@@ -13,7 +13,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/colors"
 	"github.com/Red-Sock/rscli/plugins/project"
-	"github.com/Red-Sock/rscli/plugins/project/actions"
+	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 
@@ -83,7 +83,7 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "error building golang config")
 	}
 
-	err = actions.GitCommit(p.proj.GetProjectPath(), "added "+strings.Join(args, "; "))
+	err = git.Commit(p.proj.GetProjectPath(), "added "+strings.Join(args, "; "))
 	if err != nil {
 		return errors.Wrap(err, "error performing git commit")
 	}
