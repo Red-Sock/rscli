@@ -8,8 +8,9 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
-	"financial-microservice/internal/config"
-	pb "financial-microservice/pkg/grpc-realisation"
+	pb "proj_name/pkg/grpc-realisation"
+
+	"proj_name/internal/config"
 )
 
 type GrpcServer struct {

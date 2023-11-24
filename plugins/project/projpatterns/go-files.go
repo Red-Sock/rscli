@@ -9,20 +9,7 @@ import (
 // Constants naming: Purpose+Type (File)
 
 const (
-	ImportProjectNamePatternKebabCase = "financial-microservice"
-	ImportProjectNamePatternSnakeCase = "financial_microservice"
-)
-
-const (
-	ServerGoFile = "server.go"
-
-	handlerFolder = "handlers"
-)
-
-const (
 	CmdFolder = "cmd"
-
-	BootStrapFolder = "bootstrap"
 
 	ApiFolder = "api"
 
@@ -133,7 +120,7 @@ var (
 	//go:embed pattern_c/internal/transport/rest_api/server.go.pattern
 	restServFile []byte
 	RestServFile = &folder.Folder{
-		Name:    ServerGoFile,
+		Name:    "server.go",
 		Content: restServFile,
 	}
 	//go:embed pattern_c/internal/transport/rest_api/version.go.pattern

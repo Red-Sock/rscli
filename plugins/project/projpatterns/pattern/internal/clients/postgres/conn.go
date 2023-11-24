@@ -13,7 +13,7 @@ import (
 	"github.com/pressly/goose/v3"
 	"github.com/sirupsen/logrus"
 
-	"financial-microservice/internal/utils/closer"
+	"proj_name/internal/utils/closer"
 )
 
 func New(ctx context.Context, cfg *resources.Postgres) (TxManager, error) {

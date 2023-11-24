@@ -5,8 +5,8 @@ import (
 
 	"github.com/Red-Sock/go_tg/client"
 
-	"financial-microservice/internal/config"
-	"financial-microservice/internal/transport/telegram/version"
+	"proj_name/internal/config"
+	"proj_name/internal/transport/telegram/version"
 )
 
 type Server struct {

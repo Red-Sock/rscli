@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"financial-microservice/pkg/api/proj_name_api"
+	"proj_name/pkg/api/proj_name_api"
 )
 
 type Pinger struct {

@@ -5,8 +5,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"financial-microservice/internal/config"
-	"financial-microservice/internal/transport"
+	"proj_name/internal/config"
+	"proj_name/internal/transport"
 )
 
 func ApiEntryPoint(ctx context.Context, cfg *config.Config) (func(context.Context) error, error) {
