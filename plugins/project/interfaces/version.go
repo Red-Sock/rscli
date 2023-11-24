@@ -8,7 +8,7 @@ import (
 	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 const (
@@ -74,7 +74,7 @@ func (v *Version) String() string {
 
 func (v *Version) UpdateProjectVersion(p Project) error {
 
-	mkFile := p.GetFolder().GetByPath(patterns.RsCliMkFileName)
+	mkFile := p.GetFolder().GetByPath(projpatterns.RscliMK.Name)
 
 	rvBytes := []byte("RSCLI_VERSION=")
 	startIdx := bytes.Index(mkFile.Content, rvBytes)
@@ -110,7 +110,7 @@ type tagVersion int
 func LoadProjectVersion(p Project) error {
 	out, err := cmd.Execute(cmd.Request{
 		Tool:    "make",
-		Args:    []string{"-f", patterns.RsCliMkFileName, "rscli-version"},
+		Args:    []string{"-f", projpatterns.RscliMK.Name, "rscli-version"},
 		WorkDir: p.GetProjectPath(),
 	})
 	if err != nil {

@@ -1,7 +1,6 @@
 package go_actions
 
 import (
-	"bytes"
 	"encoding/json"
 	"path"
 	"strconv"
@@ -10,55 +9,53 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	patterns "github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type PrepareProjectStructureAction struct {
 }
 
 func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
-	cmd := &folder.Folder{Name: patterns.CmdFolder}
+	rootF := p.GetFolder()
 
-	cmd.Inner = append(cmd.Inner, &folder.Folder{
-		Name: p.GetShortName(),
-		Inner: []*folder.Folder{
-			{
-				Name:    patterns.MainFileName,
-				Content: patterns.MainFile,
+	{
+		cmd := &folder.Folder{Name: patterns.CmdFolder}
+
+		mainFilePath := path.Join(p.GetShortName(), patterns.MainFile.Name)
+
+		cmd.Add(patterns.MainFile.CopyWithNewName(mainFilePath))
+
+		rootF.Add(cmd)
+	}
+
+	{
+		rootF.Add(&folder.Folder{Name: patterns.ConfigsFolder})
+		rootF.Add(&folder.Folder{Name: patterns.InternalFolder})
+	}
+
+	{
+		rootF.Add(&folder.Folder{
+			Name: patterns.PkgFolder,
+			Inner: []*folder.Folder{
+				{Name: patterns.SwaggerFolder},
+				{Name: patterns.ApiFolder},
 			},
-		},
-	})
+		})
 
-	fldr := p.GetFolder()
-	fldr.Add(cmd)
-
-	fldr.Add(&folder.Folder{Name: patterns.ConfigsFolder})
-
-	fldr.Add(&folder.Folder{Name: patterns.InternalFolder})
-
-	fldr.Add(&folder.Folder{
-		Name: patterns.PkgFolder,
-		Inner: []*folder.Folder{
-			{Name: patterns.SwaggerFolder},
-			{Name: patterns.ApiFolder},
-		},
-	})
-
-	fldr.Add(&folder.Folder{
-		Name:    path.Join(patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder, patterns.CloserFile),
-		Content: patterns.UtilsCloserFile,
-	})
-
+		closerFilePath := path.Join(patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder, patterns.UtilsCloserFile.Name)
+		rootF.Add(patterns.UtilsCloserFile.CopyWithNewName(closerFilePath))
+	}
 	return nil
 }
 func (a PrepareProjectStructureAction) NameInAction() string {
 	return "Preparing project structure"
 }
 
+// TODO RSI-199
 type PrepareExamplesFoldersAction struct{}
 
+// TODO RSI-199
 func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
-
 	if p.GetFolder().GetByPath(patterns.ExamplesFolder, patterns.ExamplesHttpEnvFile) != nil {
 		return nil
 	}
@@ -72,11 +69,7 @@ func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 		DevDocker: map[string]string{},
 	}
 
-	servers, err := p.GetConfig().GetServerOptions()
-	if err != nil {
-		return errors.Wrap(err, "error obtaining server options")
-	}
-	for _, item := range servers {
+	for _, item := range p.GetConfig().Servers {
 		portStr := strconv.FormatUint(uint64(item.GetPort()), 10)
 		e.Dev[item.GetName()] = "0.0.0.0:" + portStr
 		e.DevDocker[item.GetName()] = "0.0.0.0:1" + portStr
@@ -90,10 +83,7 @@ func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 	p.GetFolder().Add(&folder.Folder{
 		Name: patterns.ExamplesFolder,
 		Inner: []*folder.Folder{
-			{
-				Name:    patterns.ExampleFileName,
-				Content: patterns.ApiHTTP,
-			},
+			patterns.ApiHTTP.Copy(),
 			{
 				Name:    patterns.ExamplesHttpEnvFile,
 				Content: exampleFile,
@@ -102,6 +92,8 @@ func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 	})
 	return nil
 }
+
+// TODO
 func (a PrepareExamplesFoldersAction) NameInAction() string {
 	return "Preparing examples folders"
 }
@@ -110,28 +102,11 @@ type PrepareEnvironmentFoldersAction struct{}
 
 func (a PrepareEnvironmentFoldersAction) Do(p interfaces.Project) error {
 	p.GetFolder().Add(
-		[]*folder.Folder{
-			{
-				Name:    patterns.DockerfileFileName,
-				Content: patterns.Dockerfile,
-			},
-			{
-				Name:    patterns.ReadMeFileName,
-				Content: bytes.ReplaceAll(patterns.Readme, []byte("{{PROJECT_NAME}}"), []byte(p.GetName())),
-			},
-			{
-				Name:    patterns.GitignoreFileName,
-				Content: patterns.GitIgnore,
-			},
-			{
-				Name:    patterns.GolangCIYamlFileName,
-				Content: patterns.Linter,
-			},
-			{
-				Name:    patterns.RsCliMkFileName,
-				Content: patterns.RscliMK,
-			},
-		}...,
+		patterns.Dockerfile.Copy(),
+		patterns.Readme.Copy(),
+		patterns.GitIgnore.Copy(),
+		patterns.Linter.Copy(),
+		patterns.RscliMK.Copy(),
 	)
 	return nil
 }

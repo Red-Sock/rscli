@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"log"
 	"os"
 	"path"
@@ -36,7 +37,7 @@ func main() {
 }
 
 var pathToPattern = []string{
-	"plugins", "src", "project", "processor", "patterns", "pattern",
+	"plugins", "project", "projpatterns", "pattern",
 }
 
 func findPatternFolder() string {
@@ -96,7 +97,7 @@ func movePattern(patternPath, newPath string) {
 			if hasOneOfSuffixes(itemName, ".go", "go.mod") {
 				newItemPath += ".pattern"
 			}
-
+			b = bytes.ReplaceAll(b, []byte("financial-microservice"), []byte(""))
 			err = os.WriteFile(newItemPath, b, 0755)
 			if err != nil {
 				log.Fatal("error writing file: ", newItemPath, err)

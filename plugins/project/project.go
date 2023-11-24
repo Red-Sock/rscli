@@ -18,8 +18,7 @@ type Project struct {
 	Name        string
 	ProjectPath string
 
-	Cfg      *config.Config
-	pthToCfg string
+	Cfg *config.Config
 
 	Actions []actions.Action
 
@@ -29,15 +28,11 @@ type Project struct {
 	root       folder.Folder
 }
 
-func (p *Project) GetConfigPath() string {
-	return p.pthToCfg
-}
-
 func (p *Project) GetShortName() string {
 	name := p.Name
 
 	if idx := strings.LastIndex(name, string(os.PathSeparator)); idx != -1 {
-		name = name[+1:]
+		name = name[idx+1:]
 	}
 
 	return name

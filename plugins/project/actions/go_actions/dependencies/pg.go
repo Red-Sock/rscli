@@ -4,14 +4,13 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
-	"github.com/Red-Sock/rscli/plugins/project/config/resources"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type Postgres struct {
@@ -20,10 +19,10 @@ type Postgres struct {
 }
 
 func (Postgres) GetFolderName() string {
-	return "postgres"
+	return resources.PostgresResourceName
 }
 
-func (p Postgres) Do(proj interfaces.Project) error {
+func (p Postgres) AppendToProject(proj interfaces.Project) error {
 	err := p.applyClientFolder(proj)
 	if err != nil {
 		return errors.Wrap(err, "error applying client folder")
@@ -35,7 +34,7 @@ func (p Postgres) Do(proj interfaces.Project) error {
 }
 
 func (p Postgres) applyClientFolder(proj interfaces.Project) error {
-	ok, err := containsDependency(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
+	ok, err := containsDependencyFolder(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding dependency path")
 	}
@@ -48,36 +47,34 @@ func (p Postgres) applyClientFolder(proj interfaces.Project) error {
 		return ErrNoFolderInConfig
 	}
 
-	pgConnFile := &folder.Folder{
-		Name:    path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), patterns.ConnFileName),
-		Content: patterns.PgConnFile,
-	}
+	pgConnFile := projpatterns.PgConnFile.CopyWithNewName(
+		path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), projpatterns.PgConnFile.Name))
+
 	go_actions.ReplaceProjectName(proj.GetName(), pgConnFile)
 
 	proj.GetFolder().Add(
 		pgConnFile,
-		&folder.Folder{
-			Name:    path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), patterns.PgTxFileName),
-			Content: patterns.PgTxFile,
-		},
+		projpatterns.PgTxFile.CopyWithNewName(
+			path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), projpatterns.PgTxFile.Name)),
 	)
 
 	return nil
 }
 
 func (p Postgres) applyConfig(proj interfaces.Project) {
-	ds := proj.GetConfig().DataSources
-	if _, ok := ds[p.GetFolderName()]; ok {
-		return
+	for _, item := range proj.GetConfig().Resources {
+		if item.GetName() == p.GetFolderName() {
+			return
+		}
 	}
-
-	ds[p.GetFolderName()] = resources.Postgres{
-		ResourceName: p.GetFolderName(),
-		Host:         "localhost",
-		Port:         5432,
-		Name:         "",
-		User:         "",
-		Pwd:          "",
-		SSLMode:      "",
-	}
+	appNameInfo := proj.GetConfig().AppInfo.Name
+	proj.GetConfig().Resources = append(proj.GetConfig().Resources, &resources.Postgres{
+		Name:    resources.Name(p.GetFolderName()),
+		Host:    "localhost",
+		Port:    5432,
+		DbName:  appNameInfo,
+		User:    appNameInfo,
+		Pwd:     "",
+		SSLMode: "",
+	})
 }

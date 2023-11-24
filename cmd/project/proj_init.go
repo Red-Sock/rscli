@@ -147,12 +147,7 @@ func (p *projectInit) buildProject(args project.CreateArgs) (proj *project.Proje
 
 	p.io.Println("Starting project constructor")
 
-	doneF := loader.RunMultiLoader(context.TODO(), p.io, loaders)
-	defer func() {
-		<-doneF()
-	}()
-
-	currentProcessIdx := 0
+	currentProcessIdx := -1
 
 	fail := func() {
 		loaders[currentProcessIdx].Done(loader.DoneFailed)
@@ -163,17 +158,28 @@ func (p *projectInit) buildProject(args project.CreateArgs) (proj *project.Proje
 		}
 	}
 
+	doneF := loader.RunMultiLoader(context.TODO(), p.io, loaders)
+	defer func() {
+		if currentProcessIdx == len(loaders)-1 {
+			loaders[currentProcessIdx].Done(loader.DoneSuccessful)
+		} else {
+			fail()
+		}
+		<-doneF()
+	}()
+
 	for {
 		select {
-		case info, ok := <-infoC:
+		case _, ok := <-infoC:
 			if !ok {
 				fail()
 				return proj, nil
 			}
 
 			currentProcessIdx++
-			loaders[namesToIdx[info]].Done(loader.DoneSuccessful)
-
+			if currentProcessIdx != 0 {
+				loaders[currentProcessIdx-1].Done(loader.DoneSuccessful)
+			}
 		case buildError, ok := <-errC:
 			if !ok {
 				return proj, nil

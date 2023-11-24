@@ -4,15 +4,14 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/api"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
-	"github.com/Red-Sock/rscli/plugins/project/config/server"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type Rest struct {
@@ -24,7 +23,7 @@ func (r Rest) GetFolderName() string {
 	return "rest"
 }
 
-func (r Rest) Do(proj interfaces.Project) error {
+func (r Rest) AppendToProject(proj interfaces.Project) error {
 	defaultApiName := r.GetFolderName() + "_api"
 
 	err := r.applyFolder(proj, defaultApiName)
@@ -38,17 +37,21 @@ func (r Rest) Do(proj interfaces.Project) error {
 }
 
 func (r Rest) applyConfig(proj interfaces.Project, defaultApiName string) {
-	ds := proj.GetConfig().Server
-
-	if _, ok := ds[defaultApiName]; ok {
-		return
+	for _, item := range proj.GetConfig().Servers {
+		if item.GetName() == defaultApiName {
+			return
+		}
 	}
 
-	ds[defaultApiName] = server.Rest{}
+	proj.GetConfig().Servers = append(proj.GetConfig().Servers,
+		&api.Rest{
+			Name: api.Name(defaultApiName),
+			Port: api.DefaultRestPort,
+		})
 }
 
 func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error {
-	ok, err := containsDependency(r.Cfg.Env.PathToServers, proj.GetFolder(), r.GetFolderName())
+	ok, err := containsDependencyFolder(r.Cfg.Env.PathToServers, proj.GetFolder(), r.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error searching dependencies")
 	}
@@ -56,18 +59,17 @@ func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error 
 	if ok {
 		return nil
 	}
-	serverF := &folder.Folder{
-		Name:    path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, patterns.ServerGoFile),
-		Content: renamer.ReplaceProjectName(patterns.RestServFile, proj.GetName()),
-	}
+	serverF := projpatterns.RestServFile.CopyWithNewName(
+		path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, projpatterns.RestServFile.Name))
+
+	serverF.Content = renamer.ReplaceProjectName(serverF.Content, proj.GetName())
+
 	go_actions.ReplaceProjectName(proj.GetName(), serverF)
 
 	proj.GetFolder().Add(
 		serverF,
-		&folder.Folder{
-			Name:    path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, patterns.VersionGoFile),
-			Content: patterns.RestServHandlerExampleFile,
-		},
+		projpatterns.RestServHandlerVersionExampleFile.CopyWithNewName(
+			path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, projpatterns.RestServHandlerVersionExampleFile.Name)),
 	)
 
 	return nil

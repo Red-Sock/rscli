@@ -1,30 +1,27 @@
 package project
 
 import (
+	"os"
+	"strings"
+
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/api"
+	"github.com/godverv/matreshka/resources"
 	"github.com/spf13/cobra"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/colors"
 	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
+
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/patterns"
-)
-
-const (
-	postgresArgument = "postgres"
-	redisArgument    = "redis"
-
-	telegramArgument = patterns.TelegramServer
-
-	restArgument = "rest"
 )
 
 type dependency interface {
-	Do(proj interfaces.Project) error
+	AppendToProject(proj interfaces.Project) error
 }
 
 type projectAdd struct {
@@ -60,15 +57,10 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 
 	deps := p.getDependenciesFromUser(args)
 	for _, d := range deps {
-		err = d.Do(p.proj)
+		err = d.AppendToProject(p.proj)
 		if err != nil {
 			return errors.Wrap(err, "error adding dependency to project")
 		}
-	}
-
-	err = go_actions.PrepareGoConfigFolderAction{}.Do(p.proj)
-	if err != nil {
-		return errors.Wrap(err, "error building golang config")
 	}
 
 	err = p.proj.GetFolder().Build()
@@ -76,9 +68,24 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "error building folders")
 	}
 
-	err = p.proj.GetConfig().BuildTo(p.proj.GetConfigPath())
+	b, err := p.proj.GetConfig().Marshal()
 	if err != nil {
 		return errors.Wrap(err, "error building config")
+	}
+
+	err = os.WriteFile(p.proj.GetConfig().Path, b, os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "error writing config to file")
+	}
+
+	err = go_actions.TidyAction{}.Do(p.proj)
+	if err != nil {
+		return errors.Wrap(err, "error building golang config")
+	}
+
+	err = git.Commit(p.proj.GetProjectPath(), "added "+strings.Join(args, "; "))
+	if err != nil {
+		return errors.Wrap(err, "error performing git commit")
 	}
 
 	return nil
@@ -104,16 +111,19 @@ func (p *projectAdd) getDependenciesFromUser(args []string) []dependency {
 	for _, arg := range args {
 		var dep dependency
 		switch arg {
-		case postgresArgument:
+		case resources.PostgresResourceName:
 			dep = dependencies.Postgres{Cfg: p.config}
-		case redisArgument:
+		case resources.RedisResourceName:
 			dep = dependencies.Redis{Cfg: p.config}
-		case telegramArgument:
+		case resources.TelegramResourceName:
 			dep = dependencies.Telegram{Cfg: p.config}
-		case restArgument:
+		case api.RestServerType:
 			dep = dependencies.Rest{Cfg: p.config}
+		case api.GRPSServerType:
+			dep = dependencies.Grpc{Cfg: p.config}
 		default:
 			p.io.PrintlnColored(colors.ColorRed, "unknown dependency: "+arg)
+			continue
 		}
 
 		serverOpts = append(serverOpts, dep)

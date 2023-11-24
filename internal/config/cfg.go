@@ -20,10 +20,15 @@ const (
 )
 
 const (
-	envPathToConfig          = "RSCLI_PATH_TO_CONFIG"
-	envPathToMain            = "RSCLI_PATH_TO_MAIN"
-	envPathToClients         = "RSCLI_PATH_TO_CLIENTS"
-	envPathToServers         = "RSCLI_PATH_TO_SERVERS"
+	envPathToConfig = "RSCLI_PATH_TO_CONFIG"
+	envPathToMain   = "RSCLI_PATH_TO_MAIN"
+
+	envPathToClients = "RSCLI_PATH_TO_CLIENTS"
+
+	envPathToServers          = "RSCLI_PATH_TO_SERVERS"
+	envPathToServerDefinition = "RSCLI_PATH_TO_SERVER_DEFINITION"
+
+	envPathToMigrations      = "RSCLI_PATH_TO_MIGRATIONS"
 	envDefaultProjectGitPath = "RSCLI_DEFAULT_PROJECT_GIT_PATH"
 )
 
@@ -38,10 +43,15 @@ type RsCliConfig struct {
 var rsCliConfig RsCliConfig
 
 type Project struct {
-	PathToMain     string   `yaml:"path_to_main"`
-	PathToConfig   string   `yaml:"path_to_config"`
+	PathToMain   string `yaml:"path_to_main"`
+	PathToConfig string `yaml:"path_to_config"`
+
 	PathsToClients []string `yaml:"paths_to_clients"`
-	PathToServers  []string `yaml:"path_to_servers"`
+
+	PathToServers          []string `yaml:"path_to_servers"`
+	PathToServerDefinition string   `yaml:"path_to_server_definition"`
+
+	PathToMigrations string `yaml:"path_to_migrations"`
 }
 
 func GetConfig() *RsCliConfig {
@@ -71,6 +81,8 @@ func InitConfig(cmd *cobra.Command, _ []string) error {
 func getConfigFromEnvironment() (r RsCliConfig) {
 	r.Env.PathToMain = os.Getenv(envPathToMain)
 	r.Env.PathToConfig = os.Getenv(envPathToConfig)
+	r.Env.PathToMigrations = os.Getenv(envPathToMigrations)
+	r.Env.PathToServerDefinition = os.Getenv(envPathToServerDefinition)
 
 	{
 		r.DefaultProjectGitPath = os.Getenv(envDefaultProjectGitPath)
@@ -138,6 +150,14 @@ func mergeConfigs(master, slave RsCliConfig) RsCliConfig {
 
 	if len(master.Env.PathToServers) == 0 {
 		master.Env.PathToServers = slave.Env.PathToServers
+	}
+
+	if master.Env.PathToMigrations == "" {
+		master.Env.PathToMigrations = slave.Env.PathToMigrations
+	}
+
+	if master.Env.PathToServerDefinition == "" {
+		master.Env.PathToServerDefinition = slave.Env.PathToServerDefinition
 	}
 
 	return master
