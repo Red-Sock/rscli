@@ -6,7 +6,25 @@ import (
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 )
 
-func ReplaceProjectName(src []byte, newName string) []byte {
+func ReplaceProjectNameFull(src []byte, newName string) []byte {
+	b := make([]byte, len(src))
+	copy(b, src)
+
+	b = bytes.ReplaceAll(
+		b,
+		[]byte(envpatterns.ProjNameCapsPattern),
+		[]byte(newName),
+	)
+
+	b = bytes.ReplaceAll(b,
+		[]byte(envpatterns.ProjNamePattern),
+		[]byte(newName),
+	)
+
+	return b
+}
+
+func ReplaceProjectNameShort(src []byte, newName string) []byte {
 	b := make([]byte, len(src))
 	copy(b, src)
 
@@ -26,5 +44,5 @@ func ReplaceProjectName(src []byte, newName string) []byte {
 }
 
 func ReplaceProjectNameStr(src string, newName string) string {
-	return string(ReplaceProjectName([]byte(src), newName))
+	return string(ReplaceProjectNameShort([]byte(src), newName))
 }

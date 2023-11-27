@@ -51,7 +51,7 @@ func (r Grpc) AppendToProject(proj interfaces.Project) error {
 func (r Grpc) applyApiFolder(proj interfaces.Project, protoPath string) error {
 	serverF := projpatterns.ProtoServer.CopyWithNewName(protoPath)
 
-	serverF.Content = renamer.ReplaceProjectName(serverF.Content, proj.GetShortName())
+	serverF.Content = renamer.ReplaceProjectNameShort(serverF.Content, proj.GetShortName())
 
 	proj.GetFolder().Add(serverF)
 
