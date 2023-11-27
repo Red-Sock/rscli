@@ -62,7 +62,7 @@ func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error 
 	serverF := projpatterns.RestServFile.CopyWithNewName(
 		path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, projpatterns.RestServFile.Name))
 
-	serverF.Content = renamer.ReplaceProjectName(serverF.Content, proj.GetName())
+	serverF.Content = renamer.ReplaceProjectNameFull(serverF.Content, proj.GetName())
 
 	go_actions.ReplaceProjectName(proj.GetName(), serverF)
 

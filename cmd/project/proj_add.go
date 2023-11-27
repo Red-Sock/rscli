@@ -83,7 +83,7 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "error building golang config")
 	}
 
-	err = git.Commit(p.proj.GetProjectPath(), "added "+strings.Join(args, "; "))
+	err = git.ForceCommit(p.proj.GetProjectPath(), "added "+strings.Join(args, "; "))
 	if err != nil {
 		return errors.Wrap(err, "error performing git commit")
 	}

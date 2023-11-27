@@ -26,7 +26,7 @@ func Execute(r Request) (message string, err error) {
 
 	err = cmd.Run()
 	if err != nil {
-		return "", errors.Wrap(err, errRW.String())
+		return "", errors.Wrap(errors.Wrap(err, errRW.String()), msgRW.String())
 	}
 
 	return msgRW.String(), err
