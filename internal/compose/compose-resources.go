@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka"
+	"github.com/godverv/matreshka/resources"
 	"gopkg.in/yaml.v3"
 
 	"github.com/Red-Sock/rscli/internal/compose/env"
@@ -104,47 +104,38 @@ func (p *Pattern) RenameVariable(oldName, newName string) {
 	}
 }
 
-func (c *PatternManager) GetServiceDependencies(cfg *matreshka.AppConfig) ([]Pattern, error) {
+func (c *PatternManager) GetServiceDependencies(resource resources.Resource) (*Pattern, error) {
+	resType := strings.Split(resource.GetName(), "_")[0]
 
-	clients := make([]Pattern, 0, len(cfg.Resources))
-
-	for _, resourceDependency := range cfg.Resources {
-		resType := strings.Split(resourceDependency.GetName(), "_")[0]
-
-		originalPattern, ok := c.Patterns[resType]
-		if !ok {
-			// TODO handle unknown data sources
-			continue
-		}
-
-		var pattern Pattern
-		err := copier.Copy(&originalPattern, &pattern)
-		if err != nil {
-			return nil, errors.Wrap(err, "error coping pattern")
-		}
-
-		if resourceDependency.GetName() != "" {
-			pattern.Name += resourceDependency.GetName()
-		}
-
-		// if value for environment variable is defined in source config
-		// e.g. section postgres_* in dev.yaml
-		// data_sources:
-		// 		postgres:
-		//			pwd: 123
-		//
-		// will set environment variable for POSTGRES_PASSWORD
-		// by setting variable PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_PWD in .env file to 123
-		for name, val := range resourceDependency.ToEnv() {
-			if envVariable, ok := pattern.ContainerDefinition.Environment[name]; ok {
-				pattern.Envs.AppendRaw(removeEnvironmentBrackets(envVariable), val)
-			}
-		}
-
-		clients = append(clients, pattern)
+	originalPattern, ok := c.Patterns[resType]
+	if !ok {
+		// TODO handle unknown data sources
+		return nil, nil
 	}
 
-	return clients, nil
+	var pattern Pattern
+	err := copier.Copy(&originalPattern, &pattern)
+	if err != nil {
+		return nil, errors.Wrap(err, "error coping pattern")
+	}
+
+	pattern.Name = resource.GetName()
+
+	// if value for environment variable is defined in source config
+	// e.g. section postgres_* in dev.yaml
+	// data_sources:
+	// 		postgres:
+	//			pwd: 123
+	//
+	// will set environment variable for POSTGRES_PASSWORD
+	// by setting variable PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_PWD in .env file to 123
+	for name, val := range resource.ToEnv() {
+		if envVariable, ok := pattern.ContainerDefinition.Environment[name]; ok {
+			pattern.Envs.AppendRaw(removeEnvironmentBrackets(envVariable), val)
+		}
+	}
+
+	return &pattern, nil
 
 }
 

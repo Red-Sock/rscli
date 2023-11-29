@@ -23,11 +23,6 @@ func (e *ProjEnv) tidyMigrationDirs() error {
 	srcMigrationsFolder := path.Join(e.pathToProjSrc, e.rscliConfig.Env.PathToMigrations)
 	targetMigrationFolder := path.Join(e.pathToProjInEnv, e.rscliConfig.Env.PathToMigrations)
 
-	err := os.MkdirAll(targetMigrationFolder, os.ModePerm)
-	if err != nil {
-		return errors.Wrap(err, "error creating migrations folder in env")
-	}
-
 	migs, err := os.ReadDir(srcMigrationsFolder)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -35,6 +30,11 @@ func (e *ProjEnv) tidyMigrationDirs() error {
 		}
 
 		return errors.Wrap(err, "error reading migrations dir")
+	}
+
+	err = os.MkdirAll(targetMigrationFolder, os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "error creating migrations folder in env")
 	}
 
 	toolToMigrations := make(map[migrations.MigrationTool][]resources.Resource)
