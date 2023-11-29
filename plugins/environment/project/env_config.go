@@ -14,6 +14,7 @@ import (
 
 type envConfig struct {
 	*matreshka.AppConfig
+	pth string
 }
 
 // fetch - searches for config in two places
@@ -22,7 +23,8 @@ type envConfig struct {
 // if config was found by 2nd variant - it will be moved to ./environment/proj_name/dev.yaml
 // and symlink will be created to it at src_proj/PATH_TO_CONFIG/dev.yaml
 func (e *envConfig) fetch(cfg *config.RsCliConfig, pathToProjectEnv, pathToProject string) error {
-	confPath, err := e.findEnvConfig(cfg, pathToProjectEnv)
+	var err error
+	e.pth, err = e.findEnvConfig(cfg, pathToProjectEnv)
 	if err != nil {
 		if !errors.Is(err, ErrNoConfig) {
 			return errors.Wrap(err, "error finding environment config")
@@ -36,14 +38,14 @@ func (e *envConfig) fetch(cfg *config.RsCliConfig, pathToProjectEnv, pathToProje
 
 		_, err = os.Stat(projEnvConfigPath)
 		if err != nil {
-			err = os.Symlink(confPath, projEnvConfigPath)
+			err = os.Symlink(e.pth, projEnvConfigPath)
 			if err != nil {
 				return errors.Wrap(err, "error creating symlink")
 			}
 		}
 	}
 
-	e.AppConfig, err = matreshka.ReadConfig(confPath)
+	e.AppConfig, err = matreshka.ReadConfig(e.pth)
 	if err != nil {
 		return errors.Wrap(err, "error parsing config")
 	}
@@ -53,35 +55,8 @@ func (e *envConfig) fetch(cfg *config.RsCliConfig, pathToProjectEnv, pathToProje
 		return nil
 	}
 
-	idx := 0
-	for i := len(e.AppConfig.Resources) - 1; i > 0; i-- {
-		var contains bool
-		for _, projectConfig := range projConfig.Resources {
-			if projectConfig.GetName() == e.AppConfig.Resources[i].GetName() {
-				contains = true
-				break
-			}
-		}
-		if !contains {
-			e.AppConfig.Resources[idx], e.AppConfig.Resources[i] = e.AppConfig.Resources[i], e.AppConfig.Resources[idx]
-			idx++
-		}
-
-	}
-
-	for _, pc := range projConfig.Resources {
-		var contains bool
-		for _, ec := range e.AppConfig.Resources {
-			if pc.GetName() == ec.GetName() {
-				contains = true
-				break
-			}
-		}
-
-		if !contains {
-			e.AppConfig.Resources = append(e.AppConfig.Resources, pc)
-		}
-	}
+	matreshka.MergeConfigs(projConfig.AppConfig, e.AppConfig)
+	e.AppConfig = projConfig.AppConfig
 
 	return nil
 }

@@ -15,7 +15,7 @@ type ContainerSettings struct {
 	Environment map[string]string `yaml:"environment,omitempty"`
 	Volumes     []string          `yaml:"volumes,omitempty"`
 	Ports       []string          `yaml:"ports,omitempty"`
-	Command     string            `yaml:"command"`
+	Command     []string          `yaml:"command,omitempty"`
 	Networks    []string          `yaml:"networks,omitempty"`
 }
 

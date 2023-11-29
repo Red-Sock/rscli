@@ -15,26 +15,22 @@ import (
 )
 
 func (e *ProjEnv) tidyResources(enableService bool) error {
-	dependencies, err := e.globalComposePatternManager.GetServiceDependencies(e.Config.AppConfig)
-	if err != nil {
-		return errors.Wrap(err, "error getting dependencies for service "+e.Config.AppConfig.AppInfo.Name)
-	}
-
-	sort.Slice(dependencies, func(i, j int) bool {
-		return dependencies[i].Name > dependencies[j].Name
+	sort.Slice(e.Config.AppConfig.Resources, func(i, j int) bool {
+		return e.Config.AppConfig.Resources[i].GetName() > e.Config.AppConfig.Resources[j].GetName()
 	})
 
-	for _, resource := range dependencies {
-		err = e.tidyResource(e.projName, resource, enableService)
+	for idx := range e.Config.AppConfig.Resources {
+		err := e.tidyResource(e.projName, idx, enableService)
 		if err != nil {
-			return errors.Wrap(err, "error tiding resource "+resource.GetName())
+			return errors.Wrap(err, "error tiding resource "+
+				e.Config.AppConfig.Resources[idx].GetName())
 		}
 	}
 
 	for name := range e.Compose.Services {
 		foundInConfig := false
 
-		for _, cfgRes := range dependencies {
+		for _, cfgRes := range e.Config.AppConfig.Resources {
 			if name == cfgRes.GetName() || name == e.projName {
 				foundInConfig = true
 				break
@@ -49,7 +45,18 @@ func (e *ProjEnv) tidyResources(enableService bool) error {
 	return nil
 }
 
-func (e *ProjEnv) tidyResource(projName string, resource compose.Pattern, enableService bool) (err error) {
+func (e *ProjEnv) tidyResource(projName string, resourceIdx int, enableService bool) error {
+	resource, err := e.globalComposePatternManager.GetServiceDependencies(e.Config.Resources[resourceIdx])
+	if err != nil {
+		return errors.Wrapf(err, "error getting resource pattern for type: %s, with name %s",
+			e.Config.Resources[resourceIdx].GetType(),
+			e.Config.Resources[resourceIdx].GetName())
+	}
+
+	if resource == nil {
+		return nil
+	}
+
 	patternEnv := resource.GetEnvs().GetContent()
 
 	envMap := make(map[string]string, len(patternEnv))
@@ -91,24 +98,24 @@ func (e *ProjEnv) tidyResource(projName string, resource compose.Pattern, enable
 	e.Environment.Append(envVars...)
 	e.Compose.AppendService(resource.GetName(), resource.GetCompose())
 
-	ds, err := e.tidyResourceConfig(resource, envMap)
+	err = e.tidyResourceConfig(resourceIdx, resource, envMap)
 	if err != nil {
 		return errors.Wrap(err, "error tidy resource config")
 	}
 
-	e.Config.Resources = append(e.Config.Resources, ds)
-
 	return nil
 }
 
-func (e *ProjEnv) tidyResourceConfig(resource compose.Pattern, env map[string]string) (resources.Resource, error) {
+func (e *ProjEnv) tidyResourceConfig(resourceIdx int, resource *compose.Pattern, env map[string]string) error {
 	res := resources.GetResourceByName(resource.GetType())
 
 	err := res.FromEnv(env)
 	if err != nil {
-		return nil, errors.Wrap(err, "error filling config from env")
+		return errors.Wrap(err, "error filling config from env")
 	}
-	return res, nil
+	e.Config.Resources[resourceIdx] = res
+
+	return nil
 }
 
 func (e *ProjEnv) getResourceName(varName, resName, projName string) string {

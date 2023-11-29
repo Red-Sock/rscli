@@ -11,7 +11,6 @@ import (
 )
 
 func (e *ProjEnv) tidyServerAPIs() error {
-
 	service, ok := e.Compose.Services[strings.ReplaceAll(e.projName, "-", "_")]
 	if !ok {
 		p, ok := e.globalComposePatternManager.Patterns[envpatterns.ProjNamePattern]

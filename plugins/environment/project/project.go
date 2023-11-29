@@ -133,12 +133,16 @@ func (e *ProjEnv) flush(projName string) (err error) {
 	}
 
 	{
+		var b []byte
+		b, err = e.Config.Marshal()
+		if err != nil {
+			return errors.Wrap(err, "error marshalling env config")
+		}
 
-		// TODO
-		//err = e.Config.BuildTo(e.Config.GetPath())
-		//if err != nil {
-		//	return errors.Wrap(err, "error writing env config")
-		//}
+		err = io.OverrideFile(e.Config.pth, b)
+		if err != nil {
+			return errors.Wrap(err, "error writing env config")
+		}
 	}
 
 	{

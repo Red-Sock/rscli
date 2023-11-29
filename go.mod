@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/Red-Sock/trace-errors v0.0.3
-	github.com/godverv/matreshka v0.0.2
+	github.com/godverv/matreshka v0.0.4
 	github.com/gojuno/minimock/v3 v3.1.3
 	github.com/morikuni/aec v1.0.0
 	github.com/nsf/termbox-go v1.1.1

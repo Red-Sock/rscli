@@ -65,11 +65,12 @@ services:
       - ./message.json:/data/message.json
     depends_on:
       - kafka
-    command: "bash -c 'echo Waiting for Kafka to be ready... && \
-               cub kafka-ready -b kafka:29092 1 30 && \
-               kafka-topics --create --topic topic_proj_name --partitions 3 --replication-factor 1 --if-not-exists --bootstrap-server kafka:29092 && \
-               kafka-topics --create --topic messages --partitions 2 --replication-factor 1 --if-not-exists --bootstrap-server kafka:29092 && \
-               kafka-console-producer --bootstrap-server kafka:29092 --topic topic_proj_name < /data/message.json'"
+    command:
+      - "bash -c 'echo Waiting for Kafka to be ready... && \
+          cub kafka-ready -b kafka:29092 1 30 && \
+          kafka-topics --create --topic topic_proj_name --partitions 3 --replication-factor 1 --if-not-exists --bootstrap-server kafka:29092 && \
+          kafka-topics --create --topic messages --partitions 2 --replication-factor 1 --if-not-exists --bootstrap-server kafka:29092 && \
+          kafka-console-producer --bootstrap-server kafka:29092 --topic topic_proj_name < /data/message.json'"
     networks:
      - proj_name_net
 

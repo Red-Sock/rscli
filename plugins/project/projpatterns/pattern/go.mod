@@ -6,7 +6,7 @@ require (
 	github.com/Red-Sock/go_tg v0.0.16
 	github.com/Red-Sock/trace-errors v0.0.3
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/godverv/matreshka v0.0.2
+	github.com/godverv/matreshka v0.0.3
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/pkg/errors v0.9.1
