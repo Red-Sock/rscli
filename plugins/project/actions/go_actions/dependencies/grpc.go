@@ -8,6 +8,7 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
@@ -33,9 +34,8 @@ func (r Grpc) AppendToProject(proj interfaces.Project) error {
 		return errors.Wrap(err, "error searching dependencies")
 	}
 
-	protoPath := path.Join(r.Cfg.Env.PathToServerDefinition, r.GetFolderName(), protoName)
-
 	if !ok {
+		protoPath := path.Join(r.Cfg.Env.PathToServerDefinition, r.GetFolderName(), protoName)
 		err := r.applyApiFolder(proj, protoPath)
 		if err != nil {
 			return errors.Wrap(err, "error applying grpc api folder")
@@ -44,7 +44,9 @@ func (r Grpc) AppendToProject(proj interfaces.Project) error {
 
 	r.applyMakefile(proj)
 	r.applyConfig(proj)
+	r.applyServerFolder(proj)
 
+	applyServerFolder(proj)
 	return nil
 }
 
@@ -79,4 +81,22 @@ func (r Grpc) applyConfig(proj interfaces.Project) {
 			Name: api.Name(r.GetFolderName()),
 			Port: api.DefaultGrpcPort,
 		})
+}
+
+func (r Grpc) applyServerFolder(proj interfaces.Project) {
+	f := proj.GetFolder()
+
+	pth := []string{projpatterns.InternalFolder, projpatterns.TransportFolder, r.GetFolderName()}
+	serverFolder := f.GetByPath(pth...)
+	if serverFolder == nil {
+		serverFolder = &folder.Folder{
+			Name: path.Join(pth...),
+		}
+		f.Add(serverFolder)
+	}
+
+	if serverFolder.GetByPath(projpatterns.GrpcServFile.Name) == nil {
+		serverFolder.Add(projpatterns.GrpcServFile.Copy())
+	}
+	// TODO генерация ручек-реализаций под конкракты
 }

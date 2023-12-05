@@ -1,20 +1,11 @@
 app_info:
-  name: web3.0
-  version: ""
-  startupDuration: 0s
+  name: github.com/Red-Sock/rscli_example
+  version: 0.0.1
+  startup_duration: 10s
+data_sources: []
 server:
-  rest_api:
-    port: "8080"
-data_sources:
-  postgres:
-    host: 0.0.0.0
-    port: "5432"
-    name: postgres
-    user: postgres
-    pwd: postgres
-  redis:
-    host: 0.0.0.0
-    port: "6379"
-    user: ""
-    pwd: ""
-    db: 0
+  - name: grpc
+    port: 50051
+  - name: rest_api
+    port: 8080
+environment: {}

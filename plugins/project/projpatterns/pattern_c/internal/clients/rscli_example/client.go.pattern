@@ -1,0 +1,14 @@
+package rscli_example
+
+import (
+	"context"
+
+	"github.com/Red-Sock/rscli_example/pkg/api/rscli_example_api"
+	"google.golang.org/grpc"
+)
+
+func New(ctx context.Context) {
+
+	grpc.DialContext(ctx, "")
+	rscli_example_api.NewRscliExampleAPIClient(&grpc.ClientConn{})
+}

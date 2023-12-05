@@ -19,6 +19,7 @@ func ValidateProjectNameStr(name string) error {
 		{48, 57},
 		{65, 90},
 		{97, 122},
+		{95, 95},
 	}
 	for _, s := range name {
 		var hasHitRange = false

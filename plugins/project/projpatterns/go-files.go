@@ -21,6 +21,8 @@ const (
 	ConnFileName   = "conn.go"
 	PgTxFileName   = "tx.go"
 
+	TransportFolder = "transport"
+
 	PkgFolder     = "pkg"
 	SwaggerFolder = "swagger"
 
@@ -128,6 +130,19 @@ var (
 	RestServHandlerVersionExampleFile = &folder.Folder{
 		Name:    "version.go",
 		Content: restServHandlerVersionExampleFile,
+	}
+
+	//go:embed pattern_c/internal/transport/grpc_api/server.go.pattern
+	grpcServFile []byte
+	GrpcServFile = &folder.Folder{
+		Name:    "server.go",
+		Content: grpcServFile,
+	}
+	//go:embed pattern_c/internal/transport/grpc_api/pinger.go.pattern
+	grpcServHandlerVersionExampleFile []byte
+	GrpcServHandlerVersionExampleFile = &folder.Folder{
+		Name:    "version.go",
+		Content: grpcServHandlerVersionExampleFile,
 	}
 
 	//go:embed pattern_c/internal/transport/telegram/listener.go.pattern

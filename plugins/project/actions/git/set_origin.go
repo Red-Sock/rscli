@@ -1,12 +1,17 @@
 package git
 
 import (
+	"strings"
+
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 )
 
 func SetOrigin(wordDir, originURL string) error {
+	if !strings.HasPrefix(originURL, "http") {
+		originURL = "https://" + originURL
+	}
 	res, err := cmd.Execute(cmd.Request{
 		Tool:    exe,
 		Args:    []string{"remote", "-v"},

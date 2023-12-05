@@ -8,10 +8,10 @@ deps:
 
 gen-server: .pre-gen-server .gen-server
 .pre-gen-server:
-	mkdir -p pkg/api
+	mkdir -p pkg/
 
 .gen-server:
-	protoc --go_out=./pkg/api --go-grpc_out=./pkg/api \
-	-I /Users/alexbukov/go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis \
+	protoc --go_out=./pkg/ --go-grpc_out=./pkg/ \
+	-I $(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis \
 	--proto_path=. \
 	./api/*.proto

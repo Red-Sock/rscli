@@ -4,7 +4,7 @@
 // - protoc             v4.25.0
 // source: api/api.proto
 
-package proj_name_api
+package api
 
 import (
 	context "context"
@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ProjNameAPI_Version_FullMethodName = "/proj_name.proj_nameAPI/Version"
+	ProjNameAPI_Version_FullMethodName = "/proj_name_api.proj_nameAPI/Version"
 )
 
 // ProjNameAPIClient is the client API for ProjNameAPI service.
@@ -96,7 +96,7 @@ func _ProjNameAPI_Version_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ProjNameAPI_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proj_name.proj_nameAPI",
+	ServiceName: "proj_name_api.proj_nameAPI",
 	HandlerType: (*ProjNameAPIServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
