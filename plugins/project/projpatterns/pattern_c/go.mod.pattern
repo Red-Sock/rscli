@@ -7,7 +7,7 @@ require (
 	github.com/Red-Sock/rscli_example v0.0.0-20231202203649-85f3ba0d017d
 	github.com/Red-Sock/trace-errors v0.0.5
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/godverv/matreshka v0.0.4
+	github.com/godverv/matreshka v0.0.5
 	github.com/gorilla/mux v1.8.1
 	github.com/jackc/pgx/v5 v5.5.0
 	github.com/pkg/errors v0.9.1
@@ -36,5 +36,3 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/godverv/matreshka v0.0.4 => /Users/alexbukov/Yandex.Disk.localized/redsock/Matreshka
