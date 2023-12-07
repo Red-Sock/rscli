@@ -21,6 +21,8 @@ const (
 	ConnFileName   = "conn.go"
 	PgTxFileName   = "tx.go"
 
+	TransportFolder = "transport"
+
 	PkgFolder     = "pkg"
 	SwaggerFolder = "swagger"
 
@@ -41,22 +43,15 @@ const (
 
 // Basic files
 var (
-	//go:embed pattern_c/cmd/financial-microservice/main.go.pattern
+	//go:embed pattern_c/cmd/rscli_example/main.go.pattern
 	mainFile []byte
 	MainFile = &folder.Folder{
 		Name:    "main.go",
 		Content: mainFile,
 	}
-
-	//go:embed pattern_c/cmd/financial-microservice/bootstrap/api.go.pattern
-	apiSetupFile []byte
-	APISetupFile = &folder.Folder{
-		Name:    "api.go",
-		Content: apiSetupFile,
-	}
 )
 
-// DataStorage connection files
+// Clients connection files
 var (
 	//go:embed pattern_c/internal/clients/redis/conn.go.pattern
 	redisConnFile []byte
@@ -83,6 +78,13 @@ var (
 	TgConnFile = &folder.Folder{
 		Name:    ConnFileName,
 		Content: tgConnFile,
+	}
+
+	//go:embed pattern_c/internal/clients/grpc/conn.go.pattern
+	grpcClientConnFile []byte
+	GrpcClientConnFile = &folder.Folder{
+		Name:    ConnFileName,
+		Content: grpcClientConnFile,
 	}
 )
 
@@ -117,17 +119,30 @@ var (
 		Content: serverManagerPatternFile,
 	}
 
-	//go:embed pattern_c/internal/transport/rest_api/server.go.pattern
+	//go:embed pattern_c/internal/transport/rest/server.go.pattern
 	restServFile []byte
 	RestServFile = &folder.Folder{
 		Name:    "server.go",
 		Content: restServFile,
 	}
-	//go:embed pattern_c/internal/transport/rest_api/version.go.pattern
+	//go:embed pattern_c/internal/transport/rest/version.go.pattern
 	restServHandlerVersionExampleFile []byte
 	RestServHandlerVersionExampleFile = &folder.Folder{
 		Name:    "version.go",
 		Content: restServHandlerVersionExampleFile,
+	}
+
+	//go:embed pattern_c/internal/transport/grpc/server.go.pattern
+	grpcServFile []byte
+	GrpcServFile = &folder.Folder{
+		Name:    "server.go",
+		Content: grpcServFile,
+	}
+	//go:embed pattern_c/internal/transport/grpc/pinger.go.pattern
+	grpcServHandlerVersionExampleFile []byte
+	GrpcServHandlerVersionExampleFile = &folder.Folder{
+		Name:    "version.go",
+		Content: grpcServHandlerVersionExampleFile,
 	}
 
 	//go:embed pattern_c/internal/transport/telegram/listener.go.pattern

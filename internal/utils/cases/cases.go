@@ -12,6 +12,9 @@ func SnakeToPascal(v string) string {
 		if slices.Contains(initialisms, parts[i]) {
 			parts[i] = strings.ToUpper(parts[i])
 		} else {
+			if parts[i] == "" {
+				continue
+			}
 			parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
 		}
 	}

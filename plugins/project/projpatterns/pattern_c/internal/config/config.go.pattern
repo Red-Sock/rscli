@@ -36,6 +36,7 @@ type Resource interface {
 	Postgres(name string) (*resources.Postgres, error)
 	Telegram(name string) (*resources.Telegram, error)
 	Redis(name string) (*resources.Redis, error)
+	GRPC(name string) (*resources.GRPC, error)
 }
 
 var defaultConfig *config

@@ -150,7 +150,10 @@ func (p *projectInit) buildProject(args project.CreateArgs) (proj *project.Proje
 	currentProcessIdx := -1
 
 	fail := func() {
-		loaders[currentProcessIdx].Done(loader.DoneFailed)
+		if currentProcessIdx < len(loaders) {
+			loaders[currentProcessIdx].Done(loader.DoneFailed)
+		}
+
 		currentProcessIdx++
 		for currentProcessIdx < len(loaders) {
 			loaders[currentProcessIdx].Done(loader.DoneNotAccessed)

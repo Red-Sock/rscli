@@ -78,6 +78,16 @@ func (a TidyAction) Do(p interfaces.Project) error {
 		return errors.Wrap(err, "error building project")
 	}
 
+	b, err := p.GetConfig().Marshal()
+	if err != nil {
+		return errors.Wrap(err, "error marshaling config")
+	}
+
+	err = os.WriteFile(p.GetConfig().Path, b, os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "error writing config to file")
+	}
+
 	_, err = cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"mod", "tidy"},

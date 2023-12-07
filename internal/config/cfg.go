@@ -6,7 +6,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/Red-Sock/trace-errors"
+	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
@@ -23,7 +23,9 @@ const (
 	envPathToConfig = "RSCLI_PATH_TO_CONFIG"
 	envPathToMain   = "RSCLI_PATH_TO_MAIN"
 
-	envPathToClients = "RSCLI_PATH_TO_CLIENTS"
+	envPathToProtoClients    = "RSCLI_PATH_TO_PROTO_CLIENTS"
+	envPathToCompiledClients = "RSCLI_PATH_TO_COMPILED_CLIENTS"
+	envPathToClients         = "RSCLI_PATH_TO_CLIENTS"
 
 	envPathToServers          = "RSCLI_PATH_TO_SERVERS"
 	envPathToServerDefinition = "RSCLI_PATH_TO_SERVER_DEFINITION"
@@ -46,7 +48,9 @@ type Project struct {
 	PathToMain   string `yaml:"path_to_main"`
 	PathToConfig string `yaml:"path_to_config"`
 
-	PathsToClients []string `yaml:"paths_to_clients"`
+	PathsToCompiledClients []string `yaml:"paths_to_compiled_clients"`
+	PathsToProtoClients    []string `yaml:"paths_to_proto_clients"`
+	PathsToClients         []string `yaml:"paths_to_clients"`
 
 	PathToServers          []string `yaml:"path_to_servers"`
 	PathToServerDefinition string   `yaml:"path_to_server_definition"`
@@ -84,19 +88,22 @@ func getConfigFromEnvironment() (r RsCliConfig) {
 	r.Env.PathToMigrations = os.Getenv(envPathToMigrations)
 	r.Env.PathToServerDefinition = os.Getenv(envPathToServerDefinition)
 
-	{
-		r.DefaultProjectGitPath = os.Getenv(envDefaultProjectGitPath)
-		pathToClients := strings.Split(os.Getenv(envPathToClients), ",")
-		if pathToClients[0] != "" {
-			r.Env.PathsToClients = pathToClients
-		}
+	r.DefaultProjectGitPath = os.Getenv(envDefaultProjectGitPath)
+
+	if pathToClients := strings.Split(os.Getenv(envPathToClients), ","); pathToClients[0] != "" {
+		r.Env.PathsToClients = pathToClients
 	}
 
-	{
-		pathToServers := strings.Split(os.Getenv(envPathToServers), ",")
-		if pathToServers[0] != "" {
-			r.Env.PathToServers = pathToServers
-		}
+	if pathToServers := strings.Split(os.Getenv(envPathToServers), ","); pathToServers[0] != "" {
+		r.Env.PathToServers = pathToServers
+	}
+
+	if pathToProtoClients := strings.Split(os.Getenv(envPathToProtoClients), ","); pathToProtoClients[0] != "" {
+		r.Env.PathsToProtoClients = pathToProtoClients
+	}
+
+	if pathToCompiledClients := strings.Split(os.Getenv(envPathToCompiledClients), ","); pathToCompiledClients[0] != "" {
+		r.Env.PathsToCompiledClients = pathToCompiledClients
 	}
 	return
 }
@@ -158,6 +165,14 @@ func mergeConfigs(master, slave RsCliConfig) RsCliConfig {
 
 	if master.Env.PathToServerDefinition == "" {
 		master.Env.PathToServerDefinition = slave.Env.PathToServerDefinition
+	}
+
+	if len(master.Env.PathsToProtoClients) == 0 {
+		master.Env.PathsToProtoClients = slave.Env.PathsToProtoClients
+	}
+
+	if len(master.Env.PathsToCompiledClients) == 0 {
+		master.Env.PathsToCompiledClients = slave.Env.PathsToCompiledClients
 	}
 
 	return master

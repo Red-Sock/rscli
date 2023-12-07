@@ -67,7 +67,8 @@ func (p Postgres) applyConfig(proj interfaces.Project) {
 			return
 		}
 	}
-	appNameInfo := proj.GetConfig().AppInfo.Name
+
+	appNameInfo := proj.GetShortName()
 	proj.GetConfig().Resources = append(proj.GetConfig().Resources, &resources.Postgres{
 		Name:    resources.Name(p.GetFolderName()),
 		Host:    "localhost",
