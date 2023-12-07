@@ -5,6 +5,7 @@ github.com/Red-Sock/rscli_example v0.0.0-20231129165325-f64bc76f08f1/go.mod h1:c
 github.com/Red-Sock/rscli_example v0.0.0-20231202203649-85f3ba0d017d/go.mod h1:MTTx9CgF5/aELBKDuAdz71qpOxehxt3Rn6aHxjjuHTQ=
 github.com/Red-Sock/trace-errors v0.0.4 h1:ZqOitY0N0YT5kdAG8jVVGiMg3IVsr1MopvG8IRa0RwE=
 github.com/Red-Sock/trace-errors v0.0.4/go.mod h1:rvIxpJ2M7/XkEnXjXfmQjsaKXYRVGM4TFQ8R5Zo4mSk=
+github.com/Red-Sock/trace-errors v0.0.5/go.mod h1:rvIxpJ2M7/XkEnXjXfmQjsaKXYRVGM4TFQ8R5Zo4mSk=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

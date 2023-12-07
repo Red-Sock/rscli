@@ -22,6 +22,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
+	"github.com/Red-Sock/rscli/internal/utils/cases"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
@@ -77,6 +78,11 @@ func (p *projectLink) run(_ *cobra.Command, args []string) (err error) {
 	}
 	if errs != nil {
 		return errs
+	}
+
+	grpcClientConnFilePath := path.Join(p.config.Env.PathsToClients[0], projpatterns.GRPCServer, projpatterns.ConnFileName)
+	if p.proj.GetFolder().GetByPath(grpcClientConnFilePath) == nil {
+		p.proj.GetFolder().Add(projpatterns.GrpcClientConnFile.CopyWithNewName(grpcClientConnFilePath))
 	}
 
 	err = go_actions.TidyAction{}.Do(p.proj)
@@ -146,7 +152,7 @@ func {{.Constructor}}(ctx context.Context, cfg config.Config) ({{.PackageAlias}}
 
 	conn, err := connect(ctx, connCfg)
 	if err != nil {
-		return nil, errors.Wrap(err, "error connection to "+connCfg.PackageName)
+		return nil, errors.Wrap(err, "error connection to "+connCfg.Module)
 	}
 
 	return {{.PackageAlias}}.{{.Constructor}}(conn), nil
@@ -176,22 +182,25 @@ func {{.Constructor}}(ctx context.Context, cfg config.Config) ({{.PackageAlias}}
 			continue
 		}
 
-		if !errors.Is(err, matreshka.ErrResourceNotFound) {
+		if !errors.Is(err, matreshka.ErrNotFound) {
 			return errors.Wrap(err, "error getting grpc resource from config")
 		}
 
-		p.proj.GetConfig().Resources = append(p.proj.GetConfig().Resources, &resources.GRPC{
+		grpcResource := &resources.GRPC{
 			Name:             resources.Name(resourceName),
 			Module:           packageName,
 			ConnectionString: "http://0.0.0.0:50051",
-		})
+		}
+		p.proj.GetConfig().Resources = append(p.proj.GetConfig().Resources, grpcResource)
+
+		configKey := cases.SnakeToPascal(matreshka.GenerateResourceConfigKeys(grpcResource)[0].Name)
 
 		err = tmplt.Execute(sb, map[string]string{
 			"PackageAlias":    "pb",
 			"FullProjectName": p.proj.GetName(),
 			"Constructor":     c.constructor,
 			"ClientName":      c.clientName,
-			"ConfigKey":       "ResourceGRPC" + strings.ReplaceAll(path.Base(packageName), "-", "_"), //TODO генерация на стороне матрёшки как  "ResourceGRPC" + base от пакета
+			"ConfigKey":       configKey,
 			"ApiPath":         path.Join(packageName, c.importPath),
 		})
 		if err != nil {
