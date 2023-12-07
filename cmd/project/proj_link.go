@@ -189,7 +189,7 @@ func {{.Constructor}}(ctx context.Context, cfg config.Config) ({{.PackageAlias}}
 		grpcResource := &resources.GRPC{
 			Name:             resources.Name(resourceName),
 			Module:           packageName,
-			ConnectionString: "http://0.0.0.0:50051",
+			ConnectionString: "0.0.0.0:50051",
 		}
 		p.proj.GetConfig().Resources = append(p.proj.GetConfig().Resources, grpcResource)
 
