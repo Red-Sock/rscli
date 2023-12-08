@@ -2,6 +2,7 @@ package go_actions
 
 import (
 	"path"
+	"text/template"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
@@ -12,6 +13,24 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
+
+var configKeysTemplate *template.Template
+
+func init() {
+	var err error
+	configKeysTemplate, err = template.New("configTemplate").Funcs(template.FuncMap{
+		"SnakeToPascal": cases.SnakeToPascal,
+	}).Parse(`
+package config
+
+const ({{range $_, $val := .}}
+	{{ SnakeToPascal $val.Name }} = "{{ $val.Name }}"{{end}}
+)
+`)
+	if err != nil {
+		panic(errors.Wrap(err, "error parsing config keys template"))
+	}
+}
 
 type PrepareGoConfigFolderAction struct{}
 
@@ -52,22 +71,15 @@ func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, go
 		return nil
 	}
 
-	sb := rw.RW{}
-	_, _ = sb.WriteString("package config\n\nconst (\n")
-	for _, key := range keys {
-		_ = sb.WriteByte('\t')
-		_, _ = sb.WriteString(cases.SnakeToPascal(key.Name))
-		_ = sb.WriteByte('=')
-		_ = sb.WriteByte('"')
-		_, _ = sb.WriteString(key.Name)
-		_ = sb.WriteByte('"')
-		_ = sb.WriteByte('\n')
+	buf := &rw.RW{}
+	err = configKeysTemplate.Execute(buf, keys)
+	if err != nil {
+		return errors.Wrap(err, "error executing config keys template on generating")
 	}
-	_ = sb.WriteByte(')')
 
 	cfgKeysFile := &folder.Folder{
 		Name:    projpatterns.ConfigKeysFileName,
-		Content: sb.Bytes(),
+		Content: buf.Bytes(),
 	}
 
 	goConfigFolder.Add(cfgKeysFile)

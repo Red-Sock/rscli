@@ -2,6 +2,7 @@ package transport
 
 import (
 	"context"
+	stderrs "errors"
 
 	"github.com/pkg/errors"
 )
@@ -41,6 +42,10 @@ func (m *ServersManager) Start(ctx context.Context) error {
 
 	for _, err := range errs {
 		finalError = errors.Wrap(finalError, err.Error())
+	}
+	errStop := m.Stop(ctx)
+	if errStop != nil {
+		finalError = stderrs.Join(finalError, errStop)
 	}
 
 	return finalError

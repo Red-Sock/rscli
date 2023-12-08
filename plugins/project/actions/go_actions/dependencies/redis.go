@@ -8,17 +8,22 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type Redis struct {
-	Cfg *rscliconfig.RsCliConfig
-	Io  io.StdIO
+	Name string
+	Cfg  *rscliconfig.RsCliConfig
+	Io   io.StdIO
 }
 
-func (Redis) GetFolderName() string {
+func (p Redis) GetFolderName() string {
+	if p.Name != "" {
+		return p.Name
+	}
+
 	return "redis"
 }
 
@@ -36,7 +41,7 @@ func (p Redis) AppendToProject(proj interfaces.Project) error {
 func (p Redis) applyClientFolder(proj interfaces.Project) error {
 	ok, err := containsDependencyFolder(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
 	if err != nil {
-		return errors.Wrap(err, "error finding dependency path")
+		return errors.Wrap(err, "error finding Dependency path")
 	}
 
 	if ok {
@@ -46,7 +51,7 @@ func (p Redis) applyClientFolder(proj interfaces.Project) error {
 	redisConn := projpatterns.RedisConnFile.CopyWithNewName(
 		path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), projpatterns.RedisConnFile.Name))
 
-	go_actions.ReplaceProjectName(proj.GetName(), redisConn)
+	renamer.ReplaceProjectName(proj.GetName(), redisConn)
 
 	proj.GetFolder().Add(redisConn)
 

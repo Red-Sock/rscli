@@ -111,7 +111,7 @@ func (e *ProjEnv) flush(projName string) (err error) {
 
 		envBytes := e.Environment.MarshalEnv()
 		if len(envBytes) != 0 {
-			err = io.OverrideFile(pathToProjectEnvFile, renamer.ReplaceProjectName(envBytes, projName))
+			err = io.OverrideFile(pathToProjectEnvFile, renamer.ReplaceProjectNameShort(envBytes, projName))
 			if err != nil {
 				return errors.Wrap(err, "error writing environment file: "+pathToProjectEnvFile)
 			}
@@ -126,19 +126,23 @@ func (e *ProjEnv) flush(projName string) (err error) {
 		}
 
 		pathToDockerComposeFile := path.Join(e.pathToProjInEnv, envpatterns.DockerComposeFile.Name)
-		err = io.OverrideFile(pathToDockerComposeFile, renamer.ReplaceProjectName(composeFile, projName))
+		err = io.OverrideFile(pathToDockerComposeFile, renamer.ReplaceProjectNameShort(composeFile, projName))
 		if err != nil {
 			return errors.Wrap(err, "error writing docker compose file file")
 		}
 	}
 
 	{
+		var b []byte
+		b, err = e.Config.Marshal()
+		if err != nil {
+			return errors.Wrap(err, "error marshalling env config")
+		}
 
-		// TODO
-		//err = e.Config.BuildTo(e.Config.GetPath())
-		//if err != nil {
-		//	return errors.Wrap(err, "error writing env config")
-		//}
+		err = io.OverrideFile(e.Config.pth, b)
+		if err != nil {
+			return errors.Wrap(err, "error writing env config")
+		}
 	}
 
 	{
@@ -150,7 +154,7 @@ func (e *ProjEnv) flush(projName string) (err error) {
 			return errors.Wrap(err, "error marshalling makefile")
 		}
 
-		mkFile = renamer.ReplaceProjectName(mkFile, projName)
+		mkFile = renamer.ReplaceProjectNameShort(mkFile, projName)
 
 		err = io.OverrideFile(path.Join(e.pathToProjInEnv, envpatterns.Makefile.Name), mkFile)
 		if err != nil {

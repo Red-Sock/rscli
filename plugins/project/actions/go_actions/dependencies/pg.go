@@ -8,17 +8,22 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type Postgres struct {
-	Cfg *rscliconfig.RsCliConfig
-	Io  io.StdIO
+	Name string
+	Cfg  *rscliconfig.RsCliConfig
+	Io   io.StdIO
 }
 
-func (Postgres) GetFolderName() string {
+func (p Postgres) GetFolderName() string {
+	if p.Name != "" {
+		return p.Name
+	}
+
 	return resources.PostgresResourceName
 }
 
@@ -36,7 +41,7 @@ func (p Postgres) AppendToProject(proj interfaces.Project) error {
 func (p Postgres) applyClientFolder(proj interfaces.Project) error {
 	ok, err := containsDependencyFolder(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
 	if err != nil {
-		return errors.Wrap(err, "error finding dependency path")
+		return errors.Wrap(err, "error finding Dependency path")
 	}
 
 	if ok {
@@ -50,7 +55,7 @@ func (p Postgres) applyClientFolder(proj interfaces.Project) error {
 	pgConnFile := projpatterns.PgConnFile.CopyWithNewName(
 		path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), projpatterns.PgConnFile.Name))
 
-	go_actions.ReplaceProjectName(proj.GetName(), pgConnFile)
+	renamer.ReplaceProjectName(proj.GetName(), pgConnFile)
 
 	proj.GetFolder().Add(
 		pgConnFile,
@@ -67,7 +72,8 @@ func (p Postgres) applyConfig(proj interfaces.Project) {
 			return
 		}
 	}
-	appNameInfo := proj.GetConfig().AppInfo.Name
+
+	appNameInfo := proj.GetShortName()
 	proj.GetConfig().Resources = append(proj.GetConfig().Resources, &resources.Postgres{
 		Name:    resources.Name(p.GetFolderName()),
 		Host:    "localhost",

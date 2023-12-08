@@ -21,16 +21,32 @@ func NewCmd() *cobra.Command {
 		SilenceUsage:  true,
 	}
 
+	stdIO := io.StdIO{}
+	wd := io.GetWd()
+	cfg := config.GetConfig()
+
 	cmd.AddCommand(newInitCmd(projectInit{
-		io:     io.StdIO{},
-		config: config.GetConfig(),
-		path:   io.GetWd(),
+		io:     stdIO,
+		path:   wd,
+		config: cfg,
 	}))
 
 	cmd.AddCommand(newAddCmd(projectAdd{
-		io:     io.StdIO{},
-		path:   io.GetWd(),
-		config: config.GetConfig(),
+		io:     stdIO,
+		path:   wd,
+		config: cfg,
+	}))
+
+	cmd.AddCommand(newLinkCmd(projectLink{
+		io:     stdIO,
+		path:   wd,
+		config: cfg,
+	}))
+
+	cmd.AddCommand(newTidyCmd(projectTidy{
+		io:     stdIO,
+		path:   wd,
+		config: cfg,
 	}))
 
 	return cmd
