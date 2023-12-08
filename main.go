@@ -18,7 +18,7 @@ func main() {
 
 		Short: "RsCLI is a tool for handling developers environment",
 
-		Version: "0.0.28-alpha",
+		Version: "0.0.29",
 		CompletionOptions: cobra.CompletionOptions{
 			DisableDefaultCmd: true,
 		},
