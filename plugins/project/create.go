@@ -35,7 +35,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 		Actions: append([]actions.Action{
 			go_actions.PrepareProjectStructureAction{},   // basic go project structure
 			go_actions.PrepareEnvironmentFoldersAction{}, // prepares environment files
-			go_actions.PrepareGoConfigFolderAction{},     // config driver
+			go_actions.PrepareGoConfigFolderAction{},
 
 			go_actions.BuildProjectAction{}, // build project in file system
 

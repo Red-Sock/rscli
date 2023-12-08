@@ -9,17 +9,23 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
+	renamer2 "github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type Rest struct {
+	Name string
+
 	Cfg *rscliconfig.RsCliConfig
 	Io  io.StdIO
 }
 
 func (r Rest) GetFolderName() string {
+	if r.Name != "" {
+		return r.Name
+	}
+
 	return "rest"
 }
 
@@ -62,7 +68,7 @@ func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error 
 
 	serverF.Content = renamer.ReplaceProjectNameFull(serverF.Content, proj.GetName())
 
-	go_actions.ReplaceProjectName(proj.GetName(), serverF)
+	renamer2.ReplaceProjectName(proj.GetName(), serverF)
 
 	proj.GetFolder().Add(
 		serverF,
