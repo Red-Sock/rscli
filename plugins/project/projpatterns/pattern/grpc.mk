@@ -14,18 +14,3 @@ gen-server: .pre-gen-server .gen-server
 	protoc --go_out=./pkg/ --go-grpc_out=./pkg/ \
 	--proto_path=. \
 	./api/*.proto
-
-
-### TODO вынести в кодген
-.generate-certs:
-	openssl req -x509 \
-	-newkey rsa:4096 \
-	-keyout key.pem \
-	-out cert.pem \
-	-sha256 \
-	-days 3650 \
-	-nodes \
-	-subj "/C=RE/ST=RSCLI_EXAMPLE/L=RSCLI_EXAMPLE/O=RSCLI_EXAMPLE/OU=RSCLI_EXAMPLE/CN=RSCLI_EXAMPLE"
-
-.generate-server:
-	openssl req -newkey rsa:4096 -nodes -keyout server-key.pem -out server-req.pem -subj "/C=RE/ST=RSCLI_EXAMPLE/L=RSCLI_EXAMPLE/O=RSCLI_EXAMPLE/OU=RSCLI_EXAMPLE/CN=RSCLI_EXAMPLE/emailAddress=RSCLI_EXAMPLE"

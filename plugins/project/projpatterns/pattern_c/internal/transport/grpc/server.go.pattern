@@ -14,41 +14,44 @@ import (
 	"proj_name/internal/config"
 )
 
-type GrpcServer struct {
+type Server struct {
 	srv *grpc.Server
 
 	networkType string
 	address     string
 }
 
-func NewServer(cfg config.Config, server *api.GRPC) *GrpcServer {
+func NewServer(cfg config.Config, server *api.GRPC) *Server {
 	srv := grpc.NewServer()
 
 	// Register your servers here
 
-	return &GrpcServer{
+	return &Server{
 		srv:         srv,
 		networkType: "tcp",
 		address:     "0.0.0.0:" + server.GetPortStr(),
 	}
 }
 
-func (s *GrpcServer) Start(_ context.Context) error {
+func (s *Server) Start(_ context.Context) error {
 	lis, err := net.Listen(s.networkType, s.address)
 	if err != nil {
 		return errors.Wrapf(err, "error when tried to listen for %s, %s", s.networkType, s.address)
 	}
 
-	err = s.srv.Serve(lis)
-	if err != nil {
-		return errors.Wrap(err, "error serving grpc")
-	}
-
-	logrus.Infof("GRPC Server started at %s (%s)", s.address, s.networkType)
+	go func() {
+		logrus.Infof("Starting GRPC Server at %s (%s)", s.address, s.networkType)
+		err = s.srv.Serve(lis)
+		if err != nil {
+			logrus.Errorf("error serving grpc: %s", err)
+		} else {
+			logrus.Infof("GRPC Server at %s is Stopped", s.address)
+		}
+	}()
 	return nil
 }
 
-func (s *GrpcServer) Stop(_ context.Context) error {
+func (s *Server) Stop(_ context.Context) error {
 	logrus.Infof("Stopping GRPC server at %s", s.address)
 	s.srv.GracefulStop()
 	logrus.Infof("GRPC server at %s is stopped", s.address)
