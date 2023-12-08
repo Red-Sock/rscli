@@ -39,10 +39,15 @@ func NewServer(cfg config.Config, server *api.Rest) *Server {
 
 func (s *Server) Start(ctx context.Context) error {
 	go func() {
+		logrus.Infof("Starting REST server at %s", s.HttpServer.Addr)
 		err := s.HttpServer.ListenAndServe()
 		if err != nil && errors.Is(err, http.ErrServerClosed) {
 			logrus.Fatal(err)
+		} else {
+
 		}
+		logrus.Infof("REST server at %s is stopped", s.HttpServer.Addr)
+
 	}()
 
 	return nil

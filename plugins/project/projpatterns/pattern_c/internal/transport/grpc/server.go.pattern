@@ -8,6 +8,7 @@ import (
 
 	"github.com/godverv/matreshka/api"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
 	"proj_name/internal/config"
@@ -43,10 +44,13 @@ func (s *GrpcServer) Start(_ context.Context) error {
 		return errors.Wrap(err, "error serving grpc")
 	}
 
+	logrus.Infof("GRPC Server started at %s (%s)", s.address, s.networkType)
 	return nil
 }
 
 func (s *GrpcServer) Stop(_ context.Context) error {
+	logrus.Infof("Stopping GRPC server at %s", s.address)
 	s.srv.GracefulStop()
+	logrus.Infof("GRPC server at %s is stopped", s.address)
 	return nil
 }

@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/Red-Sock/go_tg v0.0.16
-	github.com/Red-Sock/rscli_example v0.0.0-20231202203649-85f3ba0d017d
 	github.com/Red-Sock/trace-errors v0.0.5
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/godverv/matreshka v0.0.5
