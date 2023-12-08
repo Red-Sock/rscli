@@ -43,5 +43,11 @@ func NewCmd() *cobra.Command {
 		config: cfg,
 	}))
 
+	cmd.AddCommand(newTidyCmd(projectTidy{
+		io:     stdIO,
+		path:   wd,
+		config: cfg,
+	}))
+
 	return cmd
 }

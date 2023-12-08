@@ -14,16 +14,22 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
-type Grpc struct {
+type GrpcServer struct {
+	Name string
+
 	Cfg *rscliconfig.RsCliConfig
 	Io  io.StdIO
 }
 
-func (r Grpc) GetFolderName() string {
+func (r GrpcServer) GetFolderName() string {
+	if r.Name != "" {
+		return r.Name
+	}
+
 	return "grpc"
 }
 
-func (r Grpc) AppendToProject(proj interfaces.Project) error {
+func (r GrpcServer) AppendToProject(proj interfaces.Project) error {
 	protoName := proj.GetShortName() + "_api.proto"
 
 	ok, err := containsDependencyFolder(
@@ -50,7 +56,7 @@ func (r Grpc) AppendToProject(proj interfaces.Project) error {
 	return nil
 }
 
-func (r Grpc) applyApiFolder(proj interfaces.Project, protoPath string) error {
+func (r GrpcServer) applyApiFolder(proj interfaces.Project, protoPath string) error {
 	serverF := projpatterns.ProtoServer.CopyWithNewName(protoPath)
 
 	serverF.Content = renamer.ReplaceProjectNameShort(serverF.Content, proj.GetShortName())
@@ -60,7 +66,7 @@ func (r Grpc) applyApiFolder(proj interfaces.Project, protoPath string) error {
 	return nil
 }
 
-func (r Grpc) applyMakefile(proj interfaces.Project) {
+func (r GrpcServer) applyMakefile(proj interfaces.Project) {
 	f := proj.GetFolder().GetByPath(projpatterns.GrpcMK.Name)
 	if f != nil {
 		return
@@ -69,7 +75,7 @@ func (r Grpc) applyMakefile(proj interfaces.Project) {
 	proj.GetFolder().Add(projpatterns.GrpcMK.Copy())
 }
 
-func (r Grpc) applyConfig(proj interfaces.Project) {
+func (r GrpcServer) applyConfig(proj interfaces.Project) {
 	for _, item := range proj.GetConfig().Servers {
 		if item.GetName() == r.GetFolderName() {
 			return
@@ -83,7 +89,7 @@ func (r Grpc) applyConfig(proj interfaces.Project) {
 		})
 }
 
-func (r Grpc) applyServerFolder(proj interfaces.Project) {
+func (r GrpcServer) applyServerFolder(proj interfaces.Project) {
 	f := proj.GetFolder()
 
 	pth := []string{projpatterns.InternalFolder, projpatterns.TransportFolder, r.GetFolderName()}

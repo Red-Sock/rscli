@@ -9,17 +9,23 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type Telegram struct {
+	Name string
+
 	Cfg *rscliconfig.RsCliConfig
 	Io  io.StdIO
 }
 
 func (t Telegram) GetFolderName() string {
+	if t.Name != "" {
+		return t.Name
+	}
+
 	return projpatterns.TelegramServer
 }
 
@@ -42,7 +48,7 @@ func (t Telegram) AppendToProject(proj interfaces.Project) error {
 func (t Telegram) applyClient(proj interfaces.Project) error {
 	ok, err := containsDependencyFolder(t.Cfg.Env.PathsToClients, proj.GetFolder(), t.GetFolderName())
 	if err != nil {
-		return errors.Wrap(err, "error finding dependency path")
+		return errors.Wrap(err, "error finding Dependency path")
 	}
 
 	if ok {
@@ -52,7 +58,7 @@ func (t Telegram) applyClient(proj interfaces.Project) error {
 	tgConnFile := projpatterns.TgConnFile.CopyWithNewName(
 		path.Join(t.Cfg.Env.PathsToClients[0], t.GetFolderName(), projpatterns.TgConnFile.Name))
 
-	go_actions.ReplaceProjectName(proj.GetName(), tgConnFile)
+	renamer.ReplaceProjectName(proj.GetName(), tgConnFile)
 
 	proj.GetFolder().Add(
 		tgConnFile,
@@ -73,11 +79,11 @@ func (t Telegram) applyFolder(proj interfaces.Project) error {
 
 	tgServer := projpatterns.TgServFile.Copy()
 
-	go_actions.ReplaceProjectName(proj.GetName(), tgServer)
+	renamer.ReplaceProjectName(proj.GetName(), tgServer)
 
 	tgHandlerExample := projpatterns.TgHandlerExampleFile.Copy()
 
-	go_actions.ReplaceProjectName(proj.GetName(), tgHandlerExample)
+	renamer.ReplaceProjectName(proj.GetName(), tgHandlerExample)
 
 	proj.GetFolder().Add(
 		&folder.Folder{
@@ -96,7 +102,7 @@ func (t Telegram) applyFolder(proj interfaces.Project) error {
 }
 
 func (t Telegram) applyConfig(proj interfaces.Project) {
-	for _, srv := range proj.GetConfig().Servers {
+	for _, srv := range proj.GetConfig().Resources {
 		if srv.GetName() == t.GetFolderName() {
 			return
 		}

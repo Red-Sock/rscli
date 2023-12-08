@@ -1,4 +1,4 @@
-package go_actions
+package renamer
 
 import (
 	"bytes"

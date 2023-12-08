@@ -1,13 +1,21 @@
 package go_actions
 
 import (
+	stderrs "errors"
 	"os"
 	"path"
 
 	"github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/api"
+	"github.com/godverv/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
+	rscliconfig "github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 const goBin = "go"
@@ -66,14 +74,9 @@ func (a FormatAction) NameInAction() string {
 type TidyAction struct{}
 
 func (a TidyAction) Do(p interfaces.Project) error {
-	ReplaceProjectName(p.GetName(), p.GetFolder())
+	renamer.ReplaceProjectName(p.GetName(), p.GetFolder())
 
-	err := PrepareGoConfigFolderAction{}.Do(p)
-	if err != nil {
-		return errors.Wrap(err, "error building go config folder")
-	}
-
-	err = p.GetFolder().Build()
+	err := p.GetFolder().Build()
 	if err != nil {
 		return errors.Wrap(err, "error building project")
 	}
@@ -106,4 +109,81 @@ func (a TidyAction) Do(p interfaces.Project) error {
 }
 func (a TidyAction) NameInAction() string {
 	return "Cleaning up the project"
+}
+
+type GenerateClientsAction struct {
+	C  *rscliconfig.RsCliConfig
+	IO io.IO
+}
+
+func (a GenerateClientsAction) Do(p interfaces.Project) error {
+	if a.C == nil {
+		a.C = rscliconfig.GetConfig()
+	}
+
+	if a.IO == nil {
+		a.IO = io.StdIO{}
+	}
+
+	var simpleClients []string
+	var grpcClients []string
+
+	for _, r := range p.GetConfig().Resources {
+		grpcC, ok := r.(*resources.GRPC)
+		if ok {
+			grpcClients = append(grpcClients, grpcC.Module)
+		} else {
+			simpleClients = append(simpleClients, r.GetName())
+		}
+	}
+	var errs []error
+
+	deps := dependencies.GetDependencies(a.C, simpleClients)
+	if len(deps) != 0 {
+		for _, item := range deps {
+			err := item.AppendToProject(p)
+			if err != nil {
+				errs = append(errs, err)
+			}
+		}
+	}
+
+	err := dependencies.GrpcClient{
+		Modules: grpcClients,
+		Cfg:     a.C,
+		Io:      a.IO,
+	}.AppendToProject(p)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	if len(errs) != 0 {
+		return stderrs.Join(errs...)
+	}
+
+	return nil
+}
+
+func (a GenerateClientsAction) NameInAction() string {
+	return "Generating clients"
+}
+
+type GenerateMakefileAction struct{}
+
+func (a GenerateMakefileAction) Do(p interfaces.Project) error {
+	if p.GetFolder().GetByPath(projpatterns.GrpcMK.Name) == nil {
+		for _, s := range p.GetConfig().AppConfig.Servers {
+			_, ok := s.(*api.GRPC)
+			if ok {
+				p.GetFolder().Add(projpatterns.GrpcMK.Copy())
+				return nil
+			}
+		}
+	}
+
+	return nil
+}
+
+func (a GenerateMakefileAction) NameInAction() string {
+	return "Generating Makefile"
 }
