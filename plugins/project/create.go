@@ -8,6 +8,7 @@ import (
 	"github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
 
+	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
@@ -72,6 +73,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 				StartupDuration: startupDuration,
 			},
 		},
+		Path: path.Join(proj.GetProjectPath(), rscliconfig.GetConfig().Env.PathToConfig),
 	}
 
 	return proj, nil
