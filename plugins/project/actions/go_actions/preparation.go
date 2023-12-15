@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"path"
 	"strconv"
+	"strings"
 
 	"github.com/Red-Sock/trace-errors"
 
@@ -20,8 +21,7 @@ func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 
 	{
 		cmd := &folder.Folder{Name: patterns.CmdFolder}
-
-		mainFilePath := path.Join(p.GetShortName(), patterns.MainFile.Name)
+		mainFilePath := path.Join(strings.ToLower(p.GetShortName()), patterns.MainFile.Name)
 
 		cmd.Add(patterns.MainFile.CopyWithNewName(mainFilePath))
 
