@@ -112,6 +112,8 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 		name = p.config.DefaultProjectGitPath + "/" + name
 	}
 
+	name = path.Join(path.Dir(name), strings.ToLower(path.Base(name)))
+
 	return name, nil
 }
 
