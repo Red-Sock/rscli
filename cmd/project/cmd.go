@@ -7,11 +7,6 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 )
 
-const (
-	nameFlag = "name"
-	pathFlag = "path"
-)
-
 func NewCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "project",

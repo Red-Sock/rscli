@@ -15,6 +15,10 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 )
 
+const (
+	pathFlag = "path"
+)
+
 type projectAdd struct {
 	io     io.IO
 	path   string
