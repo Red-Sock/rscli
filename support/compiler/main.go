@@ -91,6 +91,10 @@ func movePattern(patternPath, newPath string) {
 			pathToFile := path.Join(patternPath, itemName)
 			b, err = os.ReadFile(pathToFile)
 			if err != nil {
+				if strings.Contains(err.Error(), "is a directory") {
+					// probably is a sym link. Skip
+					continue
+				}
 				log.Fatal("error reading file:", pathToFile, err)
 			}
 

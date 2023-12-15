@@ -22,5 +22,5 @@ gen-server: .pre-gen-server .gen-server
     		--descriptor_set_out=./pkg/api/api_discriptor.pb \
         	--go_out=./pkg/api/. \
         	--go-grpc_out=./pkg/api/. \
-        	./api/*.proto
+        	./api/grpc/*.proto
 

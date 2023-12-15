@@ -78,6 +78,11 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "error building go config folder")
 	}
 
+	err = go_actions.GenerateServerAction{}.Do(p.proj)
+	if err != nil {
+		return errors.Wrap(err, "error generating server")
+	}
+
 	err = go_actions.TidyAction{}.Do(p.proj)
 	if err != nil {
 		return errors.Wrap(err, "error building golang config")

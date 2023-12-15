@@ -4,6 +4,7 @@ import (
 	stderrs "errors"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/api"
@@ -12,6 +13,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/cmd"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/utils/bins/makefile"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
@@ -166,6 +168,42 @@ func (a GenerateClientsAction) Do(p interfaces.Project) error {
 
 func (a GenerateClientsAction) NameInAction() string {
 	return "Generating clients"
+}
+
+type GenerateServerAction struct {
+	C  *rscliconfig.RsCliConfig
+	IO io.IO
+}
+
+func (a GenerateServerAction) Do(p interfaces.Project) error {
+	err := makefile.Install()
+	if err != nil {
+		return errors.Wrap(err, "error installing makefile")
+	}
+
+	var errs []error
+	for _, f := range p.GetFolder().Inner {
+		if !strings.HasSuffix(f.Name, ".mk") {
+			continue
+		}
+		switch f.Name {
+		case projpatterns.GrpcMK.Name:
+			err = makefile.Run(p.GetProjectPath(), f.Name, "gen")
+			if err != nil {
+				errs = append(errs, err)
+			}
+		}
+	}
+
+	if len(errs) != 0 {
+		return errors.Wrap(stderrs.Join(errs...), "error generating files")
+	}
+
+	return nil
+}
+
+func (a GenerateServerAction) NameInAction() string {
+	return "Generating server"
 }
 
 type GenerateMakefileAction struct{}

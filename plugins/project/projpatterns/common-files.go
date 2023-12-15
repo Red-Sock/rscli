@@ -74,7 +74,7 @@ var (
 )
 
 var (
-	//go:embed pattern_c/api/api.proto
+	//go:embed pattern_c/api/grpc/api.proto
 	protoServer []byte
 	ProtoServer = &folder.Folder{
 		Name:    "api.proto",

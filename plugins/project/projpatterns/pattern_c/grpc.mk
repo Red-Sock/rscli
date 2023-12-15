@@ -7,21 +7,20 @@ deps:
 	go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway@latest
 
 link-gw:
-	ln -s $(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis/google api/google
-	ln -s $(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway
+	ln -sfn $(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis/google api/google
 
 gen-server: .pre-gen-server .gen-server
 
 .pre-gen-server:
-	mkdir -p pkg/
+	mkdir -p pkg/api
 
 .gen-server:
 	protoc \
         	-I=./api \
-        	--grpc-gateway_out=logtostderr=true:./pkg/ \
+        	--grpc-gateway_out=logtostderr=true:./pkg/api/ \
         	--swagger_out=allow_merge=true,merge_file_name=api:./api \
-    		--descriptor_set_out=./pkg/velez_api/api_descriptor.pb \
-        	--go_out=./pkg/ \
-        	--go-grpc_out=./pkg/ \
+    		--descriptor_set_out=./pkg/api/api_discriptor.pb \
+        	--go_out=./pkg/api/. \
+        	--go-grpc_out=./pkg/api/. \
         	./api/grpc/*.proto
 
