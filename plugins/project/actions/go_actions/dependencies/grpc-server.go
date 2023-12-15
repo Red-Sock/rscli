@@ -1,15 +1,18 @@
 package dependencies
 
 import (
+	"bytes"
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/api"
 
+	"github.com/gobeam/stringy"
+
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
@@ -59,7 +62,17 @@ func (r GrpcServer) AppendToProject(proj interfaces.Project) error {
 func (r GrpcServer) applyApiFolder(proj interfaces.Project, protoPath string) error {
 	serverF := projpatterns.ProtoServer.CopyWithNewName(protoPath)
 
-	serverF.Content = renamer.ReplaceProjectNameShort(serverF.Content, proj.GetShortName())
+	projName := stringy.New(proj.GetShortName())
+
+	serverF.Content = bytes.Replace(serverF.Content,
+		[]byte(envpatterns.ProjNamePattern),
+		[]byte(projName.SnakeCase().ToLower()),
+		1)
+
+	serverF.Content = bytes.Replace(serverF.Content,
+		[]byte(envpatterns.ProjNamePattern),
+		[]byte(projName.CamelCase()),
+		1)
 
 	proj.GetFolder().Add(serverF)
 

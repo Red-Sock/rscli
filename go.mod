@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/Red-Sock/trace-errors v0.0.5
+	github.com/gobeam/stringy v0.0.6
 	github.com/godverv/matreshka v0.0.6
 	github.com/gojuno/minimock/v3 v3.1.3
 	github.com/morikuni/aec v1.0.0
