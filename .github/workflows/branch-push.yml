@@ -10,5 +10,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: CreatePR
-        uses: RedSock/PrCreator@latest
+        uses: RedSockActions/create_pr@latest
 
