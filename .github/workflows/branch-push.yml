@@ -29,10 +29,11 @@ jobs:
 
       - name: Setup dependencies
         run: |
-          make -v
-          
           git config --global user.email "test@rscli.ru"
           git config --global user.name "rscli_test"
+          
+          pwd
+
       - name: Install dependencies
         run: go mod tidy
 
