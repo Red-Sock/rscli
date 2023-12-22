@@ -31,10 +31,6 @@ jobs:
         run: |
           git config --global user.email "test@rscli.ru"
           git config --global user.name "rscli_test"
-          
-          pwd
-          echo $GOPATH
-          echo $GOROOT
 
       - name: Install dependencies
         run: go mod tidy
@@ -44,3 +40,5 @@ jobs:
 
       - name: Test with the Go CLI
         run: go test ./...
+        env:
+          GOPATH: ${{ runner.workspace }}
