@@ -29,8 +29,7 @@ jobs:
 
       - name: Setup dependencies
         run: |
-          sudo apt update
-          sudo apt install make -y
+          make -v
           
           git config --global user.email "test@rscli.ru"
           git config --global user.name "rscli_test"
