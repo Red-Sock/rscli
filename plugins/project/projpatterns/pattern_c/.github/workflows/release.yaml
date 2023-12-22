@@ -1,0 +1,15 @@
+name: master-actions
+run-name: RELEASE
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  tag-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release
+        uses: RedSockActions/release_tag@v0.0.5
+        with:
+          token: ${{ github.token }}
