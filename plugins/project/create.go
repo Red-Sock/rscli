@@ -65,6 +65,10 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 		Name: proj.ProjectPath,
 	}
 
+	if args.CfgPath == "" {
+		args.CfgPath = rscliconfig.GetConfig().Env.PathToConfig
+	}
+
 	proj.Cfg = &config.Config{
 		AppConfig: &matreshka.AppConfig{
 			AppInfo: matreshka.AppInfo{
@@ -73,7 +77,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 				StartupDuration: startupDuration,
 			},
 		},
-		Path: path.Join(proj.GetProjectPath(), rscliconfig.GetConfig().Env.PathToConfig),
+		Path: path.Join(proj.GetProjectPath(), args.CfgPath),
 	}
 
 	return proj, nil

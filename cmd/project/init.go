@@ -34,35 +34,34 @@ func newInitCmd(pi projectInit) *cobra.Command {
 		Use:   "init",
 		Short: "Initializes project",
 		Long:  `Can be used to init a project via configuration file, constructor or global config`,
-
-		RunE: pi.run,
+		RunE:  pi.run,
 
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
 
-	c.Flags().StringP(nameFlag, nameFlag[:1], "", `name of project with or without git pass like "rscli" or github.com/RedSock/rscli`)
-	c.Flags().StringP(pathFlag, pathFlag[:1], "", `path to folder with project`)
-
 	return c
 }
 
-func (p *projectInit) run(cmd *cobra.Command, _ []string) error {
-	args := project.CreateArgs{}
+func (p *projectInit) run(cmd *cobra.Command, argsIn []string) error {
+
+	projArgs := project.CreateArgs{
+		CfgPath: p.config.Env.PathToConfig,
+	}
 
 	// step 1: obtain name
 	var err error
-	args.Name, err = p.obtainNameFromUser(cmd)
+	projArgs.Name, err = p.obtainNameFromUser(argsIn)
 	if err != nil {
 		return errors.Wrap(err, "error obtaining name")
 	}
 
-	p.io.PrintlnColored(colors.ColorCyan, fmt.Sprintf(`Wonderful!!! "%s" it is!`, args.Name))
+	p.io.PrintlnColored(colors.ColorCyan, fmt.Sprintf(`Wonderful!!! "%s" it is!`, projArgs.Name))
 
 	// step 2: obtain path to project folder
-	args.ProjectPath = p.obtainFolderPathFromUser(cmd, args.Name)
+	projArgs.ProjectPath = p.obtainFolderPathFromUser(projArgs.Name, argsIn)
 
-	p.proj, err = p.buildProject(args)
+	p.proj, err = p.buildProject(projArgs)
 	if err != nil {
 		return errors.Wrap(err, "error building project")
 	}
@@ -72,8 +71,10 @@ func (p *projectInit) run(cmd *cobra.Command, _ []string) error {
 	return nil
 }
 
-func (p *projectInit) obtainNameFromUser(cmd *cobra.Command) (name string, err error) {
-	name = cmd.Flag(nameFlag).Value.String()
+func (p *projectInit) obtainNameFromUser(args []string) (name string, err error) {
+	if len(args) > 0 {
+		name = args[0]
+	}
 
 	if name == "" {
 		p.io.Print(fmt.Sprintf(`
@@ -113,18 +114,17 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 		name = p.config.DefaultProjectGitPath + "/" + name
 	}
 
+	name = path.Join(path.Dir(name), strings.ToLower(path.Base(name)))
+
 	return name, nil
 }
 
-func (p *projectInit) obtainFolderPathFromUser(cmd *cobra.Command, name string) (dirPath string) {
-	dirPath = cmd.Flag(pathFlag).Value.String()
-	if dirPath != "" {
-		return dirPath
+func (p *projectInit) obtainFolderPathFromUser(name string, args []string) (dirPath string) {
+	if len(args) > 1 {
+		return args[1]
 	}
 
-	dirPath = path.Join(p.path, path.Base(name))
-
-	return dirPath
+	return path.Join(p.path, path.Base(name))
 }
 
 func (p *projectInit) buildProject(args project.CreateArgs) (proj *project.Project, err error) {

@@ -53,6 +53,11 @@ func (p *projectTidy) run(_ *cobra.Command, _ []string) (err error) {
 		return errors.Wrap(err, "error generating clients")
 	}
 
+	err = go_actions.GenerateServerAction{}.Do(p.proj)
+	if err != nil {
+		return errors.Wrap(err, "error generating server")
+	}
+
 	err = go_actions.GenerateMakefileAction{}.Do(p.proj)
 	if err != nil {
 		return errors.Wrap(err, "error generating makefiles")

@@ -23,7 +23,12 @@ type projectAddValidator interface {
 	validate(t *testing.T, pth string)
 }
 
-const configPathToClient = "internal/clients"
+const (
+	stdConfigPathToClient = "internal/clients"
+	stdServerPath         = "internal/transport"
+	stdConfigPath         = "config/config.yaml"
+	projectName           = "rscli"
+)
 
 func Test_ProjectAdd(t *testing.T) {
 	const hintMessage = `
@@ -63,7 +68,7 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 			require.Equal(t, expectedPrint[0], in)
 			expectedPrint = expectedPrint[1:]
 		})
-		ioMock.GetInputMock.Expect().Return("rscli", nil)
+		ioMock.GetInputMock.Expect().Return(projectName, nil)
 
 		expectedColors := []struct {
 			color colors.Color
@@ -77,7 +82,7 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 				color: colors.ColorGreen,
 				text: []string{fmt.Sprintf(`Done.
 Initialized new project github.com/RedSock/rscli
-at %s`, tmpTestDir)},
+at %s/%s`, tmpTestDir, "rscli")},
 			},
 		}
 
@@ -118,19 +123,16 @@ at %s`, tmpTestDir)},
 		p := projectInit{
 			io: ioMock,
 			config: &config.RsCliConfig{
+				Env: config.Project{
+					PathToConfig: stdConfigPath,
+				},
 				DefaultProjectGitPath: "github.com/RedSock",
 			},
 			path: tmpTestDir,
 		}
 
 		cmd := newInitCmd(p)
-
-		err = cmd.Flags().Set(nameFlag, "")
-		require.NoError(t, err, "error setting name flag value")
-
-		err = cmd.Flags().Set(pathFlag, tmpTestDir)
-		require.NoError(t, err, "error setting path flag value")
-
+		cmd.SetArgs([]string{""})
 		err = cmd.Execute()
 		require.NoError(t, err, "error while initiating project")
 		require.True(t, ioMock.MinimockPrintDone())
@@ -169,12 +171,14 @@ at %s`, tmpTestDir)},
 
 			projAdd.config = &config.RsCliConfig{
 				Env: config.Project{
-					PathsToClients: []string{configPathToClient},
+					PathToServers:  []string{stdServerPath},
+					PathToConfig:   stdConfigPath,
+					PathsToClients: []string{stdConfigPathToClient},
 				},
 			}
 
 			cmd := newAddCmd(projAdd)
-			err := cmd.Flags().Set(pathFlag, tmpTestDir)
+			err := cmd.Flags().Set(pathFlag, path.Join(tmpTestDir, projectName))
 			require.NoError(t, err, "error setting path flag value")
 			cmd.SetArgs([]string{resources.PostgresResourceName, resources.RedisResourceName, resources.TelegramResourceName})
 
@@ -194,7 +198,7 @@ func (r redisValidator) getName() string {
 	return resources.RedisResourceName
 }
 func (r redisValidator) validate(t *testing.T, pth string) {
-	pathToRedisConn := path.Join(pth, configPathToClient, resources.RedisResourceName, projpatterns.ConnFileName)
+	pathToRedisConn := path.Join(pth, stdConfigPathToClient, resources.RedisResourceName, projpatterns.ConnFileName)
 	f, err := os.ReadFile(pathToRedisConn)
 	require.NoError(t, err, "error reading redis conn file")
 
@@ -207,7 +211,7 @@ func (r postgresValidator) getName() string {
 	return resources.PostgresResourceName
 }
 func (r postgresValidator) validate(t *testing.T, pth string) {
-	pathToPGFolder := path.Join(pth, configPathToClient, resources.PostgresResourceName)
+	pathToPGFolder := path.Join(pth, stdConfigPathToClient, resources.PostgresResourceName)
 
 	f, err := os.ReadFile(path.Join(pathToPGFolder, projpatterns.PgConnFile.Name))
 	require.NoError(t, err, "error reading postgres conn file")
@@ -224,7 +228,7 @@ func (r telegramValidator) getName() string {
 	return resources.TelegramResourceName
 }
 func (r telegramValidator) validate(t *testing.T, pth string) {
-	pathToTgFolder := path.Join(pth, configPathToClient, resources.TelegramResourceName)
+	pathToTgFolder := path.Join(pth, stdConfigPathToClient, resources.TelegramResourceName)
 
 	f, err := os.ReadFile(path.Join(pathToTgFolder, projpatterns.ConnFileName))
 	require.NoError(t, err, "error reading telegram conn file")
