@@ -32,7 +32,6 @@ jobs:
           git config --global user.email "test@rscli.ru"
           git config --global user.name "rscli_test"
           
-          where go
           pwd
           echo $GOPATH
           echo $GOROOT
