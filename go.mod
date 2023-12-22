@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/Red-Sock/trace-errors v0.0.5
 	github.com/gobeam/stringy v0.0.6
-	github.com/godverv/matreshka v0.0.6
+	github.com/godverv/matreshka v0.0.7
 	github.com/gojuno/minimock/v3 v3.1.3
 	github.com/morikuni/aec v1.0.0
 	github.com/nsf/termbox-go v1.1.1
@@ -15,7 +15,6 @@ require (
 )
 
 require (
-	github.com/Red-Sock/rscli_example v0.0.0-20231207143943-0d3f46e43893 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
