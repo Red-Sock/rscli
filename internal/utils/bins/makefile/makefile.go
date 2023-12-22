@@ -28,6 +28,10 @@ func Install() error {
 		if !Exists() {
 			return installMacOS()
 		}
+	case "linux":
+		if !Exists() {
+			return installLinux()
+		}
 	default:
 		return errors.Wrap(ErrUnsupportedOS, runtime.GOOS)
 	}
@@ -55,5 +59,9 @@ func installMacOS() error {
 		return err
 	}
 
+	return nil
+}
+
+func installLinux() error {
 	return nil
 }

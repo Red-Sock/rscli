@@ -45,7 +45,9 @@ func newInitCmd(pi projectInit) *cobra.Command {
 
 func (p *projectInit) run(cmd *cobra.Command, argsIn []string) error {
 
-	projArgs := project.CreateArgs{}
+	projArgs := project.CreateArgs{
+		CfgPath: p.config.Env.PathToConfig,
+	}
 
 	// step 1: obtain name
 	var err error

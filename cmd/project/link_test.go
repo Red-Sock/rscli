@@ -11,8 +11,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/colors"
 	"github.com/Red-Sock/rscli/tests/mocks"
+)
+
+const (
+	stdPathsToCompiledClients = "pkg/"
 )
 
 func Test_LinkProject(t *testing.T) {
@@ -56,7 +61,7 @@ func Test_LinkProject(t *testing.T) {
 				color: colors.ColorGreen,
 				text: []string{fmt.Sprintf(`Done.
 Initialized new project github.com/RedSock/rscli
-at %s`, tmpTestDir)},
+at %s/%s`, tmpTestDir, projectName)},
 			},
 		}
 
@@ -97,16 +102,25 @@ at %s`, tmpTestDir)},
 		createProject(t, tmpTestDir, ioMock)
 
 		ioMock = mocks.NewIOMock(t)
-		pl := projectLink{}
+		tmpTestDir = path.Join(tmpTestDir, projectName)
+		pl := projectLink{
+			io: ioMock,
+			config: &config.RsCliConfig{
+				Env: config.Project{
+					PathToConfig:           stdConfigPath,
+					PathsToCompiledClients: []string{stdPathsToCompiledClients},
+					PathsToClients:         []string{stdConfigPathToClient},
+				},
+				DefaultProjectGitPath: "github.com/RedSock",
+			},
+			path: tmpTestDir,
+		}
 
 		cmd := newLinkCmd(pl)
 
-		err := cmd.Flags().Set(pathFlag, tmpTestDir)
-		require.NoError(t, err, "error setting path flag value")
+		cmd.SetArgs([]string{"github.com/Red-Sock/rscli_example"})
 
-		cmd.SetArgs([]string{""})
-
-		err = cmd.Execute()
+		err := cmd.Execute()
 		require.NoError(t, err, "error while initiating project")
 		require.True(t, ioMock.MinimockPrintDone())
 		require.True(t, ioMock.MinimockGetInputDone())

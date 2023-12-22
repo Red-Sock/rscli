@@ -1,3 +1,5 @@
+github.com/Red-Sock/rscli_example v0.0.0-20231207143943-0d3f46e43893 h1:MbMr00PzUkA+KSsi7JdxDhq5xhwxfN8qRjXTkBMFHSM=
+github.com/Red-Sock/rscli_example v0.0.0-20231207143943-0d3f46e43893/go.mod h1:O93hoK26slQCqmgVTW1MdQ52fmmo877705KnG0TSCvE=
 github.com/Red-Sock/trace-errors v0.0.5 h1:MgD1AIJ/Qw8QMSoxGJQRUycH2fSRFpq/FtUOxDTb0U4=
 github.com/Red-Sock/trace-errors v0.0.5/go.mod h1:rvIxpJ2M7/XkEnXjXfmQjsaKXYRVGM4TFQ8R5Zo4mSk=
 github.com/bradleyjkemp/cupaloy v2.3.0+incompatible h1:UafIjBvWQmS9i/xRg+CamMrnLTKNzo+bdmT/oH34c2Y=

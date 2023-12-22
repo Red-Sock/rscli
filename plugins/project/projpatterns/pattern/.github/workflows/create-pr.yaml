@@ -1,4 +1,4 @@
-name: branch-push
+name: Push
 run-name: ${{ github.REF_NAME }} pull request
 on:
   push:
@@ -7,36 +7,32 @@ on:
       - RSI-*
 
 jobs:
-  create-pull-request-to-dev:
+  create-pr:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: CreatePR
+        uses: RedSockActions/create_pr@v0.0.2
         with:
-          ref: ${{ github.ref }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Creating PR
-        id: check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          prs=$(gh pr list \
-              --repo "$GITHUB_REPOSITORY" \
-              --json headRefName \
-              --jq '
-                  map(select(.headRefName == "${{ github.REF_NAME }}"))
-                  | length
-              ')
-          
-          echo "Found $prs pull request(s)"
-          
-          if (($prs == 0)); then
-              echo "creating pull request from ${{ github.REF }} to dev branch"
-              
-              gh pr create \
-                -B dev \
-                -H ${{ github.REF }} \
-                --title 'DEV RELEASE OF ${{ github.REF_NAME }}' \
-                --body 'Created by Github action. \
-                [${{ github.REF_NAME }}](https://redsock.youtrack.cloud/issue/${{ github.REF_NAME }})'
-          fi
+  build-and-test:
+    runs-on: ubuntu-latest
+    needs:
+      - create-pr
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Test with the Go CLI
+        run: go test ./...

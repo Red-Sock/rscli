@@ -80,7 +80,6 @@ func LoadProjectConfig(projectPath string, cfg *rscliconfig.RsCliConfig) (c *con
 
 	for _, d := range dir {
 		if strings.HasSuffix(d.Name(), ".yaml") {
-
 			yamlFiles[d.Name()] = struct{}{}
 		}
 	}
