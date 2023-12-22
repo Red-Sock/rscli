@@ -6,7 +6,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 )
 
-var ErrInvalidNameErr = errors.New("name contains invalid symbol")
+var ErrInvalidNameErr = errors.New("name contains invalid symbol(s)")
 
 func ValidateProjectName(p interfaces.Project) error {
 	return ValidateProjectNameStr(p.GetShortName())

@@ -67,7 +67,7 @@ func Test_InitProject(t *testing.T) {
 				color: colors.ColorGreen,
 				text: []string{fmt.Sprintf(`Done.
 Initialized new project github.com/RedSock/rscli
-at %s`, tmpTestDir)},
+at %s/%s`, tmpTestDir, path.Base(pName))},
 			},
 		}
 
@@ -149,7 +149,7 @@ at %s`, tmpTestDir)},
 				color: colors.ColorGreen,
 				text: []string{fmt.Sprintf(`Done.
 Initialized new project `+pName+`
-at %s`, tmpTestDir)},
+at %s/%s`, tmpTestDir, path.Base(pName))},
 			},
 		}
 
@@ -190,19 +190,16 @@ at %s`, tmpTestDir)},
 		p := projectInit{
 			io: ioMock,
 			config: &config.RsCliConfig{
+				Env: config.Project{
+					PathToConfig: stdConfigPath,
+				},
 				DefaultProjectGitPath: "github.com/RedSock",
 			},
 			path: tmpTestDir,
 		}
 
 		cmd := newInitCmd(p)
-
-		err = cmd.Flags().Set(nameFlag, "")
-		require.NoError(t, err, "error setting name flag value")
-
-		err = cmd.Flags().Set(pathFlag, tmpTestDir)
-		require.NoError(t, err, "error setting path flag value")
-
+		cmd.SetArgs([]string{""})
 		err = cmd.Execute()
 		require.NoError(t, err, "error while initiating project")
 		require.True(t, ioMock.MinimockPrintDone())
@@ -251,7 +248,7 @@ at %s`, tmpTestDir)},
 				color: colors.ColorGreen,
 				text: []string{fmt.Sprintf(`Done.
 Initialized new project `+pName+`
-at %s`, tmpTestDir)},
+at %s/%s`, tmpTestDir, path.Base(pName))},
 			},
 		}
 
@@ -352,8 +349,7 @@ at %s`, tmpTestDir)},
 		}
 		cmd := newInitCmd(p)
 
-		err = cmd.Flags().Set(pathFlag, tmpTestDir)
-		require.NoError(t, err, "error while setting path flag")
+		cmd.SetArgs([]string{""})
 
 		err = cmd.Execute()
 		require.Contains(t, err.Error(), emptyNameErr.Error())
@@ -379,10 +375,9 @@ at %s`, tmpTestDir)},
 			},
 		}
 		cmd := newInitCmd(p)
-		err := cmd.Flag("name").Value.Set("")
-		require.NoError(t, err, "error setting flag value")
+		cmd.SetArgs([]string{""})
 
-		err = cmd.Execute()
+		err := cmd.Execute()
 		require.Contains(t, err.Error(), validators.ErrInvalidNameErr.Error())
 		ioMock.MinimockPrintlnInspect()
 		ioMock.MinimockGetInputInspect()
@@ -396,19 +391,16 @@ func createProject(t *testing.T, tmpTestDir string, ioMock *mocks.IOMock) {
 	p := projectInit{
 		io: ioMock,
 		config: &config.RsCliConfig{
+			Env: config.Project{
+				PathToConfig: stdConfigPath,
+			},
 			DefaultProjectGitPath: "github.com/RedSock",
 		},
 		path: tmpTestDir,
 	}
 
 	cmd := newInitCmd(p)
-
-	err = cmd.Flags().Set(nameFlag, "")
-	require.NoError(t, err, "error setting name flag value")
-
-	err = cmd.Flags().Set(pathFlag, tmpTestDir)
-	require.NoError(t, err, "error setting path flag value")
-
+	cmd.SetArgs([]string{""})
 	err = cmd.Execute()
 	require.NoError(t, err, "error while initiating project")
 	require.True(t, ioMock.MinimockPrintDone())

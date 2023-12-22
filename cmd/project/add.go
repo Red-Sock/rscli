@@ -15,6 +15,10 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 )
 
+const (
+	pathFlag = "path"
+)
+
 type projectAdd struct {
 	io     io.IO
 	path   string
@@ -72,6 +76,11 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 	err = go_actions.PrepareGoConfigFolderAction{}.Do(p.proj)
 	if err != nil {
 		return errors.Wrap(err, "error building go config folder")
+	}
+
+	err = go_actions.GenerateServerAction{}.Do(p.proj)
+	if err != nil {
+		return errors.Wrap(err, "error generating server")
 	}
 
 	err = go_actions.TidyAction{}.Do(p.proj)
