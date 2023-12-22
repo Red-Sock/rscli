@@ -3,7 +3,7 @@ run-name: RELEASE
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   tag-release:
@@ -13,4 +13,3 @@ jobs:
         uses: RedSockActions/release_tag@v0.0.5
         with:
           token: ${{ github.token }}
-          config_path: version/version.yaml
