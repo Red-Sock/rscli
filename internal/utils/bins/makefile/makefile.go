@@ -63,5 +63,5 @@ func installMacOS() error {
 }
 
 func installLinux() error {
-	return ErrUnsupportedOS
+	return nil
 }
