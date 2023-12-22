@@ -10,6 +10,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/colors"
+	"github.com/Red-Sock/rscli/version"
 )
 
 func main() {
@@ -18,7 +19,7 @@ func main() {
 
 		Short: "RsCLI is a tool for handling developers environment",
 
-		Version: "0.0.31",
+		Version: version.GetVersion(),
 		CompletionOptions: cobra.CompletionOptions{
 			DisableDefaultCmd: true,
 		},
