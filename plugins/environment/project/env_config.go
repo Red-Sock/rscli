@@ -45,7 +45,7 @@ func (e *envConfig) fetch(cfg *config.RsCliConfig, pathToProjectEnv, pathToProje
 		}
 	}
 
-	e.AppConfig, err = matreshka.ReadConfig(e.pth)
+	e.AppConfig, err = matreshka.ReadConfigs(e.pth)
 	if err != nil {
 		return errors.Wrap(err, "error parsing config")
 	}

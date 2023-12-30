@@ -44,8 +44,8 @@ github.com/go-sql-driver/mysql v1.7.1 h1:lUIinVbN1DY0xBg0eMOzmmtGoHwWBbvnWubQUrt
 github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0/go.mod h1:fyg7847qk6SyHyPtNmDHnmrv/HOrqktSC+C9fM+CJOE=
 github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1 h1:wG8n/XJQ07TmjbITcGiUaOtXxdrINDz1b0J1w0SzqDc=
 github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1/go.mod h1:A2S0CWkNylc2phvKXWBBdD3K0iGnDBGbzRpISP2zBl8=
-github.com/godverv/matreshka v0.0.7-0.20231215153604-930b3b20f758 h1:yvPFdTNgjGN8Ou/uWKzNplNTDfgma9cTe4xJyMRk6HM=
-github.com/godverv/matreshka v0.0.7-0.20231215153604-930b3b20f758/go.mod h1:C4F6vlLi0wyIvir8O1DYfkkAQVk5dSaGs/vLk98kN48=
+github.com/godverv/matreshka v0.0.7 h1:D3NqYu/3tI8FHGw0EEtgtwQ1yR9ZT68EJpfz02SQYco=
+github.com/godverv/matreshka v0.0.7/go.mod h1:C4F6vlLi0wyIvir8O1DYfkkAQVk5dSaGs/vLk98kN48=
 github.com/gogo/protobuf v1.3.2 h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=
 github.com/golang-jwt/jwt/v4 v4.5.0 h1:7cYmW1XlMY7h7ii7UhUyChSgS5wUJEnm9uZVTGqOWzg=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
