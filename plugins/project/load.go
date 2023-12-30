@@ -94,7 +94,7 @@ func LoadProjectConfig(projectPath string, cfg *rscliconfig.RsCliConfig) (c *con
 
 	c.Path = path.Join(configDirPath, configPath)
 
-	c.AppConfig, err = matreshka.ReadConfig(c.Path)
+	c.AppConfig, err = matreshka.ReadConfigs(c.Path)
 	if err != nil {
 		return nil, errors.Wrap(err, "error parsing config")
 	}
