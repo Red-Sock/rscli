@@ -29,7 +29,7 @@ func Load() (Config, error) {
 		}
 	}
 
-	cfg, err := matreshka.ReadConfig(cfgPath)
+	cfg, err := matreshka.ReadConfigs(cfgPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "error reading matreshka config")
 	}
