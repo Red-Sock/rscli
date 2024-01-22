@@ -19,7 +19,7 @@ func Exists() bool {
 		Tool: bin,
 		Args: []string{"--help"},
 	})
-	return err != nil
+	return err == nil
 }
 
 func Install() error {

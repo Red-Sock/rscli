@@ -15,6 +15,7 @@ require (
 )
 
 require (
+	github.com/Red-Sock/rscli_example v0.0.0-20231207143943-0d3f46e43893 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
