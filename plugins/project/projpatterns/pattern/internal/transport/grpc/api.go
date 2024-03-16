@@ -3,7 +3,7 @@ package grpc
 import (
 	"time"
 
-	api "proj_name/pkg/api/example_api"
+	api "proj_name/pkg/example_api"
 )
 
 type ExampleApi struct {
