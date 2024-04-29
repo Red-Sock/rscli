@@ -10,23 +10,24 @@ import (
 	"time"
 
 	"github.com/godverv/matreshka/api"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/soheilhy/cmux"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"proj_name/internal/config"
-	"proj_name/pkg/api/example_api"
+	"proj_name/pkg/example_api"
 )
 
 type Server struct {
-	grpcServer *grpc.Server
-	gwServer   *http.Server
+	serverMux cmux.CMux
 
-	grpcAddress string
-	gwAddress   string
-	m           sync.Mutex
+	grpcServer *grpc.Server
+
+	serverAddress string
+	m             sync.Mutex
 }
 
 func NewServer(cfg config.Config, server *api.GRPC) (*Server, error) {
@@ -40,8 +41,9 @@ func NewServer(cfg config.Config, server *api.GRPC) (*Server, error) {
 	})
 
 	return &Server{
-		grpcAddress: ":" + server.GetPortStr(),
-		gwAddress:   ":" + server.GetGatewayPortStr(),
+		grpcServer: srv,
+
+		serverAddress: ":" + server.GetPortStr(),
 	}, nil
 }
 
@@ -49,74 +51,68 @@ func (s *Server) Start(_ context.Context) error {
 	s.m.Lock()
 	defer s.m.Unlock()
 
-	if s.grpcAddress != ":" {
-		lis, err := net.Listen("tcp", s.grpcAddress)
-		if err != nil {
-			return errors.Wrapf(err, "error when tried to listen on %s", s.grpcAddress)
-		}
-
-		go s.startGrpcServer(lis)
-	} else {
-		logrus.Warn("no grpc port specified")
+	listener, err := net.Listen("tcp", s.serverAddress)
+	if err != nil {
+		return errors.Wrap(err, "error opening listener")
 	}
+	s.serverMux = cmux.New(listener)
 
-	mux := runtime.NewServeMux(
-		runtime.WithMarshalerOption(
-			runtime.MIMEWildcard, &runtime.JSONPb{OrigName: true, EmitDefaults: true}))
+	go s.startGRPC()
 
-	if s.gwAddress != ":" {
-		err := example_api.RegisterProjNameAPIHandlerFromEndpoint(
-			context.TODO(),
-			mux,
-			s.grpcAddress,
-			[]grpc.DialOption{
-				grpc.WithBlock(),
-				grpc.WithTransportCredentials(insecure.NewCredentials()),
-			})
+	go s.startGateway()
+
+	go func() {
+		err := s.serverMux.Serve()
 		if err != nil {
-			logrus.Errorf("error registering grpc2http handler: %s", err)
+			logrus.Errorf("error service server %s", err)
 		}
-		s.gwServer = &http.Server{
-			Addr:    s.gwAddress,
-			Handler: mux,
-		}
-
-		go s.startGrpcGwServer()
-	} else {
-		logrus.Warn("no grpc gateway port specified")
-	}
+	}()
 
 	return nil
 }
 
-func (s *Server) Stop(ctx context.Context) error {
-	logrus.Infof("Stopping GRPC-GW server at %s", s.gwAddress)
-	err := s.gwServer.Shutdown(ctx)
-	if err != nil {
-		logrus.Errorf("error shutting down grpc-gw server at %s", s.gwAddress)
-	}
-
-	logrus.Infof("Stopping GRPC server at %s", s.grpcAddress)
+func (s *Server) Stop(_ context.Context) error {
 	s.grpcServer.GracefulStop()
-	logrus.Infof("GRPC server at %s is stopped", s.grpcAddress)
+	logrus.Infof("Server at %s is stopped", s.serverAddress)
 
-	return err
+	return nil
 }
 
-func (s *Server) startGrpcServer(lis net.Listener) {
-	logrus.Infof("Starting GRPC Server at %s (%s)", s.grpcAddress, "tcp")
-	err := s.grpcServer.Serve(lis)
+func (s *Server) startGRPC() {
+	grpcListener := s.serverMux.Match(cmux.HTTP2())
+
+	logrus.Infof("Starting server at %s", s.serverAddress)
+
+	err := s.grpcServer.Serve(grpcListener)
 	if err != nil {
-		logrus.Errorf("error serving grpc: %s", err)
-	} else {
-		logrus.Infof("GRPC Server at %s is Stopped", s.grpcAddress)
+		logrus.Errorf("error starting grpc server: %s", err)
 	}
 }
 
-func (s *Server) startGrpcGwServer() {
-	logrus.Infof("Starting HTTP Server at %s", s.gwAddress)
-	err := s.gwServer.ListenAndServe()
+func (s *Server) startGateway() {
+	httpListener := s.serverMux.Match(cmux.HTTP1Fast())
+
+	httpMux := runtime.NewServeMux(
+		runtime.WithMarshalerOption(
+			runtime.MIMEWildcard, &runtime.JSONPb{}))
+
+	err := example_api.RegisterProjNameAPIHandlerFromEndpoint(
+		context.Background(),
+		httpMux,
+		s.serverAddress,
+		[]grpc.DialOption{
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		})
 	if err != nil {
-		logrus.Errorf("error starting grpc2http handler: %s", err)
+		logrus.Errorf("error registering grpc2http handler: %s", err)
+	}
+	server := &http.Server{
+		Addr:    s.serverAddress,
+		Handler: httpMux,
+	}
+
+	err = server.Serve(httpListener)
+	if err != nil {
+		logrus.Errorf("error starting gateway: %s", err)
 	}
 }

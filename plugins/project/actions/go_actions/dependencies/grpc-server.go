@@ -80,12 +80,12 @@ func (r GrpcServer) applyApiFolder(proj interfaces.Project, protoPath string) er
 }
 
 func (r GrpcServer) applyMakefile(proj interfaces.Project) {
-	f := proj.GetFolder().GetByPath(projpatterns.GrpcMK.Name)
+	f := proj.GetFolder().GetByPath(projpatterns.ScriptsFolder, projpatterns.GrpcMK.Name)
 	if f != nil {
 		return
 	}
 
-	proj.GetFolder().Add(projpatterns.GrpcMK.Copy())
+	proj.GetFolder().GetByPath(projpatterns.ScriptsFolder).Add(projpatterns.GrpcMK.Copy())
 }
 
 func (r GrpcServer) applyConfig(proj interfaces.Project) {

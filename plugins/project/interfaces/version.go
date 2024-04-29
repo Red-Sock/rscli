@@ -73,8 +73,7 @@ func (v *Version) String() string {
 }
 
 func (v *Version) UpdateProjectVersion(p Project) error {
-
-	mkFile := p.GetFolder().GetByPath(projpatterns.RscliMK.Name)
+	mkFile := p.GetFolder().GetByPath(projpatterns.ScriptsFolder, projpatterns.RscliMK.Name)
 
 	rvBytes := []byte("RSCLI_VERSION=")
 	startIdx := bytes.Index(mkFile.Content, rvBytes)
@@ -110,7 +109,7 @@ type tagVersion int
 func LoadProjectVersion(p Project) error {
 	out, err := cmd.Execute(cmd.Request{
 		Tool:    "make",
-		Args:    []string{"-f", projpatterns.RscliMK.Name, "rscli-version"},
+		Args:    []string{"rscli-version"},
 		WorkDir: p.GetProjectPath(),
 	})
 	if err != nil {

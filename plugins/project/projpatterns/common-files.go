@@ -34,6 +34,12 @@ var (
 		Name:    ".golangci.yaml",
 		Content: linter,
 	}
+	//go:embed pattern_c/Makefile
+	makefile []byte
+	Makefile = &folder.Folder{
+		Name:    "Makefile",
+		Content: makefile,
+	}
 )
 
 // Documentation

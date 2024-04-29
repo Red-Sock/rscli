@@ -1,13 +1,20 @@
-FROM golang as builder
+FROM --platform=$BUILDPLATFORM golang as builder
 
 WORKDIR /app
-COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o /deploy/server/main ./cmd/main.go
+ARG TARGETOS TARGETARCH
+
+RUN --mount=target=. \
+    --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg \
+    GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o /deploy/server/service ./cmd/service/main.go && \
+    cp -r config /deploy/server/config
 
 FROM alpine
 
-WORKDIR /app
-COPY --from=builder ./deploy/server/ .
+LABEL MATRESHKA_CONFIG_ENABLED=true
 
-EXPOSE 8080
+WORKDIR /app
+COPY --from=builder /deploy/server/ .
+
+ENTRYPOINT ["./service"]

@@ -106,8 +106,16 @@ func (a PrepareEnvironmentFoldersAction) Do(p interfaces.Project) error {
 		patterns.Readme.Copy(),
 		patterns.GitIgnore.Copy(),
 		patterns.Linter.Copy(),
-		patterns.RscliMK.Copy(),
+		patterns.Makefile.Copy(),
 	)
+
+	scripts := &folder.Folder{
+		Name: patterns.ScriptsFolder,
+	}
+	p.GetFolder().Add(scripts)
+
+	scripts.Add(patterns.RscliMK.Copy())
+
 	return nil
 }
 func (a PrepareEnvironmentFoldersAction) NameInAction() string {

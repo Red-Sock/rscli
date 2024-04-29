@@ -17,3 +17,7 @@ testproj:
     go run ./../main.go project init Testproj &&\
     cd testproj &&\
     go mod tidy
+
+
+dev-build:
+	go build -o $(GOBIN)/rscli-dev .

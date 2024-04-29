@@ -21,7 +21,6 @@ func NewServer(cfg config.Config, bot *client.Bot) (s *Server) {
 	{
 		// Add handlers here
 		s.bot.AddCommandHandler(version.New(cfg))
-
 	}
 
 	return s

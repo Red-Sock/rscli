@@ -6,13 +6,14 @@ import (
 	"path"
 	"strings"
 
-	"github.com/Red-Sock/trace-errors"
+	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/api"
 	"github.com/godverv/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/bins/makefile"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
@@ -209,11 +210,19 @@ func (a GenerateServerAction) NameInAction() string {
 type GenerateMakefileAction struct{}
 
 func (a GenerateMakefileAction) Do(p interfaces.Project) error {
-	if p.GetFolder().GetByPath(projpatterns.GrpcMK.Name) == nil {
+	scriptsFolder := p.GetFolder().GetByPath(projpatterns.ScriptsFolder)
+	if scriptsFolder == nil {
+		scriptsFolder = &folder.Folder{
+			Name: projpatterns.ScriptsFolder,
+		}
+		p.GetFolder().Add(scriptsFolder)
+	}
+
+	if scriptsFolder.GetByPath(projpatterns.GrpcMK.Name) == nil {
 		for _, s := range p.GetConfig().AppConfig.Servers {
 			_, ok := s.(*api.GRPC)
 			if ok {
-				p.GetFolder().Add(projpatterns.GrpcMK.Copy())
+				scriptsFolder.Add(projpatterns.GrpcMK.Copy())
 				return nil
 			}
 		}
