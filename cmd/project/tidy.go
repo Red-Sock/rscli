@@ -44,30 +44,40 @@ func (p *projectTidy) run(_ *cobra.Command, _ []string) (err error) {
 		}
 	}
 
-	err = go_actions.PrepareGoConfigFolderAction{}.Do(p.proj)
+	err = tidy(p.proj)
+	if err != nil {
+		return errors.Wrap(err, "error performing tidy")
+	}
+
+	return nil
+}
+
+func tidy(proj *project.Project) error {
+	err := go_actions.PrepareGoConfigFolderAction{}.Do(proj)
 	if err != nil {
 		return errors.Wrap(err, "error building go config folder")
 	}
 
-	err = go_actions.GenerateClientsAction{}.Do(p.proj)
-	if err != nil {
-		return errors.Wrap(err, "error generating clients")
-	}
-
-	err = go_actions.GenerateServerAction{}.Do(p.proj)
-	if err != nil {
-		return errors.Wrap(err, "error generating server")
-	}
-
-	err = go_actions.GenerateMakefileAction{}.Do(p.proj)
+	err = go_actions.PrepareMakefileAction{}.Do(proj)
 	if err != nil {
 		return errors.Wrap(err, "error generating makefiles")
 	}
 
-	err = go_actions.TidyAction{}.Do(p.proj)
+	err = go_actions.GenerateClientsAction{}.Do(proj)
+	if err != nil {
+		return errors.Wrap(err, "error generating clients")
+	}
+
+	err = go_actions.GenerateServerAction{}.Do(proj)
+	if err != nil {
+		return errors.Wrap(err, "error generating server")
+	}
+
+	err = go_actions.TidyAction{}.Do(proj)
 	if err != nil {
 		return errors.Wrap(err, "error tiding project")
 	}
 
 	return nil
+
 }

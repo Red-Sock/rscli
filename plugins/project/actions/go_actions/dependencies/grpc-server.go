@@ -51,7 +51,6 @@ func (r GrpcServer) AppendToProject(proj interfaces.Project) error {
 		}
 	}
 
-	r.applyMakefile(proj)
 	r.applyConfig(proj)
 	r.applyServerFolder(proj)
 
@@ -77,15 +76,6 @@ func (r GrpcServer) applyApiFolder(proj interfaces.Project, protoPath string) er
 	proj.GetFolder().Add(serverF)
 
 	return nil
-}
-
-func (r GrpcServer) applyMakefile(proj interfaces.Project) {
-	f := proj.GetFolder().GetByPath(projpatterns.ScriptsFolder, projpatterns.GrpcMK.Name)
-	if f != nil {
-		return
-	}
-
-	proj.GetFolder().GetByPath(projpatterns.ScriptsFolder).Add(projpatterns.GrpcMK.Copy())
 }
 
 func (r GrpcServer) applyConfig(proj interfaces.Project) {

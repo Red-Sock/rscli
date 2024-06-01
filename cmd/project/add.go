@@ -1,7 +1,6 @@
 package project
 
 import (
-	"os"
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
@@ -11,7 +10,6 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 )
 
@@ -50,42 +48,16 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "error loading project")
 	}
 
-	deps := dependencies.GetDependencies(p.config, args)
-	for _, d := range deps {
+	for _, d := range dependencies.GetDependencies(p.config, args) {
 		err = d.AppendToProject(p.proj)
 		if err != nil {
 			return errors.Wrap(err, "error adding dependency to project")
 		}
 	}
 
-	err = p.proj.GetFolder().Build()
+	err = tidy(p.proj)
 	if err != nil {
-		return errors.Wrap(err, "error building folders")
-	}
-
-	b, err := p.proj.GetConfig().Marshal()
-	if err != nil {
-		return errors.Wrap(err, "error building config")
-	}
-
-	err = os.WriteFile(p.proj.GetConfig().Path, b, os.ModePerm)
-	if err != nil {
-		return errors.Wrap(err, "error writing config to file")
-	}
-
-	err = go_actions.PrepareGoConfigFolderAction{}.Do(p.proj)
-	if err != nil {
-		return errors.Wrap(err, "error building go config folder")
-	}
-
-	err = go_actions.GenerateServerAction{}.Do(p.proj)
-	if err != nil {
-		return errors.Wrap(err, "error generating server")
-	}
-
-	err = go_actions.TidyAction{}.Do(p.proj)
-	if err != nil {
-		return errors.Wrap(err, "error building golang config")
+		return errors.Wrap(err, "error tidying project")
 	}
 
 	err = git.ForceCommit(p.proj.GetProjectPath(), "added "+strings.Join(args, "; "))

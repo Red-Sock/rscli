@@ -34,19 +34,18 @@ const ({{range $_, $val := .}}
 type PrepareGoConfigFolderAction struct{}
 
 func (a PrepareGoConfigFolderAction) Do(p interfaces.Project) (err error) {
-	configFolderPath := path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder)
+	goConfigFolderPath := path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder)
 	p.GetFolder().Add(&folder.Folder{
-		Name: configFolderPath,
+		Name: goConfigFolderPath,
 	})
-
-	goConfigFolder := p.GetFolder().GetByPath(configFolderPath)
+	goConfigFolder := p.GetFolder().GetByPath(goConfigFolderPath)
 
 	err = a.generateGoKeysFile(p, goConfigFolder)
 	if err != nil {
 		return errors.Wrap(err, "error generating keys go-file")
 	}
 
-	a.generateGoConfigFiles(goConfigFolder)
+	goConfigFolder.Add(projpatterns.AutoloadConfigFile.Copy())
 
 	err = a.generateConfigYamlFile(p)
 	if err != nil {
@@ -105,10 +104,6 @@ func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, go
 	goConfigFolder.Add(cfgKeysFile)
 
 	return nil
-}
-
-func (a PrepareGoConfigFolderAction) generateGoConfigFiles(goConfigFolder *folder.Folder) {
-	goConfigFolder.Add(projpatterns.AutoloadConfigFile.Copy())
 }
 
 func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p interfaces.Project) error {

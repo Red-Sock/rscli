@@ -36,8 +36,6 @@ const (
 	ConfigTemplate     = "config_template.yaml"
 	ConfigKeysFileName = "keys.go"
 
-	ScriptsFolder = "scripts"
-
 	GoMod = "go.mod"
 
 	ExampleFile = ".example"

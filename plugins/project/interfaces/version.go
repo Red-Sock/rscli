@@ -72,8 +72,9 @@ func (v *Version) String() string {
 	return "V" + strconv.Itoa(v.Major) + "." + strconv.Itoa(v.Minor) + "." + strconv.Itoa(v.Negligible) + tag
 }
 
+// TODO не нужно?
 func (v *Version) UpdateProjectVersion(p Project) error {
-	mkFile := p.GetFolder().GetByPath(projpatterns.ScriptsFolder, projpatterns.RscliMK.Name)
+	mkFile := p.GetFolder().GetByPath(projpatterns.Makefile.Name)
 
 	rvBytes := []byte("RSCLI_VERSION=")
 	startIdx := bytes.Index(mkFile.Content, rvBytes)

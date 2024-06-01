@@ -4,16 +4,13 @@ import (
 	stderrs "errors"
 	"os"
 	"path"
-	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
-	"github.com/godverv/matreshka/servers"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/bins/makefile"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
@@ -166,7 +163,6 @@ func (a GenerateClientsAction) Do(p interfaces.Project) error {
 
 	return nil
 }
-
 func (a GenerateClientsAction) NameInAction() string {
 	return "Generating clients"
 }
@@ -182,55 +178,20 @@ func (a GenerateServerAction) Do(p interfaces.Project) error {
 		return errors.Wrap(err, "error installing makefile")
 	}
 
-	var errs []error
-	for _, f := range p.GetFolder().Inner {
-		if !strings.HasSuffix(f.Name, ".mk") {
-			continue
-		}
-		switch f.Name {
-		case projpatterns.GrpcMK.Name:
-			err = makefile.Run(p.GetProjectPath(), f.Name, "gen")
-			if err != nil {
-				errs = append(errs, err)
-			}
-		}
-	}
-
-	if len(errs) != 0 {
-		return errors.Wrap(stderrs.Join(errs...), "error generating files")
-	}
+	err = makefile.Run(p.GetProjectPath(), projpatterns.Makefile.Name, "gen-server")
 
 	return nil
 }
-
 func (a GenerateServerAction) NameInAction() string {
 	return "Generating server"
 }
 
-type GenerateMakefileAction struct{}
+type PrepareMakefileAction struct{}
 
-func (a GenerateMakefileAction) Do(p interfaces.Project) error {
-	scriptsFolder := p.GetFolder().GetByPath(projpatterns.ScriptsFolder)
-	if scriptsFolder == nil {
-		scriptsFolder = &folder.Folder{
-			Name: projpatterns.ScriptsFolder,
-		}
-		p.GetFolder().Add(scriptsFolder)
-	}
-
-	if scriptsFolder.GetByPath(projpatterns.GrpcMK.Name) == nil {
-		for _, s := range p.GetConfig().AppConfig.Servers {
-			_, ok := s.(*servers.GRPC)
-			if ok {
-				scriptsFolder.Add(projpatterns.GrpcMK.Copy())
-				return nil
-			}
-		}
-	}
-
+func (a PrepareMakefileAction) Do(p interfaces.Project) error {
+	// TODO ASSEMBLE MAKEFILE
 	return nil
 }
-
-func (a GenerateMakefileAction) NameInAction() string {
+func (a PrepareMakefileAction) NameInAction() string {
 	return "Generating Makefile"
 }
