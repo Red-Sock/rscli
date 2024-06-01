@@ -59,13 +59,13 @@ func (p Redis) applyClientFolder(proj interfaces.Project) error {
 }
 
 func (p Redis) applyConfig(proj interfaces.Project) {
-	for _, item := range proj.GetConfig().Resources {
+	for _, item := range proj.GetConfig().DataSources {
 		if item.GetName() == p.GetFolderName() {
 			return
 		}
 	}
 
-	proj.GetConfig().Resources = append(proj.GetConfig().Resources,
+	proj.GetConfig().DataSources = append(proj.GetConfig().DataSources,
 		&resources.Redis{
 			Name: resources.Name(p.GetFolderName()),
 			Host: "localhost",

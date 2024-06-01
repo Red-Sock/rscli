@@ -1,13 +1,15 @@
 module proj_name
 
-go 1.20
+go 1.22
+
+toolchain go1.22.1
 
 require (
 	github.com/Red-Sock/go_tg v0.0.16
-	github.com/Red-Sock/trace-errors v0.0.5
+	github.com/Red-Sock/trace-errors v0.0.6
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/godverv/matreshka v0.0.8
-	github.com/golang/protobuf v1.5.3
+	github.com/godverv/matreshka v0.0.18
+	github.com/golang/protobuf v1.5.4
 	github.com/gorilla/mux v1.8.1
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1
@@ -17,9 +19,9 @@ require (
 	github.com/rs/cors v1.10.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/soheilhy/cmux v0.1.5
-	google.golang.org/genproto/googleapis/api v0.0.0-20240125205218-1f4bbc51befe
-	google.golang.org/grpc v1.61.0
-	google.golang.org/protobuf v1.32.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20240429193739-8cf5692501f6
+	google.golang.org/grpc v1.64.0
+	google.golang.org/protobuf v1.34.0
 )
 
 require (
@@ -33,12 +35,12 @@ require (
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/sethvargo/go-retry v0.2.4 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.18.0 // indirect
-	golang.org/x/net v0.20.0 // indirect
-	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
+	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto v0.0.0-20240116215550-a9fa1716bcac // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240125205218-1f4bbc51befe // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240415180920-8c6c420018be // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

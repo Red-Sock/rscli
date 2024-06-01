@@ -70,7 +70,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 	}
 
 	proj.Cfg = &config.Config{
-		AppConfig: &matreshka.AppConfig{
+		AppConfig: matreshka.AppConfig{
 			AppInfo: matreshka.AppInfo{
 				Name:            proj.GetName(),
 				Version:         defaultVersion,

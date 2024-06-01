@@ -92,23 +92,11 @@ var (
 
 // Config parser files
 var (
-	//go:embed pattern_c/internal/config/config.go.pattern
-	configFile []byte
-	ConfigFile = &folder.Folder{
-		Name:    "config.go",
-		Content: configFile,
-	}
 	//go:embed pattern_c/internal/config/autoload.go.pattern
 	autoloadConfigFile []byte
 	AutoloadConfigFile = &folder.Folder{
 		Name:    "autoload.go",
 		Content: autoloadConfigFile,
-	}
-	//go:embed pattern_c/internal/config/static.go.pattern
-	staticConfigFile []byte
-	StaticConfigFile = &folder.Folder{
-		Name:    "static.go",
-		Content: staticConfigFile,
 	}
 )
 

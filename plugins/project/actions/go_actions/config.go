@@ -61,18 +61,15 @@ func (a PrepareGoConfigFolderAction) NameInAction() string {
 }
 
 func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, goConfigFolder *folder.Folder) error {
-	keys, err := matreshka.GenerateKeys(*p.GetConfig().AppConfig)
-	if err != nil {
-		return errors.Wrap(err, "error generating environment keys")
-	}
+	keys := matreshka.GenerateKeys(p.GetConfig().AppConfig)
 
-	if len(keys) == 0 {
+	if len(keys.DataSources) == 0 || len(keys.Servers) == 0 || len(keys.Environment) == 0 {
 		goConfigFolder.GetByPath(projpatterns.ConfigKeysFileName).Delete()
 		return nil
 	}
 
 	buf := &rw.RW{}
-	err = configKeysTemplate.Execute(buf, keys)
+	err := configKeysTemplate.Execute(buf, keys)
 	if err != nil {
 		return errors.Wrap(err, "error executing config keys template on generating")
 	}
@@ -88,9 +85,7 @@ func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, go
 }
 
 func (a PrepareGoConfigFolderAction) generateGoConfigFiles(goConfigFolder *folder.Folder) {
-	goConfigFolder.Add(projpatterns.ConfigFile.Copy())
 	goConfigFolder.Add(projpatterns.AutoloadConfigFile.Copy())
-	goConfigFolder.Add(projpatterns.StaticConfigFile.Copy())
 }
 
 func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p interfaces.Project) error {

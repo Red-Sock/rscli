@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/api"
 	"github.com/godverv/matreshka/resources"
+	"github.com/godverv/matreshka/servers"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
@@ -131,7 +131,7 @@ func (a GenerateClientsAction) Do(p interfaces.Project) error {
 	var simpleClients []string
 	var grpcClients []string
 
-	for _, r := range p.GetConfig().Resources {
+	for _, r := range p.GetConfig().DataSources {
 		grpcC, ok := r.(*resources.GRPC)
 		if ok {
 			grpcClients = append(grpcClients, grpcC.Module)
@@ -220,7 +220,7 @@ func (a GenerateMakefileAction) Do(p interfaces.Project) error {
 
 	if scriptsFolder.GetByPath(projpatterns.GrpcMK.Name) == nil {
 		for _, s := range p.GetConfig().AppConfig.Servers {
-			_, ok := s.(*api.GRPC)
+			_, ok := s.(*servers.GRPC)
 			if ok {
 				scriptsFolder.Add(projpatterns.GrpcMK.Copy())
 				return nil

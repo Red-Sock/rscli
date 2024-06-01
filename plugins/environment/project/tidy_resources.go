@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/compose"
 	"github.com/Red-Sock/rscli/internal/compose/env"
@@ -15,22 +14,22 @@ import (
 )
 
 func (e *ProjEnv) tidyResources(enableService bool) error {
-	sort.Slice(e.Config.AppConfig.Resources, func(i, j int) bool {
-		return e.Config.AppConfig.Resources[i].GetName() > e.Config.AppConfig.Resources[j].GetName()
+	sort.Slice(e.Config.AppConfig.DataSources, func(i, j int) bool {
+		return e.Config.AppConfig.DataSources[i].GetName() > e.Config.AppConfig.DataSources[j].GetName()
 	})
 
-	for idx := range e.Config.AppConfig.Resources {
+	for idx := range e.Config.AppConfig.DataSources {
 		err := e.tidyResource(e.projName, idx, enableService)
 		if err != nil {
 			return errors.Wrap(err, "error tiding resource "+
-				e.Config.AppConfig.Resources[idx].GetName())
+				e.Config.AppConfig.DataSources[idx].GetName())
 		}
 	}
 
 	for name := range e.Compose.Services {
 		foundInConfig := false
 
-		for _, cfgRes := range e.Config.AppConfig.Resources {
+		for _, cfgRes := range e.Config.AppConfig.DataSources {
 			if name == cfgRes.GetName() || name == e.projName {
 				foundInConfig = true
 				break
@@ -46,11 +45,11 @@ func (e *ProjEnv) tidyResources(enableService bool) error {
 }
 
 func (e *ProjEnv) tidyResource(projName string, resourceIdx int, enableService bool) error {
-	resource, err := e.globalComposePatternManager.GetServiceDependencies(e.Config.Resources[resourceIdx])
+	resource, err := e.globalComposePatternManager.GetServiceDependencies(e.Config.DataSources[resourceIdx])
 	if err != nil {
 		return errors.Wrapf(err, "error getting resource pattern for type: %s, with name %s",
-			e.Config.Resources[resourceIdx].GetType(),
-			e.Config.Resources[resourceIdx].GetName())
+			e.Config.DataSources[resourceIdx].GetType(),
+			e.Config.DataSources[resourceIdx].GetName())
 	}
 
 	if resource == nil {
@@ -107,13 +106,14 @@ func (e *ProjEnv) tidyResource(projName string, resourceIdx int, enableService b
 }
 
 func (e *ProjEnv) tidyResourceConfig(resourceIdx int, resource *compose.Pattern, env map[string]string) error {
-	res := resources.GetResourceByName(resource.GetType())
+	// Todo
+	//res := resources.GetResourceByName(resource.GetType())
 
-	err := res.FromEnv(env)
-	if err != nil {
-		return errors.Wrap(err, "error filling config from env")
-	}
-	e.Config.Resources[resourceIdx] = res
+	//err := res.FromEnv(env)
+	//if err != nil {
+	//	return errors.Wrap(err, "error filling config from env")
+	//}
+	//e.Config.DataSources[resourceIdx] = res
 
 	return nil
 }

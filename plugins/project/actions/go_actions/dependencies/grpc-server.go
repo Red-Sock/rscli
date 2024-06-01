@@ -5,7 +5,7 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/api"
+	"github.com/godverv/matreshka/servers"
 
 	"github.com/gobeam/stringy"
 
@@ -96,9 +96,9 @@ func (r GrpcServer) applyConfig(proj interfaces.Project) {
 	}
 
 	proj.GetConfig().Servers = append(proj.GetConfig().Servers,
-		&api.Rest{
-			Name: api.Name(r.GetFolderName()),
-			Port: api.DefaultGrpcPort,
+		&servers.Rest{
+			Name: servers.Name(r.GetFolderName()),
+			Port: servers.DefaultGrpcPort,
 		})
 }
 

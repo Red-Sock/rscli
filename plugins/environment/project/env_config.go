@@ -13,7 +13,7 @@ import (
 )
 
 type envConfig struct {
-	*matreshka.AppConfig
+	matreshka.AppConfig
 	pth string
 }
 

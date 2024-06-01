@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
@@ -19,6 +20,8 @@ const (
 	versionPrefix = "goose version: "
 	versionURL    = "https://api.github.com/repos/pressly/goose/releases/latest"
 )
+
+var ErrUnknownResourceToMigrate = errors.New("unknown resource to perform migration")
 
 type Tool struct {
 }
@@ -73,31 +76,43 @@ func (t *Tool) GetLatestVersion() (version string, err error) {
 }
 
 func (t *Tool) Migrate(pathToFolder string, resource resources.Resource) error {
+
+	switch resource.GetType() {
+	case resources.PostgresResourceName:
+		return t.MigratePostgres(pathToFolder, resource)
+	default:
+		return ErrUnknownResourceToMigrate
+	}
+
+}
+
+func (t *Tool) MigratePostgres(pathToFolder string, resource resources.Resource) error {
 	command := cmd.Request{
 		Tool:    "goose",
 		Args:    []string{resource.GetType(), "", "up"},
 		WorkDir: pathToFolder,
 	}
 
-	envs := resource.ToEnv()
-
-	switch resource.GetType() {
-	case resources.PostgresResourceName:
-		command.Args[1] = fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
-			envs[resources.EnvVarPostgresUser],
-			envs[resources.EnvVarPostgresPassword],
-			envs[resources.EnvVarPostgresHost],
-			envs[resources.EnvVarPostgresPort],
-			envs[resources.EnvVarPostgresDbName],
-		)
+	pg, ok := resource.(*resources.Postgres)
+	if !ok {
+		return errors.Wrapf(matreshka.ErrUnexpectedType, "expected postgres, got %T", resource)
 	}
+
+	command.Args[1] = fmt.Sprintf("postgresql://%s:%s@%s:%d/%s",
+		pg.User,
+		pg.Pwd,
+		pg.Host,
+		pg.Port,
+		pg.DbName,
+	)
 
 	res, err := cmd.Execute(command)
 	if err != nil {
 		return errors.Wrap(err, "error during migration")
 	}
 
-	// TODO
+	// Todo
 	_ = res
+
 	return nil
 }

@@ -45,7 +45,7 @@ func (e *ProjEnv) tidyMigrationDirs() error {
 		}
 
 		var d resources.Resource
-		for _, item := range e.Config.Resources {
+		for _, item := range e.Config.DataSources {
 			if item.GetName() == mig.Name() {
 				d = item
 				break
