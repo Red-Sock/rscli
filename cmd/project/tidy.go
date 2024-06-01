@@ -78,6 +78,11 @@ func tidy(proj *project.Project) error {
 		return errors.Wrap(err, "error generating server")
 	}
 
+	err = go_actions.BuildProjectAction{}.Do(proj)
+	if err != nil {
+		return errors.Wrap(err, "error building project")
+	}
+
 	err = go_actions.TidyAction{}.Do(proj)
 	if err != nil {
 		return errors.Wrap(err, "error tiding project")

@@ -123,12 +123,6 @@ var (
 		Name:    "server.go",
 		Content: grpcServFile,
 	}
-	//go:embed pattern_c/internal/transport/grpc/pinger.go.pattern
-	grpcServHandlerVersionExampleFile []byte
-	GrpcServHandlerVersionExampleFile = &folder.Folder{
-		Name:    "version.go",
-		Content: grpcServHandlerVersionExampleFile,
-	}
 
 	//go:embed pattern_c/internal/transport/telegram/listener.go.pattern
 	tgServFile []byte

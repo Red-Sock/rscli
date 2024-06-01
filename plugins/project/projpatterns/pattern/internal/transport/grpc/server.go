@@ -6,44 +6,49 @@ import (
 	"context"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
-	"time"
 
+	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/api"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/soheilhy/cmux"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
-	"proj_name/internal/config"
-	"proj_name/pkg/example_api"
 )
 
 type Server struct {
 	serverMux cmux.CMux
 
 	grpcServer *grpc.Server
+	imps       []Implementation
 
 	serverAddress string
 	m             sync.Mutex
 }
 
-func NewServer(cfg config.Config, server *api.GRPC) (*Server, error) {
-	srv := grpc.NewServer()
+type Implementation interface {
+	Register(server grpc.ServiceRegistrar)
+	RegisterGw(ctx context.Context, mux *runtime.ServeMux, addr string) error
+}
 
-	// Register your servers here
-	example_api.RegisterProjNameAPIServer(srv, &ExampleApi{
-		calcFunc: func(in time.Time) (diff int32) {
-			return int32(time.Since(in))
-		},
-	})
+func NewServer(
+	server *api.GRPC,
+	imps ...Implementation,
+) (*Server, error) {
+
+	var opts []grpc.ServerOption
+
+	grpcServer := grpc.NewServer(opts...)
+
+	for _, imp := range imps {
+		imp.Register(grpcServer)
+	}
 
 	return &Server{
-		grpcServer: srv,
-
-		serverAddress: ":" + server.GetPortStr(),
+		grpcServer:    grpcServer,
+		serverAddress: "0.0.0.0:" + server.GetPortStr(),
+		imps:          imps,
 	}, nil
 }
 
@@ -62,9 +67,11 @@ func (s *Server) Start(_ context.Context) error {
 	go s.startGateway()
 
 	go func() {
-		err := s.serverMux.Serve()
-		if err != nil {
-			logrus.Errorf("error service server %s", err)
+		serveErr := s.serverMux.Serve()
+		if serveErr != nil {
+			if !strings.Contains(serveErr.Error(), "closed network connection") {
+				logrus.Errorf("error service server %s", serveErr)
+			}
 		}
 	}()
 
@@ -96,23 +103,23 @@ func (s *Server) startGateway() {
 		runtime.WithMarshalerOption(
 			runtime.MIMEWildcard, &runtime.JSONPb{}))
 
-	err := example_api.RegisterProjNameAPIHandlerFromEndpoint(
-		context.Background(),
-		httpMux,
-		s.serverAddress,
-		[]grpc.DialOption{
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-		})
-	if err != nil {
-		logrus.Errorf("error registering grpc2http handler: %s", err)
+	ctx := context.Background()
+	for _, imp := range s.imps {
+		err := imp.RegisterGw(ctx, httpMux, s.serverAddress)
+		if err != nil {
+			logrus.Errorf("error registering grpc2http handler: %s", err)
+		}
 	}
+
 	server := &http.Server{
 		Addr:    s.serverAddress,
 		Handler: httpMux,
 	}
 
-	err = server.Serve(httpListener)
+	err := server.Serve(httpListener)
 	if err != nil {
-		logrus.Errorf("error starting gateway: %s", err)
+		if errors.Is(err, http.ErrServerClosed) {
+			logrus.Errorf("error starting gateway: %s", err)
+		}
 	}
 }
