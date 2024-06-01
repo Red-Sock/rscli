@@ -63,9 +63,14 @@ func tidy(proj *project.Project) error {
 		return errors.Wrap(err, "error generating makefiles")
 	}
 
-	err = go_actions.GenerateClientsAction{}.Do(proj)
+	err = go_actions.PrepareClientsAction{}.Do(proj)
 	if err != nil {
 		return errors.Wrap(err, "error generating clients")
+	}
+
+	err = go_actions.BuildProjectAction{}.Do(proj)
+	if err != nil {
+		return errors.Wrap(err, "error building project")
 	}
 
 	err = go_actions.GenerateServerAction{}.Do(proj)

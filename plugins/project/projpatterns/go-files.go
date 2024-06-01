@@ -11,8 +11,6 @@ import (
 const (
 	CmdFolder = "cmd"
 
-	ApiFolder = "api"
-
 	ExamplesFolder = "examples"
 
 	ExamplesHttpEnvFile = "http-client.env.json"
@@ -23,8 +21,7 @@ const (
 
 	TransportFolder = "transport"
 
-	PkgFolder     = "pkg"
-	SwaggerFolder = "swagger"
+	PkgFolder = "pkg"
 
 	UtilsFolder  = "utils"
 	CloserFolder = "closer"

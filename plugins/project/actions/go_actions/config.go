@@ -105,7 +105,6 @@ func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, go
 
 	return nil
 }
-
 func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p interfaces.Project) error {
 	b, err := p.GetConfig().Marshal()
 	if err != nil {

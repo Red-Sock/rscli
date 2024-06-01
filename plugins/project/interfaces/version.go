@@ -74,7 +74,7 @@ func (v *Version) String() string {
 
 // TODO не нужно?
 func (v *Version) UpdateProjectVersion(p Project) error {
-	mkFile := p.GetFolder().GetByPath(projpatterns.Makefile.Name)
+	mkFile := p.GetFolder().GetByPath(projpatterns.Makefile)
 
 	rvBytes := []byte("RSCLI_VERSION=")
 	startIdx := bytes.Index(mkFile.Content, rvBytes)

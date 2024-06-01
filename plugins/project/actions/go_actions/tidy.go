@@ -1,9 +1,11 @@
 package go_actions
 
 import (
+	"bytes"
 	stderrs "errors"
 	"os"
 	"path"
+	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
@@ -11,9 +13,9 @@ import (
 	"github.com/Red-Sock/rscli/internal/cmd"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/bins/makefile"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
@@ -74,24 +76,7 @@ func (a FormatAction) NameInAction() string {
 type TidyAction struct{}
 
 func (a TidyAction) Do(p interfaces.Project) error {
-	renamer.ReplaceProjectName(p.GetName(), p.GetFolder())
-
-	err := p.GetFolder().Build()
-	if err != nil {
-		return errors.Wrap(err, "error building project")
-	}
-
-	b, err := p.GetConfig().Marshal()
-	if err != nil {
-		return errors.Wrap(err, "error marshaling config")
-	}
-
-	err = os.WriteFile(p.GetConfig().Path, b, os.ModePerm)
-	if err != nil {
-		return errors.Wrap(err, "error writing config to file")
-	}
-
-	_, err = cmd.Execute(cmd.Request{
+	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"mod", "tidy"},
 		WorkDir: p.GetProjectPath(),
@@ -111,12 +96,12 @@ func (a TidyAction) NameInAction() string {
 	return "Cleaning up the project"
 }
 
-type GenerateClientsAction struct {
+type PrepareClientsAction struct {
 	C  *rscliconfig.RsCliConfig
 	IO io.IO
 }
 
-func (a GenerateClientsAction) Do(p interfaces.Project) error {
+func (a PrepareClientsAction) Do(p interfaces.Project) error {
 	if a.C == nil {
 		a.C = rscliconfig.GetConfig()
 	}
@@ -163,7 +148,7 @@ func (a GenerateClientsAction) Do(p interfaces.Project) error {
 
 	return nil
 }
-func (a GenerateClientsAction) NameInAction() string {
+func (a PrepareClientsAction) NameInAction() string {
 	return "Generating clients"
 }
 
@@ -173,13 +158,19 @@ type GenerateServerAction struct {
 }
 
 func (a GenerateServerAction) Do(p interfaces.Project) error {
+	if len(p.GetConfig().Servers) == 0 {
+		return nil
+	}
+
 	err := makefile.Install()
 	if err != nil {
 		return errors.Wrap(err, "error installing makefile")
 	}
 
-	err = makefile.Run(p.GetProjectPath(), projpatterns.Makefile.Name, "gen-server")
-
+	err = makefile.Run(p.GetProjectPath(), projpatterns.Makefile, projpatterns.GenCommand)
+	if err != nil {
+		return errors.Wrap(err, "error generating")
+	}
 	return nil
 }
 func (a GenerateServerAction) NameInAction() string {
@@ -189,7 +180,42 @@ func (a GenerateServerAction) NameInAction() string {
 type PrepareMakefileAction struct{}
 
 func (a PrepareMakefileAction) Do(p interfaces.Project) error {
-	// TODO ASSEMBLE MAKEFILE
+
+	genScriptSummary := make([]string, 0)
+
+	// first part for summary scripts
+	makefileContent := make([][]byte, 1, 4)
+
+	{
+		// basic info
+		rscliCopy := make([]byte, len(projpatterns.RscliMK))
+		copy(rscliCopy, projpatterns.RscliMK)
+		makefileContent = append(makefileContent, append([]byte(`### General Rscli info`+"\n"), rscliCopy...))
+	}
+
+	if len(p.GetConfig().Servers) != 0 {
+		// basic info
+		serverGenCopy := make([]byte, len(projpatterns.GrpcServerGenMK))
+		copy(serverGenCopy, projpatterns.GrpcServerGenMK)
+
+		makefileContent = append(makefileContent, append([]byte(`### Grpc server generation`+"\n"), serverGenCopy...))
+		genScriptSummary = append(genScriptSummary, projpatterns.GenGrpcServerCommand)
+	}
+
+	makeFile := p.GetFolder().GetByPath(projpatterns.Makefile)
+	if makeFile == nil {
+		p.GetFolder().Add(&folder.Folder{
+			Name: projpatterns.Makefile,
+		})
+		makeFile = p.GetFolder().GetByPath(projpatterns.Makefile)
+	}
+
+	if len(genScriptSummary) != 0 {
+		makefileContent[0] = []byte(projpatterns.GenCommand + ": " + strings.Join(genScriptSummary, " "))
+	}
+
+	makeFile.Content = bytes.Join(makefileContent, []byte{'\n', '\n'})
+
 	return nil
 }
 func (a PrepareMakefileAction) NameInAction() string {

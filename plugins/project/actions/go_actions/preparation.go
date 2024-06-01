@@ -35,11 +35,8 @@ func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 
 	{
 		rootF.Add(&folder.Folder{
-			Name: patterns.PkgFolder,
-			Inner: []*folder.Folder{
-				{Name: patterns.SwaggerFolder},
-				{Name: patterns.ApiFolder},
-			},
+			Name:  patterns.PkgFolder,
+			Inner: []*folder.Folder{},
 		})
 
 		closerFilePath := path.Join(patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder, patterns.UtilsCloserFile.Name)
@@ -104,7 +101,6 @@ func (a PrepareEnvironmentFoldersAction) Do(p interfaces.Project) error {
 		patterns.Readme.Copy(),
 		patterns.GitIgnore.Copy(),
 		patterns.Linter.Copy(),
-		patterns.Makefile.Copy(),
 	)
 
 	return nil

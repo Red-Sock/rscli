@@ -14,9 +14,9 @@ mock:
 testproj:
 	cd test &&\
 	rm -rf testproj &&\
-    go run ./../main.go project init Testproj &&\
-    cd testproj &&\
-    go mod tidy
+    go run ./../main.go project init Testproj
+#    cd testproj &&\
+#    go mod tidy
 
 
 dev-build:

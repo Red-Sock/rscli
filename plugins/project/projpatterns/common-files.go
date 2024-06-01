@@ -10,6 +10,10 @@ const (
 	EnvConfigYamlFile = "env.yaml"
 	DevConfigYamlFile = "dev.yaml"
 	ConfigYamlFile    = "config.yaml"
+	Makefile          = "Makefile"
+
+	GenCommand           = "gen"
+	GenGrpcServerCommand = "gen-server-grpc"
 )
 
 // Build and deploy
@@ -33,12 +37,6 @@ var (
 	Linter = &folder.Folder{
 		Name:    ".golangci.yaml",
 		Content: linter,
-	}
-	//go:embed pattern_c/Makefile
-	makefile []byte
-	Makefile = &folder.Folder{
-		Name:    "Makefile",
-		Content: makefile,
 	}
 )
 
@@ -64,11 +62,11 @@ var (
 
 // Scripts
 var (
-	//go:embed pattern_c/scripts/rscli.mk
+	//go:embed pattern_c/scripts_pattern/rscli.mk
 	RscliMK []byte
 
-	//go:embed pattern_c/scripts/grpc.mk
-	GrpcMK []byte
+	//go:embed pattern_c/scripts_pattern/grpc.mk
+	GrpcServerGenMK []byte
 )
 
 var (
