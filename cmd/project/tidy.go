@@ -30,6 +30,7 @@ func newTidyCmd(pl projectTidy) *cobra.Command {
 		SilenceUsage:  true,
 	}
 
+	// TODO
 	c.Flags().StringP(pathFlag, pathFlag[:1], "", `path to folder with project`)
 
 	return c

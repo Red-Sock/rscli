@@ -5,7 +5,7 @@ go 1.22
 toolchain go1.22.1
 
 require (
-	github.com/Red-Sock/go_tg v0.0.16
+	github.com/Red-Sock/go_tg v0.0.18
 	github.com/Red-Sock/trace-errors v0.0.6
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/godverv/matreshka v0.0.18

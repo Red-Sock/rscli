@@ -18,13 +18,12 @@ var configKeysTemplate *template.Template
 
 func init() {
 	var err error
-	configKeysTemplate, err = template.New("configTemplate").Funcs(template.FuncMap{
-		"SnakeToPascal": cases.SnakeToPascal,
-	}).Parse(`
+	configKeysTemplate, err = template.New("configTemplate").
+		Parse(`
 package config
 
 const ({{range $_, $val := .}}
-	{{ SnakeToPascal $val.Name }} = "{{ $val.Name }}"{{end}}
+	{{ $val.Name }} = "{{ $val.Key }}"{{end}}
 )
 `)
 	if err != nil {
@@ -61,11 +60,35 @@ func (a PrepareGoConfigFolderAction) NameInAction() string {
 }
 
 func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, goConfigFolder *folder.Folder) error {
-	keys := matreshka.GenerateKeys(p.GetConfig().AppConfig)
+	matreshkaKeys := matreshka.GenerateKeys(p.GetConfig().AppConfig)
 
-	if len(keys.DataSources) == 0 || len(keys.Servers) == 0 || len(keys.Environment) == 0 {
+	type ConfigKey struct {
+		Name string
+		Key  string
+	}
+
+	keys := make([]ConfigKey, 0, len(matreshkaKeys.DataSources)+len(matreshkaKeys.Servers)+len(matreshkaKeys.Environment))
+
+	if len(keys) == 0 {
 		goConfigFolder.GetByPath(projpatterns.ConfigKeysFileName).Delete()
 		return nil
+	}
+
+	for _, k := range matreshkaKeys.DataSources {
+		keys = append(keys, ConfigKey{
+			Name: "Resource" + cases.SnakeToPascal(k),
+		})
+	}
+	for _, k := range matreshkaKeys.Servers {
+		keys = append(keys, ConfigKey{
+			Name: "Server" + cases.SnakeToPascal(k),
+		})
+	}
+
+	for _, k := range matreshkaKeys.Environment {
+		keys = append(keys, ConfigKey{
+			Name: cases.SnakeToPascal(k),
+		})
 	}
 
 	buf := &rw.RW{}

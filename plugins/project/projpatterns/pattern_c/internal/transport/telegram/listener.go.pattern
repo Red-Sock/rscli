@@ -3,9 +3,9 @@ package telegram
 import (
 	"context"
 
-	"github.com/Red-Sock/go_tg/client"
+	client "github.com/Red-Sock/go_tg"
+	"github.com/godverv/matreshka"
 
-	"proj_name/internal/config"
 	"proj_name/internal/transport/telegram/version"
 )
 
@@ -13,7 +13,7 @@ type Server struct {
 	bot *client.Bot
 }
 
-func NewServer(cfg config.Config, bot *client.Bot) (s *Server) {
+func NewServer(cfg matreshka.Config, bot *client.Bot) (s *Server) {
 	s = &Server{
 		bot: bot,
 	}

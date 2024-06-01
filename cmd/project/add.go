@@ -30,7 +30,7 @@ type projectAdd struct {
 func newAddCmd(projAdd projectAdd) *cobra.Command {
 	c := &cobra.Command{
 		Use:   "add",
-		Short: "Adds dependency to project project",
+		Short: "Adds resource dependency to project",
 		Long:  `Can be used to add a datasource or external API dependency to project`,
 
 		RunE: projAdd.run,

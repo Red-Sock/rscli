@@ -51,10 +51,9 @@ func (a PrepareProjectStructureAction) NameInAction() string {
 	return "Preparing project structure"
 }
 
-// TODO RSI-199
+// TODO RSI-245 - мб переделать на общие какие-то запросы
 type PrepareExamplesFoldersAction struct{}
 
-// TODO RSI-199
 func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 	if p.GetFolder().GetByPath(patterns.ExamplesFolder, patterns.ExamplesHttpEnvFile) != nil {
 		return nil
@@ -93,7 +92,6 @@ func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
 	return nil
 }
 
-// TODO
 func (a PrepareExamplesFoldersAction) NameInAction() string {
 	return "Preparing examples folders"
 }
