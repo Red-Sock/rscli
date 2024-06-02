@@ -7,7 +7,8 @@ RUN --mount=target=. \
         --mount=type=cache,target=/go/pkg \
         GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 \
     go build -o /deploy/server/service ./cmd/service/main.go && \
-    cp -r config /deploy/server/config
+    cp -r config /deploy/server/config &&\
+     [ -d "./migrations" ] && cp -r ./migrations /deploy/server/migrations
 FROM alpine
 
 WORKDIR /app

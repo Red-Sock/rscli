@@ -5,11 +5,11 @@ package sqlite
 import (
 	"database/sql"
 
-	"github.com/godverv/matreshka/resources"
-	_ "modernc.org/sqlite"
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 	"github.com/pressly/goose/v3"
 	"github.com/sirupsen/logrus"
+	_ "modernc.org/sqlite"
 )
 
 const (
