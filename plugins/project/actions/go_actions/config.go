@@ -70,7 +70,7 @@ func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, go
 
 	keys := make([]ConfigKey, 0, len(matreshkaKeys.DataSources)+len(matreshkaKeys.Servers)+len(matreshkaKeys.Environment))
 
-	if len(keys) == 0 {
+	if cap(keys) == 0 {
 		goConfigFolder.GetByPath(projpatterns.ConfigKeysFileName).Delete()
 		return nil
 	}
@@ -78,17 +78,20 @@ func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, go
 	for _, k := range matreshkaKeys.DataSources {
 		keys = append(keys, ConfigKey{
 			Name: "Resource" + cases.SnakeToPascal(k),
+			Key:  k,
 		})
 	}
 	for _, k := range matreshkaKeys.Servers {
 		keys = append(keys, ConfigKey{
 			Name: "Server" + cases.SnakeToPascal(k),
+			Key:  k,
 		})
 	}
 
 	for _, k := range matreshkaKeys.Environment {
 		keys = append(keys, ConfigKey{
 			Name: cases.SnakeToPascal(k),
+			Key:  k,
 		})
 	}
 
