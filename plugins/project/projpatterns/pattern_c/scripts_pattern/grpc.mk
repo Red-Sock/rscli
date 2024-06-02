@@ -15,10 +15,12 @@ gen-server-grpc: .pre-gen-server-grpc .deps-grpc .gen-server-grpc
 
 .gen-server-grpc:
 	protoc \
-        	-I=./api \
-        	--grpc-gateway_out=logtostderr=true:./pkg/ \
-        	--swagger_out=allow_merge=true,merge_file_name=api:./api \
-    		--descriptor_set_out=./pkg/api_discriptor.pb \
-        	--go_out=./pkg/. \
-        	--go-grpc_out=./pkg/. \
-        	./api/grpc/*.proto
+    	-I=./api \
+    	-I $(GOPATH)/bin \
+    	--openapiv2_out ./api \
+    	--go-grpc_out=./pkg/ \
+    	--grpc-gateway_out=logtostderr=true:./pkg/ \
+    	--grpc-gateway-ts_out=./pkg \
+    	--go_out=./pkg/ \
+	    --validate_out="lang=go:./pkg" \
+    	./api/grpc/*.proto

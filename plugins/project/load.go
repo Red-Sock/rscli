@@ -17,9 +17,9 @@ import (
 )
 
 const (
+	ProdConfigFileName = "config.yaml"
 	DevConfigFileName  = "dev.yaml"
 	StgConfigFileName  = "stage.yaml"
-	ProdConfigFileName = "prod.yaml"
 )
 
 var configOrder = []string{
