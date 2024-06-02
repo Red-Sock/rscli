@@ -4,7 +4,6 @@ compile-pattern:
 	go run support/compiler/main.go
 	@echo Project pattern is succesfully compiled!
 
-
 .deps:
 	go install github.com/gojuno/minimock/v3/cmd/minimock@latest
 
@@ -15,9 +14,6 @@ testproj:
 	cd test &&\
 	rm -rf testproj &&\
     go run ./../main.go project init Testproj
-#    cd testproj &&\
-#    go mod tidy
-
 
 dev-build:
 	go build -o $(GOBIN)/rscli-dev .

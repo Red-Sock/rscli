@@ -70,7 +70,7 @@ func (r GrpcServer) applyApiFolder(proj interfaces.Project, protoPath string) er
 
 	serverF.Content = bytes.Replace(serverF.Content,
 		[]byte(envpatterns.ProjNamePattern),
-		[]byte(projName.CamelCase()),
+		[]byte(projName.CamelCase().Get()),
 		1)
 
 	proj.GetFolder().Add(serverF)

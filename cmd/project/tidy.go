@@ -73,7 +73,7 @@ func tidy(proj *project.Project) error {
 		return errors.Wrap(err, "error building project")
 	}
 
-	err = go_actions.GenerateServerAction{}.Do(proj)
+	err = go_actions.RunMakeGenAction{}.Do(proj)
 	if err != nil {
 		return errors.Wrap(err, "error generating server")
 	}
@@ -83,7 +83,7 @@ func tidy(proj *project.Project) error {
 		return errors.Wrap(err, "error building project")
 	}
 
-	err = go_actions.TidyAction{}.Do(proj)
+	err = go_actions.RunGoTidyAction{}.Do(proj)
 	if err != nil {
 		return errors.Wrap(err, "error tiding project")
 	}

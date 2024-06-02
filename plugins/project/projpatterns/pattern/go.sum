@@ -49,6 +49,7 @@ github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1/go.mod h1:A2S0CWkNylc2
 github.com/godverv/matreshka v0.0.8 h1:oNd1Q0zkMMvZ6Osiv3SlZqCZOazXf3PTUUePqKyXkWA=
 github.com/godverv/matreshka v0.0.8/go.mod h1:J36jFFeImxS4YOtvarncYElxysfxh+2Wtfsm58pEZxQ=
 github.com/godverv/matreshka v0.0.18/go.mod h1:JAL1wo3REIeJlDqTt3TpV3/8/zJlaWiJJ2SIxnxQn+k=
+github.com/godverv/matreshka v0.0.19/go.mod h1:5q1FTf13isnNXH2LPXbEBRPCS0Aqb/DE4fBzQPj2LAc=
 github.com/gogo/protobuf v1.3.2 h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=
 github.com/golang-jwt/jwt/v4 v4.5.0 h1:7cYmW1XlMY7h7ii7UhUyChSgS5wUJEnm9uZVTGqOWzg=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=

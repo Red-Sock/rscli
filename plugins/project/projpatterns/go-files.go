@@ -9,7 +9,8 @@ import (
 // Constants naming: Purpose+Type (File)
 
 const (
-	CmdFolder = "cmd"
+	CmdFolder     = "cmd"
+	ServiceFolder = "service"
 
 	ExamplesFolder = "examples"
 

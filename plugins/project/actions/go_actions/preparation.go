@@ -1,14 +1,17 @@
 package go_actions
 
 import (
-	"encoding/json"
+	"bytes"
+	stderrs "errors"
 	"path"
-	"strconv"
 	"strings"
 
-	"github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/resources"
 
+	rscliconfig "github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	patterns "github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
@@ -19,84 +22,22 @@ type PrepareProjectStructureAction struct {
 func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 	rootF := p.GetFolder()
 
-	{
-		cmd := &folder.Folder{Name: patterns.CmdFolder}
-		mainFilePath := path.Join(strings.ToLower(p.GetShortName()), patterns.MainFile.Name)
+	cmd := &folder.Folder{Name: patterns.CmdFolder}
+	cmd.Add(patterns.MainFile.CopyWithNewName(path.Join(patterns.ServiceFolder, patterns.MainFile.Name)))
+	rootF.Add(cmd)
 
-		cmd.Add(patterns.MainFile.CopyWithNewName(mainFilePath))
+	rootF.Add(&folder.Folder{Name: patterns.ConfigsFolder})
+	rootF.Add(&folder.Folder{Name: patterns.InternalFolder})
 
-		rootF.Add(cmd)
-	}
+	rootF.Add(&folder.Folder{Name: patterns.PkgFolder})
 
-	{
-		rootF.Add(&folder.Folder{Name: patterns.ConfigsFolder})
-		rootF.Add(&folder.Folder{Name: patterns.InternalFolder})
-	}
+	closerFilePath := path.Join(
+		patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder,
+		patterns.UtilsCloserFile.Name)
 
-	{
-		rootF.Add(&folder.Folder{
-			Name:  patterns.PkgFolder,
-			Inner: []*folder.Folder{},
-		})
+	rootF.Add(patterns.UtilsCloserFile.CopyWithNewName(closerFilePath))
 
-		closerFilePath := path.Join(patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder, patterns.UtilsCloserFile.Name)
-		rootF.Add(patterns.UtilsCloserFile.CopyWithNewName(closerFilePath))
-	}
-	return nil
-}
-func (a PrepareProjectStructureAction) NameInAction() string {
-	return "Preparing project structure"
-}
-
-// TODO RSI-245 - мб переделать на общие какие-то запросы
-type PrepareExamplesFoldersAction struct{}
-
-func (a PrepareExamplesFoldersAction) Do(p interfaces.Project) error {
-	if p.GetFolder().GetByPath(patterns.ExamplesFolder, patterns.ExamplesHttpEnvFile) != nil {
-		return nil
-	}
-
-	type envs struct {
-		Dev       map[string]string `json:"dev"`
-		DevDocker map[string]string `json:"dev-docker"`
-	}
-	var e = envs{
-		Dev:       map[string]string{},
-		DevDocker: map[string]string{},
-	}
-
-	for _, item := range p.GetConfig().Servers {
-		portStr := strconv.FormatUint(uint64(item.GetPort()), 10)
-		e.Dev[item.GetName()] = "0.0.0.0:" + portStr
-		e.DevDocker[item.GetName()] = "0.0.0.0:1" + portStr
-	}
-
-	exampleFile, err := json.MarshalIndent(e, "", "	")
-	if err != nil {
-		return errors.Wrap(err, "error marshalling example file")
-	}
-
-	p.GetFolder().Add(&folder.Folder{
-		Name: patterns.ExamplesFolder,
-		Inner: []*folder.Folder{
-			patterns.ApiHTTP.Copy(),
-			{
-				Name:    patterns.ExamplesHttpEnvFile,
-				Content: exampleFile,
-			},
-		},
-	})
-	return nil
-}
-
-func (a PrepareExamplesFoldersAction) NameInAction() string {
-	return "Preparing examples folders"
-}
-
-type PrepareEnvironmentFoldersAction struct{}
-
-func (a PrepareEnvironmentFoldersAction) Do(p interfaces.Project) error {
-	p.GetFolder().Add(
+	rootF.Add(
 		patterns.Dockerfile.Copy(),
 		patterns.Readme.Copy(),
 		patterns.GitIgnore.Copy(),
@@ -105,6 +46,105 @@ func (a PrepareEnvironmentFoldersAction) Do(p interfaces.Project) error {
 
 	return nil
 }
-func (a PrepareEnvironmentFoldersAction) NameInAction() string {
-	return "Preparing environment folder"
+func (a PrepareProjectStructureAction) NameInAction() string {
+	return "Preparing project structure"
+}
+
+type PrepareClientsAction struct {
+	C  *rscliconfig.RsCliConfig
+	IO io.IO
+}
+
+func (a PrepareClientsAction) Do(p interfaces.Project) error {
+	if a.C == nil {
+		a.C = rscliconfig.GetConfig()
+	}
+
+	if a.IO == nil {
+		a.IO = io.StdIO{}
+	}
+
+	var simpleClients []string
+	var grpcClients []string
+
+	for _, r := range p.GetConfig().DataSources {
+		grpcC, ok := r.(*resources.GRPC)
+		if ok {
+			grpcClients = append(grpcClients, grpcC.Module)
+		} else {
+			simpleClients = append(simpleClients, r.GetName())
+		}
+	}
+	var errs []error
+
+	deps := dependencies.GetDependencies(a.C, simpleClients)
+	if len(deps) != 0 {
+		for _, item := range deps {
+			err := item.AppendToProject(p)
+			if err != nil {
+				errs = append(errs, err)
+			}
+		}
+	}
+
+	err := dependencies.GrpcClient{
+		Modules: grpcClients,
+		Cfg:     a.C,
+		Io:      a.IO,
+	}.AppendToProject(p)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	if len(errs) != 0 {
+		return stderrs.Join(errs...)
+	}
+
+	return nil
+}
+func (a PrepareClientsAction) NameInAction() string {
+	return "Generating clients"
+}
+
+type PrepareMakefileAction struct{}
+
+func (a PrepareMakefileAction) Do(p interfaces.Project) error {
+	genScriptSummary := make([]string, 0)
+
+	// first part for summary scripts
+	makefileContent := make([][]byte, 1, 4)
+	{
+		// basic info
+		rscliCopy := make([]byte, len(patterns.RscliMK))
+		copy(rscliCopy, patterns.RscliMK)
+		makefileContent = append(makefileContent, append([]byte(`### General Rscli info`+"\n"), rscliCopy...))
+	}
+
+	if len(p.GetConfig().Servers) != 0 {
+		// basic info
+		serverGenCopy := make([]byte, len(patterns.GrpcServerGenMK))
+		copy(serverGenCopy, patterns.GrpcServerGenMK)
+
+		makefileContent = append(makefileContent, append([]byte(`### Grpc server generation`+"\n"), serverGenCopy...))
+		genScriptSummary = append(genScriptSummary, patterns.GenGrpcServerCommand)
+	}
+
+	makeFile := p.GetFolder().GetByPath(patterns.Makefile)
+	if makeFile == nil {
+		p.GetFolder().Add(&folder.Folder{
+			Name: patterns.Makefile,
+		})
+		makeFile = p.GetFolder().GetByPath(patterns.Makefile)
+	}
+
+	if len(genScriptSummary) != 0 {
+		makefileContent[0] = []byte(patterns.GenCommand + ": " + strings.Join(genScriptSummary, " "))
+	}
+
+	makeFile.Content = bytes.Join(makefileContent, []byte{'\n', '\n'})
+
+	return nil
+}
+func (a PrepareMakefileAction) NameInAction() string {
+	return "Generating Makefile"
 }

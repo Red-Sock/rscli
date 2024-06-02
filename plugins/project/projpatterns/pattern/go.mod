@@ -8,8 +8,7 @@ require (
 	github.com/Red-Sock/go_tg v0.0.18
 	github.com/Red-Sock/trace-errors v0.0.6
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/godverv/matreshka v0.0.18
-	github.com/golang/protobuf v1.5.4
+	github.com/godverv/matreshka v0.0.19
 	github.com/gorilla/mux v1.8.1
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1

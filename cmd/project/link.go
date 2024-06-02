@@ -58,7 +58,7 @@ func (p *projectLink) run(_ *cobra.Command, args []string) (err error) {
 		return errors.Wrap(err, "error building go config folder")
 	}
 
-	err = go_actions.TidyAction{}.Do(p.proj)
+	err = go_actions.RunGoTidyAction{}.Do(p.proj)
 	if err != nil {
 		return errors.Wrap(err, "error tiding project")
 	}
