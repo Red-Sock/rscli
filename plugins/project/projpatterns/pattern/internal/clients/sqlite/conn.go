@@ -4,6 +4,8 @@ package sqlite
 
 import (
 	"database/sql"
+	"os"
+	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
@@ -27,6 +29,12 @@ func NewStorage(cfg *resources.Sqlite) (*Provider, error) {
 	if databaseLocation == "" {
 		logrus.Warning("no path for file, running in memory mode")
 		databaseLocation = inMemory
+	} else {
+		err := os.MkdirAll(path.Dir(cfg.Path), 0777)
+		if err != nil {
+			return nil, errors.Wrap(err, "error creating dir for sqlite db")
+		}
+
 	}
 
 	conn, err := sql.Open(dialect, databaseLocation)
