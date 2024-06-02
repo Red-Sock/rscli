@@ -34,15 +34,19 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 	proj := &Project{
 		Name: args.Name,
 		Actions: append([]actions.Action{
-			go_actions.PrepareProjectStructureAction{},   // basic go project structure
-			go_actions.PrepareEnvironmentFoldersAction{}, // prepares environment files
-			go_actions.PrepareGoConfigFolderAction{},
+			go_actions.PrepareProjectStructureAction{}, // basic go project structure
+			go_actions.PrepareGoConfigFolderAction{},   // generates config keys
 
 			go_actions.BuildProjectAction{}, // build project in file system
 
-			go_actions.InitGoModAction{}, // executes go mod
-			go_actions.TidyAction{},      // adds/clears project initialization(api, resources) and replaces project name template with actual project name
-			go_actions.FormatAction{},    // fetches dependencies and formats go code
+			go_actions.InitGoModAction{},       // executes go mod
+			go_actions.PrepareMakefileAction{}, // prepare Makefile
+
+			go_actions.BuildProjectAction{}, // builds project to file system
+			go_actions.BuildConfigAction{},
+
+			go_actions.RunGoTidyAction{}, // adds/clears project initialization(api, resources) and replaces project name template with actual project name
+			go_actions.RunGoFmtAction{},  // fetches dependencies and formats go code
 
 			git.InitGit{}, // initializing and committing project as git repo
 		}, args.Actions...),
@@ -70,7 +74,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 	}
 
 	proj.Cfg = &config.Config{
-		AppConfig: &matreshka.AppConfig{
+		AppConfig: matreshka.AppConfig{
 			AppInfo: matreshka.AppInfo{
 				Name:            proj.GetName(),
 				Version:         defaultVersion,

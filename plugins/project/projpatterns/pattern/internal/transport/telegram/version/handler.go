@@ -4,8 +4,7 @@ import (
 	tgapi "github.com/Red-Sock/go_tg/interfaces"
 	"github.com/Red-Sock/go_tg/model"
 	"github.com/Red-Sock/go_tg/model/response"
-
-	"proj_name/internal/config"
+	"github.com/godverv/matreshka"
 )
 
 const Command = "/version"
@@ -22,12 +21,12 @@ func (h *Handler) GetCommand() string {
 	return Command
 }
 
-func New(cfg config.Config) *Handler {
+func New(cfg matreshka.Config) *Handler {
 	return &Handler{
 		version: cfg.AppInfo().Version,
 	}
 }
 
-func (h *Handler) Handle(in *model.MessageIn, out tgapi.Chat) {
-	out.SendMessage(response.NewMessage(in.Text + ": " + h.version))
+func (h *Handler) Handle(in *model.MessageIn, out tgapi.Chat) error {
+	return out.SendMessage(response.NewMessage(in.Text + ": " + h.version))
 }

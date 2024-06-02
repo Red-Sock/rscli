@@ -14,6 +14,16 @@ import (
 )
 
 func main() {
+	newVersion, canUpdate := version.CanUpdate()
+	if canUpdate {
+		io.StdIO{}.Println(`
+### Update is available
+Run
+	go install github.com/Red-Sock/rscli@` + newVersion + `
+to install it
+###`)
+	}
+
 	root := &cobra.Command{
 		Use: "rscli [command] [arguments] [flags]",
 

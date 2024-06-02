@@ -3,9 +3,11 @@ package compose
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"os"
 	"strings"
 
+	"github.com/Red-Sock/evon"
 	"github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
 	"gopkg.in/yaml.v3"
@@ -129,9 +131,12 @@ func (c *PatternManager) GetServiceDependencies(resource resources.Resource) (*P
 	//
 	// will set environment variable for POSTGRES_PASSWORD
 	// by setting variable PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_PWD in .env file to 123
-	for name, val := range resource.ToEnv() {
-		if envVariable, ok := pattern.ContainerDefinition.Environment[name]; ok {
-			pattern.Envs.AppendRaw(removeEnvironmentBrackets(envVariable), val)
+
+	envVars := evon.MarshalEnvWithPrefix(resource.GetType(), resource)
+
+	for _, v := range envVars {
+		if envVariable, ok := pattern.ContainerDefinition.Environment[v.Name]; ok {
+			pattern.Envs.AppendRaw(removeEnvironmentBrackets(envVariable), fmt.Sprint(v.Value))
 		}
 	}
 

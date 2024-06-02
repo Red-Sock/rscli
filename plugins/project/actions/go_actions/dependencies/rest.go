@@ -4,7 +4,7 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/api"
+	"github.com/godverv/matreshka/servers"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
@@ -48,9 +48,9 @@ func (r Rest) applyConfig(proj interfaces.Project, defaultApiName string) {
 	}
 
 	proj.GetConfig().Servers = append(proj.GetConfig().Servers,
-		&api.Rest{
-			Name: api.Name(defaultApiName),
-			Port: api.DefaultRestPort,
+		&servers.Rest{
+			Name: servers.Name(defaultApiName),
+			Port: servers.DefaultRestPort,
 		})
 }
 

@@ -5,7 +5,7 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/api"
+	"github.com/godverv/matreshka/servers"
 
 	"github.com/gobeam/stringy"
 
@@ -51,7 +51,6 @@ func (r GrpcServer) AppendToProject(proj interfaces.Project) error {
 		}
 	}
 
-	r.applyMakefile(proj)
 	r.applyConfig(proj)
 	r.applyServerFolder(proj)
 
@@ -71,21 +70,12 @@ func (r GrpcServer) applyApiFolder(proj interfaces.Project, protoPath string) er
 
 	serverF.Content = bytes.Replace(serverF.Content,
 		[]byte(envpatterns.ProjNamePattern),
-		[]byte(projName.CamelCase()),
+		[]byte(projName.CamelCase().Get()),
 		1)
 
 	proj.GetFolder().Add(serverF)
 
 	return nil
-}
-
-func (r GrpcServer) applyMakefile(proj interfaces.Project) {
-	f := proj.GetFolder().GetByPath(projpatterns.GrpcMK.Name)
-	if f != nil {
-		return
-	}
-
-	proj.GetFolder().Add(projpatterns.GrpcMK.Copy())
 }
 
 func (r GrpcServer) applyConfig(proj interfaces.Project) {
@@ -96,9 +86,9 @@ func (r GrpcServer) applyConfig(proj interfaces.Project) {
 	}
 
 	proj.GetConfig().Servers = append(proj.GetConfig().Servers,
-		&api.Rest{
-			Name: api.Name(r.GetFolderName()),
-			Port: api.DefaultGrpcPort,
+		&servers.Rest{
+			Name: servers.Name(r.GetFolderName()),
+			Port: servers.DefaultGrpcPort,
 		})
 }
 
