@@ -37,6 +37,8 @@ func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {
 			dep = Redis{Cfg: c, Name: name}
 		case resources.TelegramResourceName:
 			dep = Telegram{Cfg: c, Name: name}
+		case resources.SqliteResourceName:
+			dep = Sqlite{Cfg: c, Name: name}
 		case servers.RestServerType:
 			dep = Rest{Cfg: c, Name: name}
 		case servers.GRPSServerType:

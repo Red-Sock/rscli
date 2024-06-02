@@ -84,6 +84,13 @@ var (
 		Name:    ConnFileName,
 		Content: grpcClientConnFile,
 	}
+
+	//go:embed pattern_c/internal/clients/sqlite/conn.go.pattern
+	sqliteClientConnFile []byte
+	SqliteClientConnFile = &folder.Folder{
+		Name:    ConnFileName,
+		Content: sqliteClientConnFile,
+	}
 )
 
 // Config parser files

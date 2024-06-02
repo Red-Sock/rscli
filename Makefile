@@ -16,7 +16,7 @@ gen-test-project-with-deps:
 	rm -rf testproj &&\
     ./../rscli-dev project init Testproj && \
     cd testproj && \
-    ./../../rscli-dev project add postgres redis grpc rest telegram
+    ./../../rscli-dev project add postgres redis grpc rest telegram sqlite
 
 
 
