@@ -10,6 +10,7 @@ require (
 	github.com/gobeam/stringy v0.0.7
 	github.com/godverv/matreshka v0.0.19
 	github.com/gojuno/minimock/v3 v3.3.11
+	github.com/hashicorp/go-version v1.7.0
 	github.com/morikuni/aec v1.0.0
 	github.com/nsf/termbox-go v1.1.1
 	github.com/spf13/cobra v1.8.0
