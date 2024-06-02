@@ -10,10 +10,16 @@ compile-pattern:
 mock:
 	minimock -i github.com/Red-Sock/rscli/internal/stdio.* -o tests/mocks -g -s "_mock.go"
 
-testproj:
+gen-test-project-with-deps:
+	go build -o rscli-dev
 	cd test &&\
 	rm -rf testproj &&\
-    go run ./../main.go project init Testproj
+    ./../rscli-dev project init Testproj && \
+    cd testproj && \
+    ./../../rscli-dev project add postgres redis grpc rest telegram
+
+
+
 
 dev-build:
 	go build -o $(GOBIN)/rscli-dev .

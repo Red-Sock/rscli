@@ -21,3 +21,5 @@ test
 # vendor/
 .idea/
 
+rscli-dev
+

@@ -11,6 +11,7 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	patterns "github.com/Red-Sock/rscli/plugins/project/projpatterns"
@@ -115,9 +116,12 @@ func (a PrepareMakefileAction) Do(p interfaces.Project) error {
 	makefileContent := make([][]byte, 1, 4)
 	{
 		// basic info
-		rscliCopy := make([]byte, len(patterns.RscliMK))
-		copy(rscliCopy, patterns.RscliMK)
-		makefileContent = append(makefileContent, append([]byte(`### General Rscli info`+"\n"), rscliCopy...))
+		rscliBasicScript := make([]byte, len(patterns.RscliMK))
+		copy(rscliBasicScript, patterns.RscliMK)
+
+		rscliBasicScript = renamer.ReplaceProjectNameShort(rscliBasicScript, p.GetShortName())
+
+		makefileContent = append(makefileContent, append([]byte(`### General Rscli info`+"\n"), rscliBasicScript...))
 	}
 
 	if len(p.GetConfig().Servers) != 0 {
