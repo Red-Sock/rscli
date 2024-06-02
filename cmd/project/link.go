@@ -1,13 +1,15 @@
 package project
 
 import (
+	"strings"
+
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/plugins/project"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
+	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 )
 
@@ -44,6 +46,7 @@ func (p *projectLink) run(_ *cobra.Command, args []string) (err error) {
 		}
 	}
 
+	p.io.Println("Linking project...")
 	err = dependencies.GrpcClient{
 		Modules: args,
 		Cfg:     p.config,
@@ -53,15 +56,15 @@ func (p *projectLink) run(_ *cobra.Command, args []string) (err error) {
 		return errors.Wrap(err, "error applying grpc clients")
 	}
 
-	err = go_actions.PrepareGoConfigFolderAction{}.Do(p.proj)
-	if err != nil {
-		return errors.Wrap(err, "error building go config folder")
-	}
-
-	err = go_actions.RunGoTidyAction{}.Do(p.proj)
+	err = tidy(p.io, p.proj)
 	if err != nil {
 		return errors.Wrap(err, "error tiding project")
 	}
 
+	p.io.Println("Tidy executed. Commiting changes")
+	err = git.ForceCommit(p.proj.GetProjectPath(), "added "+strings.Join(args, "; "))
+	if err != nil {
+		return errors.Wrap(err, "error performing git commit")
+	}
 	return nil
 }

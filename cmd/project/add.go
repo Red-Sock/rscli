@@ -47,19 +47,19 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "error loading project")
 	}
-
+	p.io.Println("Searching for dependencies")
 	for _, d := range dependencies.GetDependencies(p.config, args) {
 		err = d.AppendToProject(p.proj)
 		if err != nil {
 			return errors.Wrap(err, "error adding dependency to project")
 		}
 	}
-
-	err = tidy(p.proj)
+	p.io.Println("Dependencies added. Performing tidy")
+	err = tidy(p.io, p.proj)
 	if err != nil {
 		return errors.Wrap(err, "error tidying project")
 	}
-
+	p.io.Println("Tidy executed. Commiting changes")
 	err = git.ForceCommit(p.proj.GetProjectPath(), "added "+strings.Join(args, "; "))
 	if err != nil {
 		return errors.Wrap(err, "error performing git commit")
