@@ -1,21 +1,15 @@
 package go_actions
 
 import (
-	stderrs "errors"
 	"os"
 	"path"
-	"strings"
 
-	"github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/api"
-	"github.com/godverv/matreshka/resources"
+	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/bins/makefile"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
@@ -55,9 +49,9 @@ func (a InitGoModAction) NameInAction() string {
 	return "Initiating go project"
 }
 
-type FormatAction struct{}
+type RunGoFmtAction struct{}
 
-func (a FormatAction) Do(p interfaces.Project) error {
+func (a RunGoFmtAction) Do(p interfaces.Project) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"fmt", "./..."},
@@ -69,31 +63,14 @@ func (a FormatAction) Do(p interfaces.Project) error {
 
 	return nil
 }
-func (a FormatAction) NameInAction() string {
+func (a RunGoFmtAction) NameInAction() string {
 	return "Performing project fix up"
 }
 
-type TidyAction struct{}
+type RunGoTidyAction struct{}
 
-func (a TidyAction) Do(p interfaces.Project) error {
-	renamer.ReplaceProjectName(p.GetName(), p.GetFolder())
-
-	err := p.GetFolder().Build()
-	if err != nil {
-		return errors.Wrap(err, "error building project")
-	}
-
-	b, err := p.GetConfig().Marshal()
-	if err != nil {
-		return errors.Wrap(err, "error marshaling config")
-	}
-
-	err = os.WriteFile(p.GetConfig().Path, b, os.ModePerm)
-	if err != nil {
-		return errors.Wrap(err, "error writing config to file")
-	}
-
-	_, err = cmd.Execute(cmd.Request{
+func (a RunGoTidyAction) Do(p interfaces.Project) error {
+	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"mod", "tidy"},
 		WorkDir: p.GetProjectPath(),
@@ -102,126 +79,38 @@ func (a TidyAction) Do(p interfaces.Project) error {
 		return errors.Wrap(err, "error executing go mod tidy")
 	}
 
-	err = FormatAction{}.Do(p)
+	err = RunGoFmtAction{}.Do(p)
 	if err != nil {
 		return errors.Wrap(err, "error formatting project")
 	}
 
 	return nil
 }
-func (a TidyAction) NameInAction() string {
+func (a RunGoTidyAction) NameInAction() string {
 	return "Cleaning up the project"
 }
 
-type GenerateClientsAction struct {
+type RunMakeGenAction struct {
 	C  *rscliconfig.RsCliConfig
 	IO io.IO
 }
 
-func (a GenerateClientsAction) Do(p interfaces.Project) error {
-	if a.C == nil {
-		a.C = rscliconfig.GetConfig()
+func (a RunMakeGenAction) Do(p interfaces.Project) error {
+	if len(p.GetConfig().Servers) == 0 {
+		return nil
 	}
 
-	if a.IO == nil {
-		a.IO = io.StdIO{}
-	}
-
-	var simpleClients []string
-	var grpcClients []string
-
-	for _, r := range p.GetConfig().Resources {
-		grpcC, ok := r.(*resources.GRPC)
-		if ok {
-			grpcClients = append(grpcClients, grpcC.Module)
-		} else {
-			simpleClients = append(simpleClients, r.GetName())
-		}
-	}
-	var errs []error
-
-	deps := dependencies.GetDependencies(a.C, simpleClients)
-	if len(deps) != 0 {
-		for _, item := range deps {
-			err := item.AppendToProject(p)
-			if err != nil {
-				errs = append(errs, err)
-			}
-		}
-	}
-
-	err := dependencies.GrpcClient{
-		Modules: grpcClients,
-		Cfg:     a.C,
-		Io:      a.IO,
-	}.AppendToProject(p)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	if len(errs) != 0 {
-		return stderrs.Join(errs...)
-	}
-
-	return nil
-}
-
-func (a GenerateClientsAction) NameInAction() string {
-	return "Generating clients"
-}
-
-type GenerateServerAction struct {
-	C  *rscliconfig.RsCliConfig
-	IO io.IO
-}
-
-func (a GenerateServerAction) Do(p interfaces.Project) error {
 	err := makefile.Install()
 	if err != nil {
 		return errors.Wrap(err, "error installing makefile")
 	}
 
-	var errs []error
-	for _, f := range p.GetFolder().Inner {
-		if !strings.HasSuffix(f.Name, ".mk") {
-			continue
-		}
-		switch f.Name {
-		case projpatterns.GrpcMK.Name:
-			err = makefile.Run(p.GetProjectPath(), f.Name, "gen")
-			if err != nil {
-				errs = append(errs, err)
-			}
-		}
+	err = makefile.Run(p.GetProjectPath(), projpatterns.Makefile, projpatterns.GenCommand)
+	if err != nil {
+		return errors.Wrap(err, "error generating")
 	}
-
-	if len(errs) != 0 {
-		return errors.Wrap(stderrs.Join(errs...), "error generating files")
-	}
-
 	return nil
 }
-
-func (a GenerateServerAction) NameInAction() string {
-	return "Generating server"
-}
-
-type GenerateMakefileAction struct{}
-
-func (a GenerateMakefileAction) Do(p interfaces.Project) error {
-	if p.GetFolder().GetByPath(projpatterns.GrpcMK.Name) == nil {
-		for _, s := range p.GetConfig().AppConfig.Servers {
-			_, ok := s.(*api.GRPC)
-			if ok {
-				p.GetFolder().Add(projpatterns.GrpcMK.Copy())
-				return nil
-			}
-		}
-	}
-
-	return nil
-}
-
-func (a GenerateMakefileAction) NameInAction() string {
-	return "Generating Makefile"
+func (a RunMakeGenAction) NameInAction() string {
+	return "Running `make gen`"
 }

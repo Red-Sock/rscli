@@ -10,6 +10,10 @@ const (
 	EnvConfigYamlFile = "env.yaml"
 	DevConfigYamlFile = "dev.yaml"
 	ConfigYamlFile    = "config.yaml"
+	Makefile          = "Makefile"
+
+	GenCommand           = "gen"
+	GenGrpcServerCommand = "gen-server-grpc"
 )
 
 // Build and deploy
@@ -58,19 +62,11 @@ var (
 
 // Scripts
 var (
-	//go:embed pattern_c/rscli.mk
-	rscliMK []byte
-	RscliMK = &folder.Folder{
-		Name:    "rscli.mk",
-		Content: rscliMK,
-	}
+	//go:embed pattern_c/scripts_pattern/rscli.mk
+	RscliMK []byte
 
-	//go:embed pattern_c/grpc.mk
-	grpcMK []byte
-	GrpcMK = &folder.Folder{
-		Name:    "grpc.mk",
-		Content: grpcMK,
-	}
+	//go:embed pattern_c/scripts_pattern/grpc.mk
+	GrpcServerGenMK []byte
 )
 
 var (

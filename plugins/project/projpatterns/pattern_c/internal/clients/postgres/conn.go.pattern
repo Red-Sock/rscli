@@ -21,7 +21,7 @@ func New(ctx context.Context, cfg *resources.Postgres) (TxManager, error) {
 
 	conn, err := pgx.Connect(ctx, conbStr)
 	if err != nil {
-		return nil, errors.Wrap(err, "error checking connection to redis")
+		return nil, errors.Wrap(err, "error checking connection to postgres")
 	}
 
 	closer.Add(func() error {
@@ -42,7 +42,7 @@ func createConnectionString(cfg *resources.Postgres) string {
 		cfg.Pwd,
 		cfg.Host,
 		cfg.Port,
-		cfg.Name,
+		cfg.DbName,
 	)
 }
 

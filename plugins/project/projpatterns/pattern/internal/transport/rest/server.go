@@ -6,12 +6,11 @@ import (
 	"net/http"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/api"
+	"github.com/godverv/matreshka"
+	"github.com/godverv/matreshka/servers"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
-
-	"proj_name/internal/config"
 )
 
 type Server struct {
@@ -20,7 +19,7 @@ type Server struct {
 	version string
 }
 
-func NewServer(cfg config.Config, server *api.Rest) *Server {
+func NewServer(cfg matreshka.Config, server *servers.Rest) *Server {
 	r := mux.NewRouter()
 
 	s := &Server{
@@ -29,7 +28,7 @@ func NewServer(cfg config.Config, server *api.Rest) *Server {
 			Handler: setUpCors().Handler(r),
 		},
 
-		version: cfg.AppInfo().Version,
+		version: cfg.GetAppInfo().Version,
 	}
 
 	r.HandleFunc("/version", s.Version)

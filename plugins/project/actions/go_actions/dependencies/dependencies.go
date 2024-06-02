@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/api"
 	"github.com/godverv/matreshka/resources"
+	"github.com/godverv/matreshka/servers"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
@@ -37,9 +37,11 @@ func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {
 			dep = Redis{Cfg: c, Name: name}
 		case resources.TelegramResourceName:
 			dep = Telegram{Cfg: c, Name: name}
-		case api.RestServerType:
+		case resources.SqliteResourceName:
+			dep = Sqlite{Cfg: c, Name: name}
+		case servers.RestServerType:
 			dep = Rest{Cfg: c, Name: name}
-		case api.GRPSServerType:
+		case servers.GRPSServerType:
 			dep = GrpcServer{Cfg: c, Name: name}
 		default:
 			continue

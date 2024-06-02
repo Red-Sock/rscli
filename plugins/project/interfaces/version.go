@@ -72,9 +72,9 @@ func (v *Version) String() string {
 	return "V" + strconv.Itoa(v.Major) + "." + strconv.Itoa(v.Minor) + "." + strconv.Itoa(v.Negligible) + tag
 }
 
+// TODO не нужно?
 func (v *Version) UpdateProjectVersion(p Project) error {
-
-	mkFile := p.GetFolder().GetByPath(projpatterns.RscliMK.Name)
+	mkFile := p.GetFolder().GetByPath(projpatterns.Makefile)
 
 	rvBytes := []byte("RSCLI_VERSION=")
 	startIdx := bytes.Index(mkFile.Content, rvBytes)
@@ -110,7 +110,7 @@ type tagVersion int
 func LoadProjectVersion(p Project) error {
 	out, err := cmd.Execute(cmd.Request{
 		Tool:    "make",
-		Args:    []string{"-f", projpatterns.RscliMK.Name, "rscli-version"},
+		Args:    []string{"rscli-version"},
 		WorkDir: p.GetProjectPath(),
 	})
 	if err != nil {

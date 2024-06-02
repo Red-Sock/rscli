@@ -9,9 +9,8 @@ import (
 // Constants naming: Purpose+Type (File)
 
 const (
-	CmdFolder = "cmd"
-
-	ApiFolder = "api"
+	CmdFolder     = "cmd"
+	ServiceFolder = "service"
 
 	ExamplesFolder = "examples"
 
@@ -23,8 +22,7 @@ const (
 
 	TransportFolder = "transport"
 
-	PkgFolder     = "pkg"
-	SwaggerFolder = "swagger"
+	PkgFolder = "pkg"
 
 	UtilsFolder  = "utils"
 	CloserFolder = "closer"
@@ -86,27 +84,22 @@ var (
 		Name:    ConnFileName,
 		Content: grpcClientConnFile,
 	}
+
+	//go:embed pattern_c/internal/clients/sqlite/conn.go.pattern
+	sqliteClientConnFile []byte
+	SqliteClientConnFile = &folder.Folder{
+		Name:    ConnFileName,
+		Content: sqliteClientConnFile,
+	}
 )
 
 // Config parser files
 var (
-	//go:embed pattern_c/internal/config/config.go.pattern
-	configFile []byte
-	ConfigFile = &folder.Folder{
-		Name:    "config.go",
-		Content: configFile,
-	}
 	//go:embed pattern_c/internal/config/autoload.go.pattern
 	autoloadConfigFile []byte
 	AutoloadConfigFile = &folder.Folder{
 		Name:    "autoload.go",
 		Content: autoloadConfigFile,
-	}
-	//go:embed pattern_c/internal/config/static.go.pattern
-	staticConfigFile []byte
-	StaticConfigFile = &folder.Folder{
-		Name:    "static.go",
-		Content: staticConfigFile,
 	}
 )
 
@@ -137,12 +130,6 @@ var (
 	GrpcServFile = &folder.Folder{
 		Name:    "server.go",
 		Content: grpcServFile,
-	}
-	//go:embed pattern_c/internal/transport/grpc/pinger.go.pattern
-	grpcServHandlerVersionExampleFile []byte
-	GrpcServHandlerVersionExampleFile = &folder.Folder{
-		Name:    "version.go",
-		Content: grpcServHandlerVersionExampleFile,
 	}
 
 	//go:embed pattern_c/internal/transport/telegram/listener.go.pattern

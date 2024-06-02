@@ -21,7 +21,6 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
-	"github.com/Red-Sock/rscli/internal/utils/cases"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
@@ -163,7 +162,7 @@ func {{.Constructor}}(ctx context.Context, cfg config.Config) ({{.PackageAlias}}
 			).
 				Replace(packageName))
 
-		grpcResource, err := proj.GetConfig().Resources.GRPC(resourceName)
+		grpcResource, err := proj.GetConfig().DataSources.GRPC(resourceName)
 		if err != nil {
 			if !errors.Is(err, matreshka.ErrNotFound) {
 				return errors.Wrap(err, "error getting grpc resource from config")
@@ -174,11 +173,11 @@ func {{.Constructor}}(ctx context.Context, cfg config.Config) ({{.PackageAlias}}
 				Module:           packageName,
 				ConnectionString: "0.0.0.0:50051",
 			}
-			proj.GetConfig().Resources = append(proj.GetConfig().Resources, grpcResource)
+			proj.GetConfig().DataSources = append(proj.GetConfig().DataSources, grpcResource)
 		}
-
-		configKey := cases.SnakeToPascal(matreshka.GenerateResourceConfigKeys(grpcResource)[0].Name)
-
+		// TODO
+		//configKey := cases.SnakeToPascal(matreshka.GenerateKeys(grpcResource)[0].Name)
+		configKey := ""
 		err = tmplt.Execute(sb, map[string]string{
 			"PackageAlias":    "pb",
 			"FullProjectName": proj.GetName(),

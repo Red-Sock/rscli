@@ -23,11 +23,11 @@ func main() {
 		logrus.Fatalf("error reading config %s", err.Error())
 	}
 
-	if cfg.AppInfo().StartupDuration == 0 {
+	if cfg.GetAppInfo().StartupDuration == 0 {
 		logrus.Fatalf("no startup duration in config")
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, cfg.AppInfo().StartupDuration)
+	ctx, cancel := context.WithTimeout(ctx, cfg.GetAppInfo().StartupDuration)
 	closer.Add(func() error {
 		cancel()
 		return nil
@@ -44,7 +44,7 @@ func main() {
 
 // rscli comment: an obligatory function for tool to work properly.
 // must be called in the main function above
-// also this is a LP song name reference, so no rules can be applied to the function name
+// also this is the LP's song name reference, so no linting rules can be applied to the function name
 func waitingForTheEnd() {
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
