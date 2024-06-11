@@ -30,9 +30,10 @@ const (
 	HandlersFolderName = "handlers"
 	VersionFolderName  = "version"
 
-	ConfigsFolder      = "config"
-	ConfigTemplate     = "config_template.yaml"
-	ConfigKeysFileName = "keys.go"
+	ConfigsFolder             = "config"
+	ConfigTemplate            = "config_template.yaml"
+	ConfigEnvironmentFileName = "environment.go"
+	ConfigKeysFileName        = "keys.go"
 
 	GoMod = "go.mod"
 

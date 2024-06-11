@@ -7,18 +7,20 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
+	"github.com/godverv/matreshka/resources"
+	"github.com/godverv/matreshka/servers"
 )
 
 var ErrAlreadyLoaded = errors.New("config already loaded")
 
-var defaultConfig matreshka.AppConfig
+var defaultConfig config
 
 const (
 	devConfigPath  = "./config/dev.yaml"
 	prodConfigPath = "./config/config.yaml"
 )
 
-func Load() (matreshka.Config, error) {
+func Load() (Config, error) {
 	if defaultConfig.AppInfo.Name != "" {
 		return &defaultConfig, ErrAlreadyLoaded
 	}
@@ -38,10 +40,49 @@ func Load() (matreshka.Config, error) {
 		}
 	}
 	var err error
-	defaultConfig, err = matreshka.ReadConfigs(cfgPath)
+	defaultConfig.AppConfig, err = matreshka.ReadConfigs(cfgPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "error reading matreshka config")
 	}
 
 	return &defaultConfig, nil
+}
+
+type config struct {
+	matreshka.AppConfig
+	envConfig EnvironmentConfig
+}
+
+func (c *config) GetServers() API {
+	return &c.AppConfig.Servers
+}
+
+func (c *config) GetDataSources() Resources {
+	return &c.AppConfig.DataSources
+}
+
+func (c *config) GetEnvironment() EnvironmentConfig {
+	return c.envConfig
+}
+
+type Config interface {
+	GetAppInfo() matreshka.AppInfo
+
+	GetServers() API
+	GetDataSources() Resources
+
+	GetEnvironment() EnvironmentConfig
+}
+
+type API interface {
+	REST(name string) (*servers.Rest, error)
+	GRPC(name string) (*servers.GRPC, error)
+}
+
+type Resources interface {
+	Postgres(name string) (*resources.Postgres, error)
+	Telegram(name string) (*resources.Telegram, error)
+	Redis(name string) (*resources.Redis, error)
+	GRPC(name string) (*resources.GRPC, error)
+	Sqlite(name string) (*resources.Sqlite, error)
 }
