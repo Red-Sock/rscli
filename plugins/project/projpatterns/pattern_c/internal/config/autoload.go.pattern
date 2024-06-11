@@ -52,7 +52,8 @@ type config struct {
 	matreshka.AppConfig
 	envConfig EnvironmentConfig
 }
-func (c *config) GetAppInfo() matreshka.AppInfo  {
+
+func (c *config) GetAppInfo() matreshka.AppInfo {
 	return c.AppInfo
 }
 

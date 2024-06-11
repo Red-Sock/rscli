@@ -3,11 +3,11 @@ package perun
 import (
 	"context"
 
-	"github.com/godverv/matreshka"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"proj_name/internal/config"
 	"proj_name/pkg/example_api"
 )
 
@@ -17,9 +17,9 @@ type Implementation struct {
 	version string
 }
 
-func New(cfg matreshka.Config) *Implementation {
+func New(cfg config.Config) *Implementation {
 	return &Implementation{
-		version: cfg.AppInfo().Version,
+		version: cfg.GetAppInfo().Version,
 	}
 }
 
