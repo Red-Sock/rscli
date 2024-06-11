@@ -53,6 +53,10 @@ type config struct {
 	envConfig EnvironmentConfig
 }
 
+func (c *config) GetAppInfo() matreshka.AppInfo {
+	return c.AppInfo
+}
+
 func (c *config) GetServers() API {
 	return &c.AppConfig.Servers
 }
