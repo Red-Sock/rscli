@@ -5,10 +5,10 @@ go 1.22
 toolchain go1.22.1
 
 require (
-	github.com/Red-Sock/evon v0.0.6
-	github.com/Red-Sock/trace-errors v0.0.6
+	github.com/Red-Sock/evon v0.0.13
+	github.com/Red-Sock/trace-errors v0.0.7
 	github.com/gobeam/stringy v0.0.7
-	github.com/godverv/matreshka v0.0.23
+	github.com/godverv/matreshka v0.0.29
 	github.com/gojuno/minimock/v3 v3.3.12
 	github.com/hashicorp/go-version v1.7.0
 	github.com/morikuni/aec v1.0.0

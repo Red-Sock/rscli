@@ -21,6 +21,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
+	"github.com/Red-Sock/rscli/internal/utils/cases"
 	"github.com/Red-Sock/rscli/plugins/project/interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
@@ -126,7 +127,7 @@ import (
 )
 
 func {{.Constructor}}(ctx context.Context, cfg config.Config) ({{.PackageAlias}}.{{.ClientName}}, error) {
-	connCfg, err := cfg.Resources().GRPC(config.{{.ConfigKey}})
+	connCfg, err := cfg.GetDataSources().GRPC(config.{{.ConfigKey}})
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't find key"+ config.{{.ConfigKey}}+ " grpc connection in config")
 	}
@@ -175,9 +176,9 @@ func {{.Constructor}}(ctx context.Context, cfg config.Config) ({{.PackageAlias}}
 			}
 			proj.GetConfig().DataSources = append(proj.GetConfig().DataSources, grpcResource)
 		}
-		// TODO
-		//configKey := cases.SnakeToPascal(matreshka.GenerateKeys(grpcResource)[0].Name)
-		configKey := ""
+
+		configKey := "Resource" + cases.SnakeToPascal(resourceName)
+
 		err = tmplt.Execute(sb, map[string]string{
 			"PackageAlias":    "pb",
 			"FullProjectName": proj.GetName(),
