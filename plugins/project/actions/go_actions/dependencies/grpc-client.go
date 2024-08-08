@@ -22,7 +22,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
 	"github.com/Red-Sock/rscli/internal/utils/cases"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
@@ -41,7 +41,7 @@ func (g GrpcClient) GetFolderName() string {
 	return "grpc"
 }
 
-func (g GrpcClient) AppendToProject(proj interfaces.Project) error {
+func (g GrpcClient) AppendToProject(proj proj_interfaces.Project) error {
 	if len(g.Modules) == 0 {
 		return nil
 	}
@@ -98,7 +98,7 @@ func (g GrpcClient) getPackage(packageName string) (ok bool) {
 	return true
 }
 
-func (g GrpcClient) applyLink(proj interfaces.Project, packageName string) error {
+func (g GrpcClient) applyLink(proj proj_interfaces.Project, packageName string) error {
 	packagePath, err := g.getPathToModule(packageName)
 	if err != nil {
 		return errors.Wrapf(err, "error getting path to module: %s", packageName)

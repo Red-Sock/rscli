@@ -12,7 +12,7 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
@@ -34,31 +34,30 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 		return nil, errors.Wrap(err, "error loading project config")
 	}
 
-	f, err := folder.Load(pth)
+	root, err := folder.Load(pth)
 	if err != nil {
 		return nil, err
 	}
 
-	modName := c.AppInfo.Name
-
-	goModFile := f.GetByPath(projpatterns.GoMod)
-	moduleBts := goModFile.Content[:bytes.IndexByte(goModFile.Content, '\n')]
-	moduleBts = moduleBts[1+bytes.IndexByte(moduleBts, ' '):]
-
-	if modName != string(moduleBts) {
-		modName = string(moduleBts)
-	}
-
-	name := modName
-
 	p := &Project{
-		Name:        name,
 		ProjectPath: pth,
 		Cfg:         c,
-		root:        *f,
+		root:        *root,
 	}
 
-	err = interfaces.LoadProjectVersion(p)
+	projectLoaders := []func(p *Project) (name *string){
+		goProjectLoader,
+		unknownProjectLoader,
+	}
+
+	for _, pLoader := range projectLoaders {
+		name := pLoader(p)
+		if name != nil {
+			p.Name = *name
+		}
+	}
+
+	err = proj_interfaces.LoadProjectVersion(p)
 	if err != nil {
 		return p, errors.Wrap(err, "error loading project version")
 	}
@@ -100,4 +99,23 @@ func LoadProjectConfig(projectPath string, cfg *rscliconfig.RsCliConfig) (c *con
 	}
 
 	return c, nil
+}
+
+func goProjectLoader(p *Project) (name *string) {
+	goModFile := p.root.GetByPath(projpatterns.GoMod)
+	if goModFile == nil {
+		return nil
+	}
+	moduleBts := goModFile.Content[:bytes.IndexByte(goModFile.Content, '\n')]
+	moduleBts = moduleBts[1+bytes.IndexByte(moduleBts, ' '):]
+
+	modName := string(moduleBts)
+
+	p.projType = proj_interfaces.ProjectTypeGo
+
+	return &modName
+}
+func unknownProjectLoader(p *Project) *string {
+	name := p.Cfg.AppInfo.Name
+	return &name
 }

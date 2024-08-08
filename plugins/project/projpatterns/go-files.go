@@ -9,6 +9,9 @@ import (
 // Constants naming: Purpose+Type (File)
 
 const (
+	GithubFolder    = ".github"
+	WorkflowsFolder = "workflows"
+
 	CmdFolder     = "cmd"
 	ServiceFolder = "service"
 

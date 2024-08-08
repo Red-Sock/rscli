@@ -10,7 +10,7 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/bins/makefile"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
@@ -18,7 +18,7 @@ const goBin = "go"
 
 type InitGoModAction struct{}
 
-func (a InitGoModAction) Do(p interfaces.Project) error {
+func (a InitGoModAction) Do(p proj_interfaces.Project) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"mod", "init", p.GetName()},
@@ -51,7 +51,7 @@ func (a InitGoModAction) NameInAction() string {
 
 type RunGoFmtAction struct{}
 
-func (a RunGoFmtAction) Do(p interfaces.Project) error {
+func (a RunGoFmtAction) Do(p proj_interfaces.Project) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"fmt", "./..."},
@@ -69,7 +69,7 @@ func (a RunGoFmtAction) NameInAction() string {
 
 type RunGoTidyAction struct{}
 
-func (a RunGoTidyAction) Do(p interfaces.Project) error {
+func (a RunGoTidyAction) Do(p proj_interfaces.Project) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"mod", "tidy"},
@@ -95,7 +95,7 @@ type RunMakeGenAction struct {
 	IO io.IO
 }
 
-func (a RunMakeGenAction) Do(p interfaces.Project) error {
+func (a RunMakeGenAction) Do(p proj_interfaces.Project) error {
 	if len(p.GetConfig().Servers) == 0 {
 		return nil
 	}

@@ -10,7 +10,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
 	"github.com/Red-Sock/rscli/internal/utils/cases"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
@@ -35,7 +35,7 @@ const ({{range $_, $val := .}}
 
 type PrepareGoConfigFolderAction struct{}
 
-func (a PrepareGoConfigFolderAction) Do(p interfaces.Project) (err error) {
+func (a PrepareGoConfigFolderAction) Do(p proj_interfaces.Project) (err error) {
 	goConfigFolderPath := path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder)
 	p.GetFolder().Add(&folder.Folder{
 		Name: goConfigFolderPath,
@@ -62,7 +62,7 @@ func (a PrepareGoConfigFolderAction) NameInAction() string {
 	return "Preparing config folder"
 }
 
-func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, goConfigFolder *folder.Folder) error {
+func (a PrepareGoConfigFolderAction) generateGoKeysFile(p proj_interfaces.Project, goConfigFolder *folder.Folder) error {
 	matreshkaKeys := matreshka.GenerateKeys(p.GetConfig().AppConfig)
 
 	type ConfigKey struct {
@@ -105,7 +105,7 @@ func (a PrepareGoConfigFolderAction) generateGoKeysFile(p interfaces.Project, go
 
 	return nil
 }
-func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p interfaces.Project) error {
+func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p proj_interfaces.Project) error {
 	b, err := p.GetConfig().Marshal()
 	if err != nil {
 		return err
@@ -124,7 +124,7 @@ func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p interfaces.Project
 
 	return nil
 }
-func (a PrepareGoConfigFolderAction) generateEnvironmentStructFile(p interfaces.Project, goConfigFolder *folder.Folder) {
+func (a PrepareGoConfigFolderAction) generateEnvironmentStructFile(p proj_interfaces.Project, goConfigFolder *folder.Folder) {
 	cfg := p.GetConfig()
 
 	goConfigFolder.Add(&folder.Folder{

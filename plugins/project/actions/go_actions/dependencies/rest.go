@@ -10,7 +10,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	renamer2 "github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
@@ -29,7 +29,7 @@ func (r Rest) GetFolderName() string {
 	return "rest"
 }
 
-func (r Rest) AppendToProject(proj interfaces.Project) error {
+func (r Rest) AppendToProject(proj proj_interfaces.Project) error {
 	err := r.applyFolder(proj, r.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error applying rest folder")
@@ -40,7 +40,7 @@ func (r Rest) AppendToProject(proj interfaces.Project) error {
 	return nil
 }
 
-func (r Rest) applyConfig(proj interfaces.Project, defaultApiName string) {
+func (r Rest) applyConfig(proj proj_interfaces.Project, defaultApiName string) {
 	for _, item := range proj.GetConfig().Servers {
 		if item.GetName() == defaultApiName {
 			return
@@ -54,7 +54,7 @@ func (r Rest) applyConfig(proj interfaces.Project, defaultApiName string) {
 		})
 }
 
-func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error {
+func (r Rest) applyFolder(proj proj_interfaces.Project, defaultApiName string) error {
 	ok, err := containsDependencyFolder(r.Cfg.Env.PathToServers, proj.GetFolder(), r.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error searching dependencies")
@@ -79,7 +79,7 @@ func (r Rest) applyFolder(proj interfaces.Project, defaultApiName string) error 
 	return nil
 }
 
-func applyServerFolder(proj interfaces.Project) {
+func applyServerFolder(proj proj_interfaces.Project) {
 	serverManagerPath := []string{projpatterns.InternalFolder, projpatterns.TransportFolder, projpatterns.ServerManagerPatternFile.Name}
 	if proj.GetFolder().GetByPath(serverManagerPath...) == nil {
 		proj.GetFolder().Add(

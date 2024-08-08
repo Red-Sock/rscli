@@ -1,4 +1,4 @@
-package interfaces
+package proj_interfaces
 
 import (
 	"bytes"

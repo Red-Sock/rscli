@@ -13,7 +13,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
@@ -32,7 +32,7 @@ func (r GrpcServer) GetFolderName() string {
 	return "grpc"
 }
 
-func (r GrpcServer) AppendToProject(proj interfaces.Project) error {
+func (r GrpcServer) AppendToProject(proj proj_interfaces.Project) error {
 	protoName := proj.GetShortName() + "_api.proto"
 
 	ok, err := containsDependencyFolder(
@@ -58,7 +58,7 @@ func (r GrpcServer) AppendToProject(proj interfaces.Project) error {
 	return nil
 }
 
-func (r GrpcServer) applyApiFolder(proj interfaces.Project, protoPath string) error {
+func (r GrpcServer) applyApiFolder(proj proj_interfaces.Project, protoPath string) error {
 	serverF := projpatterns.ProtoServer.CopyWithNewName(protoPath)
 
 	projName := stringy.New(proj.GetShortName())
@@ -78,7 +78,7 @@ func (r GrpcServer) applyApiFolder(proj interfaces.Project, protoPath string) er
 	return nil
 }
 
-func (r GrpcServer) applyConfig(proj interfaces.Project) {
+func (r GrpcServer) applyConfig(proj proj_interfaces.Project) {
 	for _, item := range proj.GetConfig().Servers {
 		if item.GetName() == r.GetFolderName() {
 			return
@@ -92,7 +92,7 @@ func (r GrpcServer) applyConfig(proj interfaces.Project) {
 		})
 }
 
-func (r GrpcServer) applyServerFolder(proj interfaces.Project) {
+func (r GrpcServer) applyServerFolder(proj proj_interfaces.Project) {
 	f := proj.GetFolder()
 
 	pth := []string{projpatterns.InternalFolder, projpatterns.TransportFolder, r.GetFolderName()}

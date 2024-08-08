@@ -14,6 +14,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/validators"
 )
 
@@ -33,6 +34,7 @@ type CreateArgs struct {
 func CreateGoProject(args CreateArgs) (*Project, error) {
 	proj := &Project{
 		Name: args.Name,
+
 		Actions: append([]actions.Action{
 			go_actions.PrepareProjectStructureAction{}, // basic go project structure
 			go_actions.PrepareGoConfigFolderAction{},   // generates config keys
@@ -50,7 +52,9 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 
 			git.InitGit{}, // initializing and committing project as git repo
 		}, args.Actions...),
+
 		validators: append(args.Validators, validators.ValidateProjectName),
+		projType:   proj_interfaces.ProjectTypeGo,
 	}
 
 	if args.ProjectPath == "" {

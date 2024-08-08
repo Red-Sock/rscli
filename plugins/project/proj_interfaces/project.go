@@ -1,4 +1,4 @@
-package interfaces
+package proj_interfaces
 
 import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
@@ -16,4 +16,13 @@ type Project interface {
 
 	GetVersion() Version
 	SetVersion(Version)
+
+	GetType() ProjectType
 }
+
+type ProjectType string
+
+const (
+	ProjectTypeUnknown ProjectType = "Unknown"
+	ProjectTypeGo      ProjectType = "go"
+)

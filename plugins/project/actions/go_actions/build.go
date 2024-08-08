@@ -6,12 +6,12 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 )
 
 type BuildProjectAction struct{}
 
-func (a BuildProjectAction) Do(p interfaces.Project) error {
+func (a BuildProjectAction) Do(p proj_interfaces.Project) error {
 	renamer.ReplaceProjectName(p.GetName(), p.GetFolder())
 
 	err := p.GetFolder().Build()
@@ -26,7 +26,7 @@ func (a BuildProjectAction) NameInAction() string {
 
 type BuildConfigAction struct{}
 
-func (a BuildConfigAction) Do(p interfaces.Project) error {
+func (a BuildConfigAction) Do(p proj_interfaces.Project) error {
 	b, err := p.GetConfig().Marshal()
 	if err != nil {
 		return errors.Wrap(err, "error marshaling config")

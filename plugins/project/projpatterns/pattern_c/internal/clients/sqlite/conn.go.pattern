@@ -20,11 +20,7 @@ const (
 	inMemory = "file::memory:?mode=memory&cache=shared"
 )
 
-type Provider struct {
-	db *sql.DB
-}
-
-func NewStorage(cfg *resources.Sqlite) (*Provider, error) {
+func NewStorage(cfg *resources.Sqlite) (*sql.DB, error) {
 	databaseLocation := cfg.Path
 	if databaseLocation == "" {
 		logrus.Warning("no path for file, running in memory mode")
@@ -47,9 +43,7 @@ func NewStorage(cfg *resources.Sqlite) (*Provider, error) {
 		return nil, errors.Wrap(err, "error performing migrations")
 	}
 
-	return &Provider{
-		db: conn,
-	}, nil
+	return conn, nil
 }
 
 func checkMigrate(conn *sql.DB) error {
