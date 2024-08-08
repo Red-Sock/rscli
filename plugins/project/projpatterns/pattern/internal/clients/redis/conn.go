@@ -5,11 +5,10 @@ package redis
 import (
 	"strconv"
 
+	"github.com/Red-Sock/toolbox/closer"
 	"github.com/Red-Sock/trace-errors"
 	"github.com/go-redis/redis"
 	"github.com/godverv/matreshka/resources"
-
-	"proj_name/internal/utils/closer"
 )
 
 var ErrUnexpectedPing = errors.New("error pinging redis")

@@ -6,10 +6,10 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/Red-Sock/toolbox/closer"
 	"github.com/sirupsen/logrus"
 
 	"proj_name/internal/config"
-	"proj_name/internal/utils/closer"
 	//_transport_imports
 )
 
@@ -28,10 +28,11 @@ func main() {
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, cfg.GetAppInfo().StartupDuration)
-	closer.Add(func() error {
-		cancel()
-		return nil
-	})
+	closer.Add(
+		func() error {
+			cancel()
+			return nil
+		})
 
 	waitingForTheEnd()
 

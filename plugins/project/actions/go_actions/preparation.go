@@ -32,12 +32,6 @@ func (a PrepareProjectStructureAction) Do(p proj_interfaces.Project) error {
 
 	rootF.Add(&folder.Folder{Name: patterns.PkgFolder})
 
-	closerFilePath := path.Join(
-		patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder,
-		patterns.UtilsCloserFile.Name)
-
-	rootF.Add(patterns.UtilsCloserFile.CopyWithNewName(closerFilePath))
-
 	rootF.Add(
 		patterns.Dockerfile.Copy(),
 		patterns.Readme.Copy(),

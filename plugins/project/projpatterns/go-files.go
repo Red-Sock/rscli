@@ -27,9 +27,6 @@ const (
 
 	PkgFolder = "pkg"
 
-	UtilsFolder  = "utils"
-	CloserFolder = "closer"
-
 	HandlersFolderName = "handlers"
 	VersionFolderName  = "version"
 
@@ -147,15 +144,5 @@ var (
 	TgHandlerExampleFile = &folder.Folder{
 		Name:    "handler.go",
 		Content: tgHandlerExampleFile,
-	}
-)
-
-// Utils
-var (
-	//go:embed pattern_c/internal/utils/closer/closer.go.pattern
-	utilsCloserFile []byte
-	UtilsCloserFile = &folder.Folder{
-		Name:    "closer.go",
-		Content: utilsCloserFile,
 	}
 )
