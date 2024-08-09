@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path"
+	"sort"
 	"strings"
 
 	"github.com/Red-Sock/trace-errors"
@@ -17,15 +18,15 @@ import (
 )
 
 const (
-	ProdConfigFileName = "config.yaml"
-	DevConfigFileName  = "dev.yaml"
-	StgConfigFileName  = "stage.yaml"
+	prodConfigFileName     = "config.yaml"
+	templateConfigFileName = "config_template.yaml"
+	devConfigFileName      = "dev.yaml"
 )
 
-var configOrder = []string{
-	DevConfigFileName,
-	StgConfigFileName,
-	ProdConfigFileName,
+var configOrder = map[string]int{
+	prodConfigFileName:     1,
+	templateConfigFileName: 2,
+	devConfigFileName:      3,
 }
 
 func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
@@ -68,32 +69,29 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 func LoadProjectConfig(projectPath string, cfg *rscliconfig.RsCliConfig) (c *config.Config, err error) {
 	c = &config.Config{}
 
-	configDirPath := path.Join(projectPath, path.Dir(cfg.Env.PathToConfig))
+	c.ConfigDir = path.Join(projectPath, path.Dir(cfg.Env.PathToConfig))
 
-	dir, err := os.ReadDir(configDirPath)
+	dir, err := os.ReadDir(c.ConfigDir)
 	if err != nil {
 		return nil, errors.Wrap(err, "error reading config folder")
 	}
 
-	var yamlFiles = map[string]struct{}{}
+	configsPaths := make([]string, 0, 3)
 
 	for _, d := range dir {
 		if strings.HasSuffix(d.Name(), ".yaml") {
-			yamlFiles[d.Name()] = struct{}{}
+			_, ok := configOrder[d.Name()]
+			if ok {
+				configsPaths = append(configsPaths, path.Join(c.ConfigDir, d.Name()))
+			}
 		}
 	}
 
-	var configPath string
-	for _, d := range configOrder {
-		if _, ok := yamlFiles[d]; ok {
-			configPath = d
-			break
-		}
-	}
+	sort.Slice(configsPaths, func(i, j int) bool {
+		return configOrder[configsPaths[i]] > configOrder[configsPaths[j]]
+	})
 
-	c.Path = path.Join(configDirPath, configPath)
-
-	c.AppConfig, err = matreshka.ReadConfigs(c.Path)
+	c.AppConfig, err = matreshka.ReadConfigs(configsPaths...) // TODO
 	if err != nil {
 		return nil, errors.Wrap(err, "error parsing config")
 	}

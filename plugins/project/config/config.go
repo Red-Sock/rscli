@@ -7,5 +7,5 @@ import (
 type Config struct {
 	matreshka.AppConfig
 
-	Path string `yaml:"-"`
+	ConfigDir string `yaml:"-"`
 }

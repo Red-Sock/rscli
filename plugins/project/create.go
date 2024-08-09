@@ -45,7 +45,6 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 			go_actions.PrepareMakefileAction{}, // prepare Makefile
 
 			go_actions.BuildProjectAction{}, // builds project to file system
-			go_actions.BuildConfigAction{},
 
 			go_actions.RunGoTidyAction{}, // adds/clears project initialization(api, resources) and replaces project name template with actual project name
 			go_actions.RunGoFmtAction{},  // fetches dependencies and formats go code
@@ -85,7 +84,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 				StartupDuration: startupDuration,
 			},
 		},
-		Path: path.Join(proj.GetProjectPath(), args.CfgPath),
+		ConfigDir: path.Join(proj.GetProjectPath(), args.CfgPath),
 	}
 
 	return proj, nil
