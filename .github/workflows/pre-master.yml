@@ -75,13 +75,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          make compile-pattern
+          make .compile-pattern
           
           diffs=`git diff`
           
           if ((${#diffs} != 0)); then
             ERR_MESSAGE="Recompile project-pattern before merge to master: 
-              Run **make compile-pattern**  
+              Run **make .compile-pattern**  
               and **commit** new changes to this branch."
             gh pr comment ${{ github.event.number }} -b  "$ERR_MESSAGE" >> /dev/null
             echo "$ERR_MESSAGE"
