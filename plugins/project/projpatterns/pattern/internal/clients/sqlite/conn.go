@@ -20,7 +20,7 @@ const (
 	inMemory = "file::memory:?mode=memory&cache=shared"
 )
 
-func NewStorage(cfg *resources.Sqlite) (*sql.DB, error) {
+func New(cfg *resources.Sqlite) (*sql.DB, error) {
 	databaseLocation := cfg.Path
 	if databaseLocation == "" {
 		logrus.Warning("no path for file, running in memory mode")
