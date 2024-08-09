@@ -118,21 +118,20 @@ func (g GrpcClient) applyLink(proj proj_interfaces.Project, packageName string) 
 package grpc
 	 
 import (
-	"context"
-
 	{{.PackageAlias}} "{{.ApiPath}}"
+	"google.golang.org/grpc"
 	errors "github.com/Red-Sock/trace-errors"
 
 	"{{.FullProjectName}}/internal/config"
 )
 
-func {{.Constructor}}(ctx context.Context, cfg config.Config) ({{.PackageAlias}}.{{.ClientName}}, error) {
+func {{.Constructor}}(cfg config.Config, opts ...grpc.DialOption) ({{.PackageAlias}}.{{.ClientName}}, error) {
 	connCfg, err := cfg.GetDataSources().GRPC(config.{{.ConfigKey}})
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't find key"+ config.{{.ConfigKey}}+ " grpc connection in config")
 	}
 
-	conn, err := connect(ctx, connCfg)
+	conn, err := Connect(connCfg.ConnectionString, opts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "error connection to "+connCfg.Module)
 	}

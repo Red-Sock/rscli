@@ -6,14 +6,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Red-Sock/trace-errors"
 	"github.com/Red-Sock/toolbox/closer"
+	"github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
 	"github.com/jackc/pgx/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/sirupsen/logrus"
-
 )
 
 func New(ctx context.Context, cfg *resources.Postgres) (TxManager, error) {
