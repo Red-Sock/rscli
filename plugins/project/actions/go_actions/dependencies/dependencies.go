@@ -9,7 +9,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 )
 
 var (
@@ -17,7 +17,7 @@ var (
 )
 
 type Dependency interface {
-	AppendToProject(proj interfaces.Project) error
+	AppendToProject(proj proj_interfaces.Project) error
 }
 
 func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {

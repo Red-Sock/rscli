@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path"
+	"sort"
 	"strings"
 
 	"github.com/Red-Sock/trace-errors"
@@ -12,20 +13,20 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 const (
-	ProdConfigFileName = "config.yaml"
-	DevConfigFileName  = "dev.yaml"
-	StgConfigFileName  = "stage.yaml"
+	prodConfigFileName     = "config.yaml"
+	templateConfigFileName = "config_template.yaml"
+	devConfigFileName      = "dev.yaml"
 )
 
-var configOrder = []string{
-	DevConfigFileName,
-	StgConfigFileName,
-	ProdConfigFileName,
+var configOrder = map[string]int{
+	prodConfigFileName:     1,
+	templateConfigFileName: 2,
+	devConfigFileName:      3,
 }
 
 func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
@@ -34,31 +35,30 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 		return nil, errors.Wrap(err, "error loading project config")
 	}
 
-	f, err := folder.Load(pth)
+	root, err := folder.Load(pth)
 	if err != nil {
 		return nil, err
 	}
 
-	modName := c.AppInfo.Name
-
-	goModFile := f.GetByPath(projpatterns.GoMod)
-	moduleBts := goModFile.Content[:bytes.IndexByte(goModFile.Content, '\n')]
-	moduleBts = moduleBts[1+bytes.IndexByte(moduleBts, ' '):]
-
-	if modName != string(moduleBts) {
-		modName = string(moduleBts)
-	}
-
-	name := modName
-
 	p := &Project{
-		Name:        name,
 		ProjectPath: pth,
 		Cfg:         c,
-		root:        *f,
+		root:        *root,
 	}
 
-	err = interfaces.LoadProjectVersion(p)
+	projectLoaders := []func(p *Project) (name *string){
+		goProjectLoader,
+		unknownProjectLoader,
+	}
+
+	for _, pLoader := range projectLoaders {
+		name := pLoader(p)
+		if name != nil {
+			p.Name = *name
+		}
+	}
+
+	err = proj_interfaces.LoadProjectVersion(p)
 	if err != nil {
 		return p, errors.Wrap(err, "error loading project version")
 	}
@@ -69,35 +69,51 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 func LoadProjectConfig(projectPath string, cfg *rscliconfig.RsCliConfig) (c *config.Config, err error) {
 	c = &config.Config{}
 
-	configDirPath := path.Join(projectPath, path.Dir(cfg.Env.PathToConfig))
+	c.ConfigDir = path.Join(projectPath, path.Dir(cfg.Env.PathToConfig))
 
-	dir, err := os.ReadDir(configDirPath)
+	dir, err := os.ReadDir(c.ConfigDir)
 	if err != nil {
 		return nil, errors.Wrap(err, "error reading config folder")
 	}
 
-	var yamlFiles = map[string]struct{}{}
+	configsPaths := make([]string, 0, 3)
 
 	for _, d := range dir {
 		if strings.HasSuffix(d.Name(), ".yaml") {
-			yamlFiles[d.Name()] = struct{}{}
+			_, ok := configOrder[d.Name()]
+			if ok {
+				configsPaths = append(configsPaths, path.Join(c.ConfigDir, d.Name()))
+			}
 		}
 	}
 
-	var configPath string
-	for _, d := range configOrder {
-		if _, ok := yamlFiles[d]; ok {
-			configPath = d
-			break
-		}
-	}
+	sort.Slice(configsPaths, func(i, j int) bool {
+		return configOrder[configsPaths[i]] > configOrder[configsPaths[j]]
+	})
 
-	c.Path = path.Join(configDirPath, configPath)
-
-	c.AppConfig, err = matreshka.ReadConfigs(c.Path)
+	c.AppConfig, err = matreshka.ReadConfigs(configsPaths...) // TODO
 	if err != nil {
 		return nil, errors.Wrap(err, "error parsing config")
 	}
 
 	return c, nil
+}
+
+func goProjectLoader(p *Project) (name *string) {
+	goModFile := p.root.GetByPath(projpatterns.GoMod)
+	if goModFile == nil {
+		return nil
+	}
+	moduleBts := goModFile.Content[:bytes.IndexByte(goModFile.Content, '\n')]
+	moduleBts = moduleBts[1+bytes.IndexByte(moduleBts, ' '):]
+
+	modName := string(moduleBts)
+
+	p.projType = proj_interfaces.ProjectTypeGo
+
+	return &modName
+}
+func unknownProjectLoader(p *Project) *string {
+	name := p.Cfg.AppInfo.Name
+	return &name
 }

@@ -11,6 +11,8 @@ RUN --mount=target=. \
      [ -d "./migrations" ] && cp -r ./migrations /deploy/server/migrations
 FROM alpine
 
+LABEL MATRESHKA_CONFIG_ENABLED=true
+
 WORKDIR /app
 
 COPY --from=builder /deploy/server/ .

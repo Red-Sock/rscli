@@ -3,7 +3,7 @@ package git
 import (
 	"github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 )
 
 const (
@@ -16,7 +16,7 @@ const exe = "git"
 
 type InitGit struct{}
 
-func (a InitGit) Do(p interfaces.Project) error {
+func (a InitGit) Do(p proj_interfaces.Project) error {
 	projectPath := p.GetProjectPath()
 
 	err := Init(projectPath)
@@ -24,7 +24,7 @@ func (a InitGit) Do(p interfaces.Project) error {
 		return errors.Wrap(err, "error initializing project")
 	}
 
-	err = ForceCommit(projectPath, "project init via RedSock CLI")
+	err = CommitWithUntracked(projectPath, "project init via RedSock CLI")
 	if err != nil {
 		return errors.Wrap(err, "error committing changes")
 	}

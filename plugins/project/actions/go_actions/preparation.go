@@ -13,14 +13,14 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 	patterns "github.com/Red-Sock/rscli/plugins/project/projpatterns"
 )
 
 type PrepareProjectStructureAction struct {
 }
 
-func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
+func (a PrepareProjectStructureAction) Do(p proj_interfaces.Project) error {
 	rootF := p.GetFolder()
 
 	cmd := &folder.Folder{Name: patterns.CmdFolder}
@@ -31,12 +31,6 @@ func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 	rootF.Add(&folder.Folder{Name: patterns.InternalFolder})
 
 	rootF.Add(&folder.Folder{Name: patterns.PkgFolder})
-
-	closerFilePath := path.Join(
-		patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder,
-		patterns.UtilsCloserFile.Name)
-
-	rootF.Add(patterns.UtilsCloserFile.CopyWithNewName(closerFilePath))
 
 	rootF.Add(
 		patterns.Dockerfile.Copy(),
@@ -56,7 +50,7 @@ type PrepareClientsAction struct {
 	IO io.IO
 }
 
-func (a PrepareClientsAction) Do(p interfaces.Project) error {
+func (a PrepareClientsAction) Do(p proj_interfaces.Project) error {
 	if a.C == nil {
 		a.C = rscliconfig.GetConfig()
 	}
@@ -109,7 +103,7 @@ func (a PrepareClientsAction) NameInAction() string {
 
 type PrepareMakefileAction struct{}
 
-func (a PrepareMakefileAction) Do(p interfaces.Project) error {
+func (a PrepareMakefileAction) Do(p proj_interfaces.Project) error {
 	genScriptSummary := make([]string, 0)
 
 	// first part for summary scripts

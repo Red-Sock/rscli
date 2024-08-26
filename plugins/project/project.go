@@ -9,10 +9,10 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 )
 
-type Validator func(p interfaces.Project) error
+type Validator func(p proj_interfaces.Project) error
 
 type Project struct {
 	Name        string
@@ -22,7 +22,9 @@ type Project struct {
 
 	Actions []actions.Action
 
-	RsCLIVersion interfaces.Version
+	RsCLIVersion proj_interfaces.Version
+
+	projType proj_interfaces.ProjectType
 
 	validators []Validator
 	root       folder.Folder
@@ -103,10 +105,14 @@ func (p *Project) Validate() error {
 	return globalErr
 }
 
-func (p *Project) GetVersion() interfaces.Version {
+func (p *Project) GetVersion() proj_interfaces.Version {
 	return p.RsCLIVersion
 }
 
-func (p *Project) SetVersion(version interfaces.Version) {
+func (p *Project) SetVersion(version proj_interfaces.Version) {
 	p.RsCLIVersion = version
+}
+
+func (p *Project) GetType() proj_interfaces.ProjectType {
+	return p.projType
 }
