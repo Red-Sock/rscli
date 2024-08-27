@@ -72,7 +72,7 @@ func InitConfig(cmd *cobra.Command, _ []string) error {
 
 	configFromFile, err := getConfigFromFile(cmd)
 	if err != nil {
-		return errors.Wrap(err, "")
+		return errors.Wrap(err, "error obtaining config from custom file")
 	}
 
 	if configFromFile != nil {
@@ -109,6 +109,10 @@ func getConfigFromEnvironment() (r RsCliConfig) {
 }
 
 func getConfigFromFile(cmd *cobra.Command) (*RsCliConfig, error) {
+	if cmd == nil {
+		return nil, nil
+	}
+
 	cfgFilePath := cmd.Flag(CustomPathToConfig).Value.String()
 
 	if cfgFilePath == "" {

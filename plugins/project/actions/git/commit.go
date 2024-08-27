@@ -4,13 +4,13 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
+	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 type CommitWithUntrackedAction struct {
 }
 
-func (a CommitWithUntrackedAction) Do(p proj_interfaces.Project) error {
+func (a CommitWithUntrackedAction) Do(p project.Project) error {
 	err := CommitWithUntracked(p.GetProjectPath(), "rscli auto-commit")
 	if err != nil {
 		return errors.Wrap(err)

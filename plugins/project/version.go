@@ -1,4 +1,4 @@
-package proj_interfaces
+package project
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 const (

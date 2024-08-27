@@ -8,9 +8,9 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type Postgres struct {
@@ -27,7 +27,7 @@ func (p Postgres) GetFolderName() string {
 	return resources.PostgresResourceName
 }
 
-func (p Postgres) AppendToProject(proj proj_interfaces.Project) error {
+func (p Postgres) AppendToProject(proj project.Project) error {
 	err := p.applyClientFolder(proj)
 	if err != nil {
 		return errors.Wrap(err, "error applying client folder")
@@ -38,7 +38,7 @@ func (p Postgres) AppendToProject(proj proj_interfaces.Project) error {
 	return nil
 }
 
-func (p Postgres) applyClientFolder(proj proj_interfaces.Project) error {
+func (p Postgres) applyClientFolder(proj project.Project) error {
 	ok, err := containsDependencyFolder(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding Dependency path")
@@ -66,7 +66,7 @@ func (p Postgres) applyClientFolder(proj proj_interfaces.Project) error {
 	return nil
 }
 
-func (p Postgres) applyConfig(proj proj_interfaces.Project) {
+func (p Postgres) applyConfig(proj project.Project) {
 	for _, item := range proj.GetConfig().DataSources {
 		if item.GetName() == p.GetFolderName() {
 			return

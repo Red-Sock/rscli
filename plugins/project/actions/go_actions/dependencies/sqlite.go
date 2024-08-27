@@ -8,8 +8,8 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type Sqlite struct {
@@ -26,7 +26,7 @@ func (s Sqlite) GetFolderName() string {
 	return resources.SqliteResourceName
 }
 
-func (s Sqlite) AppendToProject(proj proj_interfaces.Project) error {
+func (s Sqlite) AppendToProject(proj project.Project) error {
 	err := s.applyClientFolder(proj)
 	if err != nil {
 		return errors.Wrap(err, "error applying changes to folder")
@@ -37,7 +37,7 @@ func (s Sqlite) AppendToProject(proj proj_interfaces.Project) error {
 	return nil
 }
 
-func (s Sqlite) applyClientFolder(proj proj_interfaces.Project) error {
+func (s Sqlite) applyClientFolder(proj project.Project) error {
 	ok, err := containsDependencyFolder(s.Cfg.Env.PathsToClients, proj.GetFolder(), s.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding Dependency path")
@@ -64,7 +64,7 @@ func (s Sqlite) applyClientFolder(proj proj_interfaces.Project) error {
 	return nil
 }
 
-func (s Sqlite) applyConfig(proj proj_interfaces.Project) {
+func (s Sqlite) applyConfig(proj project.Project) {
 	for _, item := range proj.GetConfig().DataSources {
 		if item.GetName() == s.GetFolderName() {
 			return

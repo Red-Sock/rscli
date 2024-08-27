@@ -1,24 +1,25 @@
 package actions
 
 import (
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/dockerfile_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/pipelines"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 )
 
-func GetTidyActionsForProject(pt proj_interfaces.ProjectType) []Action {
+func GetTidyActionsForProject(pt project.ProjectType) []Action {
+	out := commonProjectTidyPreActions()
+
 	switch pt {
-	case proj_interfaces.ProjectTypeGo:
-		return append(
-			append(
-				commonProjectTidyPreActions(),
-				goProjectTidyActions()...),
-			commonProjectTidyPostActions()...)
+	case project.ProjectTypeGo:
+		out = append(out, goProjectTidyActions()...)
 	default:
 		return unknownProjectActions()
 	}
+
+	out = append(out, commonProjectTidyPostActions()...)
+	return out
 }
 
 func goProjectTidyActions() []Action {
@@ -30,6 +31,7 @@ func goProjectTidyActions() []Action {
 		go_actions.RunMakeGenAction{},
 		go_actions.BuildProjectAction{},
 		go_actions.RunGoTidyAction{},
+		go_actions.RunGoFmtAction{},
 	}
 }
 
@@ -42,7 +44,6 @@ func commonProjectTidyPreActions() []Action {
 func commonProjectTidyPostActions() []Action {
 	return []Action{
 		dockerfile_actions.DockerFileTidyAction{},
-		go_actions.BuildProjectAction{},
 		git.CommitWithUntrackedAction{},
 	}
 }

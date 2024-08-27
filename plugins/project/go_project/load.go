@@ -1,4 +1,4 @@
-package project
+package go_project
 
 import (
 	"bytes"
@@ -12,9 +12,9 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 const (
@@ -58,7 +58,7 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 		}
 	}
 
-	err = proj_interfaces.LoadProjectVersion(p)
+	err = project.LoadProjectVersion(p)
 	if err != nil {
 		return p, errors.Wrap(err, "error loading project version")
 	}
@@ -109,7 +109,7 @@ func goProjectLoader(p *Project) (name *string) {
 
 	modName := string(moduleBts)
 
-	p.projType = proj_interfaces.ProjectTypeGo
+	p.projType = project.ProjectTypeGo
 
 	return &modName
 }

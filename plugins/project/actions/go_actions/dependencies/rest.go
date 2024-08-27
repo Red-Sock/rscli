@@ -4,14 +4,13 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/servers"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
+	"github.com/Red-Sock/rscli/plugins/project"
 	renamer2 "github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type Rest struct {
@@ -29,7 +28,7 @@ func (r Rest) GetFolderName() string {
 	return "rest"
 }
 
-func (r Rest) AppendToProject(proj proj_interfaces.Project) error {
+func (r Rest) AppendToProject(proj project.Project) error {
 	err := r.applyFolder(proj, r.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error applying rest folder")
@@ -40,21 +39,22 @@ func (r Rest) AppendToProject(proj proj_interfaces.Project) error {
 	return nil
 }
 
-func (r Rest) applyConfig(proj proj_interfaces.Project, defaultApiName string) {
-	for _, item := range proj.GetConfig().Servers {
-		if item.GetName() == defaultApiName {
-			return
-		}
-	}
-
-	proj.GetConfig().Servers = append(proj.GetConfig().Servers,
-		&servers.Rest{
-			Name: servers.Name(defaultApiName),
-			Port: servers.DefaultRestPort,
-		})
+func (r Rest) applyConfig(proj project.Project, defaultApiName string) {
+	// TODO
+	//for _, item := range proj.GetConfig().Servers {
+	//	if item.GetName() == defaultApiName {
+	//		return
+	//	}
+	//}
+	//
+	//proj.GetConfig().Servers = append(proj.GetConfig().Servers,
+	//	&servers.Rest{
+	//		Name: servers.Name(defaultApiName),
+	//		Port: servers.DefaultRestPort,
+	//	})
 }
 
-func (r Rest) applyFolder(proj proj_interfaces.Project, defaultApiName string) error {
+func (r Rest) applyFolder(proj project.Project, defaultApiName string) error {
 	ok, err := containsDependencyFolder(r.Cfg.Env.PathToServers, proj.GetFolder(), r.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error searching dependencies")
@@ -79,7 +79,7 @@ func (r Rest) applyFolder(proj proj_interfaces.Project, defaultApiName string) e
 	return nil
 }
 
-func applyServerFolder(proj proj_interfaces.Project) {
+func applyServerFolder(proj project.Project) {
 	serverManagerPath := []string{projpatterns.InternalFolder, projpatterns.TransportFolder, projpatterns.ServerManagerPatternFile.Name}
 	if proj.GetFolder().GetByPath(serverManagerPath...) == nil {
 		proj.GetFolder().Add(

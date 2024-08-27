@@ -3,19 +3,20 @@ package go_actions
 import (
 	errors "github.com/Red-Sock/trace-errors"
 
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+
 	"github.com/Red-Sock/rscli/internal/cmd"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/bins/makefile"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 const goBin = "go"
 
 type RunGoFmtAction struct{}
 
-func (a RunGoFmtAction) Do(p proj_interfaces.Project) error {
+func (a RunGoFmtAction) Do(p project.Project) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"fmt", "./..."},
@@ -33,7 +34,7 @@ func (a RunGoFmtAction) NameInAction() string {
 
 type RunGoTidyAction struct{}
 
-func (a RunGoTidyAction) Do(p proj_interfaces.Project) error {
+func (a RunGoTidyAction) Do(p project.Project) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"mod", "tidy"},
@@ -59,7 +60,7 @@ type RunMakeGenAction struct {
 	IO io.IO
 }
 
-func (a RunMakeGenAction) Do(p proj_interfaces.Project) error {
+func (a RunMakeGenAction) Do(p project.Project) error {
 	if len(p.GetConfig().Servers) == 0 {
 		return nil
 	}

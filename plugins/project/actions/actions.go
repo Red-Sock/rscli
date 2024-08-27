@@ -4,20 +4,20 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
+	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 type Action interface {
-	Do(p proj_interfaces.Project) error
+	Do(p project.Project) error
 	NameInAction() string
 }
 
 type ActionPerformer struct {
 	printer io.IO
-	proj    proj_interfaces.Project
+	proj    project.Project
 }
 
-func NewActionPerformer(printer io.IO, proj proj_interfaces.Project) ActionPerformer {
+func NewActionPerformer(printer io.IO, proj project.Project) ActionPerformer {
 	return ActionPerformer{
 		printer: printer,
 		proj:    proj,

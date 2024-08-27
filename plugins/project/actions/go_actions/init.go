@@ -7,12 +7,12 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
+	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 type InitGoModAction struct{}
 
-func (a InitGoModAction) Do(p proj_interfaces.Project) error {
+func (a InitGoModAction) Do(p project.Project) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"mod", "init", p.GetName()},

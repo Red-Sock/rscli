@@ -8,8 +8,8 @@ import (
 	"github.com/godverv/matreshka"
 
 	"github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/plugins/project"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type envConfig struct {
@@ -50,7 +50,7 @@ func (e *envConfig) fetch(cfg *config.RsCliConfig, pathToProjectEnv, pathToProje
 		return errors.Wrap(err, "error parsing config")
 	}
 
-	projConfig, err := project.LoadProjectConfig(pathToProject, cfg)
+	projConfig, err := go_project.LoadProjectConfig(pathToProject, cfg)
 	if err != nil {
 		return nil
 	}

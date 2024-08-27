@@ -3,14 +3,14 @@ package dockerfile_actions
 import (
 	"bytes"
 
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type DockerFileTidyAction struct {
 }
 
-func (a DockerFileTidyAction) Do(p proj_interfaces.Project) error {
+func (a DockerFileTidyAction) Do(p project.Project) error {
 	dockerFile := p.GetFolder().GetByPath(projpatterns.Dockerfile.Name)
 	if dockerFile == nil {
 		dockerFile = projpatterns.Dockerfile.Copy()
@@ -30,16 +30,19 @@ func (a DockerFileTidyAction) Do(p proj_interfaces.Project) error {
 			exposeEnd = len(dockerFile.Content)
 		}
 
-		ports := make([][]byte, 0, len(p.GetConfig().Servers))
-		for _, s := range servers {
-			ports = append(ports, []byte(s.GetPortStr()))
-		}
-		exposeSequence := append([]byte(`EXPOSE `), bytes.Join(ports, []byte(" "))...)
+		// TODO change onto generator
+		//ports := make([][]byte, 0, len(p.GetConfig().Servers))
+		//for _, s := range servers {
+		//ports = append(ports, []byte(s.GetPortStr()))
+		//}
+		//if len(ports) != 0 {
+		//exposeSequence := append([]byte(`EXPOSE `), bytes.Join(ports, []byte(" "))...)
+		//}
 
 		secondPart := make([]byte, len(dockerFile.Content[exposeEnd:]))
 		copy(secondPart, dockerFile.Content[exposeEnd:])
 
-		dockerFile.Content = append(dockerFile.Content[:exposeStart], exposeSequence...)
+		//dockerFile.Content = append(dockerFile.Content[:exposeStart], exposeSequence...)
 		dockerFile.Content = append(dockerFile.Content, secondPart...)
 	}
 

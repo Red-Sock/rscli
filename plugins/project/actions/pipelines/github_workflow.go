@@ -2,14 +2,14 @@ package pipelines
 
 import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type TidyGithubWorkflowAction struct {
 }
 
-func (a TidyGithubWorkflowAction) Do(p proj_interfaces.Project) error {
+func (a TidyGithubWorkflowAction) Do(p project.Project) error {
 	ghF := p.GetFolder().GetByPath(projpatterns.GithubFolder, projpatterns.WorkflowsFolder)
 	if ghF == nil {
 		ghF = &folder.Folder{
@@ -27,7 +27,7 @@ func (a TidyGithubWorkflowAction) Do(p proj_interfaces.Project) error {
 	ghF.Add(projpatterns.GithubWorkflowRelease.Copy())
 
 	switch p.GetType() {
-	case proj_interfaces.ProjectTypeGo:
+	case project.ProjectTypeGo:
 		ghF.Add(projpatterns.GithubWorkflowGoBranchPush.Copy())
 	}
 

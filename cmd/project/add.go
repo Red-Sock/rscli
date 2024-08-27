@@ -8,10 +8,10 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
+	"github.com/Red-Sock/rscli/plugins/project/go_project"
 )
 
 const (
@@ -23,7 +23,7 @@ type projectAdd struct {
 	path   string
 	config *rscliconfig.RsCliConfig
 
-	proj *project.Project
+	proj *go_project.Project
 }
 
 func newAddCmd(projAdd projectAdd) *cobra.Command {
@@ -46,7 +46,7 @@ func newAddCmd(projAdd projectAdd) *cobra.Command {
 func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 	err := p.loadProject(cmd)
 	if err != nil {
-		return errors.Wrap(err, "error loading project")
+		return errors.Wrap(err, "error loading project for add action")
 	}
 
 	p.io.Println("Searching for dependencies")
@@ -78,14 +78,19 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 }
 
 func (p *projectAdd) loadProject(cmd *cobra.Command) (err error) {
-	pathToProject := cmd.Flag(pathFlag).Value.String()
+	var pathToProject string
+
+	if cmd != nil {
+		pathToProject = cmd.Flag(pathFlag).Value.String()
+	}
+
 	if pathToProject == "" {
 		pathToProject = p.path
 	}
 
-	p.proj, err = project.LoadProject(pathToProject, p.config)
+	p.proj, err = go_project.LoadProject(pathToProject, p.config)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error loading project")
 	}
 
 	return nil

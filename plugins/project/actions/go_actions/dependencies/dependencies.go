@@ -5,11 +5,10 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
-	"github.com/godverv/matreshka/servers"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
+	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 var (
@@ -17,7 +16,7 @@ var (
 )
 
 type Dependency interface {
-	AppendToProject(proj proj_interfaces.Project) error
+	AppendToProject(proj project.Project) error
 }
 
 func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {
@@ -39,10 +38,10 @@ func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {
 			dep = Telegram{Cfg: c, Name: name}
 		case resources.SqliteResourceName:
 			dep = Sqlite{Cfg: c, Name: name}
-		case servers.RestServerType:
-			dep = Rest{Cfg: c, Name: name}
-		case servers.GRPSServerType:
-			dep = GrpcServer{Cfg: c, Name: name}
+		//case servers.RestServerType:
+		//	dep = Rest{Cfg: c, Name: name}
+		//case servers.GRPSServerType:
+		//	dep = GrpcServer{Cfg: c, Name: name}
 		default:
 			continue
 		}

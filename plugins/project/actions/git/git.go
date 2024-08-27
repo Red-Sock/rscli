@@ -3,7 +3,7 @@ package git
 import (
 	"github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
+	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 const (
@@ -16,7 +16,7 @@ const exe = "git"
 
 type InitGit struct{}
 
-func (a InitGit) Do(p proj_interfaces.Project) error {
+func (a InitGit) Do(p project.Project) error {
 	projectPath := p.GetProjectPath()
 
 	err := Init(projectPath)

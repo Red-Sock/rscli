@@ -1,4 +1,4 @@
-package project
+package go_project
 
 import (
 	"os"
@@ -10,16 +10,16 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 	"github.com/Red-Sock/rscli/plugins/project/validators"
 )
 
 const (
-	defaultVersion  = "0.0.1"
+	defaultVersion  = "v0.0.1"
 	startupDuration = time.Second * 10
 )
 
@@ -53,7 +53,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 		}, args.Actions...),
 
 		validators: append(args.Validators, validators.ValidateProjectName),
-		projType:   proj_interfaces.ProjectTypeGo,
+		projType:   project.ProjectTypeGo,
 	}
 
 	if args.ProjectPath == "" {
