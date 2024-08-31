@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/servers"
+	"github.com/godverv/matreshka/server"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
@@ -20,7 +20,7 @@ type Server struct {
 	version string
 }
 
-func NewServer(cfg config.Config, server *servers.Rest) *Server {
+func NewServer(cfg config.Config, server *server.Rest) *Server {
 	r := mux.NewRouter()
 
 	s := &Server{

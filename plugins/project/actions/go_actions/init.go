@@ -8,6 +8,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type InitGoModAction struct{}
@@ -41,4 +42,20 @@ func (a InitGoModAction) Do(p project.Project) error {
 }
 func (a InitGoModAction) NameInAction() string {
 	return "Initiating go project"
+}
+
+type InitGoProjectApp struct{}
+
+func (a InitGoProjectApp) Do(p project.Project) error {
+	appFile, err := projpatterns.GenerateAppFile(p.GetConfig())
+	if err != nil {
+		return errors.Wrap(err, "error generating app file")
+	}
+
+	_ = appFile
+	return nil
+}
+
+func (a InitGoProjectApp) NameInAction() string {
+	return "Generating app skeleton"
 }

@@ -9,7 +9,6 @@ import (
 type DataSourcesConfig struct {
 	Postgres *resources.Postgres
 	Redis    *resources.Redis
-	Rest     *resources.Redis
 	Telegram *resources.Telegram
 	Sqlite   *resources.Sqlite
 }

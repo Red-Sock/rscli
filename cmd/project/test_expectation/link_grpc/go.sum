@@ -9,8 +9,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/godverv/hello_world v0.0.8 h1:SJzTDSMrYPYq/bjSlcEcl1+Oh52bcIIPxk/HQnzXwUk=
 github.com/godverv/hello_world v0.0.8/go.mod h1:LXQ0jlXPa88Sz7eJjRNjM9crhS70lEij4qpQPfbz6IY=
-github.com/godverv/matreshka v0.0.33 h1:C/fkgWTSZPDxpJaIburxYeVkR8hBb1mZx5QgyTqMeoM=
-github.com/godverv/matreshka v0.0.33/go.mod h1:hhC0Rbm8KdYJVSnllOMmiB/xZPF/RoNQUP/3BZ0QAnU=
+github.com/godverv/matreshka v0.0.34 h1:TykRRq5G7pgYQIy60OeTzcBCxYdyXNA8SBZz0pTPFU0=
+github.com/godverv/matreshka v0.0.34/go.mod h1:hhC0Rbm8KdYJVSnllOMmiB/xZPF/RoNQUP/3BZ0QAnU=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0 h1:bkypFPDjIYGfCYD5mRBvpqxfYX1YCS1PXdKYWi8FsN0=

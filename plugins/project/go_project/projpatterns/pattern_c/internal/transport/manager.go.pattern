@@ -2,74 +2,72 @@ package transport
 
 import (
 	"context"
-	stderrs "errors"
+	"net"
+	"net/http"
 
-	"github.com/pkg/errors"
+	errors "github.com/Red-Sock/trace-errors"
+	"github.com/soheilhy/cmux"
+	"golang.org/x/sync/errgroup"
 )
 
-type Server interface {
-	Start(ctx context.Context) error
-	Stop(ctx context.Context) error
-}
-
 type ServersManager struct {
-	serverPool []Server
+	ctx context.Context
+
+	mux cmux.CMux
+
+	grpcServer
+	httpServer
 }
 
-func NewManager() *ServersManager {
-	return &ServersManager{}
-}
+func NewServerManager(ctx context.Context, port string) (*ServersManager, error) {
+	listener, err := net.Listen("tcp", port)
+	if err != nil {
+		return nil, errors.Wrap(err, "error opening listener")
+	}
 
-func (m *ServersManager) AddServer(server Server) {
-	m.serverPool = append(m.serverPool, server)
+	mainMux := cmux.New(listener)
+	httpMux := http.NewServeMux()
+
+	s := &ServersManager{
+		ctx: ctx,
+		mux: mainMux,
+
+		grpcServer: newGrpcServer(ctx, mainMux.Match(cmux.HTTP2()), httpMux),
+		httpServer: newHttpServer(mainMux.Match(cmux.Any()), httpMux),
+	}
+
+	return s, nil
 }
 
 func (m *ServersManager) Start(ctx context.Context) error {
-	var errs []error
+	errGroup, _ := errgroup.WithContext(ctx)
 
-	for sID := range m.serverPool {
-		err := m.serverPool[sID].Start(ctx)
-		if err != nil {
-			errs = append(errs, err)
-		}
-	}
+	errGroup.Go(m.mux.Serve)
+	errGroup.Go(m.grpcServer.start)
+	errGroup.Go(m.httpServer.start)
 
-	if len(errs) == 0 {
+	errC := make(chan error, 1)
+
+	select {
+	case <-ctx.Done():
 		return nil
+	case errC <- errGroup.Wait():
+		err := <-errC
+		return errors.Wrap(err)
 	}
-
-	finalError := errors.New("error starting servers")
-
-	for _, err := range errs {
-		finalError = errors.Wrap(finalError, err.Error())
-	}
-	errStop := m.Stop(ctx)
-	if errStop != nil {
-		finalError = stderrs.Join(finalError, errStop)
-	}
-
-	return finalError
 }
 
-func (m *ServersManager) Stop(ctx context.Context) error {
-	var errs []error
+func (m *ServersManager) Stop() error {
+	eg, _ := errgroup.WithContext(m.ctx)
 
-	for sID := range m.serverPool {
-		err := m.serverPool[sID].Stop(ctx)
-		if err != nil {
-			errs = append(errs, err)
-		}
+	eg.Go(m.grpcServer.stop)
+	eg.Go(m.httpServer.stop)
+	eg.Go(func() error { m.mux.Close(); return nil })
+
+	err := eg.Wait()
+	if err != nil {
+		return errors.Wrap(err, "error stopping server")
 	}
 
-	if len(errs) == 0 {
-		return nil
-	}
-
-	finalError := errors.New("error stopping servers")
-
-	for _, err := range errs {
-		finalError = errors.Wrap(finalError, err.Error())
-	}
-
-	return finalError
+	return nil
 }

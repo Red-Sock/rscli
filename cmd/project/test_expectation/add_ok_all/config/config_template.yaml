@@ -4,6 +4,7 @@ app_info:
     startup_duration: 10s
 data_sources:
     - resource_name: postgres
+      migrations_folder: ""
       host: localhost
       port: 5432
       user: postgres
@@ -11,12 +12,6 @@ data_sources:
       name: master
       ssl_mode: ""
     - resource_name: redis
-      host: localhost
-      port: 6379
-      user: ""
-      pwd: ""
-      db: 0
-    - resource_name: rest
       host: localhost
       port: 6379
       user: ""

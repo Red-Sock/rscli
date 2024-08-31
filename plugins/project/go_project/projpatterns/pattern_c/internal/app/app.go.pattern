@@ -1,0 +1,63 @@
+package app
+
+import (
+	"github.com/Red-Sock/toolbox"
+	"github.com/Red-Sock/toolbox/closer"
+	errors "github.com/Red-Sock/trace-errors"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
+
+	"proj_name/internal/config"
+)
+
+type App struct {
+	Ctx  context.Context
+	Stop func()
+	Cfg  config.Config
+
+
+    {{ range .AppContent }}
+    {{ if .Comment}} {{.Comment}} {{end}}
+    {{ range .Fields }}
+    {{ .Key }} {{ .Value }}{{ end }}
+}
+
+func New() (app App, err error) {
+	logrus.Println("starting app")
+
+	err = app.InitConfig()
+	if err != nil {
+		return App{}, errors.Wrap(err, "error initializing config")
+	}
+
+	{{ range .AppContent }}
+	err = app.{{ .InitFunc }}
+	if err != nil {
+        return App{}, errors.Wrap(err, {{ .InitFuncErrorMessage }})
+    }
+	{{ end }
+
+	return app, nil
+}
+
+func (a *App) Start() (err error) {
+
+	{{ range .Starters }}
+	err = a.{{ .StartCall }}
+	if err != nil {
+        return errors.Wrap(err, "error starting Server manager")
+    }
+    closer.Add(func() error { return a.{{.StopCall}}() })
+	{{ end }}
+
+	toolbox.WaitForInterrupt()
+
+	logrus.Println("shutting down the app")
+
+	err = closer.Close()
+	if err != nil {
+		return errors.Wrap(err, "error while shutting down application")
+	}
+
+	return nil
+}

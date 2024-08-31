@@ -10,7 +10,7 @@ import (
 	"sync"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/servers"
+	"github.com/godverv/matreshka/server"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"github.com/soheilhy/cmux"
@@ -33,7 +33,7 @@ type Implementation interface {
 }
 
 func NewServer(
-	server *servers.GRPC,
+	server *server.GRPC,
 	imps ...Implementation,
 ) (*Server, error) {
 

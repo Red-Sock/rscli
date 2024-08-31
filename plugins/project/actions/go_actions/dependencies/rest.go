@@ -5,8 +5,6 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	rscliconfig "github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	"github.com/Red-Sock/rscli/plugins/project"
 	renamer2 "github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
@@ -14,10 +12,7 @@ import (
 )
 
 type Rest struct {
-	Name string
-
-	Cfg *rscliconfig.RsCliConfig
-	Io  io.StdIO
+	dependencyBase
 }
 
 func (r Rest) GetFolderName() string {
@@ -34,24 +29,8 @@ func (r Rest) AppendToProject(proj project.Project) error {
 		return errors.Wrap(err, "error applying rest folder")
 	}
 
-	r.applyConfig(proj, r.GetFolderName())
 	applyServerFolder(proj)
 	return nil
-}
-
-func (r Rest) applyConfig(proj project.Project, defaultApiName string) {
-	// TODO
-	//for _, item := range proj.GetConfig().Servers {
-	//	if item.GetName() == defaultApiName {
-	//		return
-	//	}
-	//}
-	//
-	//proj.GetConfig().Servers = append(proj.GetConfig().Servers,
-	//	&servers.Rest{
-	//		Name: servers.Name(defaultApiName),
-	//		Port: servers.DefaultRestPort,
-	//	})
 }
 
 func (r Rest) applyFolder(proj project.Project, defaultApiName string) error {
@@ -73,7 +52,8 @@ func (r Rest) applyFolder(proj project.Project, defaultApiName string) error {
 	proj.GetFolder().Add(
 		serverF,
 		projpatterns.RestServHandlerVersionExampleFile.CopyWithNewName(
-			path.Join(r.Cfg.Env.PathToServers[0], defaultApiName, projpatterns.RestServHandlerVersionExampleFile.Name)),
+			path.Join(r.Cfg.Env.PathToServers[0], defaultApiName,
+				projpatterns.RestServHandlerVersionExampleFile.Name)),
 	)
 
 	return nil

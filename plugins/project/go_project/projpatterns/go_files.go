@@ -53,17 +53,11 @@ var (
 		Content: redisConnFile,
 	}
 
-	//go:embed pattern_c/internal/clients/postgres/conn.go.pattern
-	pgConnFile []byte
-	PgConnFile = &folder.Folder{
+	//go:embed pattern_c/internal/clients/sqldb/conn.go.pattern
+	sqlConnFile []byte
+	SqlConnFile = &folder.Folder{
 		Name:    ConnFileName,
-		Content: pgConnFile,
-	}
-	//go:embed pattern_c/internal/clients/postgres/tx.go.pattern
-	pgTxFile []byte
-	PgTxFile = &folder.Folder{
-		Name:    "tx.go",
-		Content: pgTxFile,
+		Content: sqlConnFile,
 	}
 
 	//go:embed pattern_c/internal/clients/telegram/conn.go.pattern
@@ -78,13 +72,6 @@ var (
 	GrpcClientConnFile = &folder.Folder{
 		Name:    ConnFileName,
 		Content: grpcClientConnFile,
-	}
-
-	//go:embed pattern_c/internal/clients/sqlite/conn.go.pattern
-	sqliteClientConnFile []byte
-	SqliteClientConnFile = &folder.Folder{
-		Name:    ConnFileName,
-		Content: sqliteClientConnFile,
 	}
 )
 
