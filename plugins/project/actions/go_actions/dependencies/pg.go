@@ -32,7 +32,10 @@ func (p Postgres) AppendToProject(proj project.Project) error {
 		MigrationsFolder: "./migrations",
 	}
 
-	proj.GetConfig().DataSources = append(proj.GetConfig().DataSources, res)
+	cfg := proj.GetConfig()
+	if !containsDependency(cfg.DataSources, res) {
+		cfg.DataSources = append(cfg.DataSources, res)
+	}
 
 	sc.applySqlDriver(proj, res.SqlDialect(), `_ "github.com/lib/pq"`)
 

@@ -59,8 +59,9 @@ func (a PrepareClientsAction) Do(p project.Project) error {
 
 	var simpleClients []string
 	var grpcClients []string
+	cfg := p.GetConfig()
 
-	for _, r := range p.GetConfig().DataSources {
+	for _, r := range cfg.DataSources {
 		grpcC, ok := r.(*resources.GRPC)
 		if ok {
 			grpcClients = append(grpcClients, grpcC.Module)

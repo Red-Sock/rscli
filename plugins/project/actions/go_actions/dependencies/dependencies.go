@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka"
+	"github.com/godverv/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
@@ -88,4 +90,14 @@ func containsDependencyFolder(paths []string, rootF *folder.Folder, depName stri
 	}
 
 	return false, nil
+}
+
+func containsDependency(dataSources matreshka.DataSources, resource resources.Resource) bool {
+	for _, ds := range dataSources {
+		if ds.GetName() == resource.GetName() {
+			return true
+		}
+	}
+
+	return false
 }

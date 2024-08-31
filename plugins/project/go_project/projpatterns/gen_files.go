@@ -43,9 +43,9 @@ func init() {
 		template.New("grpc_connection").
 			Parse(grpcConnectionPattern))
 
-	//appTemplate = template.Must(
-	//	template.New("app").
-	//		Parse(appPattern))
+	appTemplate = template.Must(
+		template.New("app").
+			Parse(appPattern))
 }
 
 type KeyValue struct {
@@ -189,7 +189,7 @@ func GenerateAppFile(cfg *config.Config) ([]byte, error) {
 			}
 			switch ds.GetType() {
 			case resources.PostgresResourceName:
-				kv.Value = "pg.Conn"
+				kv.Value = "*sql.Db"
 			}
 			fields = append(fields, kv)
 		}
@@ -202,10 +202,10 @@ func GenerateAppFile(cfg *config.Config) ([]byte, error) {
 	}
 
 	buf := &rw.RW{}
-	//err := appTemplate.Execute(buf, appArgs)
-	//if err != nil {
-	//	return nil, errors.Wrap(err, "error generating app file")
-	//}
+	err := appTemplate.Execute(buf, appArgs)
+	if err != nil {
+		return nil, errors.Wrap(err, "error generating app file")
+	}
 
 	return buf.Bytes(), nil
 }

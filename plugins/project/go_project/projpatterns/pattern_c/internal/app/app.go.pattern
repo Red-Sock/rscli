@@ -19,7 +19,7 @@ type App struct {
     {{ range .AppContent }}
     {{ if .Comment}} {{.Comment}} {{end}}
     {{ range .Fields }}
-    {{ .Key }} {{ .Value }}{{ end }}
+    {{ .Key }} {{ .Value }}{{ end }}{{ end }}
 }
 
 func New() (app App, err error) {
@@ -35,7 +35,7 @@ func New() (app App, err error) {
 	if err != nil {
         return App{}, errors.Wrap(err, {{ .InitFuncErrorMessage }})
     }
-	{{ end }
+	{{ end }}
 
 	return app, nil
 }
@@ -47,7 +47,7 @@ func (a *App) Start() (err error) {
 	if err != nil {
         return errors.Wrap(err, "error starting Server manager")
     }
-    closer.Add(func() error { return a.{{.StopCall}}() })
+    closer.Add(func() error { return a.{{ .StopCall }}() })
 	{{ end }}
 
 	toolbox.WaitForInterrupt()
@@ -61,3 +61,4 @@ func (a *App) Start() (err error) {
 
 	return nil
 }
+

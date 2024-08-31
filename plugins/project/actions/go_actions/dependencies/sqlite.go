@@ -34,10 +34,11 @@ func (s Sqlite) AppendToProject(proj project.Project) error {
 		Path:             "./data/sqlite/" + appNameInfo + ".db",
 		MigrationsFolder: "./migrations",
 	}
-	proj.GetConfig().DataSources = append(
-		proj.GetConfig().DataSources,
-		res,
-	)
+
+	cfg := proj.GetConfig()
+	if !containsDependency(cfg.DataSources, res) {
+		cfg.DataSources = append(cfg.DataSources, res)
+	}
 
 	sc.applySqlDriver(proj, res.SqlDialect(), `_ "modernc.org/sqlite"`)
 
