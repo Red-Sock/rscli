@@ -7,19 +7,14 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/gobeam/stringy"
 
-	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/envpatterns"
-	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type GrpcServer struct {
-	Name string
-
-	Cfg *rscliconfig.RsCliConfig
-	Io  io.StdIO
+	dependencyBase
 }
 
 func (r GrpcServer) GetFolderName() string {

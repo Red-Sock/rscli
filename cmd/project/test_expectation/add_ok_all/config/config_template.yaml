@@ -16,6 +16,12 @@ data_sources:
       user: ""
       pwd: ""
       db: 0
+    - resource_name: rest
+      host: localhost
+      port: 6379
+      user: ""
+      pwd: ""
+      db: 0
     - resource_name: telegram
       api_key: ""
     - resource_name: sqlite

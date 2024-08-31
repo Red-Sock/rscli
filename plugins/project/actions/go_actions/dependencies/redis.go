@@ -6,17 +6,13 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
 
-	rscliconfig "github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type Redis struct {
-	Name string
-	Cfg  *rscliconfig.RsCliConfig
-	Io   io.StdIO
+	dependencyBase
 }
 
 func (p Redis) GetFolderName() string {

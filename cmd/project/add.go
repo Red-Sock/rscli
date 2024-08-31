@@ -50,8 +50,8 @@ func (p *projectAdd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	p.io.Println("Searching for dependencies")
-
-	for _, d := range dependencies.GetDependencies(p.config, args) {
+	deps := dependencies.GetDependencies(p.config, args)
+	for _, d := range deps {
 		err = d.AppendToProject(p.proj)
 		if err != nil {
 			return errors.Wrap(err, "error adding dependency to project")

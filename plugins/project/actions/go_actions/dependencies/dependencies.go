@@ -4,9 +4,9 @@ import (
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/config"
+	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
 )
@@ -19,6 +19,30 @@ type Dependency interface {
 	AppendToProject(proj project.Project) error
 }
 
+type dependencyBase struct {
+	Name string
+	Cfg  *rscliconfig.RsCliConfig
+}
+
+const (
+	DependencyNamePostgres = "postgres"
+	DependencyNameRedis    = "redis"
+	DependencyNameTelegram = "telegram"
+	DependencyNameSqlite   = "sqlite"
+	DependencyNameRest     = "rest"
+	DependencyNameGrpc     = "grpc"
+)
+
+var nameToDependencyConstructor = map[string]func(dep dependencyBase) Dependency{
+	DependencyNamePostgres: func(dep dependencyBase) Dependency { return &Postgres{dep} },
+	DependencyNameRedis:    func(dep dependencyBase) Dependency { return &Redis{dep} },
+
+	DependencyNameTelegram: func(dep dependencyBase) Dependency { return &Telegram{dep} },
+	DependencyNameSqlite:   func(dep dependencyBase) Dependency { return &Sqlite{dep} },
+	DependencyNameRest:     func(dep dependencyBase) Dependency { return &Redis{dep} },
+	DependencyNameGrpc:     func(dep dependencyBase) Dependency { return &GrpcServer{dep} },
+}
+
 func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {
 	serverOpts := make([]Dependency, 0, len(args))
 
@@ -28,25 +52,15 @@ func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {
 		if idx != -1 {
 			resourceName = name[:idx]
 		}
-		var dep Dependency
-		switch resourceName {
-		case resources.PostgresResourceName:
-			dep = Postgres{Cfg: c, Name: name}
-		case resources.RedisResourceName:
-			dep = Redis{Cfg: c, Name: name}
-		case resources.TelegramResourceName:
-			dep = Telegram{Cfg: c, Name: name}
-		case resources.SqliteResourceName:
-			dep = Sqlite{Cfg: c, Name: name}
-		//case servers.RestServerType:
-		//	dep = Rest{Cfg: c, Name: name}
-		//case servers.GRPSServerType:
-		//	dep = GrpcServer{Cfg: c, Name: name}
-		default:
+		depConstr, ok := nameToDependencyConstructor[resourceName]
+		if !ok {
 			continue
 		}
-
-		serverOpts = append(serverOpts, dep)
+		base := dependencyBase{
+			Name: name,
+			Cfg:  c,
+		}
+		serverOpts = append(serverOpts, depConstr(base))
 	}
 
 	return serverOpts

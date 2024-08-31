@@ -6,8 +6,6 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
 
-	rscliconfig "github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
@@ -15,10 +13,7 @@ import (
 )
 
 type Telegram struct {
-	Name string
-
-	Cfg *rscliconfig.RsCliConfig
-	Io  io.StdIO
+	dependencyBase
 }
 
 func (t Telegram) GetFolderName() string {
