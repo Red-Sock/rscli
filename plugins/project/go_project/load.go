@@ -109,7 +109,7 @@ func goProjectLoader(p *Project) (name *string) {
 
 	modName := string(moduleBts)
 
-	p.projType = project.ProjectTypeGo
+	p.projType = project.TypeGo
 
 	return &modName
 }

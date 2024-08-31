@@ -1,0 +1,22 @@
+app_info:
+    name: github.com/Red-Sock/add_ok_all
+    version: v0.0.1
+    startup_duration: 10s
+data_sources:
+    - resource_name: postgres
+      host: localhost
+      port: 5432
+      user: postgres
+      pwd: postgres
+      name: master
+      ssl_mode: ""
+    - resource_name: redis
+      host: localhost
+      port: 6379
+      user: ""
+      pwd: ""
+      db: 0
+    - resource_name: telegram
+      api_key: ""
+    - resource_name: sqlite
+      path: ./data/sqlite/add_ok_all.db

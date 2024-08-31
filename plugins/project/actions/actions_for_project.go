@@ -8,11 +8,11 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions/pipelines"
 )
 
-func GetTidyActionsForProject(pt project.ProjectType) []Action {
+func GetTidyActionsForProject(pt project.Type) []Action {
 	out := commonProjectTidyPreActions()
 
 	switch pt {
-	case project.ProjectTypeGo:
+	case project.TypeGo:
 		out = append(out, goProjectTidyActions()...)
 	default:
 		return unknownProjectActions()

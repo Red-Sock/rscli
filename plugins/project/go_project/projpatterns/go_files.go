@@ -15,27 +15,19 @@ const (
 	CmdFolder     = "cmd"
 	ServiceFolder = "service"
 
-	ExamplesFolder = "examples"
-
-	ExamplesHttpEnvFile = "http-client.env.json"
-
 	InternalFolder = "internal"
 	ConnFileName   = "conn.go"
-	PgTxFileName   = "tx.go"
 
 	TransportFolder = "transport"
-
-	PkgFolder = "pkg"
 
 	HandlersFolderName = "handlers"
 	VersionFolderName  = "version"
 
-	ConfigsFolder             = "config"
-	ConfigTemplate            = "config_template.yaml"
-	ConfigServersFileName     = "servers.go"
+	ConfigsFolder  = "config"
+	ConfigTemplate = "config_template.yaml"
+
 	ConfigDataSourcesFileName = "data_sources.go"
 	ConfigEnvironmentFileName = "environment.go"
-	ConfigKeysFileName        = "keys.go"
 
 	GoMod = "go.mod"
 

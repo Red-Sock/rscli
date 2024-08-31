@@ -8,9 +8,12 @@ const (
 	testFolder = "test"
 )
 
-func Test_InitProject(t *testing.T) {
+func Test_Init_Project(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
-		_ = initNewProject(t, "init_ok")
-		// TODO check every thing is generated ok
+		testName := getTestName(t)
+
+		_ = initNewProject(t, testName)
+
+		compareDirs(t, testPath+testName, testExpectedPath+testName)
 	})
 }

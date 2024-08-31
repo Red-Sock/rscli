@@ -24,7 +24,7 @@ type Project struct {
 
 	RsCLIVersion project.Version
 
-	projType project.ProjectType
+	projType project.Type
 
 	validators []Validator
 	root       folder.Folder
@@ -113,6 +113,6 @@ func (p *Project) SetVersion(version project.Version) {
 	p.RsCLIVersion = version
 }
 
-func (p *Project) GetType() project.ProjectType {
+func (p *Project) GetType() project.Type {
 	return p.projType
 }

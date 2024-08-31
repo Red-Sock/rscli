@@ -16,7 +16,9 @@ func Test_Add(t *testing.T) {
 			config: rscliconfig.GetConfig(),
 		}
 
-		projAdd.path = initNewProject(t, "add_all")
+		testName := getTestName(t)
+
+		projAdd.path = initNewProject(t, testName)
 
 		require.NoError(t, projAdd.run(nil, []string{
 			"postgres",
@@ -26,6 +28,7 @@ func Test_Add(t *testing.T) {
 			"telegram",
 			"sqlite",
 		}))
-		// TODO add folder check
+
+		compareDirs(t, testPath+testName, testExpectedPath+testName)
 	})
 }

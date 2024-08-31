@@ -23,11 +23,11 @@ func main() {
 		logrus.Fatalf("error reading config %s", err.Error())
 	}
 
-	if cfg.GetAppInfo().StartupDuration == 0 {
+	if cfg.AppInfo.StartupDuration == 0 {
 		logrus.Fatalf("no startup duration in config")
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, cfg.GetAppInfo().StartupDuration)
+	ctx, cancel := context.WithTimeout(ctx, cfg.AppInfo.StartupDuration)
 	closer.Add(
 		func() error {
 			cancel()

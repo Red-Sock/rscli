@@ -14,11 +14,13 @@ func Test_Link(t *testing.T) {
 			io:     getEmptyIoMock(t),
 			config: rscliconfig.GetConfig(),
 		}
+		testName := getTestName(t)
+		projLink.path = initNewProject(t, testName)
 
-		projLink.path = initNewProject(t, "link_grpc")
-
-		require.NoError(t, projLink.run(nil,
-			[]string{"github.com/godverv/hello_world"}),
+		require.NoError(t,
+			projLink.run(nil,
+				[]string{"github.com/godverv/hello_world"}),
 		)
+		compareDirs(t, testPath+testName, testExpectedPath+testName)
 	})
 }

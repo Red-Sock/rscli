@@ -17,12 +17,12 @@ type Project interface {
 	GetVersion() Version
 	SetVersion(Version)
 
-	GetType() ProjectType
+	GetType() Type
 }
 
-type ProjectType string
+type Type string
 
 const (
-	ProjectTypeUnknown ProjectType = "Unknown"
-	ProjectTypeGo      ProjectType = "go"
+	TypeUnknown Type = "Unknown"
+	TypeGo      Type = "go"
 )

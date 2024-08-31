@@ -10,7 +10,9 @@ import (
 var ErrAlreadyLoaded = errors.New("config already loaded")
 
 type Config struct {
-	rootConfig matreshka.AppConfig
+	AppInfo matreshka.AppInfo
+
+	Environment EnvironmentConfig
 }
 
 var defaultConfig Config
@@ -21,7 +23,7 @@ const (
 )
 
 func Load() (Config, error) {
-	if defaultConfig.rootConfig.AppInfo.Name != "" {
+	if defaultConfig.AppInfo.Name != "" {
 		return defaultConfig, ErrAlreadyLoaded
 	}
 
@@ -40,12 +42,16 @@ func Load() (Config, error) {
 		}
 	}
 
-	var err error
-	defaultConfig.rootConfig, err = matreshka.ReadConfigs(cfgPath)
+	rootConfig, err := matreshka.ReadConfigs(cfgPath)
 	if err != nil {
 		return defaultConfig, errors.Wrap(err, "error reading matreshka config")
 	}
-	defaultConfig.rootConfig.DataSources.ParseTo
+
+	defaultConfig.AppInfo = rootConfig.AppInfo
+	err = rootConfig.Environment.ParseToStruct(defaultConfig.Environment)
+	if err != nil {
+		return defaultConfig, errors.Wrap(err, "error parsing environment variables")
+	}
 
 	return defaultConfig, nil
 }

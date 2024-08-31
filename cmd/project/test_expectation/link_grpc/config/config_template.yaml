@@ -1,0 +1,8 @@
+app_info:
+    name: github.com/Red-Sock/link_grpc
+    version: v0.0.1
+    startup_duration: 10s
+data_sources:
+    - resource_name: grpc_hello_world
+      connection_string: localhost:50051
+      module: github.com/godverv/hello_world

@@ -27,7 +27,7 @@ func (a TidyGithubWorkflowAction) Do(p project.Project) error {
 	ghF.Add(projpatterns.GithubWorkflowRelease.Copy())
 
 	switch p.GetType() {
-	case project.ProjectTypeGo:
+	case project.TypeGo:
 		ghF.Add(projpatterns.GithubWorkflowGoBranchPush.Copy())
 	}
 

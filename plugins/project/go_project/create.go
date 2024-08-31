@@ -53,7 +53,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 		}, args.Actions...),
 
 		validators: append(args.Validators, validators.ValidateProjectName),
-		projType:   project.ProjectTypeGo,
+		projType:   project.TypeGo,
 	}
 
 	if args.ProjectPath == "" {
