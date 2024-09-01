@@ -32,6 +32,7 @@ const (
 	ConfigsFolder  = "config"
 	ConfigTemplate = "config_template.yaml"
 
+	ConfigLoadFileName        = "load.go"
 	ConfigDataSourcesFileName = "data_sources.go"
 	ConfigEnvironmentFileName = "environment.go"
 

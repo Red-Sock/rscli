@@ -15,19 +15,13 @@ import (
 type PrepareGoConfigFolderAction struct{}
 
 func (a PrepareGoConfigFolderAction) Do(p project.Project) (err error) {
-	configFolder := &folder.Folder{
-		Name: path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder),
-	}
-
-	configFolder.Add(projpatterns.AutoloadConfigFile.Copy())
-
-	configStructFolders, err := a.generateConfigStructsFiles(p.GetConfig())
+	cfgFolder, err := config_generators.GenerateConfigFolder(p.GetConfig())
 	if err != nil {
-		return errors.Wrap(err, "error generating config structs files")
+		return errors.Wrap(err, "error generating config folder")
 	}
-	configFolder.Add(configStructFolders...)
+	cfgFolder.Name = path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder)
 
-	p.GetFolder().Add(configFolder)
+	p.GetFolder().Add(cfgFolder)
 
 	err = a.generateConfigYamlFile(p)
 	if err != nil {
@@ -75,36 +69,6 @@ func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p project.Project) e
 		})
 
 	return nil
-}
-
-func (a PrepareGoConfigFolderAction) generateConfigStructsFiles(cfg *config.Config) ([]*folder.Folder, error) {
-	out := make([]*folder.Folder, 0, 3)
-	// Environment config
-	{
-		confStruct, err := config_generators.GenerateEnvironmentConfigStruct(cfg.Environment)
-		if err != nil {
-			return nil, errors.Wrap(err, "error generating environment struct file")
-		}
-		out = append(out,
-			&folder.Folder{
-				Name:    projpatterns.ConfigEnvironmentFileName,
-				Content: confStruct,
-			})
-	}
-	// Data sources
-	{
-		confStruct, err := config_generators.GenerateDataSourcesConfigStruct(cfg.DataSources)
-		if err != nil {
-			return nil, errors.Wrap(err, "error generating data sources struct file")
-		}
-		out = append(out,
-			&folder.Folder{
-				Name:    projpatterns.ConfigDataSourcesFileName,
-				Content: confStruct,
-			})
-	}
-
-	return out, nil
 }
 
 func obfuscateConfig(cfg *config.Config) {
