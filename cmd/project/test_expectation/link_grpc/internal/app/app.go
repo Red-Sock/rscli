@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/Red-Sock/link_grpc/internal/clients/grpc"
 	"github.com/Red-Sock/toolbox"
 	"github.com/Red-Sock/toolbox/closer"
 	errors "github.com/Red-Sock/trace-errors"
@@ -15,6 +16,7 @@ type App struct {
 	Stop func()
 	Cfg  config.Config
 	/* Data source connection */
+	GrpcHelloWorld grpc.HelloWorldAPIClient
 }
 
 func New() (app App, err error) {

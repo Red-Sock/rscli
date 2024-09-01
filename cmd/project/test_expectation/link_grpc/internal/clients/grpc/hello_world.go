@@ -7,7 +7,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-func NewHelloWorldAPIClient(grpcConn resources.GRPC, opts ...grpc.DialOption) (pb.HelloWorldAPIClient, error) {
+type HelloWorldAPIClient pb.HelloWorldAPIClient
+
+func NewHelloWorldAPIClient(grpcConn *resources.GRPC, opts ...grpc.DialOption) (HelloWorldAPIClient, error) {
 	conn, err := connect(grpcConn.ConnectionString, opts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "error crating grpc client")
