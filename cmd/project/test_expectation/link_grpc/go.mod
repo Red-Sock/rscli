@@ -6,7 +6,7 @@ require (
 	github.com/Red-Sock/toolbox v0.0.4
 	github.com/Red-Sock/trace-errors v0.0.9
 	github.com/godverv/hello_world v0.0.8
-	github.com/godverv/matreshka v0.0.34
+	github.com/godverv/matreshka v0.0.35
 	github.com/sirupsen/logrus v1.9.3
 	google.golang.org/grpc v1.65.0
 )

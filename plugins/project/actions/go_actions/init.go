@@ -7,8 +7,10 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators/app_struct_generators"
 )
 
 type InitGoModAction struct{}
@@ -47,12 +49,23 @@ func (a InitGoModAction) NameInAction() string {
 type InitGoProjectApp struct{}
 
 func (a InitGoProjectApp) Do(p project.Project) error {
-	appFile, err := projpatterns.GenerateAppFile(p.GetConfig())
+	appFolder := &folder.Folder{}
+	appFolder.Name = path.Join(projpatterns.InternalFolder, projpatterns.AppFolder)
+	p.GetFolder().Add(appFolder)
+
+	appFiles, err := app_struct_generators.GenerateAppFiles(p.GetConfig())
 	if err != nil {
 		return errors.Wrap(err, "error generating app file")
 	}
 
-	_ = appFile
+	for fileName, fileContent := range appFiles {
+		appFolder.Add(
+			&folder.Folder{
+				Name:    fileName,
+				Content: fileContent,
+			})
+	}
+
 	return nil
 }
 

@@ -15,8 +15,14 @@ const (
 	CmdFolder     = "cmd"
 	ServiceFolder = "service"
 
-	InternalFolder = "internal"
-	ConnFileName   = "conn.go"
+	InternalFolder             = "internal"
+	AppFolder                  = "app"
+	AppFileName                = "app.go"
+	AppInitServerFileName      = "server.go"
+	AppInitDataSourcesFileName = "data_sources.go"
+	AppConfigFileName          = "config.go"
+
+	ConnFileName = "conn.go"
 
 	TransportFolder = "transport"
 

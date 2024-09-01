@@ -21,6 +21,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators/config_generators"
 )
 
 var (
@@ -140,11 +141,12 @@ func (g GrpcClient) applyLink(proj project.Project, packageName string) error {
 			proj.GetConfig().DataSources = append(proj.GetConfig().DataSources, grpcResource)
 		}
 
-		grpcClientFile, err := projpatterns.GenerateGRPCClient(projpatterns.GrpcClientArgs{
-			ApiPackage:  path.Join(packageName, c.importPath),
-			Constructor: c.constructor,
-			ClientName:  c.clientName,
-		})
+		grpcClientFile, err := config_generators.GenerateGRPCClient(
+			config_generators.GrpcClientArgs{
+				ApiPackage:  path.Join(packageName, c.importPath),
+				Constructor: c.constructor,
+				ClientName:  c.clientName,
+			})
 		if err != nil {
 			errs = stderrs.Join(errs, err)
 			continue

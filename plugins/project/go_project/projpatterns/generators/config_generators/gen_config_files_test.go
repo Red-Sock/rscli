@@ -1,4 +1,4 @@
-package projpatterns
+package config_generators
 
 import (
 	"testing"

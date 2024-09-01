@@ -20,8 +20,8 @@ github.com/go-redis/redis v6.15.9+incompatible/go.mod h1:NAIEuMOZ/fxfXJIrKDQDz8w
 github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0/go.mod h1:fyg7847qk6SyHyPtNmDHnmrv/HOrqktSC+C9fM+CJOE=
 github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1 h1:wG8n/XJQ07TmjbITcGiUaOtXxdrINDz1b0J1w0SzqDc=
 github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1/go.mod h1:A2S0CWkNylc2phvKXWBBdD3K0iGnDBGbzRpISP2zBl8=
-github.com/godverv/matreshka v0.0.34 h1:TykRRq5G7pgYQIy60OeTzcBCxYdyXNA8SBZz0pTPFU0=
-github.com/godverv/matreshka v0.0.34/go.mod h1:hhC0Rbm8KdYJVSnllOMmiB/xZPF/RoNQUP/3BZ0QAnU=
+github.com/godverv/matreshka v0.0.35 h1:TykRRq5G7pgYQIy60OeTzcBCxYdyXNA8SBZz0pTPFU0=
+github.com/godverv/matreshka v0.0.35/go.mod h1:hhC0Rbm8KdYJVSnllOMmiB/xZPF/RoNQUP/3BZ0QAnU=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.4.0-rc.1/go.mod h1:ceaxUfeHdC40wWswd/P6IGgMaK3YpKi5j83Wpe3EHw8=
 github.com/golang/protobuf v1.4.0-rc.1.0.20200221234624-67d41d38c208/go.mod h1:xKAWHe0F5eneWXFV3EuXVDTCmh+JuBKY0li0aMyXATA=

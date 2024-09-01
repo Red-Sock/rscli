@@ -10,8 +10,8 @@ import (
 )
 
 func (a *App) InitConfig() (err error) {
-	app.Ctx, app.Stop = context.WithCancel(context.Background())
-	closer.Add(app.Stop)
+	a.Ctx, a.Stop = context.WithCancel(context.Background())
+    closer.Add(func() error { a.Stop(); return nil })
 
 	a.Cfg, err = config.Load()
 	if err != nil {

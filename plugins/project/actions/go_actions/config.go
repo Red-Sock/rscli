@@ -9,6 +9,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/config"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators/config_generators"
 )
 
 type PrepareGoConfigFolderAction struct{}
@@ -80,7 +81,7 @@ func (a PrepareGoConfigFolderAction) generateConfigStructsFiles(cfg *config.Conf
 	out := make([]*folder.Folder, 0, 3)
 	// Environment config
 	{
-		confStruct, err := projpatterns.GenerateEnvironmentConfigStruct(cfg.Environment)
+		confStruct, err := config_generators.GenerateEnvironmentConfigStruct(cfg.Environment)
 		if err != nil {
 			return nil, errors.Wrap(err, "error generating environment struct file")
 		}
@@ -92,7 +93,7 @@ func (a PrepareGoConfigFolderAction) generateConfigStructsFiles(cfg *config.Conf
 	}
 	// Data sources
 	{
-		confStruct, err := projpatterns.GenerateDataSourcesConfigStruct(cfg.DataSources)
+		confStruct, err := config_generators.GenerateDataSourcesConfigStruct(cfg.DataSources)
 		if err != nil {
 			return nil, errors.Wrap(err, "error generating data sources struct file")
 		}

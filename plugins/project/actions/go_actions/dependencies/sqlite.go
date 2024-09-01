@@ -11,14 +11,6 @@ type Sqlite struct {
 	dependencyBase
 }
 
-func (s Sqlite) GetFolderName() string {
-	if s.Name != "" {
-		return s.Name
-	}
-
-	return "sqldb"
-}
-
 func (s Sqlite) AppendToProject(proj project.Project) error {
 	sc := sqlConn{Cfg: s.Cfg}
 

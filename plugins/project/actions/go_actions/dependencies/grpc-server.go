@@ -6,6 +6,7 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/gobeam/stringy"
+	"github.com/godverv/matreshka/server"
 
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/io/folder"
@@ -72,18 +73,18 @@ func (r GrpcServer) applyApiFolder(proj project.Project, protoPath string) error
 }
 
 func (r GrpcServer) applyConfig(proj project.Project) {
-	// TODO
-	//for _, item := range proj.GetConfig().Servers {
-	//	if item.GetName() == r.GetFolderName() {
-	//		return
-	//	}
-	//}
+	res := &server.Server{}
 
-	//proj.GetConfig().Servers = append(proj.GetConfig().Servers,
-	//	&servers.Rest{
-	//		Name: servers.Name(r.GetFolderName()),
-	//		Port: servers.DefaultGrpcPort,
-	//	})
+	port := 8080
+	for {
+		_, ok := proj.GetConfig().Servers[8080]
+		if !ok {
+			proj.GetConfig().Servers[8080] = res
+			break
+		}
+
+		port++
+	}
 }
 
 func (r GrpcServer) applyServerFolder(proj project.Project) {

@@ -1,6 +1,0 @@
-package app
-
-func (a *App) InitDataSources() error {
-	/*Inits data connections and implementations*/
-	return nil
-}
