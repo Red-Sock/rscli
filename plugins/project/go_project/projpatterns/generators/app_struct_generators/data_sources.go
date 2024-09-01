@@ -28,16 +28,19 @@ func generateDataSourceInitFileAndArgs(dataSources matreshka.DataSources) (InitD
 		case resources.PostgresResourceName, resources.SqliteResourceName:
 			fc.FuncName = "sqldb.New"
 			fc.ResultType = "*sqldb.DB"
+			fc.Args = "a.Cfg.DataSources." + fc.ResultName
 			initDsArgs.Imports["proj_name/internal/clients/sqldb"] = ""
 			fc.ErrorMessage = "error during sql connection initialization"
 		case resources.RedisResourceName:
 			fc.FuncName = "redis.New"
 			fc.ResultType = "*redis.Client"
+			fc.Args = "a.Cfg.DataSources." + fc.ResultName
 			initDsArgs.Imports["proj_name/internal/clients/redis"] = ""
 			fc.ErrorMessage = "error during redis connection initialization"
 		case resources.TelegramResourceName:
 			fc.FuncName = "telegram.New"
 			fc.ResultType = "*telegram.Bot"
+			fc.Args = "a.Cfg.DataSources." + fc.ResultName
 			initDsArgs.Imports["proj_name/internal/clients/telegram"] = ""
 			fc.ErrorMessage = "error during telegram bot initialization"
 		default:
