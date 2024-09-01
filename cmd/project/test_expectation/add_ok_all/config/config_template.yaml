@@ -21,3 +21,6 @@ data_sources:
       api_key: ""
     - resource_name: sqlite
       path: ./data/sqlite/add_ok_all.db
+      migrations_folder: ./migrations
+servers:
+    8080: {}
