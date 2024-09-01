@@ -20,7 +20,9 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/grpc_discovery"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators/config_generators"
 )
 
@@ -96,67 +98,59 @@ func (g GrpcClient) getPackage(packageName string) (ok bool) {
 	return true
 }
 
+// Users/alexbukov/go/pkg/mod/github.com/godverv/hello_world/pkg
 func (g GrpcClient) applyLink(proj project.Project, packageName string) error {
-	packagePath, err := g.getPathToModule(packageName)
+	discovery := grpc_discovery.GrpcDiscovery{Cfg: g.Cfg}
+
+	pkg, err := discovery.DiscoverPackage(packageName)
 	if err != nil {
-		return errors.Wrapf(err, "error getting path to module: %s", packageName)
+		return errors.Wrap(err, "error discovering package")
 	}
 
-	compiledPackages, err := g.getCompiledGRPCContractFromPackage(packagePath)
-	if err != nil {
-		return errors.Wrap(err, "error getting compiled grpc contracts")
+	if pkg == nil {
+		return nil
 	}
+
 	if idx := strings.Index(packageName, "@"); idx > -1 {
 		packageName = packageName[:idx]
 	}
+	grpcPkgPath := path.Join(g.Cfg.Env.PathsToClients[0], projpatterns.GRPCServer)
 
-	grpcClientsFolder := proj.GetFolder().GetByPath(projpatterns.InternalFolder, g.Cfg.Env.PathsToCompiledClients[0], projpatterns.GRPCServer)
+	grpcClientsFolder := proj.GetFolder().GetByPath(grpcPkgPath)
 	if grpcClientsFolder == nil {
 		grpcClientsFolder = &folder.Folder{
-			Name: path.Join(g.Cfg.Env.PathsToClients[0], projpatterns.GRPCServer),
+			Name: grpcPkgPath,
 		}
 
 		proj.GetFolder().Add(grpcClientsFolder)
 	}
 
-	var errs error
-	for _, c := range compiledPackages {
-		resourceName := resources.GrpcResourceName + "_" + path.Base(
-			strings.NewReplacer(
-				"-", "_",
-			).
-				Replace(packageName))
+	resourceName := resources.GrpcResourceName + "_" + generators.NormalizeResourceName(path.Base(packageName))
 
-		grpcResource, err := proj.GetConfig().DataSources.GRPC(resourceName)
-		if err != nil {
-			if !errors.Is(err, matreshka.ErrNotFound) {
-				return errors.Wrap(err, "error getting grpc resource from config")
-			}
-
-			grpcResource = &resources.GRPC{
-				Name:             resources.Name(resourceName),
-				Module:           packageName,
-				ConnectionString: "0.0.0.0:50051",
-			}
-			proj.GetConfig().DataSources = append(proj.GetConfig().DataSources, grpcResource)
+	grpcResource, err := proj.GetConfig().DataSources.GRPC(resourceName)
+	if err != nil {
+		if !errors.Is(err, matreshka.ErrNotFound) {
+			return errors.Wrap(err, "error getting grpc resource from config")
 		}
 
-		grpcClientFile, err := config_generators.GenerateGRPCClient(
-			config_generators.GrpcClientArgs{
-				ApiPackage:  path.Join(packageName, c.importPath),
-				Constructor: c.constructor,
-				ClientName:  c.clientName,
-			})
-		if err != nil {
-			errs = stderrs.Join(errs, err)
-			continue
+		grpcResource = &resources.GRPC{
+			Name:             resources.Name(resourceName),
+			Module:           packageName,
+			ConnectionString: "0.0.0.0:50051",
 		}
+		proj.GetConfig().DataSources = append(proj.GetConfig().DataSources, grpcResource)
+	}
 
-		grpcClientsFolder.Add(&folder.Folder{
+	grpcClientFile, err := config_generators.GenerateGRPCClient(*pkg)
+	if err != nil {
+		return errors.Wrap(err, "error generating grpc client")
+	}
+
+	grpcClientsFolder.Add(
+		&folder.Folder{
 			Name:    path.Base(packageName) + ".go",
 			Content: grpcClientFile,
 		})
-	}
 
 	return nil
 }
@@ -184,6 +178,7 @@ func (g GrpcClient) getPathToModule(packageName string) (pathToModule string, er
 		potentialDirs = potentialDirs[moveIdx:]
 
 		sort.Slice(potentialDirs, func(i, j int) bool {
+			// TODO sorting by name is wrong. need to sort by version
 			return potentialDirs[i].Name() < potentialDirs[i].Name()
 		})
 

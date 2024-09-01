@@ -35,20 +35,20 @@ func GenerateAppFiles(cfg *config.Config) (map[string][]byte, error) {
 	out := make(map[string][]byte)
 
 	// init data sources
-	{
-		initDataSourcesArgs, initDataSorcesFile, err := generateDataSourceInitFileAndArgs(cfg.DataSources)
+	if len(cfg.DataSources) != 0 {
+		initDataSourcesArgs, initDataSourcesFile, err := generateDataSourceInitFileAndArgs(cfg.DataSources)
 		if err != nil {
 			return nil, errors.Wrap(err, "error generation data source init file")
 		}
 
-		out[projpatterns.AppInitDataSourcesFileName] = initDataSorcesFile
+		out[projpatterns.AppInitDataSourcesFileName] = initDataSourcesFile
 		initAppArgs.addAppContent(
 			"/* Data source connection */",
 			"error during data sources initialization",
 			initDataSourcesArgs)
 	}
 	// init server
-	{
+	if len(cfg.Servers) != 0 {
 		initServerArgs, initServerFile, err := generateServerInitFileAndArgs(cfg.Servers)
 		if err != nil {
 			return nil, errors.Wrap(err, "error generating server init file")

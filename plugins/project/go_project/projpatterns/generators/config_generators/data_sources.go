@@ -8,6 +8,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/grpc_discovery"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators"
 )
@@ -48,7 +49,7 @@ func newGenerateDataSourcesConfigStruct(dataSources matreshka.DataSources) inter
 		buf := &rw.RW{}
 		err := configStructTemplate.Execute(buf, ecg)
 		if err != nil {
-			return InternalConfig{}, nil, errors.Wrap(err, "error executing template")
+			return InternalConfig{}, nil, errors.Wrap(err, "error executing config struct template on data sources")
 		}
 
 		f := &folder.Folder{
@@ -60,17 +61,11 @@ func newGenerateDataSourcesConfigStruct(dataSources matreshka.DataSources) inter
 	}
 }
 
-type GrpcClientArgs struct {
-	ApiPackage  string
-	Constructor string
-	ClientName  string
-}
-
-func GenerateGRPCClient(args GrpcClientArgs) ([]byte, error) {
+func GenerateGRPCClient(args grpc_discovery.GrpcPackage) ([]byte, error) {
 	buf := &rw.RW{}
 	err := grpcConnectionTemplate.Execute(buf, args)
 	if err != nil {
-		return nil, errors.Wrap(err, "error executing template")
+		return nil, errors.Wrap(err, "error executing template on grpc connection")
 	}
 
 	return buf.Bytes(), nil

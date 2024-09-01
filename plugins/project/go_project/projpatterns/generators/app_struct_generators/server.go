@@ -15,10 +15,6 @@ var (
 )
 
 func generateServerInitFileAndArgs(servers matreshka.Servers) (InitDepFuncGenArgs, []byte, error) {
-	if len(servers) == 0 {
-		return InitDepFuncGenArgs{}, nil, nil
-	}
-
 	genArgs := InitDepFuncGenArgs{
 		Imports:          make(map[string]string),
 		InitFunctionName: "InitServers",

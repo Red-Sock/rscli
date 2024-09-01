@@ -43,7 +43,7 @@ func newGenerateEnvironmentConfigStruct(environment matreshka.Environment) inter
 		buf := &rw.RW{}
 		err := configStructTemplate.Execute(buf, ecg)
 		if err != nil {
-			return InternalConfig{}, nil, errors.Wrap(err, "error executing template")
+			return InternalConfig{}, nil, errors.Wrap(err, "error executing config struct template")
 		}
 
 		f := &folder.Folder{
