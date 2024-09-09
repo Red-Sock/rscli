@@ -33,6 +33,7 @@ func goProjectTidyActions() []Action {
 		go_actions.BuildProjectAction{},
 		go_actions.RunGoTidyAction{},
 		go_actions.RunGoFmtAction{},
+		go_actions.UpdateAllPackages{},
 	}
 }
 

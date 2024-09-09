@@ -42,6 +42,7 @@ func generateServerInitFileAndArgs(servers matreshka.Servers) (InitDepFuncGenArg
 		}
 
 		genArgs.Functions = append(genArgs.Functions, initFuncCall)
+		genArgs.ServerName = initFuncCall.ResultName
 	}
 
 	genArgs.Imports["github.com/Red-Sock/trace-errors"] = "errors"

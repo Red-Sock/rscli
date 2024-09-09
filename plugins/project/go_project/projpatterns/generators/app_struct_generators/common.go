@@ -4,6 +4,7 @@ type InitDepFuncGenArgs struct {
 	InitFunctionName string
 	Imports          map[string]string
 	Functions        []InitFuncCall
+	ServerName       string
 }
 
 type InitFuncCall struct {

@@ -4,7 +4,7 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/rw"
-	"github.com/Red-Sock/rscli/plugins/project/config"
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators"
 )
@@ -23,14 +23,17 @@ type AppContent struct {
 }
 
 type AppStarter struct {
+	FieldName string
 	StartCall string
 	StopCall  string
 }
 
-func GenerateAppFiles(cfg *config.Config) (map[string][]byte, error) {
+func GenerateAppFiles(p project.Project) (map[string][]byte, error) {
 	initAppArgs := AppFileGenArgs{
 		Imports: make(map[string]string),
 	}
+
+	cfg := p.GetConfig()
 
 	out := make(map[string][]byte)
 
@@ -59,6 +62,10 @@ func GenerateAppFiles(cfg *config.Config) (map[string][]byte, error) {
 			"/* Servers managers */",
 			"error during server initialization",
 			initServerArgs)
+
+		initAppArgs.Starters = append(initAppArgs.Starters, AppStarter{
+			FieldName: initServerArgs.ServerName,
+		})
 	}
 
 	mainAppFile := &rw.RW{}
@@ -69,6 +76,10 @@ func GenerateAppFiles(cfg *config.Config) (map[string][]byte, error) {
 
 	out[projpatterns.AppFileName] = mainAppFile.Bytes()
 	out[projpatterns.AppConfigFileName] = appConfigPattern
+
+	if p.GetFolder().GetByPath(projpatterns.InternalFolder, projpatterns.AppFolder, projpatterns.AppCustomFileName) == nil {
+		out[projpatterns.AppCustomFileName] = customPattern
+	}
 
 	return out, nil
 }

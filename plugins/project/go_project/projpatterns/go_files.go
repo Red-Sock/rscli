@@ -21,6 +21,7 @@ const (
 	AppInitServerFileName      = "server.go"
 	AppInitDataSourcesFileName = "data_sources.go"
 	AppConfigFileName          = "config.go"
+	AppCustomFileName          = "custom.go"
 
 	ConnFileName = "conn.go"
 

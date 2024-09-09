@@ -30,25 +30,25 @@ var configOrder = map[string]int{
 }
 
 func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
-	c, err := LoadProjectConfig(pth, cfg)
-	if err != nil {
-		return nil, errors.Wrap(err, "error loading project config")
-	}
-
 	root, err := folder.Load(pth)
 	if err != nil {
 		return nil, err
 	}
 
+	conf, err := LoadProjectConfig(pth, cfg)
+	if err != nil {
+		return nil, errors.Wrap(err, "error loading project config")
+	}
+
 	p := &Project{
 		ProjectPath: pth,
-		Cfg:         c,
+		Cfg:         conf,
 		root:        *root,
 	}
 
 	projectLoaders := []func(p *Project) (name *string){
-		goProjectLoader,
 		unknownProjectLoader,
+		goProjectLoader,
 	}
 
 	for _, pLoader := range projectLoaders {

@@ -49,11 +49,16 @@ func (a InitGoModAction) NameInAction() string {
 type InitGoProjectApp struct{}
 
 func (a InitGoProjectApp) Do(p project.Project) error {
-	appFolder := &folder.Folder{}
-	appFolder.Name = path.Join(projpatterns.InternalFolder, projpatterns.AppFolder)
-	p.GetFolder().Add(appFolder)
+	appFolderPath := path.Join(projpatterns.InternalFolder, projpatterns.AppFolder)
+	appFolder := p.GetFolder().GetByPath(appFolderPath)
+	if appFolder == nil {
+		appFolder = &folder.Folder{
+			Name: path.Join(projpatterns.InternalFolder, projpatterns.AppFolder),
+		}
+		p.GetFolder().Add(appFolder)
+	}
 
-	appFiles, err := app_struct_generators.GenerateAppFiles(p.GetConfig())
+	appFiles, err := app_struct_generators.GenerateAppFiles(p)
 	if err != nil {
 		return errors.Wrap(err, "error generating app file")
 	}

@@ -12,6 +12,8 @@ var (
 
 	//go:embed templates/config.go.pattern
 	appConfigPattern []byte
+	//go:embed templates/custom.go.pattern
+	customPattern []byte
 
 	//go:embed templates/init_structure.go.pattern
 	initAppStructFuncPattern  string

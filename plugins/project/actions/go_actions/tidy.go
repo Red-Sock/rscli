@@ -79,3 +79,22 @@ func (a RunMakeGenAction) Do(p project.Project) error {
 func (a RunMakeGenAction) NameInAction() string {
 	return "Running `make gen`"
 }
+
+type UpdateAllPackages struct{}
+
+func (a UpdateAllPackages) Do(p project.Project) error {
+	_, err := cmd.Execute(cmd.Request{
+		Tool:    goBin,
+		Args:    []string{"get", "-u", "all"},
+		WorkDir: p.GetProjectPath(),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a UpdateAllPackages) NameInAction() string {
+	return "Updating packages to latest version"
+}
