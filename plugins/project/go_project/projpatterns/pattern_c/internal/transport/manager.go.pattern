@@ -17,8 +17,6 @@ type ServersManager struct {
 
 	grpcServer
 	httpServer
-
-	portRO string
 }
 
 func NewServerManager(ctx context.Context, port string) (*ServersManager, error) {
@@ -31,7 +29,6 @@ func NewServerManager(ctx context.Context, port string) (*ServersManager, error)
 	httpMux := http.NewServeMux()
 
 	s := &ServersManager{
-		portRO: port,
 		ctx: ctx,
 		mux: mainMux,
 
@@ -42,11 +39,8 @@ func NewServerManager(ctx context.Context, port string) (*ServersManager, error)
 	return s, nil
 }
 
-func (m *ServersManager) Start() error {
-	logrus.Infof("accepting connections at: http://0.0.0.0%s", m.portRO)
-
-
-	errGroup, ctx := errgroup.WithContext(m.ctx)
+func (m *ServersManager) Start(ctx context.Context) error {
+	errGroup, _ := errgroup.WithContext(ctx)
 
 	errGroup.Go(m.mux.Serve)
 	errGroup.Go(m.grpcServer.start)

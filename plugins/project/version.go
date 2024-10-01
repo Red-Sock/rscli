@@ -7,7 +7,7 @@ import (
 
 	"github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/internal/cmd"
+	"github.com/Red-Sock/rscli/internal/utils/bins/makefile"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
@@ -74,7 +74,7 @@ func (v *Version) String() string {
 
 // TODO не нужно?
 func (v *Version) UpdateProjectVersion(p Project) error {
-	mkFile := p.GetFolder().GetByPath(projpatterns.Makefile)
+	mkFile := p.GetFolder().GetByPath(projpatterns.RscliMakefileFile)
 
 	rvBytes := []byte("RSCLI_VERSION=")
 	startIdx := bytes.Index(mkFile.Content, rvBytes)
@@ -108,23 +108,19 @@ func (v *Version) UpdateProjectVersion(p Project) error {
 type tagVersion int
 
 func LoadProjectVersion(p Project) error {
-	out, err := cmd.Execute(cmd.Request{
-		Tool:    "make",
-		Args:    []string{"rscli-version"},
-		WorkDir: p.GetProjectPath(),
-	})
+	msg, err := makefile.Run(p.GetProjectPath(), projpatterns.RscliMakefileFile, "rscli-version")
 	if err != nil {
 		return errors.Wrap(err, "error executing make rscli-version")
 	}
 
-	out = strings.NewReplacer(
+	msg = strings.NewReplacer(
 		"\r", "",
 		"\n", "",
 		"v", "",
 		"V", "",
-	).Replace(out)
+	).Replace(msg)
 
-	versionStr := strings.Split(out, ".")
+	versionStr := strings.Split(msg, ".")
 	if len(versionStr) != 3 {
 		return ErrInvalidVersion
 	}

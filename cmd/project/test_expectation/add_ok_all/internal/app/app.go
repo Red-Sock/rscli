@@ -2,9 +2,11 @@ package app
 
 import (
 	"github.com/Red-Sock/add_ok_all/internal/clients/redis"
-	"github.com/Red-Sock/add_ok_all/internal/clients/sqldb"
 	"github.com/Red-Sock/add_ok_all/internal/clients/telegram"
 	"github.com/Red-Sock/add_ok_all/internal/transport"
+
+	"database/sql"
+
 	"github.com/Red-Sock/toolbox"
 	"github.com/Red-Sock/toolbox/closer"
 	errors "github.com/Red-Sock/trace-errors"
@@ -19,10 +21,10 @@ type App struct {
 	Stop func()
 	Cfg  config.Config
 	/* Data source connection */
-	Postgres *sqldb.DB
+	Postgres *sql.DB
 	Redis    *redis.Client
 	Telegram *telegram.Bot
-	Sqlite   *sqldb.DB
+	Sqlite   *sql.DB
 	/* Servers managers */
 	Server *transport.ServersManager
 }

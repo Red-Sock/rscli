@@ -10,7 +10,8 @@ const (
 	EnvConfigYamlFile = "env.yaml"
 	DevConfigYamlFile = "dev.yaml"
 	ConfigYamlFile    = "config.yaml"
-	Makefile          = "Makefile"
+	MakefileFile      = "Makefile"
+	RscliMakefileFile = "rscli.mk"
 
 	GenCommand           = "gen"
 	GenGrpcServerCommand = "gen-server-grpc"
@@ -92,5 +93,15 @@ var (
 	GithubWorkflowGoBranchPush = &folder.Folder{
 		Name:    "branch-push.yaml",
 		Content: githubWorkflowGoBranchPush,
+	}
+)
+
+// Scripts
+var (
+	//go:embed pattern_c/Makefile
+	makefile []byte
+	Makefile = &folder.Folder{
+		Name:    MakefileFile,
+		Content: makefile,
 	}
 )

@@ -70,7 +70,7 @@ func (a RunMakeGenAction) Do(p project.Project) error {
 		return errors.Wrap(err, "error installing makefile")
 	}
 
-	err = makefile.Run(p.GetProjectPath(), projpatterns.Makefile, projpatterns.GenCommand)
+	_, err = makefile.Run(p.GetProjectPath(), projpatterns.RscliMakefileFile, projpatterns.GenCommand)
 	if err != nil {
 		return errors.Wrap(err, "error generating")
 	}

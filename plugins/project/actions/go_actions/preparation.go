@@ -126,19 +126,24 @@ func (a PrepareMakefileAction) Do(p project.Project) error {
 		genScriptSummary = append(genScriptSummary, patterns.GenGrpcServerCommand)
 	}
 
-	makeFile := p.GetFolder().GetByPath(patterns.Makefile)
-	if makeFile == nil {
+	rscliMk := p.GetFolder().GetByPath(patterns.RscliMakefileFile)
+	if rscliMk == nil {
 		p.GetFolder().Add(&folder.Folder{
-			Name: patterns.Makefile,
+			Name: patterns.RscliMakefileFile,
 		})
-		makeFile = p.GetFolder().GetByPath(patterns.Makefile)
+		rscliMk = p.GetFolder().GetByPath(patterns.RscliMakefileFile)
 	}
 
 	if len(genScriptSummary) != 0 {
 		makefileContent[0] = []byte(patterns.GenCommand + ": " + strings.Join(genScriptSummary, " "))
 	}
 
-	makeFile.Content = bytes.Join(makefileContent, []byte{'\n', '\n'})
+	rscliMk.Content = bytes.Join(makefileContent, []byte{'\n', '\n'})
+
+	makefile := p.GetFolder().GetByPath(patterns.MakefileFile)
+	if makefile == nil {
+		p.GetFolder().Add(patterns.Makefile.Copy())
+	}
 
 	return nil
 }

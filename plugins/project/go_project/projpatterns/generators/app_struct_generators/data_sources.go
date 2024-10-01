@@ -57,7 +57,7 @@ func generateDataSourceInitFileAndArgs(dataSources matreshka.DataSources) (InitD
 
 func sqlInitFunc(fc *InitFuncCall) (importPath, importAlias string) {
 	fc.FuncName = "sqldb.New"
-	fc.ResultType = "*sqldb.DB"
+	fc.ResultType = "sqldb.DB"
 	fc.Args = "a.Cfg.DataSources." + fc.ResultName
 	fc.ErrorMessage = "error during sql connection initialization"
 
