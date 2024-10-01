@@ -81,15 +81,6 @@ func (a PrepareClientsAction) Do(p project.Project) error {
 		}
 	}
 
-	err := dependencies.GrpcClient{
-		Modules: grpcClients,
-		Cfg:     a.C,
-		Io:      a.IO,
-	}.AppendToProject(p)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
 	if len(errs) != 0 {
 		return stderrs.Join(errs...)
 	}

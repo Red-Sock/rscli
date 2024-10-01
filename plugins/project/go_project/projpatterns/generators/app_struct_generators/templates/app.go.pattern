@@ -36,7 +36,7 @@ func New() (app App, err error) {
     }
 	{{ end }}
 
-	err = app.Custom.Init(app)
+	err = app.Custom.Init(&app)
 	if err != nil {
 		return App{}, errors.Wrap(err, "error initializing custom app properties")
 	}

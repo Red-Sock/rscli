@@ -108,7 +108,7 @@ func (v *Version) UpdateProjectVersion(p Project) error {
 type tagVersion int
 
 func LoadProjectVersion(p Project) error {
-	msg, err := makefile.Run(p.GetProjectPath(), projpatterns.RscliMakefileFile, "rscli-version")
+	msg, err := makefile.Run(p.GetProjectPath(), projpatterns.MakefileFile, "rscli-version")
 	if err != nil {
 		return errors.Wrap(err, "error executing make rscli-version")
 	}
