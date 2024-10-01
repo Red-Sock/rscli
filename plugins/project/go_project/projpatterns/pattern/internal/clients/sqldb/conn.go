@@ -28,8 +28,17 @@ func New(cfg resources.SqlResource) (DB, error) {
 	})
 
 	goose.SetLogger(logrus.StandardLogger())
+	err = goose.SetDialect(dialect)
+	if err != nil {
+		return nil, errors.Wrap(err, "error setting dialect")
+	}
 
-	err = goose.Up(conn, cfg.MigrationFolder())
+	mig := cfg.MigrationFolder()
+	if mig == "" {
+		mig = "./migrations"
+	}
+
+	err = goose.Up(conn, mig)
 	if err != nil {
 		return nil, errors.Wrap(err, "error performing up")
 	}
