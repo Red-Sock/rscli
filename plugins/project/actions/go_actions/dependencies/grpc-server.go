@@ -5,23 +5,17 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/servers"
-
 	"github.com/gobeam/stringy"
+	"github.com/godverv/matreshka/server"
 
-	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/envpatterns"
-	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type GrpcServer struct {
-	Name string
-
-	Cfg *rscliconfig.RsCliConfig
-	Io  io.StdIO
+	dependencyBase
 }
 
 func (r GrpcServer) GetFolderName() string {
@@ -32,7 +26,7 @@ func (r GrpcServer) GetFolderName() string {
 	return "grpc"
 }
 
-func (r GrpcServer) AppendToProject(proj interfaces.Project) error {
+func (r GrpcServer) AppendToProject(proj project.Project) error {
 	protoName := proj.GetShortName() + "_api.proto"
 
 	ok, err := containsDependencyFolder(
@@ -58,7 +52,7 @@ func (r GrpcServer) AppendToProject(proj interfaces.Project) error {
 	return nil
 }
 
-func (r GrpcServer) applyApiFolder(proj interfaces.Project, protoPath string) error {
+func (r GrpcServer) applyApiFolder(proj project.Project, protoPath string) error {
 	serverF := projpatterns.ProtoServer.CopyWithNewName(protoPath)
 
 	projName := stringy.New(proj.GetShortName())
@@ -78,21 +72,22 @@ func (r GrpcServer) applyApiFolder(proj interfaces.Project, protoPath string) er
 	return nil
 }
 
-func (r GrpcServer) applyConfig(proj interfaces.Project) {
-	for _, item := range proj.GetConfig().Servers {
-		if item.GetName() == r.GetFolderName() {
-			return
-		}
-	}
+func (r GrpcServer) applyConfig(proj project.Project) {
+	res := &server.Server{}
 
-	proj.GetConfig().Servers = append(proj.GetConfig().Servers,
-		&servers.Rest{
-			Name: servers.Name(r.GetFolderName()),
-			Port: servers.DefaultGrpcPort,
-		})
+	port := 8080
+	for {
+		_, ok := proj.GetConfig().Servers[8080]
+		if !ok {
+			proj.GetConfig().Servers[8080] = res
+			break
+		}
+
+		port++
+	}
 }
 
-func (r GrpcServer) applyServerFolder(proj interfaces.Project) {
+func (r GrpcServer) applyServerFolder(proj project.Project) {
 	f := proj.GetFolder()
 
 	pth := []string{projpatterns.InternalFolder, projpatterns.TransportFolder, r.GetFolderName()}

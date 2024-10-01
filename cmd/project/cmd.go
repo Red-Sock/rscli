@@ -44,11 +44,5 @@ func NewCmd() *cobra.Command {
 		config: cfg,
 	}))
 
-	cmd.AddCommand(newRun(projectRun{
-		io:     stdIO,
-		path:   wd,
-		config: cfg,
-	}))
-
 	return cmd
 }

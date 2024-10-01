@@ -3,12 +3,12 @@ package validators
 import (
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 var ErrInvalidNameErr = errors.New("name contains invalid symbol(s)")
 
-func ValidateProjectName(p interfaces.Project) error {
+func ValidateProjectName(p project.Project) error {
 	return ValidateProjectNameStr(p.GetShortName())
 }
 

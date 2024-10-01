@@ -39,14 +39,19 @@ func Install() error {
 	return nil
 }
 
-func Run(wd, mkFilePath string, command string) error {
-	_, err := cmd.Execute(cmd.Request{
+func Run(wd, mkFilePath string, command string) (string, error) {
+	req := cmd.Request{
 		Tool:    bin,
 		Args:    []string{"-f", mkFilePath, command},
 		WorkDir: wd,
-	})
+	}
 
-	return err
+	msg, err := cmd.Execute(req)
+	if err != nil {
+		return "", errors.Wrap(err, "error running command:"+command)
+	}
+
+	return msg, nil
 }
 
 func installMacOS() error {

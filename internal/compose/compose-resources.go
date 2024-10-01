@@ -132,9 +132,11 @@ func (c *PatternManager) GetServiceDependencies(resource resources.Resource) (*P
 	// will set environment variable for POSTGRES_PASSWORD
 	// by setting variable PROJ_NAME_CAPS_RESOURCE_NAME_CAPS_PWD in .env file to 123
 
-	envVars := evon.MarshalEnvWithPrefix(resource.GetType(), resource)
-
-	for _, v := range envVars {
+	envVars, err := evon.MarshalEnvWithPrefix(resource.GetType(), resource)
+	if err != nil {
+		return nil, errors.Wrap(err, "error marshalling environment variables")
+	}
+	for _, v := range envVars.InnerNodes {
 		if envVariable, ok := pattern.ContainerDefinition.Environment[v.Name]; ok {
 			pattern.Envs.AppendRaw(removeEnvironmentBrackets(envVariable), fmt.Sprint(v.Value))
 		}

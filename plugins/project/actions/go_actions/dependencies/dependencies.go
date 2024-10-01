@@ -4,12 +4,13 @@ import (
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka/resources"
-	"github.com/godverv/matreshka/servers"
 
 	"github.com/Red-Sock/rscli/internal/config"
+	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
+	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 var (
@@ -17,7 +18,31 @@ var (
 )
 
 type Dependency interface {
-	AppendToProject(proj interfaces.Project) error
+	AppendToProject(proj project.Project) error
+}
+
+type dependencyBase struct {
+	Name string
+	Cfg  *rscliconfig.RsCliConfig
+}
+
+const (
+	DependencyNamePostgres = "postgres"
+	DependencyNameRedis    = "redis"
+	DependencyNameTelegram = "telegram"
+	DependencyNameSqlite   = "sqlite"
+	DependencyNameRest     = "rest"
+	DependencyNameGrpc     = "grpc"
+)
+
+var nameToDependencyConstructor = map[string]func(dep dependencyBase) Dependency{
+	DependencyNamePostgres: func(dep dependencyBase) Dependency { return &Postgres{dependencyBase: dep} },
+	DependencyNameRedis:    func(dep dependencyBase) Dependency { return &Redis{dep} },
+	DependencyNameTelegram: func(dep dependencyBase) Dependency { return &Telegram{dep} },
+	DependencyNameSqlite:   func(dep dependencyBase) Dependency { return &Sqlite{dep} },
+
+	DependencyNameRest: func(dep dependencyBase) Dependency { return &Rest{dep} },
+	DependencyNameGrpc: func(dep dependencyBase) Dependency { return &GrpcServer{dep} },
 }
 
 func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {
@@ -29,25 +54,15 @@ func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {
 		if idx != -1 {
 			resourceName = name[:idx]
 		}
-		var dep Dependency
-		switch resourceName {
-		case resources.PostgresResourceName:
-			dep = Postgres{Cfg: c, Name: name}
-		case resources.RedisResourceName:
-			dep = Redis{Cfg: c, Name: name}
-		case resources.TelegramResourceName:
-			dep = Telegram{Cfg: c, Name: name}
-		case resources.SqliteResourceName:
-			dep = Sqlite{Cfg: c, Name: name}
-		case servers.RestServerType:
-			dep = Rest{Cfg: c, Name: name}
-		case servers.GRPSServerType:
-			dep = GrpcServer{Cfg: c, Name: name}
-		default:
+		depConstr, ok := nameToDependencyConstructor[resourceName]
+		if !ok {
 			continue
 		}
-
-		serverOpts = append(serverOpts, dep)
+		base := dependencyBase{
+			Name: name,
+			Cfg:  c,
+		}
+		serverOpts = append(serverOpts, depConstr(base))
 	}
 
 	return serverOpts
@@ -75,4 +90,14 @@ func containsDependencyFolder(paths []string, rootF *folder.Folder, depName stri
 	}
 
 	return false, nil
+}
+
+func containsDependency(dataSources matreshka.DataSources, resource resources.Resource) bool {
+	for _, ds := range dataSources {
+		if ds.GetName() == resource.GetName() {
+			return true
+		}
+	}
+
+	return false
 }

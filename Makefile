@@ -1,5 +1,3 @@
-
-
 gen-test-project-with-deps: .compile-pattern .gen-test-project-with-deps
 
 .compile-pattern:
@@ -19,7 +17,8 @@ mock:
 	rm -rf testproj &&\
     ./../rscli-dev project init Testproj && \
     cd testproj && \
-    ./../../rscli-dev project add postgres redis grpc rest telegram sqlite
+    ./../../rscli-dev project add postgres redis grpc rest telegram sqlite && \
+    ./../../rscli-dev project link github.com/godverv/hello_world
 
 dev-build:
 	go build -o $(GOBIN)/rscli-dev .

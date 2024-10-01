@@ -6,19 +6,14 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
 
-	rscliconfig "github.com/Red-Sock/rscli/internal/config"
-	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type Telegram struct {
-	Name string
-
-	Cfg *rscliconfig.RsCliConfig
-	Io  io.StdIO
+	dependencyBase
 }
 
 func (t Telegram) GetFolderName() string {
@@ -29,7 +24,7 @@ func (t Telegram) GetFolderName() string {
 	return projpatterns.TelegramServer
 }
 
-func (t Telegram) AppendToProject(proj interfaces.Project) error {
+func (t Telegram) AppendToProject(proj project.Project) error {
 	err := t.applyClient(proj)
 	if err != nil {
 		return errors.Wrap(err, "error applying tg client")
@@ -45,7 +40,7 @@ func (t Telegram) AppendToProject(proj interfaces.Project) error {
 	return nil
 }
 
-func (t Telegram) applyClient(proj interfaces.Project) error {
+func (t Telegram) applyClient(proj project.Project) error {
 	ok, err := containsDependencyFolder(t.Cfg.Env.PathsToClients, proj.GetFolder(), t.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding Dependency path")
@@ -67,7 +62,7 @@ func (t Telegram) applyClient(proj interfaces.Project) error {
 	return nil
 }
 
-func (t Telegram) applyFolder(proj interfaces.Project) error {
+func (t Telegram) applyFolder(proj project.Project) error {
 	ok, err := containsDependencyFolder(t.Cfg.Env.PathToServers, proj.GetFolder(), t.GetFolderName())
 	if err != nil {
 		return err
@@ -101,7 +96,7 @@ func (t Telegram) applyFolder(proj interfaces.Project) error {
 	return nil
 }
 
-func (t Telegram) applyConfig(proj interfaces.Project) {
+func (t Telegram) applyConfig(proj project.Project) {
 	for _, srv := range proj.GetConfig().DataSources {
 		if srv.GetName() == t.GetFolderName() {
 			return
