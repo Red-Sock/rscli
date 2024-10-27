@@ -9,7 +9,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/compose/env"
 	"github.com/Red-Sock/rscli/internal/envpatterns"
-	projPatterns "github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	projPatterns "github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type envVariables struct {

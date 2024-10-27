@@ -1,0 +1,31 @@
+name: master-actions
+run-name: RELEASE
+on:
+  push:
+    branches:
+      - "*"
+      - "!master"
+
+jobs:
+  tag-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release tag
+        id: release
+        uses: RedSockActions/release_tag@v1.1.6
+        with:
+          token: ${{ github.token }}
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+
+  registry_release:
+    runs-on: ubuntu-latest
+    needs:
+      - tag-release
+    steps:
+      - name: Release image
+        if: ${{ needs.tag-release.outputs.tag != '' }}
+        uses: RedSockActions/release_image@v1.0.19
+        with:
+          REGISTRY_USER: ${{ vars.REGISTRY_USER }}
+          REGISTRY_PWD:  ${{ secrets.REGISTRY_PWD }}

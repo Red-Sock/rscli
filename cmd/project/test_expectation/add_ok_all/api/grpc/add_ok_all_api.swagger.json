@@ -1,0 +1,100 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "grpc/add_ok_all_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "addOkAllAPI"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/version": {
+      "post": {
+        "operationId": "addOkAllAPI_Version",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/add_ok_all_apiPingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/add_ok_all_apiPingRequest"
+            }
+          }
+        ],
+        "tags": [
+          "addOkAllAPI"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "add_ok_all_apiPingRequest": {
+      "type": "object",
+      "properties": {
+        "clientTimestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "add_ok_all_apiPingResponse": {
+      "type": "object",
+      "properties": {
+        "took": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

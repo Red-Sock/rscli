@@ -4,9 +4,27 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
+	"github.com/Red-Sock/rscli/plugins/project"
 )
 
+type CommitWithUntrackedAction struct {
+}
+
+func (a CommitWithUntrackedAction) Do(p project.Project) error {
+	err := CommitWithUntracked(p.GetProjectPath(), "rscli auto-commit")
+	if err != nil {
+		return errors.Wrap(err)
+	}
+
+	return nil
+}
+
+func (a CommitWithUntrackedAction) NameInAction() string {
+	return "Commiting changes"
+}
+
 func Commit(workingDir, msg string) error {
+
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    exe,
 		Args:    []string{"commit", "-m", "\"" + msg + "\""},
@@ -17,9 +35,10 @@ func Commit(workingDir, msg string) error {
 	}
 
 	return nil
+
 }
 
-func ForceCommit(workDir, msg string) error {
+func CommitWithUntracked(workDir, msg string) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    exe,
 		Args:    []string{"add", "."},

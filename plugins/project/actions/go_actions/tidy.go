@@ -1,57 +1,22 @@
 package go_actions
 
 import (
-	"os"
-	"path"
-
 	errors "github.com/Red-Sock/trace-errors"
+
+	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/bins/makefile"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 const goBin = "go"
 
-type InitGoModAction struct{}
-
-func (a InitGoModAction) Do(p interfaces.Project) error {
-	_, err := cmd.Execute(cmd.Request{
-		Tool:    goBin,
-		Args:    []string{"mod", "init", p.GetName()},
-		WorkDir: p.GetProjectPath(),
-	})
-	if err != nil {
-		return errors.Wrap(err, "error executing go mod init")
-	}
-
-	goMod, err := os.OpenFile(path.Join(p.GetProjectPath(), "go.mod"), os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		err2 := goMod.Close()
-		if err2 != nil {
-			if err != nil {
-				err = errors.Wrap(err, "error on closing"+err2.Error())
-			} else {
-				err = err2
-			}
-		}
-	}()
-
-	return nil
-}
-func (a InitGoModAction) NameInAction() string {
-	return "Initiating go project"
-}
-
 type RunGoFmtAction struct{}
 
-func (a RunGoFmtAction) Do(p interfaces.Project) error {
+func (a RunGoFmtAction) Do(p project.Project) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"fmt", "./..."},
@@ -69,7 +34,7 @@ func (a RunGoFmtAction) NameInAction() string {
 
 type RunGoTidyAction struct{}
 
-func (a RunGoTidyAction) Do(p interfaces.Project) error {
+func (a RunGoTidyAction) Do(p project.Project) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"mod", "tidy"},
@@ -95,7 +60,7 @@ type RunMakeGenAction struct {
 	IO io.IO
 }
 
-func (a RunMakeGenAction) Do(p interfaces.Project) error {
+func (a RunMakeGenAction) Do(p project.Project) error {
 	if len(p.GetConfig().Servers) == 0 {
 		return nil
 	}
@@ -105,7 +70,7 @@ func (a RunMakeGenAction) Do(p interfaces.Project) error {
 		return errors.Wrap(err, "error installing makefile")
 	}
 
-	err = makefile.Run(p.GetProjectPath(), projpatterns.Makefile, projpatterns.GenCommand)
+	_, err = makefile.Run(p.GetProjectPath(), projpatterns.RscliMakefileFile, projpatterns.GenCommand)
 	if err != nil {
 		return errors.Wrap(err, "error generating")
 	}
@@ -113,4 +78,23 @@ func (a RunMakeGenAction) Do(p interfaces.Project) error {
 }
 func (a RunMakeGenAction) NameInAction() string {
 	return "Running `make gen`"
+}
+
+type UpdateAllPackages struct{}
+
+func (a UpdateAllPackages) Do(p project.Project) error {
+	_, err := cmd.Execute(cmd.Request{
+		Tool:    goBin,
+		Args:    []string{"get", "-u", "all"},
+		WorkDir: p.GetProjectPath(),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a UpdateAllPackages) NameInAction() string {
+	return "Updating packages to latest version"
 }

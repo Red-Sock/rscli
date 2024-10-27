@@ -12,15 +12,15 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
-	"github.com/Red-Sock/rscli/plugins/project/interfaces"
-	patterns "github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	patterns "github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
 )
 
 type PrepareProjectStructureAction struct {
 }
 
-func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
+func (a PrepareProjectStructureAction) Do(p project.Project) error {
 	rootF := p.GetFolder()
 
 	cmd := &folder.Folder{Name: patterns.CmdFolder}
@@ -29,14 +29,6 @@ func (a PrepareProjectStructureAction) Do(p interfaces.Project) error {
 
 	rootF.Add(&folder.Folder{Name: patterns.ConfigsFolder})
 	rootF.Add(&folder.Folder{Name: patterns.InternalFolder})
-
-	rootF.Add(&folder.Folder{Name: patterns.PkgFolder})
-
-	closerFilePath := path.Join(
-		patterns.InternalFolder, patterns.UtilsFolder, patterns.CloserFolder,
-		patterns.UtilsCloserFile.Name)
-
-	rootF.Add(patterns.UtilsCloserFile.CopyWithNewName(closerFilePath))
 
 	rootF.Add(
 		patterns.Dockerfile.Copy(),
@@ -56,7 +48,7 @@ type PrepareClientsAction struct {
 	IO io.IO
 }
 
-func (a PrepareClientsAction) Do(p interfaces.Project) error {
+func (a PrepareClientsAction) Do(p project.Project) error {
 	if a.C == nil {
 		a.C = rscliconfig.GetConfig()
 	}
@@ -67,8 +59,9 @@ func (a PrepareClientsAction) Do(p interfaces.Project) error {
 
 	var simpleClients []string
 	var grpcClients []string
+	cfg := p.GetConfig()
 
-	for _, r := range p.GetConfig().DataSources {
+	for _, r := range cfg.DataSources {
 		grpcC, ok := r.(*resources.GRPC)
 		if ok {
 			grpcClients = append(grpcClients, grpcC.Module)
@@ -88,15 +81,6 @@ func (a PrepareClientsAction) Do(p interfaces.Project) error {
 		}
 	}
 
-	err := dependencies.GrpcClient{
-		Modules: grpcClients,
-		Cfg:     a.C,
-		Io:      a.IO,
-	}.AppendToProject(p)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
 	if len(errs) != 0 {
 		return stderrs.Join(errs...)
 	}
@@ -109,7 +93,7 @@ func (a PrepareClientsAction) NameInAction() string {
 
 type PrepareMakefileAction struct{}
 
-func (a PrepareMakefileAction) Do(p interfaces.Project) error {
+func (a PrepareMakefileAction) Do(p project.Project) error {
 	genScriptSummary := make([]string, 0)
 
 	// first part for summary scripts
@@ -133,22 +117,51 @@ func (a PrepareMakefileAction) Do(p interfaces.Project) error {
 		genScriptSummary = append(genScriptSummary, patterns.GenGrpcServerCommand)
 	}
 
-	makeFile := p.GetFolder().GetByPath(patterns.Makefile)
-	if makeFile == nil {
+	rscliMk := p.GetFolder().GetByPath(patterns.RscliMakefileFile)
+	if rscliMk == nil {
 		p.GetFolder().Add(&folder.Folder{
-			Name: patterns.Makefile,
+			Name: patterns.RscliMakefileFile,
 		})
-		makeFile = p.GetFolder().GetByPath(patterns.Makefile)
+		rscliMk = p.GetFolder().GetByPath(patterns.RscliMakefileFile)
 	}
 
 	if len(genScriptSummary) != 0 {
 		makefileContent[0] = []byte(patterns.GenCommand + ": " + strings.Join(genScriptSummary, " "))
 	}
 
-	makeFile.Content = bytes.Join(makefileContent, []byte{'\n', '\n'})
+	rscliMk.Content = bytes.Join(makefileContent, []byte{'\n', '\n'})
+
+	makefile := p.GetFolder().GetByPath(patterns.MakefileFile)
+	if makefile == nil {
+		p.GetFolder().Add(patterns.Makefile.Copy())
+	}
 
 	return nil
 }
 func (a PrepareMakefileAction) NameInAction() string {
 	return "Generating Makefile"
+}
+
+type PrepareServerAction struct{}
+
+func (a PrepareServerAction) Do(p project.Project) error {
+	if len(p.GetConfig().Servers) == 0 {
+		return nil
+	}
+
+	rootF := p.GetFolder()
+
+	transportFolder := rootF.GetByPath(patterns.InternalFolder, patterns.TransportFolder)
+	if transportFolder == nil {
+		transportFolder = &folder.Folder{}
+	}
+
+	transportFolder.Add(patterns.ServerManager.Copy())
+	transportFolder.Add(patterns.GrpcServerManagerPatternFile.Copy())
+	transportFolder.Add(patterns.HttpServerManagerPatternFile.Copy())
+
+	return nil
+}
+func (a PrepareServerAction) NameInAction() string {
+	return "Preparing server files"
 }

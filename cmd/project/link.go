@@ -8,16 +8,17 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
-	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
+	"github.com/Red-Sock/rscli/plugins/project/go_project"
 )
 
 type projectLink struct {
 	io     io.IO
 	config *config.RsCliConfig
 
-	proj *project.Project
+	proj *go_project.Project
 	path string
 }
 
@@ -40,31 +41,37 @@ func newLinkCmd(pl projectLink) *cobra.Command {
 
 func (p *projectLink) run(_ *cobra.Command, args []string) (err error) {
 	if p.proj == nil {
-		p.proj, err = project.LoadProject(p.path, p.config)
+		p.proj, err = go_project.LoadProject(p.path, p.config)
 		if err != nil {
-			return errors.Wrap(err, "error fetching project")
+			return errors.Wrap(err, "error fetching project for linking")
 		}
 	}
 
 	p.io.Println("Linking project...")
-	err = dependencies.GrpcClient{
+	grpcClient := dependencies.GrpcClient{
 		Modules: args,
 		Cfg:     p.config,
 		Io:      p.io,
-	}.AppendToProject(p.proj)
+	}
+
+	err = grpcClient.AppendToProject(p.proj)
 	if err != nil {
 		return errors.Wrap(err, "error applying grpc clients")
 	}
 
-	err = tidy(p.io, p.proj)
+	actionPerformer := actions.NewActionPerformer(p.io, p.proj)
+
+	err = actionPerformer.Tidy()
 	if err != nil {
 		return errors.Wrap(err, "error tiding project")
 	}
 
 	p.io.Println("Tidy executed. Commiting changes")
-	err = git.ForceCommit(p.proj.GetProjectPath(), "added "+strings.Join(args, "; "))
+
+	err = git.CommitWithUntracked(p.proj.GetProjectPath(), "added "+strings.Join(args, "; "))
 	if err != nil {
 		return errors.Wrap(err, "error performing git commit")
 	}
+
 	return nil
 }
