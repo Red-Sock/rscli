@@ -37,7 +37,6 @@ func newGenerateEnvironmentConfigStruct(environment matreshka.Environment) inter
 			}
 
 			ecg.Fields = append(ecg.Fields, fieldKV)
-
 		}
 
 		buf := &rw.RW{}

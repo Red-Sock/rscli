@@ -99,8 +99,8 @@ func (r GrpcServer) applyServerFolder(proj project.Project) {
 		f.Add(serverFolder)
 	}
 
-	if serverFolder.GetByPath(projpatterns.GrpcServFile.Name) == nil {
-		serverFolder.Add(projpatterns.GrpcServFile.Copy())
-	}
+	//if serverFolder.GetByPath(projpatterns.GrpcServFile.Name) == nil {
+	//	serverFolder.Add(projpatterns.GrpcServFile.Copy())
+	//}
 	// TODO генерация ручек-реализаций под конкракты
 }

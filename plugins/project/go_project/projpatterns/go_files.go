@@ -83,16 +83,6 @@ var (
 	}
 )
 
-// Config parser files
-var (
-	//go:embed pattern_c/internal/config/autoload.go.pattern
-	autoloadConfigFile []byte
-	AutoloadConfigFile = &folder.Folder{
-		Name:    "autoload.go",
-		Content: autoloadConfigFile,
-	}
-)
-
 // Server files
 var (
 	//go:embed pattern_c/internal/transport/manager.go.pattern
@@ -114,27 +104,6 @@ var (
 	HttpServerManagerPatternFile = &folder.Folder{
 		Name:    "http.go",
 		Content: httpServerManagerPatternFile,
-	}
-
-	// TODO add http server support
-	// go:embed pattern_c/internal/transport/rest/server.go.pattern
-	restServFile []byte
-	RestServFile = &folder.Folder{
-		Name:    "server.go",
-		Content: restServFile,
-	}
-	// go:embed pattern_c/internal/transport/rest/version.go.pattern
-	restServHandlerVersionExampleFile []byte
-	RestServHandlerVersionExampleFile = &folder.Folder{
-		Name:    "version.go",
-		Content: restServHandlerVersionExampleFile,
-	}
-
-	// go:embed pattern_c/internal/transport/grpc/server.go.pattern
-	grpcServFile []byte
-	GrpcServFile = &folder.Folder{
-		Name:    "server.go",
-		Content: grpcServFile,
 	}
 
 	//go:embed pattern_c/internal/transport/telegram/listener.go.pattern
