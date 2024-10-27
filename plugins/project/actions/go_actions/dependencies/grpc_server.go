@@ -74,12 +74,12 @@ func (r GrpcServer) applyApiFolder(proj project.Project, protoPath string) error
 
 func (r GrpcServer) applyConfig(proj project.Project) {
 	res := &server.Server{}
-
+	// TODO: ADD MORE INFO ON SERVER IN NEW STYLE RSI-279
 	port := 8080
 	for {
-		_, ok := proj.GetConfig().Servers[8080]
+		_, ok := proj.GetConfig().Servers[port]
 		if !ok {
-			proj.GetConfig().Servers[8080] = res
+			proj.GetConfig().Servers[port] = res
 			break
 		}
 

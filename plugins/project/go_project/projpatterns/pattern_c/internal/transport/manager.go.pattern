@@ -39,8 +39,8 @@ func NewServerManager(ctx context.Context, port string) (*ServersManager, error)
 	return s, nil
 }
 
-func (m *ServersManager) Start(ctx context.Context) error {
-	errGroup, _ := errgroup.WithContext(ctx)
+func (m *ServersManager) Start() error {
+	errGroup, ctx := errgroup.WithContext(context.Background())
 
 	errGroup.Go(m.mux.Serve)
 	errGroup.Go(m.grpcServer.start)

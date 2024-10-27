@@ -58,11 +58,6 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 		}
 	}
 
-	err = project.LoadProjectVersion(p)
-	if err != nil {
-		return p, errors.Wrap(err, "error loading project version")
-	}
-
 	return p, nil
 }
 

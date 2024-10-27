@@ -22,8 +22,6 @@ type Project struct {
 
 	Actions []actions.Action
 
-	RsCLIVersion project.Version
-
 	projType project.Type
 
 	validators []Validator
@@ -103,14 +101,6 @@ func (p *Project) Validate() error {
 	}
 
 	return globalErr
-}
-
-func (p *Project) GetVersion() project.Version {
-	return p.RsCLIVersion
-}
-
-func (p *Project) SetVersion(version project.Version) {
-	p.RsCLIVersion = version
 }
 
 func (p *Project) GetType() project.Type {

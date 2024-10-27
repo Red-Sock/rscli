@@ -97,25 +97,40 @@ var (
 var (
 	//go:embed pattern_c/internal/transport/manager.go.pattern
 	serverManagerPatternFile []byte
-	ServerManagerPatternFile = &folder.Folder{
+	ServerManager            = &folder.Folder{
 		Name:    "manager.go",
 		Content: serverManagerPatternFile,
 	}
 
-	//go:embed pattern_c/internal/transport/rest/server.go.pattern
+	//go:embed pattern_c/internal/transport/grpc.go.pattern
+	grpcServerManagerPatternFile []byte
+	GrpcServerManagerPatternFile = &folder.Folder{
+		Name:    "grpc.go",
+		Content: grpcServerManagerPatternFile,
+	}
+
+	//go:embed pattern_c/internal/transport/http.go.pattern
+	httpServerManagerPatternFile []byte
+	HttpServerManagerPatternFile = &folder.Folder{
+		Name:    "http.go",
+		Content: httpServerManagerPatternFile,
+	}
+
+	// TODO add http server support
+	// go:embed pattern_c/internal/transport/rest/server.go.pattern
 	restServFile []byte
 	RestServFile = &folder.Folder{
 		Name:    "server.go",
 		Content: restServFile,
 	}
-	//go:embed pattern_c/internal/transport/rest/version.go.pattern
+	// go:embed pattern_c/internal/transport/rest/version.go.pattern
 	restServHandlerVersionExampleFile []byte
 	RestServHandlerVersionExampleFile = &folder.Folder{
 		Name:    "version.go",
 		Content: restServHandlerVersionExampleFile,
 	}
 
-	//go:embed pattern_c/internal/transport/grpc/server.go.pattern
+	// go:embed pattern_c/internal/transport/grpc/server.go.pattern
 	grpcServFile []byte
 	GrpcServFile = &folder.Folder{
 		Name:    "server.go",

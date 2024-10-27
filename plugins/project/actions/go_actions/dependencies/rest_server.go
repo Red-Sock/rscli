@@ -58,12 +58,3 @@ func (r Rest) applyFolder(proj project.Project, defaultApiName string) error {
 
 	return nil
 }
-
-func applyServerFolder(proj project.Project) {
-	serverManagerPath := []string{projpatterns.InternalFolder, projpatterns.TransportFolder, projpatterns.ServerManagerPatternFile.Name}
-	if proj.GetFolder().GetByPath(serverManagerPath...) == nil {
-		proj.GetFolder().Add(
-			projpatterns.ServerManagerPatternFile.
-				CopyWithNewName(path.Join(serverManagerPath...)))
-	}
-}

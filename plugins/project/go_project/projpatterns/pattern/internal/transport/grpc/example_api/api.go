@@ -19,7 +19,7 @@ type Implementation struct {
 
 func New(cfg config.Config) *Implementation {
 	return &Implementation{
-		version: cfg.GetAppInfo().Version,
+		version: cfg.AppInfo.Version,
 	}
 }
 

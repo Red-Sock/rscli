@@ -14,9 +14,6 @@ type Project interface {
 	GetFolder() *folder.Folder
 	GetProjectPath() string
 
-	GetVersion() Version
-	SetVersion(Version)
-
 	GetType() Type
 }
 

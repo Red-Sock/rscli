@@ -141,3 +141,27 @@ func (a PrepareMakefileAction) Do(p project.Project) error {
 func (a PrepareMakefileAction) NameInAction() string {
 	return "Generating Makefile"
 }
+
+type PrepareServerAction struct{}
+
+func (a PrepareServerAction) Do(p project.Project) error {
+	if len(p.GetConfig().Servers) == 0 {
+		return nil
+	}
+
+	rootF := p.GetFolder()
+
+	transportFolder := rootF.GetByPath(patterns.InternalFolder, patterns.TransportFolder)
+	if transportFolder == nil {
+		transportFolder = &folder.Folder{}
+	}
+
+	transportFolder.Add(patterns.ServerManager.Copy())
+	transportFolder.Add(patterns.GrpcServerManagerPatternFile.Copy())
+	transportFolder.Add(patterns.HttpServerManagerPatternFile.Copy())
+
+	return nil
+}
+func (a PrepareServerAction) NameInAction() string {
+	return "Preparing server files"
+}

@@ -27,6 +27,7 @@ func goProjectTidyActions() []Action {
 		go_actions.PrepareGoConfigFolderAction{},
 		go_actions.PrepareMakefileAction{},
 		go_actions.PrepareClientsAction{},
+		go_actions.PrepareServerAction{},
 		go_actions.BuildProjectAction{},
 		go_actions.RunMakeGenAction{},
 		go_actions.InitGoProjectApp{},
