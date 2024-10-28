@@ -93,6 +93,8 @@ func Test_PrepareConfig(t *testing.T) {
 		},
 	}
 
+	action := PrepareGoConfigFolderAction{}
+
 	for name, tc := range tests {
 		name, tc := name, tc
 		t.Run(name, func(t *testing.T) {
@@ -100,7 +102,7 @@ func Test_PrepareConfig(t *testing.T) {
 			tc := tc.new()
 			projectMock := project_mock.GetMockProject(t, tc.opts...)
 
-			require.NoError(t, PrepareGoConfigFolderAction{}.Do(projectMock.Project))
+			require.NoError(t, action.Do(projectMock.Project))
 
 			for pathToFile, expected := range tc.expectedFiles {
 				actualFile := projectMock.GetFolder().GetByPath(pathToFile)

@@ -1,8 +1,11 @@
 package project_mock
 
 import (
+	"os"
+	"path"
+	"testing"
+
 	"github.com/godverv/matreshka/environment"
-	"github.com/godverv/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 )
@@ -22,8 +25,8 @@ func WithEnvironmentVariables(vars ...*environment.Variable) Opt {
 	}
 }
 
-func WithDataSources(ds ...resources.Resource) Opt {
+func WithFileSystem(t *testing.T) Opt {
 	return func(m *MockProject) {
-		m.Cfg.DataSources = append(m.Cfg.DataSources, ds...)
+		m.Path = path.Join(os.TempDir(), t.Name())
 	}
 }

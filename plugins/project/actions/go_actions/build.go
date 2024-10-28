@@ -10,7 +10,7 @@ type BuildProjectAction struct{}
 func (a BuildProjectAction) Do(p project.IProject) error {
 	renamer.ReplaceProjectName(p.GetName(), p.GetFolder())
 
-	err := p.GetFolder().Build()
+	err := p.GetFolder().Build(p.GetProjectPath())
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,4 @@
 app_info:
-    name: github.com/Red-Sock/link_grpc
+    name: test_project
     version: v0.0.1
     startup_duration: 10s

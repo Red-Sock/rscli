@@ -46,7 +46,7 @@ func GetMockProject(t *testing.T, opts ...Opt) *MockProject {
 	require.NoError(t, err)
 
 	p.Cfg.AppConfig = matreshka.NewEmptyConfig()
-	// to be shure in types of env variables
+	// to be sure in types of env variables
 	require.NoError(t, p.Cfg.AppConfig.Unmarshal(cfgMarshalled))
 
 	masterConfigPath := path.Join(patterns.ConfigsFolder, patterns.ConfigMasterYamlFile)
@@ -57,6 +57,10 @@ func GetMockProject(t *testing.T, opts ...Opt) *MockProject {
 				Content: cfgMarshalled,
 			},
 		)
+	}
+
+	if p.Path != "" {
+		require.NoError(t, os.MkdirAll(p.Path, 0777))
 	}
 
 	return p
