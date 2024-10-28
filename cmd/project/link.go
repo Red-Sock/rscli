@@ -41,7 +41,7 @@ func newLinkCmd(pl projectLink) *cobra.Command {
 
 func (p *projectLink) run(_ *cobra.Command, args []string) (err error) {
 	if p.proj == nil {
-		p.proj, err = go_project.LoadProject(p.path, p.config)
+		p.proj, err = project.LoadProject(p.path, p.config)
 		if err != nil {
 			return errors.Wrap(err, "error fetching project for linking")
 		}

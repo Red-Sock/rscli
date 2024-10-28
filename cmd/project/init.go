@@ -43,7 +43,7 @@ func newInitCmd(pi projectInit) *cobra.Command {
 }
 
 func (p *projectInit) run(_ *cobra.Command, argsIn []string) error {
-	projArgs := go_project.CreateArgs{
+	projArgs := project.CreateArgs{
 		CfgPath: p.config.Env.PathToConfig,
 	}
 
@@ -125,8 +125,8 @@ func (p *projectInit) obtainFolderPathFromUser(name string, args []string) (dirP
 	return path.Join(p.path, path.Base(name))
 }
 
-func (p *projectInit) buildProject(args go_project.CreateArgs) (proj project.IProject, err error) {
-	proj, err = go_project.CreateProject(args)
+func (p *projectInit) buildProject(args project.CreateArgs) (proj project.IProject, err error) {
+	proj, err = project.CreateProject(args)
 	if err != nil {
 		return nil, errors.Wrap(err, "error during project creation")
 	}
