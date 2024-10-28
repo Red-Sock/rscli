@@ -1,11 +1,11 @@
 {{ .GenTag }}
 
 package config
-
-{{if .Imports }}import ( {{ range $key, $value := .Imports }}
+{{if .Imports }}
+import ( {{ range $key, $value := .Imports }}
     {{ $value }} "{{ $key }}"{{ end }}
-){{end}}
-
+)
+{{end}}
 type {{ .StructName }} struct { {{ range .Fields }}
     {{ .Key }} {{ .Value }}{{ end }}
 }

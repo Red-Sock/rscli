@@ -8,7 +8,6 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
-	"github.com/Red-Sock/rscli/plugins/project/config"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/config_generators"
 )
@@ -40,39 +39,19 @@ func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p project.IProject) 
 	configFolder := p.GetFolder().GetByPath(patterns.ConfigsFolder)
 
 	newConfig := p.GetConfig()
-	// Dev config
-	{
-		err := appendToConfig(newConfig.AppConfig, configFolder, patterns.ConfigDevYamlFile)
-		if err != nil {
-			return errors.Wrap(err, "error appending changes to dev config")
-		}
-	}
 
-	obfuscateConfig(p.GetConfig())
-
-	// Template
-	{
-		err := appendToConfig(newConfig.AppConfig, configFolder, patterns.ConfigTemplateYaml)
-		if err != nil {
-			return errors.Wrap(err, "error appending changes to dev config")
-		}
-	}
-
-	// Master config
-	{
-		err := appendToConfig(newConfig.AppConfig, configFolder, patterns.ConfigMasterYamlFile)
+	for _, cfgName := range []string{
+		patterns.ConfigDevYamlFile,
+		patterns.ConfigTemplateYaml,
+		patterns.ConfigMasterYamlFile,
+	} {
+		err := appendToConfig(newConfig.AppConfig, configFolder, cfgName)
 		if err != nil {
 			return errors.Wrap(err, "error appending changes to dev config")
 		}
 	}
 
 	return nil
-}
-
-func obfuscateConfig(cfg *config.Config) {
-	for i := range cfg.DataSources {
-		cfg.DataSources[i] = cfg.DataSources[i].Obfuscate()
-	}
 }
 
 func appendToConfig(newConfig matreshka.AppConfig, configFolder *folder.Folder, path string) (err error) {

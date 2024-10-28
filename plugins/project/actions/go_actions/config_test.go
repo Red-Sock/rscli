@@ -3,134 +3,119 @@ package go_actions
 import (
 	"path"
 	"testing"
-	"time"
 
+	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka/environment"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	projPatterns "github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
-	"github.com/Red-Sock/rscli/tests/test_prepare"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"github.com/Red-Sock/rscli/tests/project_mock"
 )
 
 func Test_PrepareConfig(t *testing.T) {
 	t.Parallel()
 
 	type test struct {
-		envVariables  []*environment.Variable
+		opts          []project_mock.Opt
 		expectedFiles map[string][]byte
 	}
 
-	fullEnvConfig := []byte(`
-app_info:
-    name: test_project
-    version: v0.0.1
-    startup_duration: 10s
-environment:
-    - name: test_string_variable
-      type: string
-      value: test_value
-    - name: test_int_variable
-      type: int
-      value: 1
-    - name: test_bool_variable
-      type: bool
-      value: true
-    - name: test_float_variable
-      type: float
-      value: 1.1
-    - name: test_duration_variable
-      type: duration
-      value: 5s
-    - name: test_string_variables
-      type: string
-      value:
-        - test_value
-        - test_value2
-    - name: test_int_variables
-      type: int
-      value:
-        - 1
-        - 2
-    - name: test_bool_variables
-      type: bool
-      value:
-        - true
-        - false
-    - name: test_float_variables
-      type: float
-      value:
-        - 1.1
-        - 2.2
-    - name: test_duration_variables
-      type: duration
-      value:
-        - 5s
-        - 8s
-`)[1:]
+	type testCase struct {
+		new func() test
+	}
 
-	tests := map[string]test{
-		"environment_variables": {
-			envVariables: []*environment.Variable{
-				// Single values
-				{
-					Name:  "test_string_variable",
-					Type:  environment.VariableTypeStr,
-					Value: "test_value",
-				},
-				{
-					Name:  "test_int_variable",
-					Type:  environment.VariableTypeInt,
-					Value: 1,
-				},
-				{
-					Name:  "test_bool_variable",
-					Type:  environment.VariableTypeBool,
-					Value: true,
-				},
-				{
-					Name:  "test_float_variable",
-					Type:  environment.VariableTypeFloat,
-					Value: 1.1,
-				},
-				{
-					Name:  "test_duration_variable",
-					Type:  environment.VariableTypeDuration,
-					Value: time.Second * 5,
-				},
-				// Multiple values
-				{
-					Name:  "test_string_variables",
-					Type:  environment.VariableTypeStr,
-					Value: []string{"test_value", "test_value2"},
-				},
-				{
-					Name:  "test_int_variables",
-					Type:  environment.VariableTypeInt,
-					Value: []int{1, 2},
-				},
-				{
-					Name:  "test_bool_variables",
-					Type:  environment.VariableTypeBool,
-					Value: []bool{true, false},
-				},
-				{
-					Name:  "test_float_variables",
-					Type:  environment.VariableTypeFloat,
-					Value: []float64{1.1, 2.2},
-				},
-				{
-					Name:  "test_duration_variables",
-					Type:  environment.VariableTypeDuration,
-					Value: []time.Duration{time.Second * 5, time.Second * 8},
-				},
+	masterConfigPath := path.Join(patterns.ConfigsFolder, patterns.ConfigMasterYamlFile)
+	templateConfigPath := path.Join(patterns.ConfigsFolder, patterns.ConfigTemplateYaml)
+	devConfigPath := path.Join(patterns.ConfigsFolder, patterns.ConfigDevYamlFile)
+
+	tests := map[string]testCase{
+		"generate_new_configs": {
+			new: func() (tst test) {
+				tst.opts = append(tst.opts,
+					project_mock.WithEnvironmentVariables(
+						project_mock.GetAllEnvVariables()...))
+
+				fullConfig := project_mock.FullConfig()
+
+				tst.expectedFiles = map[string][]byte{
+					masterConfigPath:   fullConfig,
+					templateConfigPath: fullConfig,
+					devConfigPath:      fullConfig,
+
+					path.Join(patterns.InternalFolder, patterns.ConfigsFolder,
+						patterns.ConfigEnvironmentFileName): fullConfigGoFile()}
+				return tst
 			},
-			expectedFiles: map[string][]byte{
-				path.Join(projPatterns.ConfigsFolder, projPatterns.ConfigMasterYamlFile): fullEnvConfig,
-				path.Join(projPatterns.ConfigsFolder, projPatterns.ConfigTemplateYaml):   fullEnvConfig,
-				path.Join(projPatterns.ConfigsFolder, projPatterns.ConfigDevYamlFile):    fullEnvConfig,
+		},
+		"append_from_master_config": {
+			new: func() (tst test) {
+				// Test validates that if user added env var to master config
+				// this value will be added to template and dev configs
 
-				path.Join(projPatterns.InternalFolder, projPatterns.ConfigsFolder,
-					projPatterns.ConfigEnvironmentFileName): []byte(`
+				basicConfigFile := project_mock.BasicConfig()
+				tst.opts = append(tst.opts,
+					project_mock.WithFile(templateConfigPath, basicConfigFile),
+					project_mock.WithFile(devConfigPath, basicConfigFile),
+				)
+
+				cfg := matreshka.NewEmptyConfig()
+				require.NoError(t, cfg.Unmarshal(basicConfigFile))
+
+				newEnvVariable := &environment.Variable{
+					Name:  "test_value",
+					Type:  environment.VariableTypeStr,
+					Value: "test",
+				}
+
+				cfg.Environment = append(cfg.Environment, newEnvVariable)
+
+				tst.opts = append(tst.opts,
+					project_mock.WithEnvironmentVariables(newEnvVariable))
+
+				masterConfigFile, err := cfg.Marshal()
+				require.NoError(t, err)
+
+				tst.opts = append(tst.opts,
+					project_mock.WithFile(masterConfigPath, masterConfigFile),
+				)
+
+				tst.expectedFiles = map[string][]byte{
+					masterConfigPath:   masterConfigFile,
+					templateConfigPath: masterConfigFile,
+					devConfigPath:      masterConfigFile,
+
+					path.Join(patterns.InternalFolder, patterns.ConfigsFolder,
+						patterns.ConfigEnvironmentFileName): testValueGoConfig(),
+				}
+				return tst
+			},
+		},
+	}
+
+	for name, tc := range tests {
+		name, tc := name, tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			tc := tc.new()
+			projectMock := project_mock.GetMockProject(t, tc.opts...)
+
+			require.NoError(t, PrepareGoConfigFolderAction{}.Do(projectMock.Project))
+
+			for pathToFile, expected := range tc.expectedFiles {
+				actualFile := projectMock.GetFolder().GetByPath(pathToFile)
+				if string(expected) != string(actualFile.Content) {
+					assert.Fail(t, pathToFile+" is not as expected")
+					require.Equal(t, string(expected), string(actualFile.Content))
+				}
+
+			}
+		})
+	}
+}
+
+func fullConfigGoFile() []byte {
+	return []byte(`
 // Code generated by RedSock CLI. DO NOT EDIT.
 
 package config
@@ -151,28 +136,17 @@ type EnvironmentConfig struct {
     TestFloatVariables []float64
     TestDurationVariables []time.Duration
 }
-`)[1:],
-			},
-		},
-	}
+`)[1:]
+}
 
-	for name, tc := range tests {
-		name, tc := name, tc
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			projectMock := test_prepare.PrepareProject(t)
-			defer projectMock.Clean(t)
+func testValueGoConfig() []byte {
+	return []byte(`
+// Code generated by RedSock CLI. DO NOT EDIT.
 
-			cfg := projectMock.Cfg
+package config
 
-			cfg.Environment = append(cfg.Environment, tc.envVariables...)
-
-			require.NoError(t, PrepareGoConfigFolderAction{}.Do(projectMock.Project))
-
-			for pathToFile, expected := range tc.expectedFiles {
-				actualFile := projectMock.GetFolder().GetByPath(pathToFile)
-				require.Equal(t, string(actualFile.Content), string(expected))
-			}
-		})
-	}
+type EnvironmentConfig struct { 
+    TestValue string
+}
+`)[1:]
 }

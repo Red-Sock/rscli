@@ -1,4 +1,4 @@
-package test_prepare
+package project_mock
 
 import (
 	_ "embed"
@@ -10,61 +10,56 @@ import (
 	"github.com/stretchr/testify/require"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/config"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
-var (
-	//go:embed basic_config.yaml
-	basicConfigFile []byte
-)
-
 type MockProject struct {
-	Path string
 	*project.Project
 
 	rscliConfig *rscliconfig.RsCliConfig
-
-	config matreshka.AppConfig
 }
 
-type opt func(m *MockProject)
+type Opt func(m *MockProject)
 
-func PrepareProject(t *testing.T, opts ...opt) *MockProject {
+func GetMockProject(t *testing.T, opts ...Opt) *MockProject {
 	p := &MockProject{
 		rscliConfig: rscliconfig.GetConfig(),
+		Project: &project.Project{
+			Name: t.Name(),
+			Cfg: &config.Config{
+				AppConfig: matreshka.NewEmptyConfig(),
+			},
+			Root: folder.Folder{},
+		},
 	}
 
-	p.config = matreshka.NewEmptyConfig()
-	require.NoError(t, p.config.Unmarshal(basicConfigFile))
-
-	if p.Path == "" {
-		p.Path = t.Name()
-	}
+	require.NoError(t, p.Cfg.AppConfig.Unmarshal(basicConfigFile))
 
 	for _, o := range opts {
 		o(p)
 	}
 
-	require.NoError(t, os.MkdirAll(p.Path, 0777))
-
-	cfgMarshalled, err := p.config.Marshal()
+	cfgMarshalled, err := p.Cfg.AppConfig.Marshal()
 	require.NoError(t, err)
 
-	p.WriteFile(t,
-		path.Join(patterns.ConfigsFolder, patterns.ConfigMasterYamlFile),
-		cfgMarshalled,
-	)
+	p.Cfg.AppConfig = matreshka.NewEmptyConfig()
+	// to be shure in types of env variables
+	require.NoError(t, p.Cfg.AppConfig.Unmarshal(cfgMarshalled))
 
-	p.Project, err = project.LoadProject(p.Path, p.rscliConfig)
-	require.NoError(t, err)
+	masterConfigPath := path.Join(patterns.ConfigsFolder, patterns.ConfigMasterYamlFile)
+	if p.Root.GetByPath(masterConfigPath) == nil {
+		p.Root.Add(
+			&folder.Folder{
+				Name:    masterConfigPath,
+				Content: cfgMarshalled,
+			},
+		)
+	}
 
 	return p
-}
-
-func (m *MockProject) Clean(t *testing.T) {
-	err := os.RemoveAll(m.Path)
-	require.NoError(t, err)
 }
 
 func (m *MockProject) WriteFile(t *testing.T, relativePath string, data []byte) {
