@@ -8,8 +8,8 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators"
 )
 
 func newGenerateEnvironmentConfigStruct(environment matreshka.Environment) internalConfigGenerator {
@@ -46,7 +46,7 @@ func newGenerateEnvironmentConfigStruct(environment matreshka.Environment) inter
 		}
 
 		f := &folder.Folder{
-			Name:    projpatterns.ConfigEnvironmentFileName,
+			Name:    patterns.ConfigEnvironmentFileName,
 			Content: buf.Bytes(),
 		}
 

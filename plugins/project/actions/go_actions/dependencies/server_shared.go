@@ -3,15 +3,14 @@ package dependencies
 import (
 	"path"
 
-	"github.com/Red-Sock/rscli/plugins/project"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
-func applyServerFolder(proj project.Project) {
-	serverManagerPath := []string{projpatterns.InternalFolder, projpatterns.TransportFolder, projpatterns.ServerManager.Name}
+func applyServerFolder(proj Project) {
+	serverManagerPath := []string{patterns.InternalFolder, patterns.TransportFolder, patterns.ServerManager.Name}
 	if proj.GetFolder().GetByPath(serverManagerPath...) == nil {
 		proj.GetFolder().Add(
-			projpatterns.ServerManager.
+			patterns.ServerManager.
 				CopyWithNewName(path.Join(serverManagerPath...)))
 	}
 }

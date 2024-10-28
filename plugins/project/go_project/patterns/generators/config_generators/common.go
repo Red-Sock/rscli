@@ -3,7 +3,7 @@ package config_generators
 import (
 	"reflect"
 
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators"
 )
 
 type structArgs struct {

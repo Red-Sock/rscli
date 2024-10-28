@@ -5,8 +5,8 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/rw"
 	"github.com/Red-Sock/rscli/plugins/project"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators"
 )
 
 type AppFileGenArgs struct {
@@ -28,7 +28,7 @@ type AppStarter struct {
 	StopCall  string
 }
 
-func GenerateAppFiles(p project.Project) (map[string][]byte, error) {
+func GenerateAppFiles(p project.IProject) (map[string][]byte, error) {
 	initAppArgs := AppFileGenArgs{
 		Imports: make(map[string]string),
 	}
@@ -44,7 +44,7 @@ func GenerateAppFiles(p project.Project) (map[string][]byte, error) {
 			return nil, errors.Wrap(err, "error generation data source init file")
 		}
 
-		out[projpatterns.AppInitDataSourcesFileName] = initDataSourcesFile
+		out[patterns.AppInitDataSourcesFileName] = initDataSourcesFile
 		initAppArgs.addAppContent(
 			"/* Data source connection */",
 			"error during data sources initialization",
@@ -57,7 +57,7 @@ func GenerateAppFiles(p project.Project) (map[string][]byte, error) {
 			return nil, errors.Wrap(err, "error generating server init file")
 		}
 
-		out[projpatterns.AppInitServerFileName] = initServerFile
+		out[patterns.AppInitServerFileName] = initServerFile
 		initAppArgs.addAppContent(
 			"/* Servers managers */",
 			"error during server initialization",
@@ -74,11 +74,11 @@ func GenerateAppFiles(p project.Project) (map[string][]byte, error) {
 		return nil, errors.Wrap(err, "error generating app file")
 	}
 
-	out[projpatterns.AppFileName] = mainAppFile.Bytes()
-	out[projpatterns.AppConfigFileName] = appConfigPattern
+	out[patterns.AppFileName] = mainAppFile.Bytes()
+	out[patterns.AppConfigFileName] = appConfigPattern
 
-	if p.GetFolder().GetByPath(projpatterns.InternalFolder, projpatterns.AppFolder, projpatterns.AppCustomFileName) == nil {
-		out[projpatterns.AppCustomFileName] = customPattern
+	if p.GetFolder().GetByPath(patterns.InternalFolder, patterns.AppFolder, patterns.AppCustomFileName) == nil {
+		out[patterns.AppCustomFileName] = customPattern
 	}
 
 	return out, nil

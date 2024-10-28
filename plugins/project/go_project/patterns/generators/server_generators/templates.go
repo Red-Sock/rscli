@@ -9,7 +9,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 var (
@@ -40,7 +40,7 @@ func GenerateFileServer(fs server.FS) (*folder.Folder, error) {
 	}
 
 	f := &folder.Folder{
-		Name:    projpatterns.AppInitServerFileName,
+		Name:    patterns.AppInitServerFileName,
 		Content: file.Bytes(),
 	}
 

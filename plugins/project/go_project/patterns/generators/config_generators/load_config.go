@@ -6,7 +6,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
 	"github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 type loadConfigFileGenArgs struct {
@@ -56,7 +56,7 @@ func GenerateConfigFolder(cfg *config.Config) (*folder.Folder, error) {
 	}
 
 	configFolder.Add(&folder.Folder{
-		Name:    projpatterns.ConfigLoadFileName,
+		Name:    patterns.ConfigLoadFileName,
 		Content: autoLoadFile.Bytes(),
 	})
 	return configFolder, nil

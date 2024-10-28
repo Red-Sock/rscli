@@ -7,10 +7,6 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gobeam/stringy v0.0.7 h1:TD8SfhedUoiANhW88JlJqfrMsihskIRpU/VTsHGnAps=
 github.com/gobeam/stringy v0.0.7/go.mod h1:W3620X9dJHf2FSZF5fRnWekHcHQjwmCz8ZQ2d1qloqE=
-github.com/godverv/hello_world v0.0.8 h1:SJzTDSMrYPYq/bjSlcEcl1+Oh52bcIIPxk/HQnzXwUk=
-github.com/godverv/hello_world v0.0.8/go.mod h1:LXQ0jlXPa88Sz7eJjRNjM9crhS70lEij4qpQPfbz6IY=
-github.com/godverv/matreshka v0.0.35 h1:w6Ylas/7wnV2ZzwKX2ylTFMPOwT0ROYxSP/oM1CBKtk=
-github.com/godverv/matreshka v0.0.35/go.mod h1:hhC0Rbm8KdYJVSnllOMmiB/xZPF/RoNQUP/3BZ0QAnU=
 github.com/gojuno/minimock/v3 v3.3.14 h1:tUzeohWMvJpz3ZXURPdARtGPsryV25ac8uFJIeucFzo=
 github.com/gojuno/minimock/v3 v3.3.14/go.mod h1:lCxxcyH/BqkeMxE9h00ySVVZtRrsBzqd4UAQueQ0ru0=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=

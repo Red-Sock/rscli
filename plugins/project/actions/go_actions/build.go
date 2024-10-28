@@ -7,7 +7,7 @@ import (
 
 type BuildProjectAction struct{}
 
-func (a BuildProjectAction) Do(p project.Project) error {
+func (a BuildProjectAction) Do(p project.IProject) error {
 	renamer.ReplaceProjectName(p.GetName(), p.GetFolder())
 
 	err := p.GetFolder().Build()

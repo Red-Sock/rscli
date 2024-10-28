@@ -1,4 +1,4 @@
-package projpatterns
+package patterns
 
 // server type flags
 const (

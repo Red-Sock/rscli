@@ -34,6 +34,13 @@ const (
 	envDefaultProjectGitPath = "RSCLI_DEFAULT_PROJECT_GIT_PATH"
 )
 
+func init() {
+	err := InitConfig(nil, nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
 //go:embed rscli.yaml
 var builtInConfig []byte
 

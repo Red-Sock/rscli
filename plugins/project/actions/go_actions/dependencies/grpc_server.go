@@ -10,8 +10,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 type GrpcServer struct {
@@ -26,7 +25,7 @@ func (r GrpcServer) GetFolderName() string {
 	return "grpc"
 }
 
-func (r GrpcServer) AppendToProject(proj project.Project) error {
+func (r GrpcServer) AppendToProject(proj Project) error {
 	protoName := proj.GetShortName() + "_api.proto"
 
 	ok, err := containsDependencyFolder(
@@ -52,8 +51,8 @@ func (r GrpcServer) AppendToProject(proj project.Project) error {
 	return nil
 }
 
-func (r GrpcServer) applyApiFolder(proj project.Project, protoPath string) error {
-	serverF := projpatterns.ProtoServer.CopyWithNewName(protoPath)
+func (r GrpcServer) applyApiFolder(proj Project, protoPath string) error {
+	serverF := patterns.ProtoServer.CopyWithNewName(protoPath)
 
 	projName := stringy.New(proj.GetShortName())
 
@@ -72,7 +71,7 @@ func (r GrpcServer) applyApiFolder(proj project.Project, protoPath string) error
 	return nil
 }
 
-func (r GrpcServer) applyConfig(proj project.Project) {
+func (r GrpcServer) applyConfig(proj Project) {
 	res := &server.Server{}
 	// TODO: ADD MORE INFO ON SERVER IN NEW STYLE RSI-279
 	port := 8080
@@ -87,10 +86,10 @@ func (r GrpcServer) applyConfig(proj project.Project) {
 	}
 }
 
-func (r GrpcServer) applyServerFolder(proj project.Project) {
+func (r GrpcServer) applyServerFolder(proj Project) {
 	f := proj.GetFolder()
 
-	pth := []string{projpatterns.InternalFolder, projpatterns.TransportFolder, r.GetFolderName()}
+	pth := []string{patterns.InternalFolder, patterns.TransportFolder, r.GetFolderName()}
 	serverFolder := f.GetByPath(pth...)
 	if serverFolder == nil {
 		serverFolder = &folder.Folder{

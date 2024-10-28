@@ -2,8 +2,6 @@ package dependencies
 
 import (
 	errors "github.com/Red-Sock/trace-errors"
-
-	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 type Rest struct {
@@ -18,7 +16,7 @@ func (r Rest) GetFolderName() string {
 	return "rest"
 }
 
-func (r Rest) AppendToProject(proj project.Project) error {
+func (r Rest) AppendToProject(proj Project) error {
 	err := r.applyFolder(proj, r.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error applying rest folder")
@@ -28,7 +26,7 @@ func (r Rest) AppendToProject(proj project.Project) error {
 	return nil
 }
 
-func (r Rest) applyFolder(proj project.Project, defaultApiName string) error {
+func (r Rest) applyFolder(proj Project, defaultApiName string) error {
 	ok, err := containsDependencyFolder(r.Cfg.Env.PathToServers, proj.GetFolder(), r.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error searching dependencies")

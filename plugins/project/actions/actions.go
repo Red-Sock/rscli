@@ -8,16 +8,16 @@ import (
 )
 
 type Action interface {
-	Do(p project.Project) error
+	Do(p project.IProject) error
 	NameInAction() string
 }
 
 type ActionPerformer struct {
 	printer io.IO
-	proj    project.Project
+	proj    project.IProject
 }
 
-func NewActionPerformer(printer io.IO, proj project.Project) ActionPerformer {
+func NewActionPerformer(printer io.IO, proj project.IProject) ActionPerformer {
 	return ActionPerformer{
 		printer: printer,
 		proj:    proj,

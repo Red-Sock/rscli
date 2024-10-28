@@ -7,7 +7,7 @@ import (
 	"github.com/godverv/matreshka"
 
 	"github.com/Red-Sock/rscli/internal/rw"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators"
 )
 
 var (

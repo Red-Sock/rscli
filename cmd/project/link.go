@@ -8,17 +8,17 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
-	"github.com/Red-Sock/rscli/plugins/project/go_project"
 )
 
 type projectLink struct {
 	io     io.IO
 	config *config.RsCliConfig
 
-	proj *go_project.Project
+	proj *project.Project
 	path string
 }
 

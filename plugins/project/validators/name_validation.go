@@ -8,7 +8,7 @@ import (
 
 var ErrInvalidNameErr = errors.New("name contains invalid symbol(s)")
 
-func ValidateProjectName(p project.Project) error {
+func ValidateProjectName(p project.IProject) error {
 	return ValidateProjectNameStr(p.GetShortName())
 }
 

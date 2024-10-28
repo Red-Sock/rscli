@@ -6,9 +6,8 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
 
-	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 type Redis struct {
@@ -23,7 +22,7 @@ func (p Redis) GetFolderName() string {
 	return "redis"
 }
 
-func (p Redis) AppendToProject(proj project.Project) error {
+func (p Redis) AppendToProject(proj Project) error {
 	err := p.applyClientFolder(proj)
 	if err != nil {
 		return errors.Wrap(err, "error applying client folder")
@@ -34,7 +33,7 @@ func (p Redis) AppendToProject(proj project.Project) error {
 	return nil
 }
 
-func (p Redis) applyClientFolder(proj project.Project) error {
+func (p Redis) applyClientFolder(proj Project) error {
 	ok, err := containsDependencyFolder(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding Dependency path")
@@ -44,8 +43,8 @@ func (p Redis) applyClientFolder(proj project.Project) error {
 		return nil
 	}
 
-	redisConn := projpatterns.RedisConnFile.CopyWithNewName(
-		path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), projpatterns.RedisConnFile.Name))
+	redisConn := patterns.RedisConnFile.CopyWithNewName(
+		path.Join(p.Cfg.Env.PathsToClients[0], p.GetFolderName(), patterns.RedisConnFile.Name))
 
 	renamer.ReplaceProjectName(proj.GetName(), redisConn)
 
@@ -54,7 +53,7 @@ func (p Redis) applyClientFolder(proj project.Project) error {
 	return nil
 }
 
-func (p Redis) applyConfig(proj project.Project) {
+func (p Redis) applyConfig(proj Project) {
 	for _, item := range proj.GetConfig().DataSources {
 		if item.GetName() == p.GetFolderName() {
 			return

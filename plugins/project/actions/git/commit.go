@@ -10,7 +10,7 @@ import (
 type CommitWithUntrackedAction struct {
 }
 
-func (a CommitWithUntrackedAction) Do(p project.Project) error {
+func (a CommitWithUntrackedAction) Do(p project.IProject) error {
 	err := CommitWithUntracked(p.GetProjectPath(), "rscli auto-commit")
 	if err != nil {
 		return errors.Wrap(err)

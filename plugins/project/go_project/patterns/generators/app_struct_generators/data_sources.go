@@ -7,7 +7,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/rw"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/grpc_discovery"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators"
 )
 
 func generateDataSourceInitFileAndArgs(dataSources matreshka.DataSources) (InitDepFuncGenArgs, []byte, error) {

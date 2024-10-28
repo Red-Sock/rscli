@@ -1,4 +1,4 @@
-package projpatterns
+package patterns
 
 import (
 	_ "embed"
@@ -30,8 +30,8 @@ const (
 	HandlersFolderName = "handlers"
 	VersionFolderName  = "version"
 
-	ConfigsFolder  = "config"
-	ConfigTemplate = "config_template.yaml"
+	ConfigsFolder      = "config"
+	ConfigTemplateYaml = "config_template.yaml"
 
 	ConfigLoadFileName        = "load.go"
 	ConfigDataSourcesFileName = "data_sources.go"

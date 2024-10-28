@@ -4,16 +4,16 @@ import (
 	"bytes"
 
 	"github.com/Red-Sock/rscli/plugins/project"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 type DockerFileTidyAction struct {
 }
 
-func (a DockerFileTidyAction) Do(p project.Project) error {
-	dockerFile := p.GetFolder().GetByPath(projpatterns.Dockerfile.Name)
+func (a DockerFileTidyAction) Do(p project.IProject) error {
+	dockerFile := p.GetFolder().GetByPath(patterns.Dockerfile.Name)
 	if dockerFile == nil {
-		dockerFile = projpatterns.Dockerfile.Copy()
+		dockerFile = patterns.Dockerfile.Copy()
 		p.GetFolder().Add(dockerFile)
 	}
 

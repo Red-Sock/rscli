@@ -7,9 +7,8 @@ import (
 	"github.com/godverv/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 type Telegram struct {
@@ -21,10 +20,10 @@ func (t Telegram) GetFolderName() string {
 		return t.Name
 	}
 
-	return projpatterns.TelegramServer
+	return patterns.TelegramServer
 }
 
-func (t Telegram) AppendToProject(proj project.Project) error {
+func (t Telegram) AppendToProject(proj Project) error {
 	err := t.applyClient(proj)
 	if err != nil {
 		return errors.Wrap(err, "error applying tg client")
@@ -40,7 +39,7 @@ func (t Telegram) AppendToProject(proj project.Project) error {
 	return nil
 }
 
-func (t Telegram) applyClient(proj project.Project) error {
+func (t Telegram) applyClient(proj Project) error {
 	ok, err := containsDependencyFolder(t.Cfg.Env.PathsToClients, proj.GetFolder(), t.GetFolderName())
 	if err != nil {
 		return errors.Wrap(err, "error finding Dependency path")
@@ -50,8 +49,8 @@ func (t Telegram) applyClient(proj project.Project) error {
 		return nil
 	}
 
-	tgConnFile := projpatterns.TgConnFile.CopyWithNewName(
-		path.Join(t.Cfg.Env.PathsToClients[0], t.GetFolderName(), projpatterns.TgConnFile.Name))
+	tgConnFile := patterns.TgConnFile.CopyWithNewName(
+		path.Join(t.Cfg.Env.PathsToClients[0], t.GetFolderName(), patterns.TgConnFile.Name))
 
 	renamer.ReplaceProjectName(proj.GetName(), tgConnFile)
 
@@ -62,7 +61,7 @@ func (t Telegram) applyClient(proj project.Project) error {
 	return nil
 }
 
-func (t Telegram) applyFolder(proj project.Project) error {
+func (t Telegram) applyFolder(proj Project) error {
 	ok, err := containsDependencyFolder(t.Cfg.Env.PathToServers, proj.GetFolder(), t.GetFolderName())
 	if err != nil {
 		return err
@@ -72,11 +71,11 @@ func (t Telegram) applyFolder(proj project.Project) error {
 		return nil
 	}
 
-	tgServer := projpatterns.TgServFile.Copy()
+	tgServer := patterns.TgServFile.Copy()
 
 	renamer.ReplaceProjectName(proj.GetName(), tgServer)
 
-	tgHandlerExample := projpatterns.TgHandlerExampleFile.Copy()
+	tgHandlerExample := patterns.TgHandlerExampleFile.Copy()
 
 	renamer.ReplaceProjectName(proj.GetName(), tgHandlerExample)
 
@@ -86,7 +85,7 @@ func (t Telegram) applyFolder(proj project.Project) error {
 			Inner: []*folder.Folder{
 				tgServer,
 				{
-					Name:  path.Join(projpatterns.HandlersFolderName, projpatterns.VersionFolderName),
+					Name:  path.Join(patterns.HandlersFolderName, patterns.VersionFolderName),
 					Inner: []*folder.Folder{tgHandlerExample},
 				},
 			},
@@ -96,7 +95,7 @@ func (t Telegram) applyFolder(proj project.Project) error {
 	return nil
 }
 
-func (t Telegram) applyConfig(proj project.Project) {
+func (t Telegram) applyConfig(proj Project) {
 	for _, srv := range proj.GetConfig().DataSources {
 		if srv.GetName() == t.GetFolderName() {
 			return

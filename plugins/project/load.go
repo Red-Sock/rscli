@@ -1,4 +1,4 @@
-package go_project
+package project
 
 import (
 	"bytes"
@@ -12,9 +12,8 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 const (
@@ -41,9 +40,9 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 	}
 
 	p := &Project{
-		ProjectPath: pth,
-		Cfg:         conf,
-		root:        *root,
+		Path: pth,
+		Cfg:  conf,
+		Root: *root,
 	}
 
 	projectLoaders := []func(p *Project) (name *string){
@@ -95,19 +94,21 @@ func LoadProjectConfig(projectPath string, cfg *rscliconfig.RsCliConfig) (c *con
 }
 
 func goProjectLoader(p *Project) (name *string) {
-	goModFile := p.root.GetByPath(projpatterns.GoMod)
+	goModFile := p.Root.GetByPath(patterns.GoMod)
 	if goModFile == nil {
 		return nil
 	}
+
 	moduleBts := goModFile.Content[:bytes.IndexByte(goModFile.Content, '\n')]
 	moduleBts = moduleBts[1+bytes.IndexByte(moduleBts, ' '):]
 
 	modName := string(moduleBts)
 
-	p.projType = project.TypeGo
+	p.ProjType = TypeGo
 
 	return &modName
 }
+
 func unknownProjectLoader(p *Project) *string {
 	name := p.Cfg.AppInfo.Name
 	return &name

@@ -3,15 +3,13 @@ package dependencies
 import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
-
-	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 type Postgres struct {
 	dependencyBase
 }
 
-func (p Postgres) AppendToProject(proj project.Project) error {
+func (p Postgres) AppendToProject(proj Project) error {
 	sc := sqlConn{
 		Cfg: p.dependencyBase.Cfg,
 	}

@@ -9,8 +9,8 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/grpc_discovery"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators"
 )
 
 func newGenerateDataSourcesConfigStruct(dataSources matreshka.DataSources) internalConfigGenerator {
@@ -53,7 +53,7 @@ func newGenerateDataSourcesConfigStruct(dataSources matreshka.DataSources) inter
 		}
 
 		f := &folder.Folder{
-			Name:    projpatterns.ConfigDataSourcesFileName,
+			Name:    patterns.ConfigDataSourcesFileName,
 			Content: buf.Bytes(),
 		}
 

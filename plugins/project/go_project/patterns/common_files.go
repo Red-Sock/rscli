@@ -1,4 +1,4 @@
-package projpatterns
+package patterns
 
 import (
 	_ "embed"
@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	EnvConfigYamlFile = "env.yaml"
-	DevConfigYamlFile = "dev.yaml"
-	ConfigYamlFile    = "config.yaml"
-	MakefileFile      = "Makefile"
-	RscliMakefileFile = "rscli.mk"
+	EnvConfigYamlFile    = "env.yaml"
+	ConfigDevYamlFile    = "dev.yaml"
+	ConfigMasterYamlFile = "config.yaml"
+	MakefileFile         = "Makefile"
+	RscliMakefileFile    = "rscli.mk"
 
 	GenCommand           = "gen"
 	GenGrpcServerCommand = "gen-server-grpc"

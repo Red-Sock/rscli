@@ -3,20 +3,20 @@ package pipelines
 import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 type TidyGithubWorkflowAction struct {
 }
 
-func (a TidyGithubWorkflowAction) Do(p project.Project) error {
-	ghF := p.GetFolder().GetByPath(projpatterns.GithubFolder, projpatterns.WorkflowsFolder)
+func (a TidyGithubWorkflowAction) Do(p project.IProject) error {
+	ghF := p.GetFolder().GetByPath(patterns.GithubFolder, patterns.WorkflowsFolder)
 	if ghF == nil {
 		ghF = &folder.Folder{
-			Name: projpatterns.GithubFolder,
+			Name: patterns.GithubFolder,
 			Inner: []*folder.Folder{
 				{
-					Name: projpatterns.WorkflowsFolder,
+					Name: patterns.WorkflowsFolder,
 				},
 			},
 		}
@@ -24,11 +24,11 @@ func (a TidyGithubWorkflowAction) Do(p project.Project) error {
 		ghF = ghF.Inner[0]
 	}
 
-	ghF.Add(projpatterns.GithubWorkflowRelease.Copy())
+	ghF.Add(patterns.GithubWorkflowRelease.Copy())
 
 	switch p.GetType() {
 	case project.TypeGo:
-		ghF.Add(projpatterns.GithubWorkflowGoBranchPush.Copy())
+		ghF.Add(patterns.GithubWorkflowGoBranchPush.Copy())
 	}
 
 	return nil

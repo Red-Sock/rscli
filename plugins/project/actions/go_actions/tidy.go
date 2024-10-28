@@ -3,7 +3,7 @@ package go_actions
 import (
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
@@ -16,7 +16,7 @@ const goBin = "go"
 
 type RunGoFmtAction struct{}
 
-func (a RunGoFmtAction) Do(p project.Project) error {
+func (a RunGoFmtAction) Do(p project.IProject) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"fmt", "./..."},
@@ -34,7 +34,7 @@ func (a RunGoFmtAction) NameInAction() string {
 
 type RunGoTidyAction struct{}
 
-func (a RunGoTidyAction) Do(p project.Project) error {
+func (a RunGoTidyAction) Do(p project.IProject) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"mod", "tidy"},
@@ -60,7 +60,7 @@ type RunMakeGenAction struct {
 	IO io.IO
 }
 
-func (a RunMakeGenAction) Do(p project.Project) error {
+func (a RunMakeGenAction) Do(p project.IProject) error {
 	if len(p.GetConfig().Servers) == 0 {
 		return nil
 	}
@@ -70,7 +70,7 @@ func (a RunMakeGenAction) Do(p project.Project) error {
 		return errors.Wrap(err, "error installing makefile")
 	}
 
-	_, err = makefile.Run(p.GetProjectPath(), projpatterns.RscliMakefileFile, projpatterns.GenCommand)
+	_, err = makefile.Run(p.GetProjectPath(), patterns.RscliMakefileFile, patterns.GenCommand)
 	if err != nil {
 		return errors.Wrap(err, "error generating")
 	}
@@ -82,7 +82,7 @@ func (a RunMakeGenAction) NameInAction() string {
 
 type UpdateAllPackages struct{}
 
-func (a UpdateAllPackages) Do(p project.Project) error {
+func (a UpdateAllPackages) Do(p project.IProject) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"get", "-u", "all"},

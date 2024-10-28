@@ -19,11 +19,10 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/grpc_discovery"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators/config_generators"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/config_generators"
 )
 
 var (
@@ -41,7 +40,7 @@ func (g GrpcClient) GetFolderName() string {
 	return "grpc"
 }
 
-func (g GrpcClient) AppendToProject(proj project.Project) error {
+func (g GrpcClient) AppendToProject(proj Project) error {
 	if len(g.Modules) == 0 {
 		return nil
 	}
@@ -62,9 +61,9 @@ func (g GrpcClient) AppendToProject(proj project.Project) error {
 		return errs
 	}
 
-	grpcClientConnFilePath := path.Join(g.Cfg.Env.PathsToClients[0], projpatterns.GRPCServer, projpatterns.ConnFileName)
+	grpcClientConnFilePath := path.Join(g.Cfg.Env.PathsToClients[0], patterns.GRPCServer, patterns.ConnFileName)
 	if proj.GetFolder().GetByPath(grpcClientConnFilePath) == nil {
-		proj.GetFolder().Add(projpatterns.GrpcClientConnFile.CopyWithNewName(grpcClientConnFilePath))
+		proj.GetFolder().Add(patterns.GrpcClientConnFile.CopyWithNewName(grpcClientConnFilePath))
 	}
 
 	return nil
@@ -99,7 +98,7 @@ func (g GrpcClient) getPackage(packageName string) (ok bool) {
 }
 
 // Users/alexbukov/go/pkg/mod/github.com/godverv/hello_world/pkg
-func (g GrpcClient) applyLink(proj project.Project, packageName string) error {
+func (g GrpcClient) applyLink(proj Project, packageName string) error {
 	discovery := grpc_discovery.GrpcDiscovery{Cfg: g.Cfg}
 
 	pkg, err := discovery.DiscoverPackage(packageName)
@@ -114,7 +113,7 @@ func (g GrpcClient) applyLink(proj project.Project, packageName string) error {
 	if idx := strings.Index(packageName, "@"); idx > -1 {
 		packageName = packageName[:idx]
 	}
-	grpcPkgPath := path.Join(g.Cfg.Env.PathsToClients[0], projpatterns.GRPCServer)
+	grpcPkgPath := path.Join(g.Cfg.Env.PathsToClients[0], patterns.GRPCServer)
 
 	grpcClientsFolder := proj.GetFolder().GetByPath(grpcPkgPath)
 	if grpcClientsFolder == nil {

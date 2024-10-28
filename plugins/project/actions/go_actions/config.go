@@ -9,18 +9,19 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators/config_generators"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/config_generators"
 )
 
 type PrepareGoConfigFolderAction struct{}
 
-func (a PrepareGoConfigFolderAction) Do(p project.Project) (err error) {
+func (a PrepareGoConfigFolderAction) Do(p project.IProject) (err error) {
 	cfgFolder, err := config_generators.GenerateConfigFolder(p.GetConfig())
 	if err != nil {
 		return errors.Wrap(err, "error generating config folder")
 	}
-	cfgFolder.Name = path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder)
+
+	cfgFolder.Name = path.Join(patterns.InternalFolder, patterns.ConfigsFolder)
 
 	p.GetFolder().Add(cfgFolder)
 
@@ -35,13 +36,13 @@ func (a PrepareGoConfigFolderAction) NameInAction() string {
 	return "Preparing config folder"
 }
 
-func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p project.Project) error {
-	configFolder := p.GetFolder().GetByPath(projpatterns.ConfigsFolder)
+func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p project.IProject) error {
+	configFolder := p.GetFolder().GetByPath(patterns.ConfigsFolder)
 
 	newConfig := p.GetConfig()
 	// Dev config
 	{
-		err := appendToConfig(newConfig.AppConfig, configFolder, projpatterns.DevConfigYamlFile)
+		err := appendToConfig(newConfig.AppConfig, configFolder, patterns.ConfigDevYamlFile)
 		if err != nil {
 			return errors.Wrap(err, "error appending changes to dev config")
 		}
@@ -51,7 +52,7 @@ func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p project.Project) e
 
 	// Template
 	{
-		err := appendToConfig(newConfig.AppConfig, configFolder, projpatterns.ConfigTemplate)
+		err := appendToConfig(newConfig.AppConfig, configFolder, patterns.ConfigTemplateYaml)
 		if err != nil {
 			return errors.Wrap(err, "error appending changes to dev config")
 		}
@@ -59,7 +60,7 @@ func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p project.Project) e
 
 	// Master config
 	{
-		err := appendToConfig(newConfig.AppConfig, configFolder, projpatterns.ConfigYamlFile)
+		err := appendToConfig(newConfig.AppConfig, configFolder, patterns.ConfigMasterYamlFile)
 		if err != nil {
 			return errors.Wrap(err, "error appending changes to dev config")
 		}
@@ -79,7 +80,9 @@ func appendToConfig(newConfig matreshka.AppConfig, configFolder *folder.Folder, 
 
 	configFile := configFolder.GetByPath(path)
 	if configFile == nil {
-		configFile = &folder.Folder{}
+		configFile = &folder.Folder{
+			Name: path,
+		}
 		configFolder.Add(configFile)
 	}
 
