@@ -9,13 +9,13 @@ import (
 func InitProject(pt project.Type) []Action {
 	switch pt {
 	case project.TypeGo:
-		return initGoProject()
+		return initVirtualGoProject()
 	default:
 		return nil
 	}
 }
 
-func initGoProject() []Action {
+func initVirtualGoProject() []Action {
 	return []Action{
 		go_actions.PrepareProjectStructureAction{}, // basic go project structure
 		go_actions.PrepareGoConfigFolderAction{},   // generates config keys

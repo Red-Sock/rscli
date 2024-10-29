@@ -64,8 +64,11 @@ var (
 // Scripts
 var (
 	//go:embed pattern_c/scripts_pattern/rscli.mk
-	RscliMK []byte
-
+	rscliMK []byte
+	RscliMK = &folder.Folder{
+		Name:    "rscli.mk",
+		Content: rscliMK,
+	}
 	//go:embed pattern_c/scripts_pattern/grpc.mk
 	GrpcServerGenMK []byte
 )
