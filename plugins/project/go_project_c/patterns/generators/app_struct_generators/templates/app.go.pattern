@@ -9,8 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"{{ range $key, $value := .Imports }}
     {{ $value }} "{{ $key }}"{{ end }}
-	"golang.org/x/sync/errgroup"
-
 	"proj_name/internal/config"
 )
 
@@ -49,36 +47,21 @@ func New() (app App, err error) {
 func (a *App) Start() (err error) {
 	var eg *errgroup.Group
 	eg, a.Ctx = errgroup.WithContext(a.Ctx) {{ range .Starters }}
-	eg.Go(a.{{.FieldName }}.{{ if .StartCall }}{{.StartCall}}{{ else }}Start{{ end }})
+	eg.Go(a.{{.FieldName }}.{{ if .StartCall }}{{.StartCall}}{{ else }}Start{{ end }}())
     closer.Add(func() error { return a.{{.FieldName }}.{{ if .StopCall }}{{.StopCall}}{{ else }}Stop{{ end }}() }) {{ end }}
 
+	eg.Go(func() error {
+		toolbox.WaitForInterrupt()
+		return intErr
+	})
 
-	interaptedC := func() chan struct{}{
-		c :=  make(chan struct{})
-		go func() {
-			toolbox.WaitForInterrupt()
-			close(c)
-		}()
-
-		return c
-	}()
-
-	errC := func() chan error{
-		c := make(chan error)
-			go func() {
-			c <- eg.Wait()
-			close(c)
-			return
-		}()
-		return c
-	}()
-
-	select {
-	case err := <- errC:
-		logrus.Println("error during application startup: ", err)
-	case <-interaptedC:
+	err := eg.Wait()
+	if err != nil &&  err != intErr {
+		logrus.Println("error during application startup: ", err.Error())
+	} else {
 		logrus.Println("received interrupt signal")
 	}
+
 	logrus.Println("shutting down the app")
 
 	err = closer.Close()

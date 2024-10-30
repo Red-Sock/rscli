@@ -1,0 +1,2 @@
+### simple ping
+GET http://{{app}}/version

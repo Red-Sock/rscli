@@ -14,7 +14,6 @@ var ignoredFolders = []string{
 }
 
 func Load(root string) (*Folder, error) {
-
 	dir, err := os.ReadDir(root)
 	if err != nil {
 		return nil, err

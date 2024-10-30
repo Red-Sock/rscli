@@ -31,6 +31,7 @@ func goProjectTidyActions() []Action {
 		go_actions.BuildProjectAction{},
 		go_actions.RunMakeGenAction{},
 		go_actions.InitGoProjectApp{},
+
 		go_actions.BuildProjectAction{},
 		go_actions.RunGoTidyAction{},
 		go_actions.RunGoFmtAction{},
