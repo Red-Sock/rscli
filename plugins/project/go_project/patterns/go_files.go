@@ -44,7 +44,7 @@ const (
 
 // Basic files
 var (
-	//go:embed pattern_c/cmd/rscli_example/main.go.pattern
+	//go:embed pattern_c/cmd/service/main.go.pattern
 	mainFile []byte
 	MainFile = &folder.Folder{
 		Name:    "main.go",
