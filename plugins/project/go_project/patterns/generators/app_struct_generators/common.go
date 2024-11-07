@@ -15,4 +15,6 @@ type InitFuncCall struct {
 	ResultType string
 
 	ErrorMessage string
+
+	Import map[string]string
 }

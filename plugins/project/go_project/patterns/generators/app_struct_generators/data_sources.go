@@ -10,93 +10,135 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators"
 )
 
-func generateDataSourceInitFileAndArgs(dataSources matreshka.DataSources) (InitDepFuncGenArgs, []byte, error) {
-	initDsArgs := InitDepFuncGenArgs{
-		InitFunctionName: "InitDataSources",
+func generateDataSourceInitFileAndArgs(dataSources matreshka.DataSources) (*AppContent, []byte, error) {
+	const initDataSourcesFunctionName = "InitDataSources"
+	initDsFileArgs := InitDepFuncGenArgs{
+		InitFunctionName: initDataSourcesFunctionName,
 		Imports:          make(map[string]string),
 		Functions:        make([]InitFuncCall, 0, len(dataSources)),
 	}
 
-	for _, ds := range dataSources {
-		fc := InitFuncCall{
-			ResultName: generators.NormalizeResourceName(ds.GetName()),
-		}
+	appContent := &AppContent{
+		Comment:              "/* Data source connection */",
+		Fields:               nil,
+		InitFunc:             initDataSourcesFunctionName,
+		InitFuncErrorMessage: "error during data sources initialization",
+		Imports:              make(map[string]string),
+	}
 
-		var importPath, importAlias string
+	for _, ds := range dataSources {
+		var fc InitFuncCall
+
 		switch ds.GetType() {
 		case resources.PostgresResourceName, resources.SqliteResourceName:
-			importPath, importAlias = sqlInitFunc(&fc)
+			fc = sqlInitFunc(ds, appContent)
 		case resources.RedisResourceName:
-			importPath, importAlias = redisInitFunc(&fc)
+			fc = redisInitFunc(ds, appContent)
 		case resources.TelegramResourceName:
-			importPath, importAlias = telegramInitFunc(&fc)
+			fc = telegramInitFunc(ds, appContent)
 		case resources.GrpcResourceName:
+			// TODO SKIPPED FOR NOW RSI-288
+			break
 			var err error
-			importPath, importAlias, err = grpcInitFunc(ds, &fc)
+			fc, err = grpcInitFunc(ds, appContent)
 			if err != nil {
-				return initDsArgs, nil, errors.Wrap(err, "error creating init func for grpc client")
+				return nil, nil, errors.Wrap(err, "error creating init func for grpc client")
 			}
 		default:
-			return initDsArgs, nil, errors.New("unknown resource " + ds.GetType())
+			return nil, nil, errors.New("unknown resource " + ds.GetType())
 		}
-		initDsArgs.Imports[importPath] = importAlias
+		for importPath, alias := range fc.Import {
+			initDsFileArgs.Imports[importPath] = alias
+		}
 
-		initDsArgs.Functions = append(initDsArgs.Functions, fc)
+		initDsFileArgs.Functions = append(initDsFileArgs.Functions, fc)
+
+		appContent.Fields = append(appContent.Fields,
+			generators.KeyValue{
+				Key:   fc.ResultName,
+				Value: fc.ResultType,
+			})
 	}
 
-	initDsArgs.Imports["github.com/Red-Sock/trace-errors"] = "errors"
+	initDsFileArgs.Imports["github.com/Red-Sock/trace-errors"] = "errors"
 
 	file := &rw.RW{}
-	err := initAppStructFuncTemplate.Execute(file, initDsArgs)
+	err := initAppStructFuncTemplate.Execute(file, initDsFileArgs)
 	if err != nil {
-		return initDsArgs, nil, errors.Wrap(err, "error generating server init file")
+		return nil, nil, errors.Wrap(err, "error generating server init file")
 	}
 
-	return initDsArgs, file.Bytes(), nil
+	return appContent, file.Bytes(), nil
 }
 
-func sqlInitFunc(fc *InitFuncCall) (importPath, importAlias string) {
+func sqlInitFunc(res resources.Resource, appContent *AppContent) (fc InitFuncCall) {
+	fc.ResultName = generators.NormalizeResourceName(res.GetName())
 	fc.FuncName = "sqldb.New"
-	fc.ResultType = "sqldb.DB"
+	fc.ResultType = "*sql.DB"
 	fc.Args = "a.Cfg.DataSources." + fc.ResultName
 	fc.ErrorMessage = "error during sql connection initialization"
+	fc.Import = map[string]string{
+		"proj_name/internal/clients/sqldb": "",
+	}
 
-	return "proj_name/internal/clients/sqldb", ""
+	appContent.Imports["database/sql"] = ""
+
+	return fc
 }
 
-func redisInitFunc(fc *InitFuncCall) (importPath, importAlias string) {
-	fc.FuncName = "redis.New"
+func redisInitFunc(res resources.Resource, appContent *AppContent) (fc InitFuncCall) {
+	fc.ResultName = generators.NormalizeResourceName(res.GetName())
 	fc.ResultType = "*redis.Client"
+
+	fc.FuncName = "redis.New"
 	fc.Args = "a.Cfg.DataSources." + fc.ResultName
 	fc.ErrorMessage = "error during redis connection initialization"
 
-	return "proj_name/internal/clients/redis", ""
+	fc.Import = map[string]string{
+		"proj_name/internal/clients/redis": "",
+	}
+
+	appContent.Imports["github.com/go-redis/redis"] = ""
+
+	return
 }
 
-func telegramInitFunc(fc *InitFuncCall) (importPath, importAlias string) {
+func telegramInitFunc(res resources.Resource, appContent *AppContent) (fc InitFuncCall) {
+	fc.ResultName = generators.NormalizeResourceName(res.GetName())
+	fc.ResultType = "*go_tg.Bot"
+
 	fc.FuncName = "telegram.New"
-	fc.ResultType = "*telegram.Bot"
 	fc.Args = "a.Cfg.DataSources." + fc.ResultName
 	fc.ErrorMessage = "error during telegram bot initialization"
 
-	return "proj_name/internal/clients/telegram", ""
+	fc.Import["proj_name/internal/clients/telegram"] = ""
+
+	appContent.Imports["github.com/Red-Sock/go_tg"] = ""
+
+	return
 }
 
-func grpcInitFunc(grpc resources.Resource, fc *InitFuncCall) (importPath, importAlias string, err error) {
-	grpcRes, ok := grpc.(*resources.GRPC)
+func grpcInitFunc(res resources.Resource, appContent *AppContent) (fc InitFuncCall, err error) {
+	grpcRes, ok := res.(*resources.GRPC)
 	if !ok {
-		return "", "", errors.New("not a grpc struct")
+		return fc, errors.New("not a grpc struct")
 	}
 
 	grpcPackage, err := grpc_discovery.DiscoverPackage(grpcRes.Module)
 	if err != nil {
-		return "", "", errors.Wrap(err, "error discovering grpc package")
+		return fc, errors.Wrap(err, "error discovering grpc package")
 	}
 
-	fc.FuncName = "grpc." + grpcPackage.Constructor
+	fc.ResultName = generators.NormalizeResourceName(res.GetName())
 	fc.ResultType = "grpc." + grpcPackage.ClientName
+
+	fc.FuncName = "grpc." + grpcPackage.Constructor
 	fc.Args = "a.Cfg.DataSources." + fc.ResultName
 	fc.ErrorMessage = "error during grpc client initialization"
 
-	return "proj_name/internal/clients/grpc", "", nil
+	fc.Import = map[string]string{
+		"proj_name/internal/clients/grpc": "",
+	}
+
+	return fc, nil
 }

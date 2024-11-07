@@ -98,7 +98,7 @@ func (a PrepareMakefileAction) Do(p project.IProject) error {
 	genScriptSummary := make([]string, 0)
 
 	// first part for summary scripts
-	makefileContent := make([][]byte, 0, 4)
+	makefileContent := make([][]byte, 1, 4)
 	{
 		// basic info
 		rscliBasicScript := make([]byte, len(patterns.RscliMK.Content))

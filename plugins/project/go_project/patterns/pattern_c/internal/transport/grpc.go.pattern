@@ -7,6 +7,7 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type GrpcImpl interface {
@@ -14,7 +15,7 @@ type GrpcImpl interface {
 }
 
 type GrpcWithGateway interface {
-	Gateway(ctx context.Context) (rootRoute string, handler http.Handler)
+	Gateway(ctx context.Context, endpoint string, opts ...grpc.DialOption) (rootRoute string, handler http.Handler)
 }
 
 type grpcServer struct {
@@ -71,7 +72,9 @@ func (s *grpcServer) AddImplementation(grpcImpl GrpcImpl, opts ...grpc.ServerOpt
 
 	grpcWithGateway, ok := grpcImpl.(GrpcWithGateway)
 	if ok {
-		s.gatewayMux.Handle(grpcWithGateway.Gateway(s.ctx))
+		s.gatewayMux.Handle(grpcWithGateway.Gateway(s.ctx,
+			s.listener.Addr().String(),
+			grpc.WithTransportCredentials(insecure.NewCredentials())))
 	}
 
 	s.opts = append(s.opts, opts...)

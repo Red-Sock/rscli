@@ -20,6 +20,7 @@ type AppContent struct {
 	Fields               []generators.KeyValue
 	InitFunc             string
 	InitFuncErrorMessage string
+	Imports              map[string]string
 }
 
 type AppStarter struct {
@@ -45,10 +46,10 @@ func GenerateAppFiles(p project.IProject) (map[string][]byte, error) {
 		}
 
 		out[patterns.AppInitDataSourcesFileName] = initDataSourcesFile
-		initAppArgs.addAppContent(
-			"/* Data source connection */",
-			"error during data sources initialization",
-			initDataSourcesArgs)
+		if initDataSourcesArgs != nil {
+			initAppArgs.AppContent = append(initAppArgs.AppContent, *initDataSourcesArgs)
+		}
+
 	}
 	// init server
 	if len(cfg.Servers) != 0 {
@@ -66,6 +67,19 @@ func GenerateAppFiles(p project.IProject) (map[string][]byte, error) {
 		initAppArgs.Starters = append(initAppArgs.Starters, AppStarter{
 			FieldName: initServerArgs.ServerName,
 		})
+	}
+
+	for _, ac := range initAppArgs.AppContent {
+		for importPath, dependencyAlias := range ac.Imports {
+			appAlias, ok := initAppArgs.Imports[importPath]
+			if ok && appAlias != dependencyAlias {
+				return nil, errors.New("Fatal error: app already imported package " +
+					importPath + " with alias " + appAlias +
+					". But dependency requires this package to be imported as " +
+					dependencyAlias)
+			}
+			initAppArgs.Imports[importPath] = dependencyAlias
+		}
 	}
 
 	mainAppFile := &rw.RW{}

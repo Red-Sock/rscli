@@ -11,9 +11,7 @@ import (
 
 var ErrUnexpectedPing = errors.New("error pinging redis")
 
-type Client redis.Client
-
-func New(cfg *resources.Redis) (*Client, error) {
+func New(cfg *resources.Redis) (*redis.Client, error) {
 	opts := &redis.Options{
 		Addr:     cfg.Host + ":" + strconv.Itoa(int(cfg.Port)),
 		Password: cfg.Pwd,
@@ -32,5 +30,5 @@ func New(cfg *resources.Redis) (*Client, error) {
 
 	closer.Add(c.Close)
 
-	return (*Client)(c), nil
+	return c, nil
 }
