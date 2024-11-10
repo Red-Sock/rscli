@@ -1,7 +1,6 @@
 package project
 
 import (
-	"context"
 	"fmt"
 	"path"
 	"strings"
@@ -12,8 +11,8 @@ import (
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/colors"
-	"github.com/Red-Sock/rscli/internal/io/loader"
-	"github.com/Red-Sock/rscli/plugins/project/go_project"
+	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/validators"
 )
 
@@ -25,7 +24,7 @@ type projectInit struct {
 	io     io.IO
 	config *config.RsCliConfig
 
-	proj *go_project.Project
+	proj project.IProject
 	path string
 }
 
@@ -44,7 +43,7 @@ func newInitCmd(pi projectInit) *cobra.Command {
 }
 
 func (p *projectInit) run(_ *cobra.Command, argsIn []string) error {
-	projArgs := go_project.CreateArgs{
+	projArgs := project.CreateArgs{
 		CfgPath: p.config.Env.PathToConfig,
 	}
 
@@ -126,69 +125,23 @@ func (p *projectInit) obtainFolderPathFromUser(name string, args []string) (dirP
 	return path.Join(p.path, path.Base(name))
 }
 
-func (p *projectInit) buildProject(args go_project.CreateArgs) (proj *go_project.Project, err error) {
-	proj, err = go_project.CreateGoProject(args)
+func (p *projectInit) buildProject(args project.CreateArgs) (proj project.IProject, err error) {
+	proj, err = project.CreateProject(args)
 	if err != nil {
 		return nil, errors.Wrap(err, "error during project creation")
 	}
 
-	actionNames := proj.GetActionNames()
-
-	loaders := make([]loader.Progress, 0, len(actionNames))
-	namesToIdx := make(map[string]int, len(loaders))
-
-	for idx, actionName := range actionNames {
-		loaders = append(loaders, loader.NewInfiniteLoader(actionName, loader.RectSpinner()))
-		namesToIdx[actionName] = idx
-	}
-
-	infoC, errC := proj.Build()
-
 	p.io.Println("Starting project constructor")
 
-	currentProcessIdx := -1
-
-	fail := func() {
-		if currentProcessIdx < len(loaders) {
-			loaders[currentProcessIdx].Done(loader.DoneFailed)
-		}
-
-		currentProcessIdx++
-		for currentProcessIdx < len(loaders) {
-			loaders[currentProcessIdx].Done(loader.DoneNotAccessed)
-			currentProcessIdx++
+	initActions := actions.InitProject(project.TypeGo)
+	for _, act := range initActions {
+		err = act.Do(proj)
+		if err != nil {
+			return nil, errors.Wrap(err, "error performing init actions")
 		}
 	}
 
-	doneF := loader.RunMultiLoader(context.TODO(), p.io, loaders)
-	defer func() {
-		if currentProcessIdx == len(loaders)-1 {
-			loaders[currentProcessIdx].Done(loader.DoneSuccessful)
-		} else {
-			fail()
-		}
-		<-doneF()
-	}()
+	p.io.Println("Project actions performed")
 
-	for {
-		select {
-		case _, ok := <-infoC:
-			if !ok {
-				fail()
-				return proj, nil
-			}
-
-			currentProcessIdx++
-			if currentProcessIdx != 0 {
-				loaders[currentProcessIdx-1].Done(loader.DoneSuccessful)
-			}
-		case buildError, ok := <-errC:
-			if !ok {
-				return proj, nil
-			}
-
-			fail()
-			return nil, errors.Wrap(buildError, "failed to build project: ")
-		}
-	}
+	return proj, nil
 }

@@ -1,0 +1,45 @@
+app_info:
+    name: test_project
+    version: v0.0.1
+    startup_duration: 10s
+environment:
+    - name: test_string_variable
+      type: string
+      value: test_value
+    - name: test_int_variable
+      type: int
+      value: 1
+    - name: test_bool_variable
+      type: bool
+      value: true
+    - name: test_float_variable
+      type: float
+      value: 1.1
+    - name: test_duration_variable
+      type: duration
+      value: 5s
+    - name: test_string_variables
+      type: string
+      value:
+        - test_value
+        - test_value2
+    - name: test_int_variables
+      type: int
+      value:
+        - 1
+        - 2
+    - name: test_bool_variables
+      type: bool
+      value:
+        - true
+        - false
+    - name: test_float_variables
+      type: float
+      value:
+        - 1.1
+        - 2.2
+    - name: test_duration_variables
+      type: duration
+      value:
+        - 5s
+        - 8s

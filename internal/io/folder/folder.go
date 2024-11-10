@@ -111,7 +111,6 @@ func (f *Folder) GetByPath(pth ...string) *Folder {
 
 	return currentFolder
 }
-
 func (f *Folder) Build() error {
 	return f.build(path.Dir(f.Name))
 }

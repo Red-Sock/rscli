@@ -8,17 +8,17 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
-	"github.com/Red-Sock/rscli/plugins/project/go_project"
 )
 
 type projectLink struct {
 	io     io.IO
 	config *config.RsCliConfig
 
-	proj *go_project.Project
+	proj *project.Project
 	path string
 }
 
@@ -41,7 +41,7 @@ func newLinkCmd(pl projectLink) *cobra.Command {
 
 func (p *projectLink) run(_ *cobra.Command, args []string) (err error) {
 	if p.proj == nil {
-		p.proj, err = go_project.LoadProject(p.path, p.config)
+		p.proj, err = project.LoadProject(p.path, p.config)
 		if err != nil {
 			return errors.Wrap(err, "error fetching project for linking")
 		}

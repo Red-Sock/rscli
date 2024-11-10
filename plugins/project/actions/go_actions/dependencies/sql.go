@@ -6,9 +6,8 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 type sqlConn struct {
@@ -19,7 +18,7 @@ func (sc sqlConn) GetFolderName() string {
 	return "sqldb"
 }
 
-func (sc sqlConn) applySqlConnFile(proj project.Project) error {
+func (sc sqlConn) applySqlConnFile(proj Project) error {
 	if len(sc.Cfg.Env.PathsToClients) == 0 {
 		return ErrNoFolderInConfig
 	}
@@ -27,9 +26,9 @@ func (sc sqlConn) applySqlConnFile(proj project.Project) error {
 	fileName := path.Join(
 		sc.Cfg.Env.PathsToClients[0],
 		sc.GetFolderName(),
-		projpatterns.SqlConnFile.Name)
+		patterns.SqlConnFile.Name)
 
-	sqlConnFile := projpatterns.SqlConnFile.CopyWithNewName(fileName)
+	sqlConnFile := patterns.SqlConnFile.CopyWithNewName(fileName)
 
 	renamer.ReplaceProjectName(proj.GetName(), sqlConnFile)
 	proj.GetFolder().Add(sqlConnFile)
@@ -37,7 +36,7 @@ func (sc sqlConn) applySqlConnFile(proj project.Project) error {
 	return nil
 }
 
-func (sc sqlConn) applySqlDriver(proj project.Project, driverName, driverImportPath string) {
+func (sc sqlConn) applySqlDriver(proj Project, driverName, driverImportPath string) {
 	fileName := path.Join(
 		sc.Cfg.Env.PathsToClients[0],
 		sc.GetFolderName(),

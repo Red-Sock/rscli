@@ -6,15 +6,15 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
-	"github.com/Red-Sock/rscli/plugins/project/go_project"
 )
 
 type projectTidy struct {
 	io     io.IO
 	config *config.RsCliConfig
 
-	proj *go_project.Project
+	proj *project.Project
 	path string
 }
 
@@ -38,7 +38,7 @@ func newTidyCmd(pl projectTidy) *cobra.Command {
 
 func (p *projectTidy) run(_ *cobra.Command, _ []string) (err error) {
 	if p.proj == nil {
-		p.proj, err = go_project.LoadProject(p.path, p.config)
+		p.proj, err = project.LoadProject(p.path, p.config)
 		if err != nil {
 			return errors.Wrap(err, "error fetching project for tidy")
 		}

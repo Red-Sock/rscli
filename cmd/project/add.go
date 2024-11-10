@@ -8,10 +8,10 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
-	"github.com/Red-Sock/rscli/plugins/project/go_project"
 )
 
 const (
@@ -23,7 +23,7 @@ type projectAdd struct {
 	path   string
 	config *rscliconfig.RsCliConfig
 
-	proj *go_project.Project
+	proj *project.Project
 }
 
 func newAddCmd(projAdd projectAdd) *cobra.Command {
@@ -88,7 +88,7 @@ func (p *projectAdd) loadProject(cmd *cobra.Command) (err error) {
 		pathToProject = p.path
 	}
 
-	p.proj, err = go_project.LoadProject(pathToProject, p.config)
+	p.proj, err = project.LoadProject(pathToProject, p.config)
 	if err != nil {
 		return errors.Wrap(err, "error loading project")
 	}

@@ -3,15 +3,13 @@ package dependencies
 import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
-
-	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 type Sqlite struct {
 	dependencyBase
 }
 
-func (s Sqlite) AppendToProject(proj project.Project) error {
+func (s Sqlite) AppendToProject(proj Project) error {
 	sc := sqlConn{Cfg: s.Cfg}
 
 	err := sc.applySqlConnFile(proj)

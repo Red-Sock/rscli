@@ -10,7 +10,6 @@ import (
 	"github.com/Red-Sock/rscli/internal/config"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 var (
@@ -18,7 +17,7 @@ var (
 )
 
 type Dependency interface {
-	AppendToProject(proj project.Project) error
+	AppendToProject(proj Project) error
 }
 
 type dependencyBase struct {

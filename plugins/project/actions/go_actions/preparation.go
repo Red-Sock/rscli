@@ -14,13 +14,13 @@ import (
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
-	patterns "github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 type PrepareProjectStructureAction struct {
 }
 
-func (a PrepareProjectStructureAction) Do(p project.Project) error {
+func (a PrepareProjectStructureAction) Do(p project.IProject) error {
 	rootF := p.GetFolder()
 
 	cmd := &folder.Folder{Name: patterns.CmdFolder}
@@ -48,7 +48,7 @@ type PrepareClientsAction struct {
 	IO io.IO
 }
 
-func (a PrepareClientsAction) Do(p project.Project) error {
+func (a PrepareClientsAction) Do(p project.IProject) error {
 	if a.C == nil {
 		a.C = rscliconfig.GetConfig()
 	}
@@ -87,25 +87,26 @@ func (a PrepareClientsAction) Do(p project.Project) error {
 
 	return nil
 }
+
 func (a PrepareClientsAction) NameInAction() string {
 	return "Generating clients"
 }
 
 type PrepareMakefileAction struct{}
 
-func (a PrepareMakefileAction) Do(p project.Project) error {
+func (a PrepareMakefileAction) Do(p project.IProject) error {
 	genScriptSummary := make([]string, 0)
 
 	// first part for summary scripts
 	makefileContent := make([][]byte, 1, 4)
 	{
 		// basic info
-		rscliBasicScript := make([]byte, len(patterns.RscliMK))
-		copy(rscliBasicScript, patterns.RscliMK)
+		rscliBasicScript := make([]byte, len(patterns.RscliMK.Content))
+		copy(rscliBasicScript, patterns.RscliMK.Content)
 
 		rscliBasicScript = renamer.ReplaceProjectNameShort(rscliBasicScript, p.GetShortName())
 
-		makefileContent = append(makefileContent, append([]byte(`### General Rscli info`+"\n"), rscliBasicScript...))
+		makefileContent = append(makefileContent, rscliBasicScript)
 	}
 
 	if len(p.GetConfig().Servers) != 0 {
@@ -144,7 +145,7 @@ func (a PrepareMakefileAction) NameInAction() string {
 
 type PrepareServerAction struct{}
 
-func (a PrepareServerAction) Do(p project.Project) error {
+func (a PrepareServerAction) Do(p project.IProject) error {
 	if len(p.GetConfig().Servers) == 0 {
 		return nil
 	}

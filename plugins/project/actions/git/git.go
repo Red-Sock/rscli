@@ -16,7 +16,7 @@ const exe = "git"
 
 type InitGit struct{}
 
-func (a InitGit) Do(p project.Project) error {
+func (a InitGit) Do(p project.IProject) error {
 	projectPath := p.GetProjectPath()
 
 	err := Init(projectPath)

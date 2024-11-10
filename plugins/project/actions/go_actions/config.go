@@ -4,22 +4,23 @@ import (
 	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
-	"github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/projpatterns/generators/config_generators"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/config_generators"
 )
 
 type PrepareGoConfigFolderAction struct{}
 
-func (a PrepareGoConfigFolderAction) Do(p project.Project) (err error) {
+func (a PrepareGoConfigFolderAction) Do(p project.IProject) (err error) {
 	cfgFolder, err := config_generators.GenerateConfigFolder(p.GetConfig())
 	if err != nil {
 		return errors.Wrap(err, "error generating config folder")
 	}
-	cfgFolder.Name = path.Join(projpatterns.InternalFolder, projpatterns.ConfigsFolder)
+
+	cfgFolder.Name = path.Join(patterns.InternalFolder, patterns.ConfigsFolder)
 
 	p.GetFolder().Add(cfgFolder)
 
@@ -34,45 +35,49 @@ func (a PrepareGoConfigFolderAction) NameInAction() string {
 	return "Preparing config folder"
 }
 
-func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p project.Project) error {
-	configFolder := p.GetFolder().GetByPath(projpatterns.ConfigsFolder)
+func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p project.IProject) error {
+	configFolder := p.GetFolder().GetByPath(patterns.ConfigsFolder)
 
-	plainConfig, err := p.GetConfig().Marshal()
-	if err != nil {
-		return errors.Wrap(err)
+	newConfig := p.GetConfig()
+
+	for _, cfgName := range []string{
+		patterns.ConfigDevYamlFile,
+		patterns.ConfigTemplateYaml,
+		patterns.ConfigMasterYamlFile,
+	} {
+		err := appendToConfig(newConfig.AppConfig, configFolder, cfgName)
+		if err != nil {
+			return errors.Wrap(err, "error appending changes to dev config")
+		}
 	}
-	configFolder.Add(
-		&folder.Folder{
-			Name:    projpatterns.DevConfigYamlFile,
-			Content: plainConfig,
-		})
-
-	obfuscateConfig(p.GetConfig())
-
-	protectedCfg, err := p.GetConfig().Marshal()
-	if err != nil {
-		return errors.Wrap(err)
-	}
-
-	prodConfig := configFolder.GetByPath(projpatterns.ConfigYamlFile)
-	if prodConfig == nil {
-		configFolder.Add(&folder.Folder{
-			Name:    projpatterns.ConfigYamlFile,
-			Content: protectedCfg,
-		})
-	}
-
-	configFolder.Add(
-		&folder.Folder{
-			Name:    projpatterns.ConfigTemplate,
-			Content: protectedCfg,
-		})
 
 	return nil
 }
 
-func obfuscateConfig(cfg *config.Config) {
-	for i := range cfg.DataSources {
-		cfg.DataSources[i] = cfg.DataSources[i].Obfuscate()
+func appendToConfig(newConfig matreshka.AppConfig, configFolder *folder.Folder, path string) (err error) {
+	currentConfig := matreshka.NewEmptyConfig()
+
+	configFile := configFolder.GetByPath(path)
+	if configFile == nil {
+		configFile = &folder.Folder{
+			Name: path,
+		}
+		configFolder.Add(configFile)
 	}
+
+	if len(configFile.Content) != 0 {
+		err = currentConfig.Unmarshal(configFile.Content)
+		if err != nil {
+			return errors.Wrap(err, "error reading dev config file")
+		}
+	}
+
+	currentConfig = matreshka.MergeConfigs(currentConfig, newConfig)
+
+	configFile.Content, err = currentConfig.Marshal()
+	if err != nil {
+		return errors.Wrap(err, "error marshalling dev config to yaml")
+	}
+
+	return nil
 }
