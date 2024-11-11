@@ -3,13 +3,14 @@
 package app
 
 import (
+	"context"
+
 	"github.com/Red-Sock/toolbox"
 	"github.com/Red-Sock/toolbox/closer"
 	errors "github.com/Red-Sock/trace-errors"
 	"proj_name/internal/config"
 
 	"github.com/sirupsen/logrus"
-	"golang.org/x/net/context"
 )
 
 type App struct {

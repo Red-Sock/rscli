@@ -2,6 +2,7 @@ github.com/Red-Sock/evon v0.0.14 h1:A8Uu1qY72512VEvIQqdhH8urwBeWcjCGaXrQeDmFAAs=
 github.com/Red-Sock/evon v0.0.14/go.mod h1:BSqhsH7BWJu59QFmyzpIc7kqNQkvVi5Gb1MhZMx7mlc=
 github.com/Red-Sock/trace-errors v0.0.9 h1:Wg7+SyoVvB9jXwIeqX0vexpAhbGbKetgHCIkTGh3Azw=
 github.com/Red-Sock/trace-errors v0.0.9/go.mod h1:1BIdyb04fvWLX4nYuD24oUuNI3nQl0PGXtY1qWl0WXE=
+github.com/Red-Sock/trace-errors v0.0.11/go.mod h1:Yk7KzCmvgX3zxgS7Qvf7/iZUGS3s7dxFHetsgQ3YZvM=
 github.com/cpuguy83/go-md2man/v2 v2.0.4/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
