@@ -13,12 +13,14 @@ mock:
 
 .gen-test-project-with-deps:
 	go build -o rscli-dev
+	rm -rf test/testproj
+	mkdir -p test
+	mkdir -p test/testproj
+
 	cd test &&\
-	rm -rf testproj &&\
     ./../rscli-dev project init Testproj && \
     cd testproj && \
-    ./../../rscli-dev project add postgres redis grpc rest telegram sqlite && \
-    ./../../rscli-dev project link github.com/godverv/hello_world
+    ./../../rscli-dev project add grpc
 
 dev-build:
 	go build -o $(GOBIN)/rscli-dev .

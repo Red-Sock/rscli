@@ -9,6 +9,7 @@ import (
 	"github.com/godverv/matreshka"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/config"
 )
 
@@ -57,6 +58,10 @@ func CreateProject(args CreateArgs) (*Project, error) {
 			},
 		},
 		ConfigDir: path.Join(proj.GetProjectPath(), args.CfgPath),
+	}
+
+	proj.Root = folder.Folder{
+		Name: proj.Path,
 	}
 
 	return proj, nil

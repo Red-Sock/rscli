@@ -13,15 +13,14 @@ gen-server-grpc: .pre-gen-server-grpc .deps-grpc .gen-server-grpc
 
 	rm -rf api/google
 	rm -rf api/validate
-	ln -sf $(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis/google api/google
-	ln -sf $(GOPATH)/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v1.0.2/validate api/validate
+	ln -sf $(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis/google api/grpc/google
+	ln -sf $(GOPATH)/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v1.0.2/validate api/grpc/validate
 
 .gen-server-grpc:
 	protoc \
-    	-I=./api \
+    	-I=./api/grpc \
     	-I $(GOPATH)/bin \
     	--openapiv2_out ./pkg/docs \
-	 	--openapiv2_opt logtostderr=true \
     	--go-grpc_out=./pkg/ \
     	--grpc-gateway_out=logtostderr=true:./pkg/ \
     	--grpc-gateway-ts_out=./pkg/web \
