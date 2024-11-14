@@ -10,7 +10,7 @@ option go_package = "/example_api";
 service proj_nameAPI {
   rpc Version(PingRequest) returns (PingResponse) {
     option (google.api.http) = {
-      post: "/v1/version"
+      post: "/api/version"
       body: "*"
     };
   };

@@ -60,6 +60,7 @@ func GetMockProject(t *testing.T, opts ...Opt) *MockProject {
 	}
 
 	if p.Path != "" {
+		require.NoError(t, os.RemoveAll(p.Path))
 		require.NoError(t, os.MkdirAll(p.Path, 0777))
 	}
 

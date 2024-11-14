@@ -6,7 +6,6 @@ import (
 	"path"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/Red-Sock/rscli/internal/config"
@@ -25,7 +24,7 @@ func Test_InitProject(t *testing.T) {
 	require.NoError(t, os.RemoveAll(dirPath))
 	require.NoError(t, os.MkdirAll(dirPath, 0777))
 	defer func() {
-		//require.NoError(t, os.RemoveAll(dirPath))
+		require.NoError(t, os.RemoveAll(dirPath))
 	}()
 
 	projFullName := defaultGitPath + "/" + projName
@@ -86,16 +85,16 @@ func Test_InitProject(t *testing.T) {
 
 	projectPath := path.Join(dirPath, projName)
 
-	assertFile(t, projectPath, patterns.Dockerfile)
-	assertFile(t, projectPath, patterns.Makefile)
+	tests.AssertFolderInFs(t, projectPath, patterns.Dockerfile)
+	tests.AssertFolderInFs(t, projectPath, patterns.Makefile)
 
 	readme := patterns.Readme.Copy()
 	renamer.ReplaceProjectName(projFullName, readme)
-	assertFile(t, projectPath, readme)
+	tests.AssertFolderInFs(t, projectPath, readme)
 
 	rscliMk := patterns.RscliMK.Copy()
 	renamer.ReplaceProjectName(projName, rscliMk)
-	assertFile(t, projectPath, rscliMk)
+	tests.AssertFolderInFs(t, projectPath, rscliMk)
 
 	stat, err := os.Stat(path.Join(projectPath, patterns.GoMod))
 	require.NoError(t, err)
@@ -108,7 +107,7 @@ app_info:
     startup_duration: 10s
 `)[1:]
 
-		assertFile(t, projectPath,
+		tests.AssertFolderInFs(t, projectPath,
 			&folder.Folder{
 				Name: patterns.ConfigsFolder,
 				Inner: []*folder.Folder{
@@ -185,7 +184,7 @@ func Load() (Config, error) {
 }
 `)[1:]
 
-		assertFile(t, projectPath, &folder.Folder{
+		tests.AssertFolderInFs(t, projectPath, &folder.Folder{
 			Name: patterns.InternalFolder,
 			Inner: []*folder.Folder{
 				{
@@ -203,23 +202,5 @@ func Load() (Config, error) {
 
 	mainGoFile := patterns.MainFile.Copy()
 	renamer.ReplaceProjectName(projFullName, mainGoFile)
-	assertFile(t, path.Join(projectPath, patterns.CmdFolder, patterns.ServiceFolder), mainGoFile)
-
-}
-
-func assertFile(t *testing.T, dirPath string, expected *folder.Folder) {
-	if len(expected.Content) != 0 {
-		file, err := os.ReadFile(path.Join(dirPath, expected.Name))
-		require.NoError(t, err)
-		if len(expected.Content) < 800 {
-			assert.Equal(t, string(expected.Content), string(file))
-		} else {
-			tests.CompareLongStrings(t, expected.Content, file)
-		}
-		return
-	}
-
-	for _, innerF := range expected.Inner {
-		assertFile(t, path.Join(dirPath, expected.Name), innerF)
-	}
+	tests.AssertFolderInFs(t, path.Join(projectPath, patterns.CmdFolder, patterns.ServiceFolder), mainGoFile)
 }

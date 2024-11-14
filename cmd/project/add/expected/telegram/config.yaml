@@ -2,3 +2,6 @@ app_info:
     name: test_project
     version: v0.0.1
     startup_duration: 10s
+data_sources:
+    - resource_name: telegram
+      api_key: ""

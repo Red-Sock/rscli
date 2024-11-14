@@ -72,7 +72,7 @@ func (a RunMakeGenAction) Do(p project.IProject) error {
 
 	_, err = makefile.Run(p.GetProjectPath(), patterns.RscliMakefileFile, patterns.GenCommand)
 	if err != nil {
-		return errors.Wrap(err, "error generating")
+		return errors.Wrap(err, "error running rscli generate command")
 	}
 	return nil
 }

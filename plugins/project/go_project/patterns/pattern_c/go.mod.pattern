@@ -1,8 +1,6 @@
 module proj_name
 
-go 1.22
-
-toolchain go1.22.1
+go 1.23.3
 
 require (
 	github.com/Red-Sock/go_tg v0.0.18
@@ -10,7 +8,6 @@ require (
 	github.com/Red-Sock/trace-errors v0.0.9
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/godverv/matreshka v0.0.35
-	github.com/gorilla/mux v1.8.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0
 	github.com/lib/pq v1.10.9
 	github.com/pressly/goose/v3 v3.16.0

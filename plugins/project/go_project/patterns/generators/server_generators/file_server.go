@@ -15,14 +15,8 @@ import (
 var (
 	//go:embed templates/fs.go.pattern
 	fileServerPattern  string
-	fileServerTemplate *template.Template
+	fileServerTemplate = template.Must(template.New("file_server").Parse(fileServerPattern))
 )
-
-func init() {
-	fileServerTemplate = template.Must(
-		template.New("config_autoload").
-			Parse(fileServerPattern))
-}
 
 type fileServerGenArgs struct {
 	DistPath string

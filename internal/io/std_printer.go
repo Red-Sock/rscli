@@ -6,10 +6,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Red-Sock/trace-errors"
+	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/io/colors"
 )
+
+//go:generate minimock -i IO -o ./../../tests/mocks -g -s "_mock.go"
 
 type IO interface {
 	Println(in ...string)

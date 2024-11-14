@@ -5,7 +5,7 @@ package app
 
 type Custom struct {}
 
-func (c *Custom) Init(a App) error{
+func (c *Custom) Init(a *App) error{
     // Repository, Service logic, transport registration happens here
     return nil
 }

@@ -110,7 +110,6 @@ func Test_PrepareConfig(t *testing.T) {
 					assert.Fail(t, pathToFile+" is not as expected")
 					require.Equal(t, string(expected), string(actualFile.Content))
 				}
-
 			}
 		})
 	}

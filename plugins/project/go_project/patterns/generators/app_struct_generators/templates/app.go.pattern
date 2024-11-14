@@ -3,11 +3,11 @@
 package app
 
 import (
+	"context"
 	"github.com/Red-Sock/toolbox"
 	"github.com/Red-Sock/toolbox/closer"
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/net/context"{{ range $key, $value := .Imports }}
+	"github.com/sirupsen/logrus"{{ range $key, $value := .Imports }}
     {{ $value }} "{{ $key }}"{{ end }}
 	"golang.org/x/sync/errgroup"
 

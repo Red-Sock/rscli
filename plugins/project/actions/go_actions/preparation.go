@@ -128,9 +128,11 @@ func (a PrepareMakefileAction) Do(p project.IProject) error {
 
 	if len(genScriptSummary) != 0 {
 		makefileContent[0] = []byte(patterns.GenCommand + ": " + strings.Join(genScriptSummary, " "))
+	} else {
+		makefileContent = makefileContent[1:]
 	}
 
-	rscliMk.Content = bytes.Join(makefileContent, []byte{'\n', '\n'})
+	rscliMk.Content = bytes.Join(makefileContent, []byte{'\n'})
 
 	makefile := p.GetFolder().GetByPath(patterns.MakefileFile)
 	if makefile == nil {
@@ -152,14 +154,18 @@ func (a PrepareServerAction) Do(p project.IProject) error {
 
 	rootF := p.GetFolder()
 
+	if rootF.GetByPath(patterns.EasyP.Name) == nil {
+		rootF.Add(patterns.EasyP.Copy())
+	}
+
 	transportFolder := rootF.GetByPath(patterns.InternalFolder, patterns.TransportFolder)
 	if transportFolder == nil {
 		transportFolder = &folder.Folder{}
 	}
 
 	transportFolder.Add(patterns.ServerManager.Copy())
-	transportFolder.Add(patterns.GrpcServerManagerPatternFile.Copy())
-	transportFolder.Add(patterns.HttpServerManagerPatternFile.Copy())
+	transportFolder.Add(patterns.GrpcServerManager.Copy())
+	transportFolder.Add(patterns.HttpServerManager.Copy())
 
 	return nil
 }

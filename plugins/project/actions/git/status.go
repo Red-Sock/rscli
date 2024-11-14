@@ -10,7 +10,7 @@ import (
 
 func Status(pth string) (uncommitted StatusDiff, err error) {
 	executeOut, err := cmd.Execute(cmd.Request{
-		Tool:    exe,
+		Tool:    bin,
 		Args:    []string{"status"},
 		WorkDir: pth,
 	})

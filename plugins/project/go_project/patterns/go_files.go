@@ -68,6 +68,19 @@ var (
 		Content: sqlConnFile,
 	}
 
+	//go:embed pattern_c/internal/clients/sqldb/postgres.go.pattern
+	postgresConnFile []byte
+	PostgresConnFile = &folder.Folder{
+		Name:    "postgres.go",
+		Content: postgresConnFile,
+	}
+	//go:embed pattern_c/internal/clients/sqldb/sqlite.go.pattern
+	sqliteConnFile []byte
+	SqliteConnFile = &folder.Folder{
+		Name:    "sqlite.go",
+		Content: sqliteConnFile,
+	}
+
 	//go:embed pattern_c/internal/clients/telegram/conn.go.pattern
 	tgConnFile []byte
 	TgConnFile = &folder.Folder{
@@ -93,17 +106,17 @@ var (
 	}
 
 	//go:embed pattern_c/internal/transport/grpc.go.pattern
-	grpcServerManagerPatternFile []byte
-	GrpcServerManagerPatternFile = &folder.Folder{
+	grpcServerManagerFile []byte
+	GrpcServerManager     = &folder.Folder{
 		Name:    "grpc.go",
-		Content: grpcServerManagerPatternFile,
+		Content: grpcServerManagerFile,
 	}
 
 	//go:embed pattern_c/internal/transport/http.go.pattern
-	httpServerManagerPatternFile []byte
-	HttpServerManagerPatternFile = &folder.Folder{
+	httpServerManagerFile []byte
+	HttpServerManager     = &folder.Folder{
 		Name:    "http.go",
-		Content: httpServerManagerPatternFile,
+		Content: httpServerManagerFile,
 	}
 
 	//go:embed pattern_c/internal/transport/telegram/listener.go.pattern

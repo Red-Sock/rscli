@@ -18,12 +18,15 @@ func InitProject(pt project.Type) []Action {
 func initVirtualGoProject() []Action {
 	return []Action{
 		go_actions.PrepareProjectStructureAction{}, // basic go project structure
-		go_actions.PrepareGoConfigFolderAction{},   // generates config keys
+		go_actions.InitGoProjectApp{},
+		go_actions.PrepareGoConfigFolderAction{}, // generates config keys
+		go_actions.PrepareMakefileAction{},
+		go_actions.PrepareClientsAction{},
+		go_actions.PrepareServerAction{},
 
 		go_actions.BuildProjectAction{}, // build project in file system
 
-		go_actions.InitGoModAction{},       // executes go mod
-		go_actions.PrepareMakefileAction{}, // prepare Makefile
+		go_actions.InitGoModAction{}, // executes go mod
 
 		go_actions.BuildProjectAction{}, // builds project to file system
 

@@ -1,5 +1,7 @@
 package actions
 
+//go:generate minimock -i ActionPerformer -o ./../../../tests/mocks -g -s "_mock.go"
+
 import (
 	errors "github.com/Red-Sock/trace-errors"
 
@@ -12,25 +14,27 @@ type Action interface {
 	NameInAction() string
 }
 
-type ActionPerformer struct {
-	printer io.IO
-	proj    project.IProject
+type ActionPerformer interface {
+	Tidy(proj project.IProject) error
 }
 
-func NewActionPerformer(printer io.IO, proj project.IProject) ActionPerformer {
-	return ActionPerformer{
+type actionPerformer struct {
+	printer io.IO
+}
+
+func NewActionPerformer(printer io.IO) ActionPerformer {
+	return &actionPerformer{
 		printer: printer,
-		proj:    proj,
 	}
 }
 
-func (a *ActionPerformer) Tidy() error {
-	acts := GetTidyActionsForProject(a.proj.GetType())
+func (a *actionPerformer) Tidy(proj project.IProject) error {
+	acts := GetTidyActionsForProject(proj.GetType())
 
 	for _, ac := range acts {
 		a.printer.Println(ac.NameInAction())
 
-		err := ac.Do(a.proj)
+		err := ac.Do(proj)
 		if err != nil {
 			return errors.Wrap(err)
 		}
