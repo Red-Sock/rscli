@@ -1,42 +1,34 @@
 package add
 
+import (
+	_ "embed"
+)
+
+// GRPC
 var (
-	grpcExpectedProtoFile = []byte(`
-syntax = "proto3";
+	//go:embed expected/grpc/proto.proto
+	grpcExpectedProtoFile []byte
+	//go:embed expected/grpc/config.yaml
+	grpcMatreshkaConfigExpected []byte
+)
 
-package grpc_api;
+// Redis
+var (
+	//go:embed expected/redis/config.yaml
+	expectedRedisConfig []byte
 
-import "google/protobuf/timestamp.proto";
-import "google/api/annotations.proto";
+	//go:embed expected/redis/config/data_source.go
+	expectedRedisDataSourceConfig []byte
+	//go:embed expected/redis/app/data_source.go
+	expectedRedisDataSourceApp []byte
+)
 
-option go_package = "/example_api";
-
-service grpcAPI {
-  rpc Version(PingRequest) returns (PingResponse) {
-    option (google.api.http) = {
-      post: "/api/version"
-      body: "*"
-    };
-  };
-}
-
-message PingRequest {
-  google.protobuf.Timestamp client_timestamp = 1;
-}
-
-message PingResponse {
-   uint32 took = 1;
-}
-`)[1:]
-	grpcMatreshkaConfigExpected = []byte(`
-app_info:
-    name: test_project
-    version: v0.0.1
-    startup_duration: 10s
-servers:
-    80:
-        /{GRPC}:
-            module: Test_AddDependency/GRPC
-            gateway: /api
-`)[1:]
+// Postgres
+var (
+	//go:embed expected/postgres/config.yaml
+	expectedPostgresConfig []byte
+	//go:embed expected/postgres/config/data_sources.go
+	expectedPostgresDataSourceConfig []byte
+	//go:embed expected/postgres/app/data_sources.go
+	expectedPostgresDataSourceApp []byte
 )

@@ -1,0 +1,9 @@
+app_info:
+    name: test_project
+    version: v0.0.1
+    startup_duration: 10s
+servers:
+    80:
+        /{GRPC}:
+            module: Test_AddDependency/GRPC
+            gateway: /api

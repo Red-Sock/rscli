@@ -28,8 +28,9 @@ type dependencyBase struct {
 const (
 	DependencyNameGrpc = "grpc"
 
-	DependencyNamePostgres = "postgres"
 	DependencyNameRedis    = "redis"
+	DependencyNamePostgres = "postgres"
+
 	DependencyNameTelegram = "telegram"
 	DependencyNameSqlite   = "sqlite"
 )
