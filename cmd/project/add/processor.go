@@ -18,11 +18,13 @@ const (
 
 type Proc struct {
 	processor.Processor
+	ActionPerformer actions.ActionPerformer
 }
 
 func NewCommand(basicProc processor.Processor) *cobra.Command {
 	proc := &Proc{
-		Processor: basicProc,
+		Processor:       basicProc,
+		ActionPerformer: actions.NewActionPerformer(basicProc.IO),
 	}
 	c := &cobra.Command{
 		Use:   "add",
@@ -60,9 +62,7 @@ func (p *Proc) run(cmd *cobra.Command, args []string) error {
 
 	p.IO.Println(startingMsg)
 
-	ap := actions.NewActionPerformer(p.IO, project)
-
-	err = ap.Tidy()
+	err = p.ActionPerformer.Tidy(project)
 	if err != nil {
 		return errors.Wrap(err, "error tidying project")
 	}

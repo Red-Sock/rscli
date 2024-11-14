@@ -164,8 +164,8 @@ func (a PrepareServerAction) Do(p project.IProject) error {
 	}
 
 	transportFolder.Add(patterns.ServerManager.Copy())
-	transportFolder.Add(patterns.GrpcServerManagerPatternFile.Copy())
-	transportFolder.Add(patterns.HttpServerManagerPatternFile.Copy())
+	transportFolder.Add(patterns.GrpcServerManager.Copy())
+	transportFolder.Add(patterns.HttpServerManager.Copy())
 
 	return nil
 }

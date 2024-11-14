@@ -1,13 +1,17 @@
+package project
+
+var (
+	grpcExpectedProtoFile = []byte(`
 syntax = "proto3";
 
-package proj_name_api;
+package grpc_api;
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 
 option go_package = "/example_api";
 
-service proj_nameAPI {
+service grpcAPI {
   rpc Version(PingRequest) returns (PingResponse) {
     option (google.api.http) = {
       post: "/api/version"
@@ -23,3 +27,16 @@ message PingRequest {
 message PingResponse {
    uint32 took = 1;
 }
+`)[1:]
+	grpcMatreshkaConfigExpected = []byte(`
+app_info:
+    name: test_project
+    version: v0.0.1
+    startup_duration: 10s
+servers:
+    80:
+        /{GRPC}:
+            module: Test_AddDependency/GRPC
+            gateway: /api
+`)[1:]
+)

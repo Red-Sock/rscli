@@ -9,9 +9,10 @@ import (
 	"github.com/godverv/matreshka/server"
 
 	"github.com/Red-Sock/rscli/internal/envpatterns"
-	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
+
+const grpcServerBasePath = "/{GRPC}"
 
 type GrpcServer struct {
 	dependencyBase
@@ -22,7 +23,7 @@ func (r GrpcServer) GetFolderName() string {
 		return r.Name
 	}
 
-	return "grpc"
+	return "grpc_impl"
 }
 
 func (r GrpcServer) AppendToProject(proj Project) error {
@@ -44,10 +45,10 @@ func (r GrpcServer) AppendToProject(proj Project) error {
 		}
 	}
 
-	r.applyConfig(proj)
-	r.applyServerFolder(proj)
+	r.addGrpcServerToConfig(proj)
 
-	applyServerFolder(proj)
+	initServerFiles(proj)
+
 	return nil
 }
 
@@ -71,35 +72,14 @@ func (r GrpcServer) applyApiFolder(proj Project, protoPath string) error {
 	return nil
 }
 
-func (r GrpcServer) applyConfig(proj Project) {
-	res := &server.Server{}
-	// TODO: ADD MORE INFO ON SERVER IN NEW STYLE RSI-279
-	port := 8080
-	for {
-		_, ok := proj.GetConfig().Servers[port]
-		if !ok {
-			proj.GetConfig().Servers[port] = res
-			break
-		}
-
-		port++
-	}
-}
-
-func (r GrpcServer) applyServerFolder(proj Project) {
-	f := proj.GetFolder()
-
-	pth := []string{patterns.InternalFolder, patterns.TransportFolder, r.GetFolderName()}
-	serverFolder := f.GetByPath(pth...)
-	if serverFolder == nil {
-		serverFolder = &folder.Folder{
-			Name: path.Join(pth...),
-		}
-		f.Add(serverFolder)
+func (r GrpcServer) addGrpcServerToConfig(proj Project) {
+	srv := prepareServer(proj)
+	if len(srv.GRPC) != 0 {
+		return
 	}
 
-	//if serverFolder.GetByPath(projpatterns.GrpcServFile.Name) == nil {
-	//	serverFolder.Add(projpatterns.GrpcServFile.Copy())
-	//}
-	// TODO генерация ручек-реализаций под конкракты
+	srv.GRPC[grpcServerBasePath] = &server.GRPC{
+		Module:  proj.GetName(),
+		Gateway: "/api",
+	}
 }

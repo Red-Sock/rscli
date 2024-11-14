@@ -93,17 +93,17 @@ var (
 	}
 
 	//go:embed pattern_c/internal/transport/grpc.go.pattern
-	grpcServerManagerPatternFile []byte
-	GrpcServerManagerPatternFile = &folder.Folder{
+	grpcServerManagerFile []byte
+	GrpcServerManager     = &folder.Folder{
 		Name:    "grpc.go",
-		Content: grpcServerManagerPatternFile,
+		Content: grpcServerManagerFile,
 	}
 
 	//go:embed pattern_c/internal/transport/http.go.pattern
-	httpServerManagerPatternFile []byte
-	HttpServerManagerPatternFile = &folder.Folder{
+	httpServerManagerFile []byte
+	HttpServerManager     = &folder.Folder{
 		Name:    "http.go",
-		Content: httpServerManagerPatternFile,
+		Content: httpServerManagerFile,
 	}
 
 	//go:embed pattern_c/internal/transport/telegram/listener.go.pattern

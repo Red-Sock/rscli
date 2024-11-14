@@ -22,7 +22,7 @@ func (r Rest) AppendToProject(proj Project) error {
 		return errors.Wrap(err, "error applying rest folder")
 	}
 
-	applyServerFolder(proj)
+	initServerFiles(proj)
 	return nil
 }
 

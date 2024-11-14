@@ -8,8 +8,8 @@ gen-test-project-with-deps: .compile-pattern .gen-test-project-with-deps
 .deps:
 	go install github.com/gojuno/minimock/v3/cmd/minimock@latest
 
-mock:
-	minimock -i github.com/Red-Sock/rscli/internal/stdio.* -o tests/mocks -g -s "_mock.go"
+gen:
+	go generate ./
 
 .gen-test-project-with-deps:
 	go build -o rscli-dev
