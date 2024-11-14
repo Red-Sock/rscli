@@ -29,7 +29,7 @@ type testCase struct {
 }
 
 // deleteGenerated - for debug purposes. Set to true when need to look at what script generates
-const deleteGenerated = false
+const deleteGenerated = true
 
 func Test_AddDependency(t *testing.T) {
 	t.Parallel()
