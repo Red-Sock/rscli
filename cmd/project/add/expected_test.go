@@ -47,6 +47,7 @@ var (
 	expectedTelegramServerHandlerExample []byte
 )
 
+// Sqlite
 var (
 	//go:embed expected/sqlite/config.yaml
 	expectedSqliteConfig []byte
@@ -54,4 +55,12 @@ var (
 	expectedSqliteDataSourcesApp []byte
 	//go:embed expected/sqlite/config/data_sources.go.pattern
 	expectedSqliteDataSourcesConfig []byte
+)
+
+// Env
+var (
+	//go:embed expected/env/config.yaml
+	expectedEnvConfig []byte
+	//go:embed expected/env/config/config.go.pattern
+	expectedEnvConfigGo []byte
 )

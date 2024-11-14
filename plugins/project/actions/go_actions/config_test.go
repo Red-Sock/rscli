@@ -36,7 +36,7 @@ func Test_PrepareConfig(t *testing.T) {
 					project_mock.WithEnvironmentVariables(
 						project_mock.GetAllEnvVariables()...))
 
-				fullConfig := project_mock.FullConfig()
+				fullConfig := project_mock.FullEnvConfig()
 
 				tst.expectedFiles = map[string][]byte{
 					masterConfigPath:   fullConfig,

@@ -22,14 +22,13 @@ import (
 
 type testCase struct {
 	actionPerformer actions.ActionPerformer
-	printlnCalls    []string
 	cfg             *config.RsCliConfig
 	args            []string
 	expectedFiles   []*folder.Folder
 }
 
 // deleteGenerated - for debug purposes. Set to true when need to look at what script generates
-const deleteGenerated = true
+const deleteGenerated = false
 
 func Test_AddDependency(t *testing.T) {
 	t.Parallel()
@@ -49,6 +48,9 @@ func Test_AddDependency(t *testing.T) {
 		},
 		"SQLITE": {
 			prep: expectedSqlite,
+		},
+		"ENV": {
+			prep: expectedEnv,
 		},
 	}
 
@@ -73,7 +75,7 @@ func Test_AddDependency(t *testing.T) {
 				}
 
 				ioMock := mocks.NewIOMock(t)
-				setupPrintlnMock(t, ioMock, tc.printlnCalls...)
+				setupPrintlnMock(t, ioMock, preparingMsg, startingMsg, endMsg)
 
 				command := Proc{
 					Processor: processor.New(
@@ -114,11 +116,6 @@ func expectedGrpc(t *testing.T) testCase {
 
 	return testCase{
 		actionPerformer: apMock,
-		printlnCalls: []string{
-			preparingMsg,
-			startingMsg,
-			endMsg,
-		},
 		cfg: &config.RsCliConfig{
 			Env: config.Project{
 				PathToServerDefinition: "api",
@@ -174,12 +171,7 @@ func expectedRedis(t *testing.T) testCase {
 
 	return testCase{
 		actionPerformer: actions.NewActionPerformer(apIoMock),
-		printlnCalls: []string{
-			preparingMsg,
-			startingMsg,
-			endMsg,
-		},
-		args: []string{dependencies.DependencyNameRedis},
+		args:            []string{dependencies.DependencyNameRedis},
 		expectedFiles: []*folder.Folder{
 			{
 				Name: "config",
@@ -220,12 +212,7 @@ func expectedPostgres(t *testing.T) testCase {
 
 	return testCase{
 		actionPerformer: actions.NewActionPerformer(apIoMock),
-		printlnCalls: []string{
-			preparingMsg,
-			startingMsg,
-			endMsg,
-		},
-		args: []string{dependencies.DependencyNamePostgres},
+		args:            []string{dependencies.DependencyNamePostgres},
 		expectedFiles: []*folder.Folder{
 			{
 				Name: "config",
@@ -262,12 +249,7 @@ func expectedTelegram(t *testing.T) testCase {
 
 	return testCase{
 		actionPerformer: actions.NewActionPerformer(apIoMock),
-		printlnCalls: []string{
-			preparingMsg,
-			startingMsg,
-			endMsg,
-		},
-		args: []string{dependencies.DependencyNameTelegram},
+		args:            []string{dependencies.DependencyNameTelegram},
 		expectedFiles: []*folder.Folder{
 			{
 				Name:    "config/config.yaml",
@@ -303,12 +285,7 @@ func expectedSqlite(t *testing.T) testCase {
 
 	return testCase{
 		actionPerformer: actions.NewActionPerformer(apIoMock),
-		printlnCalls: []string{
-			preparingMsg,
-			startingMsg,
-			endMsg,
-		},
-		args: []string{dependencies.DependencyNameSqlite},
+		args:            []string{dependencies.DependencyNameSqlite},
 		expectedFiles: []*folder.Folder{
 			{
 				Name:    "config/config.yaml",
@@ -329,6 +306,26 @@ func expectedSqlite(t *testing.T) testCase {
 			{
 				Name:    "internal/clients/sqldb/sqlite.go",
 				Content: patterns.SqliteConnFile.Content,
+			},
+		},
+	}
+}
+
+func expectedEnv(t *testing.T) testCase {
+	apIoMock := mocks.NewIOMock(t)
+	apIoMock.PrintlnMock.Set(func(_ ...string) {})
+
+	return testCase{
+		actionPerformer: actions.NewActionPerformer(apIoMock),
+		args:            []string{dependencies.DependencyEnvVariable},
+		expectedFiles: []*folder.Folder{
+			{
+				Name:    "config/config.yaml",
+				Content: expectedEnvConfig,
+			},
+			{
+				Name:    "internal/config/environment.go",
+				Content: expectedEnvConfigGo,
 			},
 		},
 	}

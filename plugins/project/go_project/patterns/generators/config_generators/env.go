@@ -27,13 +27,16 @@ func newGenerateEnvironmentConfigStruct(environment matreshka.Environment) inter
 			var fieldKV generators.KeyValue
 			fieldKV.Key = generators.NormalizeResourceName(env.Name)
 
-			refVal := reflect.ValueOf(env.Value)
-			tp := refVal.Type()
+			if env.Value != nil {
+				refVal := reflect.ValueOf(env.Value)
+				tp := refVal.Type()
+				fieldKV.Value = tp.String()
 
-			fieldKV.Value = tp.String()
-
-			if tp.PkgPath() != "" {
-				ecg.Imports[tp.PkgPath()] = "" // todo think about aliases?
+				if tp.PkgPath() != "" {
+					ecg.Imports[tp.PkgPath()] = ""
+				}
+			} else {
+				fieldKV.Value = ""
 			}
 
 			ecg.Fields = append(ecg.Fields, fieldKV)

@@ -15,6 +15,12 @@ type Telegram struct {
 	dependencyBase
 }
 
+func telegram(dep dependencyBase) Dependency {
+	return &Telegram{
+		dep,
+	}
+}
+
 func (t Telegram) GetFolderName() string {
 	if t.Name != "" {
 		return t.Name

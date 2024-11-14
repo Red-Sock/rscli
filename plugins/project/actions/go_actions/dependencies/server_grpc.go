@@ -18,6 +18,12 @@ type GrpcServer struct {
 	dependencyBase
 }
 
+func grpcServer(dep dependencyBase) Dependency {
+	return &GrpcServer{
+		dep,
+	}
+}
+
 func (r GrpcServer) GetFolderName() string {
 	if r.Name != "" {
 		return r.Name

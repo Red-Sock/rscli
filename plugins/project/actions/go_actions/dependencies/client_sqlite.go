@@ -9,6 +9,12 @@ type Sqlite struct {
 	dependencyBase
 }
 
+func sqlite(dep dependencyBase) Dependency {
+	return &Sqlite{
+		dep,
+	}
+}
+
 func (s Sqlite) AppendToProject(proj Project) error {
 	sc := sqlConn{Cfg: s.Cfg}
 
