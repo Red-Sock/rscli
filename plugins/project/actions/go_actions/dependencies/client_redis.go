@@ -14,6 +14,12 @@ type Redis struct {
 	dependencyBase
 }
 
+func redisClient(dep dependencyBase) Dependency {
+	return &Redis{
+		dep,
+	}
+}
+
 func (p Redis) GetFolderName() string {
 	if p.Name != "" {
 		return p.Name

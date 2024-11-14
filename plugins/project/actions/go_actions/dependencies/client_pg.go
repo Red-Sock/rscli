@@ -9,6 +9,12 @@ type Postgres struct {
 	dependencyBase
 }
 
+func postgresClient(dep dependencyBase) Dependency {
+	return &Postgres{
+		dependencyBase: dep,
+	}
+}
+
 func (p Postgres) AppendToProject(proj Project) error {
 	sc := sqlConn{
 		Cfg: p.dependencyBase.Cfg,

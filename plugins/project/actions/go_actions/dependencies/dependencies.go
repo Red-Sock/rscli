@@ -32,15 +32,19 @@ const (
 	DependencyNamePostgres = "postgres"
 	DependencyNameTelegram = "telegram"
 	DependencyNameSqlite   = "sqlite"
+
+	DependencyEnvVariable = "env"
 )
 
 var nameToDependencyConstructor = map[string]func(dep dependencyBase) Dependency{
-	DependencyNameGrpc: func(dep dependencyBase) Dependency { return &GrpcServer{dep} },
+	DependencyNameGrpc: grpcServer,
 
-	DependencyNamePostgres: func(dep dependencyBase) Dependency { return &Postgres{dependencyBase: dep} },
-	DependencyNameRedis:    func(dep dependencyBase) Dependency { return &Redis{dep} },
-	DependencyNameTelegram: func(dep dependencyBase) Dependency { return &Telegram{dep} },
-	DependencyNameSqlite:   func(dep dependencyBase) Dependency { return &Sqlite{dep} },
+	DependencyNamePostgres: postgresClient,
+	DependencyNameRedis:    redisClient,
+	DependencyNameTelegram: telegram,
+	DependencyNameSqlite:   sqlite,
+
+	DependencyEnvVariable: envVariable,
 }
 
 func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {
