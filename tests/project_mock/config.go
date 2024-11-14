@@ -8,11 +8,11 @@ import (
 )
 
 //go:embed full_config.yaml
-var fullConfigFile []byte
+var fullEnvConfigFile []byte
 
-func FullConfig() []byte {
-	n := make([]byte, len(fullConfigFile))
-	copy(n, fullConfigFile)
+func FullEnvConfig() []byte {
+	n := make([]byte, len(fullEnvConfigFile))
+	copy(n, fullEnvConfigFile)
 
 	return n
 }
