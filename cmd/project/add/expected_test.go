@@ -46,3 +46,12 @@ var (
 	//go:embed expected/telegram/transport/handler/handler.go
 	expectedTelegramServerHandlerExample []byte
 )
+
+var (
+	//go:embed expected/sqlite/config.yaml
+	expectedSqliteConfig []byte
+	//go:embed expected/sqlite/app/data_sources.go
+	expectedSqliteDataSourcesApp []byte
+	//go:embed expected/sqlite/config/data_sources.go
+	expectedSqliteDataSourcesConfig []byte
+)

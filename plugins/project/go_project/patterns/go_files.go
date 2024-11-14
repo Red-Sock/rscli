@@ -74,6 +74,12 @@ var (
 		Name:    "postgres.go",
 		Content: postgresConnFile,
 	}
+	//go:embed pattern_c/internal/clients/sqldb/sqlite.go.pattern
+	sqliteConnFile []byte
+	SqliteConnFile = &folder.Folder{
+		Name:    "sqlite.go",
+		Content: sqliteConnFile,
+	}
 
 	//go:embed pattern_c/internal/clients/telegram/conn.go.pattern
 	tgConnFile []byte

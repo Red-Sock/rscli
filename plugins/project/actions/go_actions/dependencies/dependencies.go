@@ -30,7 +30,6 @@ const (
 
 	DependencyNameRedis    = "redis"
 	DependencyNamePostgres = "postgres"
-
 	DependencyNameTelegram = "telegram"
 	DependencyNameSqlite   = "sqlite"
 )

@@ -47,6 +47,9 @@ func Test_AddDependency(t *testing.T) {
 		"TELEGRAM": {
 			prep: expectedTelegram,
 		},
+		"SQLITE": {
+			prep: expectedSqlite,
+		},
 	}
 
 	for name, tc := range testCases {
@@ -293,6 +296,44 @@ func expectedTelegram(t *testing.T) testCase {
 		},
 	}
 }
+
+func expectedSqlite(t *testing.T) testCase {
+	apIoMock := mocks.NewIOMock(t)
+	apIoMock.PrintlnMock.Set(func(_ ...string) {})
+
+	return testCase{
+		actionPerformer: actions.NewActionPerformer(apIoMock),
+		printlnCalls: []string{
+			preparingMsg,
+			startingMsg,
+			endMsg,
+		},
+		args: []string{dependencies.DependencyNameSqlite},
+		expectedFiles: []*folder.Folder{
+			{
+				Name:    "config/config.yaml",
+				Content: expectedSqliteConfig,
+			},
+			{
+				Name:    "internal/app/data_sources.go",
+				Content: expectedSqliteDataSourcesApp,
+			},
+			{
+				Name:    "internal/config/data_sources.go",
+				Content: expectedSqliteDataSourcesConfig,
+			},
+			{
+				Name:    "internal/clients/sqldb/conn.go",
+				Content: patterns.SqlConnFile.Content,
+			},
+			{
+				Name:    "internal/clients/sqldb/sqlite.go",
+				Content: patterns.SqliteConnFile.Content,
+			},
+		},
+	}
+}
+
 func setupPrintlnMock(t *testing.T, ioMock *mocks.IOMock, printlnCalls ...string) {
 	prinlnIdx := 0
 	ioMock.PrintlnMock.Set(func(in ...string) {
