@@ -26,7 +26,7 @@ func (a CommitWithUntrackedAction) NameInAction() string {
 func Commit(workingDir, msg string) error {
 
 	_, err := cmd.Execute(cmd.Request{
-		Tool:    exe,
+		Tool:    bin,
 		Args:    []string{"commit", "-m", "\"" + msg + "\""},
 		WorkDir: workingDir,
 	})
@@ -40,7 +40,7 @@ func Commit(workingDir, msg string) error {
 
 func CommitWithUntracked(workDir, msg string) error {
 	_, err := cmd.Execute(cmd.Request{
-		Tool:    exe,
+		Tool:    bin,
 		Args:    []string{"add", "."},
 		WorkDir: workDir,
 	})

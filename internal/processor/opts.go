@@ -19,6 +19,6 @@ func WithWd(wd string) opt {
 
 func WithConfig(cfg *config.RsCliConfig) opt {
 	return func(p *Processor) {
-		p.Config = cfg
+		p.RscliConfig = cfg
 	}
 }

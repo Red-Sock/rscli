@@ -11,9 +11,9 @@ import (
 // e.g. rscli project tidy - calls a cmd/project/tidy Processor and executes it
 // Contains all basic necessary information and primitives for CLI utility
 type Processor struct {
-	IO     io.IO
-	Config *config.RsCliConfig
-	WD     string
+	IO          io.IO
+	RscliConfig *config.RsCliConfig
+	WD          string
 }
 
 type opt func(p *Processor)
@@ -37,8 +37,8 @@ func New(opts ...opt) Processor {
 		p.WD = wd
 	}
 
-	if p.Config == nil {
-		p.Config = config.GetConfig()
+	if p.RscliConfig == nil {
+		p.RscliConfig = config.GetConfig()
 	}
 
 	return p

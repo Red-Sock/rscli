@@ -12,7 +12,7 @@ const (
 	ChangesTypeNotCommitted
 )
 
-const exe = "git"
+const bin = "git"
 
 type InitGit struct{}
 

@@ -22,7 +22,7 @@ type Proc struct {
 func NewCommand(basicProc processor.Processor) *cobra.Command {
 	proc := &Proc{
 		Processor:     basicProc,
-		nameCollector: newNameCollector(basicProc.IO, basicProc.Config.DefaultProjectGitPath),
+		nameCollector: newNameCollector(basicProc.IO, basicProc.RscliConfig.DefaultProjectGitPath),
 	}
 
 	c := &cobra.Command{
@@ -40,7 +40,7 @@ func NewCommand(basicProc processor.Processor) *cobra.Command {
 
 func (p *Proc) run(_ *cobra.Command, cmdArgs []string) (err error) {
 	cArgs := project.CreateArgs{
-		CfgPath: p.Config.Env.PathToConfig,
+		CfgPath: p.RscliConfig.Env.PathToConfig,
 	}
 
 	// step 1: obtain name

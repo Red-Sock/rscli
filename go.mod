@@ -4,6 +4,7 @@ go 1.23.3
 
 require (
 	github.com/Red-Sock/evon v0.0.15
+	github.com/Red-Sock/toolbox v0.0.5
 	github.com/Red-Sock/trace-errors v0.0.11
 	github.com/gobeam/stringy v0.0.7
 	github.com/godverv/matreshka v0.0.36
@@ -18,13 +19,13 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/godverv/hello_world v0.0.12 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	golang.org/x/net v0.30.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241104194629-dd2ea8efbc28 // indirect
 	google.golang.org/grpc v1.67.1 // indirect

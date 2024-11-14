@@ -128,9 +128,11 @@ func (a PrepareMakefileAction) Do(p project.IProject) error {
 
 	if len(genScriptSummary) != 0 {
 		makefileContent[0] = []byte(patterns.GenCommand + ": " + strings.Join(genScriptSummary, " "))
+	} else {
+		makefileContent = makefileContent[1:]
 	}
 
-	rscliMk.Content = bytes.Join(makefileContent, []byte{'\n', '\n'})
+	rscliMk.Content = bytes.Join(makefileContent, []byte{'\n'})
 
 	makefile := p.GetFolder().GetByPath(patterns.MakefileFile)
 	if makefile == nil {

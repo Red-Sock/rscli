@@ -25,7 +25,7 @@ func Test_InitProject(t *testing.T) {
 	require.NoError(t, os.RemoveAll(dirPath))
 	require.NoError(t, os.MkdirAll(dirPath, 0777))
 	defer func() {
-		//require.NoError(t, os.RemoveAll(dirPath))
+		require.NoError(t, os.RemoveAll(dirPath))
 	}()
 
 	projFullName := defaultGitPath + "/" + projName
