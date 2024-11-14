@@ -29,7 +29,7 @@ type testCase struct {
 }
 
 // deleteGenerated - for debug purposes. Set to true when need to look at what script generates
-const deleteGenerated = true
+const deleteGenerated = false
 
 func Test_AddDependency(t *testing.T) {
 	t.Parallel()
@@ -43,6 +43,9 @@ func Test_AddDependency(t *testing.T) {
 		},
 		"POSTGRES": {
 			prep: expectedPostgres,
+		},
+		"TELEGRAM": {
+			prep: expectedTelegram,
 		},
 	}
 
@@ -250,6 +253,46 @@ func expectedPostgres(t *testing.T) testCase {
 	}
 }
 
+func expectedTelegram(t *testing.T) testCase {
+	apIoMock := mocks.NewIOMock(t)
+	apIoMock.PrintlnMock.Set(func(_ ...string) {})
+
+	return testCase{
+		actionPerformer: actions.NewActionPerformer(apIoMock),
+		printlnCalls: []string{
+			preparingMsg,
+			startingMsg,
+			endMsg,
+		},
+		args: []string{dependencies.DependencyNameTelegram},
+		expectedFiles: []*folder.Folder{
+			{
+				Name:    "config/config.yaml",
+				Content: expectedTelegramConfig,
+			},
+			{
+				Name:    "internal/app/data_sources.go",
+				Content: expectedTelegramDataSourcesApp,
+			},
+			{
+				Name:    "internal/config/data_sources.go",
+				Content: expectedTelegramDataSourcesConfig,
+			},
+			{
+				Name:    "internal/clients/telegram/conn.go",
+				Content: patterns.TgConnFile.Content,
+			},
+			{
+				Name:    "internal/transport/telegram/listener.go",
+				Content: expectedTelegramServer,
+			},
+			{
+				Name:    "internal/transport/telegram/version/handler.go",
+				Content: expectedTelegramServerHandlerExample,
+			},
+		},
+	}
+}
 func setupPrintlnMock(t *testing.T, ioMock *mocks.IOMock, printlnCalls ...string) {
 	prinlnIdx := 0
 	ioMock.PrintlnMock.Set(func(in ...string) {

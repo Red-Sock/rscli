@@ -111,7 +111,9 @@ func telegramInitFunc(res resources.Resource, appContent *AppContent) (fc InitFu
 	fc.Args = "a.Cfg.DataSources." + fc.ResultName
 	fc.ErrorMessage = "error during telegram bot initialization"
 
-	fc.Import["proj_name/internal/clients/telegram"] = ""
+	fc.Import = map[string]string{
+		"proj_name/internal/clients/telegram": "",
+	}
 
 	appContent.Imports["github.com/Red-Sock/go_tg"] = ""
 

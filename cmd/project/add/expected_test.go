@@ -32,3 +32,17 @@ var (
 	//go:embed expected/postgres/app/data_sources.go
 	expectedPostgresDataSourceApp []byte
 )
+
+// Telegram
+var (
+	//go:embed expected/telegram/config.yaml
+	expectedTelegramConfig []byte
+	//go:embed expected/telegram/app/data_sources.go
+	expectedTelegramDataSourcesApp []byte
+	//go:embed expected/telegram/config/data_sources.go
+	expectedTelegramDataSourcesConfig []byte
+	//go:embed expected/telegram/transport/listener.go
+	expectedTelegramServer []byte
+	//go:embed expected/telegram/transport/handler/handler.go
+	expectedTelegramServerHandlerExample []byte
+)
