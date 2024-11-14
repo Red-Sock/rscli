@@ -1,0 +1,28 @@
+version: v1alpha
+
+deps:
+    - github.com/googleapis/googleapis
+
+generate:
+    inputs:
+      - directory: "api/grpc"
+    plugins:
+        - name: go
+          out: pkg
+
+        - name: go-grpc
+          out: pkg
+
+        - name: grpc-gateway
+          out: pkg
+
+        - name: grpc-gateway-ts
+          out: pkg/web
+
+        - name: openapiv2
+          out: pkg/docs
+
+        - name: docs
+          out: pkg/docs/api
+          opts:
+            swaggers_folder_path: grpc

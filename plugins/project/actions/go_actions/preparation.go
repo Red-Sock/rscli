@@ -152,6 +152,10 @@ func (a PrepareServerAction) Do(p project.IProject) error {
 
 	rootF := p.GetFolder()
 
+	if rootF.GetByPath(patterns.EasyP.Name) == nil {
+		rootF.Add(patterns.EasyP.Copy())
+	}
+
 	transportFolder := rootF.GetByPath(patterns.InternalFolder, patterns.TransportFolder)
 	if transportFolder == nil {
 		transportFolder = &folder.Folder{}

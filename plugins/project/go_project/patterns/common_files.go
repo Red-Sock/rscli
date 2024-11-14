@@ -51,7 +51,7 @@ var (
 	}
 )
 
-// Testing files
+// Example files
 var (
 	//go:embed pattern_c/examples/api.http
 	apiHTTP []byte
@@ -69,38 +69,7 @@ var (
 		Name:    "rscli.mk",
 		Content: rscliMK,
 	}
-	//go:embed pattern_c/grpc.mk
-	GrpcServerGenMK []byte
-)
 
-var (
-	//go:embed pattern_c/api/grpc/api.proto
-	protoServer []byte
-	ProtoServer = &folder.Folder{
-		Name:    "api.proto",
-		Content: protoServer,
-	}
-)
-
-// GitHub Workflows
-var (
-	//go:embed pattern_c/.github/workflows/release.yaml
-	githubWorkflowRelease []byte
-	GithubWorkflowRelease = &folder.Folder{
-		Name:    "release.yaml",
-		Content: githubWorkflowRelease,
-	}
-
-	//go:embed pattern_c/.github/workflows/go-branch-push.yml
-	githubWorkflowGoBranchPush []byte
-	GithubWorkflowGoBranchPush = &folder.Folder{
-		Name:    "branch-push.yaml",
-		Content: githubWorkflowGoBranchPush,
-	}
-)
-
-// Scripts
-var (
 	//go:embed pattern_c/Makefile
 	makefile []byte
 	Makefile = &folder.Folder{
