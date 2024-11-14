@@ -3,8 +3,17 @@ package processor
 import (
 	"os"
 
+	"github.com/Red-Sock/toolbox"
+	errors "github.com/Red-Sock/trace-errors"
+	"github.com/spf13/cobra"
+
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/plugins/project"
+)
+
+const (
+	PathFlag = "path"
 )
 
 // Processor - represents a single process of execution.
@@ -42,4 +51,21 @@ func New(opts ...opt) Processor {
 	}
 
 	return p
+}
+
+func (p *Processor) LoadProject(cmd *cobra.Command) (proj *project.Project, err error) {
+	var pathToProject string
+
+	if cmd != nil {
+		pathToProject = cmd.Flag(PathFlag).Value.String()
+	}
+
+	pathToProject = toolbox.Coalesce(pathToProject, p.WD)
+
+	proj, err = project.LoadProject(pathToProject, p.RscliConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "error loading project")
+	}
+
+	return proj, nil
 }

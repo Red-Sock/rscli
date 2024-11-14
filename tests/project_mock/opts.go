@@ -2,6 +2,7 @@ package project_mock
 
 import (
 	"os"
+	"path"
 	"testing"
 
 	"github.com/godverv/matreshka/environment"
@@ -11,7 +12,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 )
 
-const testFolder = "test_"
+const testFolder = "test"
 
 func WithFile(filePath string, file []byte) Opt {
 	return func(m *MockProject) {
@@ -30,7 +31,7 @@ func WithEnvironmentVariables(vars ...*environment.Variable) Opt {
 
 func WithFileSystem(t *testing.T) Opt {
 	return func(m *MockProject) {
-		m.Path = testFolder + t.Name()[5:]
+		m.Path = path.Join(testFolder, t.Name()[5:])
 		m.Root.Name = m.Path
 		require.NoError(t, os.MkdirAll(m.Path, 0777))
 	}

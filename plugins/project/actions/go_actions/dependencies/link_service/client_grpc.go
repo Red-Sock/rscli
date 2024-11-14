@@ -1,4 +1,4 @@
-package dependencies
+package link_service
 
 import (
 	"bytes"
@@ -19,7 +19,8 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/grpc_discovery"
+	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/link_service/grpc_discovery"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/config_generators"
@@ -40,7 +41,7 @@ func (g GrpcClient) GetFolderName() string {
 	return "grpc"
 }
 
-func (g GrpcClient) AppendToProject(proj Project) error {
+func (g GrpcClient) AppendToProject(proj project.IProject) error {
 	if len(g.Modules) == 0 {
 		return nil
 	}
@@ -97,8 +98,7 @@ func (g GrpcClient) getPackage(packageName string) (ok bool) {
 	return true
 }
 
-// Users/alexbukov/go/pkg/mod/github.com/godverv/hello_world/pkg
-func (g GrpcClient) applyLink(proj Project, packageName string) error {
+func (g GrpcClient) applyLink(proj project.IProject, packageName string) error {
 	discovery := grpc_discovery.GrpcDiscovery{Cfg: g.Cfg}
 
 	pkg, err := discovery.DiscoverPackage(packageName)

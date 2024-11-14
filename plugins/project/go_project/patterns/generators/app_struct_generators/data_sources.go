@@ -6,7 +6,7 @@ import (
 	"github.com/godverv/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/rw"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/grpc_discovery"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/link_service/grpc_discovery"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators"
 )
 

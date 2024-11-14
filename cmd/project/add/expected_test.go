@@ -1,4 +1,4 @@
-package project
+package add
 
 var (
 	grpcExpectedProtoFile = []byte(`

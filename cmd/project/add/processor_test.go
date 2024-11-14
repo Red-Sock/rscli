@@ -1,10 +1,10 @@
-package project
+package add
 
 import (
+	"os"
 	"testing"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/server"
 	"github.com/stretchr/testify/require"
 
 	"github.com/Red-Sock/rscli/internal/config"
@@ -24,11 +24,10 @@ func Test_AddDependency(t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {
-		printlnCalls            []string
-		cfg                     *config.RsCliConfig
-		args                    []string
-		expectedFiles           []*folder.Folder
-		expectedMatreshkaServer *server.Server
+		printlnCalls  []string
+		cfg           *config.RsCliConfig
+		args          []string
+		expectedFiles []*folder.Folder
 	}
 
 	testCases := map[string]testCase{
@@ -84,11 +83,6 @@ func Test_AddDependency(t *testing.T) {
 					},
 				},
 			},
-			expectedMatreshkaServer: &server.Server{
-				GRPC: make(map[string]*server.GRPC),
-				FS:   make(map[string]*server.FS),
-				HTTP: make(map[string]*server.HTTP),
-			},
 		},
 	}
 
@@ -102,7 +96,7 @@ func Test_AddDependency(t *testing.T) {
 					project_mock.WithGit(t),
 				)
 				defer func() {
-					//require.NoError(t, os.RemoveAll(projectMock.Path))
+					require.NoError(t, os.RemoveAll(projectMock.Path))
 				}()
 				initActions := actions.InitProject(project.TypeGo)
 				for _, action := range initActions {

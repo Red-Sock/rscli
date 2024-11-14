@@ -3,6 +3,7 @@ package project
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/Red-Sock/rscli/cmd/project/add"
 	"github.com/Red-Sock/rscli/cmd/project/init_new"
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
@@ -25,12 +26,7 @@ func NewCmd() *cobra.Command {
 	basicProc := processor.New()
 
 	cmd.AddCommand(init_new.NewCommand(basicProc))
-
-	cmd.AddCommand(newAddCmd(projectAdd{
-		io:     stdIO,
-		path:   wd,
-		config: cfg,
-	}))
+	cmd.AddCommand(add.NewCommand(basicProc))
 
 	cmd.AddCommand(newLinkCmd(projectLink{
 		io:     stdIO,

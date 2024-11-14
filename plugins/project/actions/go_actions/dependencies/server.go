@@ -1,12 +1,16 @@
 package dependencies
 
 import (
+	"path"
+
 	"github.com/godverv/matreshka/server"
+
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 const defaultServerPort = 80
 
-func prepareServer(proj Project) *server.Server {
+func prepareServerConfig(proj Project) *server.Server {
 	for _, s := range proj.GetConfig().Servers {
 		return s
 	}
@@ -20,4 +24,18 @@ func prepareServer(proj Project) *server.Server {
 	proj.GetConfig().Servers[defaultServerPort] = newServer
 
 	return newServer
+}
+
+func initServerManagerFiles(proj Project) {
+	serverManagerPath := []string{
+		patterns.InternalFolder,
+		patterns.TransportFolder,
+		patterns.ServerManager.Name,
+	}
+
+	if proj.GetFolder().GetByPath(serverManagerPath...) == nil {
+		proj.GetFolder().Add(
+			patterns.ServerManager.
+				CopyWithNewName(path.Join(serverManagerPath...)))
+	}
 }

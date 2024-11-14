@@ -1,4 +1,4 @@
-package project
+package add
 
 import (
 	"strings"
@@ -10,10 +10,6 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
-)
-
-const (
-	pathFlag = "path"
 )
 
 type Proc struct {
@@ -37,22 +33,28 @@ func NewCommand(basicProc processor.Processor) *cobra.Command {
 		SilenceUsage:  true,
 	}
 
-	c.Flags().StringP(pathFlag, pathFlag[:1], "", `path to folder with project`)
+	c.Flags().StringP(
+		processor.PathFlag,
+		processor.PathFlag[:1],
+		proc.WD,
+		`path to folder with project`)
 
 	return c
 }
 
 func (p *Proc) run(cmd *cobra.Command, args []string) error {
-	project, err := p.loadProject(cmd)
+	project, err := p.LoadProject(cmd)
 	if err != nil {
 		return errors.Wrap(err, "error loading project for add action")
 	}
 
 	p.IO.Println(preparingMsg)
+
 	deps := dependencies.GetDependencies(p.RscliConfig, args)
 	if len(deps) == 0 {
 		//	TODO return with help message
 	}
+
 	for _, d := range deps {
 		err = d.AppendToProject(project)
 		if err != nil {

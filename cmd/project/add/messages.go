@@ -1,4 +1,4 @@
-package project
+package add
 
 const (
 	preparingMsg = "Getting dependencies for project"

@@ -47,7 +47,7 @@ func (r GrpcServer) AppendToProject(proj Project) error {
 
 	r.addGrpcServerToConfig(proj)
 
-	initServerFiles(proj)
+	initServerManagerFiles(proj)
 
 	return nil
 }
@@ -73,7 +73,7 @@ func (r GrpcServer) applyApiFolder(proj Project, protoPath string) error {
 }
 
 func (r GrpcServer) addGrpcServerToConfig(proj Project) {
-	srv := prepareServer(proj)
+	srv := prepareServerConfig(proj)
 	if len(srv.GRPC) != 0 {
 		return
 	}
