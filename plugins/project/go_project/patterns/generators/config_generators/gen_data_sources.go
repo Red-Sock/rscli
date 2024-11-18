@@ -43,7 +43,6 @@ func newGenerateDataSourcesConfigStruct(dataSources matreshka.DataSources) inter
 			}
 
 			ecg.Fields = append(ecg.Fields, fieldKV)
-
 		}
 
 		buf := &rw.RW{}
