@@ -24,17 +24,17 @@ func GetTidyActionsForProject(pt project.Type) []Action {
 
 func goProjectTidyActions() []Action {
 	return []Action{
-		go_actions.PrepareGoConfigFolderAction{},
-		go_actions.PrepareMakefileAction{},
-		go_actions.PrepareClientsAction{},
-		go_actions.PrepareServerAction{},
+		go_actions.PrepareConfigFolder{},
+		go_actions.PrepareMakefile{},
+		go_actions.PrepareClients{},
+		go_actions.PrepareServer{},
 		go_actions.BuildProjectAction{},
 		go_actions.RunMakeGenAction{},
 		go_actions.InitGoProjectApp{},
 
 		go_actions.BuildProjectAction{},
 		go_actions.RunGoTidyAction{},
-		go_actions.RunGoFmtAction{},
+		go_actions.GoFmt{},
 		go_actions.UpdateAllPackages{},
 	}
 }

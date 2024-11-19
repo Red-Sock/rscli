@@ -17,21 +17,21 @@ func InitProject(pt project.Type) []Action {
 
 func initVirtualGoProject() []Action {
 	return []Action{
-		go_actions.PrepareProjectStructureAction{}, // basic go project structure
+		go_actions.PrepareProjectStructure{}, // basic go project structure
 		go_actions.InitGoProjectApp{},
-		go_actions.PrepareGoConfigFolderAction{}, // generates config keys
-		go_actions.PrepareMakefileAction{},
-		go_actions.PrepareClientsAction{},
-		go_actions.PrepareServerAction{},
+		go_actions.PrepareConfigFolder{}, // generates config keys
+		go_actions.PrepareMakefile{},
+		go_actions.PrepareClients{},
+		go_actions.PrepareServer{},
 
 		go_actions.BuildProjectAction{}, // build project in file system
 
-		go_actions.InitGoModAction{}, // executes go mod
+		go_actions.InitGoMod{}, // executes go mod
 
 		go_actions.BuildProjectAction{}, // builds project to file system
 
 		go_actions.RunGoTidyAction{}, // adds/clears project initialization(api, resources) and replaces project name template with actual project name
-		go_actions.RunGoFmtAction{},  // fetches dependencies and formats go code
+		go_actions.GoFmt{},           // fetches dependencies and formats go code
 
 		git.InitGit{},
 	}

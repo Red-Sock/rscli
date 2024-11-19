@@ -14,9 +14,9 @@ import (
 
 const goBin = "go"
 
-type RunGoFmtAction struct{}
+type GoFmt struct{}
 
-func (a RunGoFmtAction) Do(p project.IProject) error {
+func (a GoFmt) Do(p project.IProject) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"fmt", "./..."},
@@ -28,7 +28,7 @@ func (a RunGoFmtAction) Do(p project.IProject) error {
 
 	return nil
 }
-func (a RunGoFmtAction) NameInAction() string {
+func (a GoFmt) NameInAction() string {
 	return "Performing project fix up"
 }
 
@@ -44,7 +44,7 @@ func (a RunGoTidyAction) Do(p project.IProject) error {
 		return errors.Wrap(err, "error executing go mod tidy")
 	}
 
-	err = RunGoFmtAction{}.Do(p)
+	err = GoFmt{}.Do(p)
 	if err != nil {
 		return errors.Wrap(err, "error formatting project")
 	}

@@ -93,7 +93,7 @@ func Test_PrepareConfig(t *testing.T) {
 		},
 	}
 
-	action := PrepareGoConfigFolderAction{}
+	action := PrepareConfigFolder{}
 
 	for name, tc := range tests {
 		name, tc := name, tc

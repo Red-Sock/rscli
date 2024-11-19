@@ -10,9 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create PR
-        uses: RedSockActions/create_pr@v0.0.2
+        uses: RedSockActions/create_pr@v0.0.10
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          target-branch: master
 
   build-and-test:
     runs-on: ubuntu-latest

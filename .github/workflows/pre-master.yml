@@ -3,64 +3,14 @@ run-name: pre-master-checks
 on:
   pull_request:
     branches:
-      - main
+      - master
 
 env:
   PATTERN_MK_FILE_PTH: plugins/project/projpatterns/pattern/rscli.mk
   
 jobs:
-  project-plugin-tag-validation:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Obtaining current release tag
-        id: release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # obtaining latest stable release
-          latestRelease=$(gh release list \
-            -R https://github.com/Red-Sock/rscli \
-            --exclude-drafts \
-            --exclude-pre-releases \
-            -L 1)
-          
-          # predefined variable for splitting strings
-          IFS='	'
-          
-          read -a latestReleaseArr <<< "$latestRelease"
-          
-          echo "tag=${latestReleaseArr[0]}" >> $GITHUB_OUTPUT
-          echo "latest github release is ${latestReleaseArr[0]}"
-
-      - name: Obtaining tag from pattern
-        id: project
-        run: |
-          IFS='='
-          read -a patternTagArr <<< `head -n 1 $PATTERN_MK_FILE_PTH`
-          
-          echo "Current pattern tag is ${patternTagArr[1]}"
-          echo "tag=${patternTagArr[1]}" >> $GITHUB_OUTPUT
-
-      - name: Validating tag
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "Latest release is ${{ steps.release.outputs.tag }}"
-          echo "Project tag is ${{ steps.project.outputs.tag }}"
-          
-          if [[ "${{ steps.release.outputs.tag }}" == "${{ steps.project.outputs.tag }}" ]]; then
-              OUTPUT_MESSAGE="Release tags are equal. **Update** rscli version in [$PATTERN_MK_FILE_PTH](https://github.com/Red-Sock/rscli/blob/${GITHUB_HEAD_REF}/${PATTERN_MK_FILE_PTH}) before creating release and **recompile** project-pattern"
-              
-              gh pr comment ${{ github.event.number }} -b "$OUTPUT_MESSAGE" > /dev/null 
-            
-              echo "$OUTPUT_MESSAGE"
-              exit 1
-          fi
 
   project-plugin-compiled:
-    needs: project-plugin-tag-validation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
