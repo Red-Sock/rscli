@@ -17,11 +17,10 @@ func main() {
 	newVersion, canUpdate := version.CanUpdate()
 	if canUpdate {
 		io.StdIO{}.Println(`
-### Update is available
-Run
+⚙️⚙️⚙️ Update is available ⚙️⚙️⚙️
+Run this to install it:
 	go install github.com/Red-Sock/rscli@` + newVersion + `
-to install it
-###`)
+`)
 	}
 
 	root := &cobra.Command{
