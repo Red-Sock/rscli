@@ -18,8 +18,8 @@ gen:
 	mkdir -p test/testproj
 
 	cd test &&\
-    ./../rscli-dev project init Testproj && \
-    cd testproj && \
+    ./../rscli-dev project init Test_proj && \
+    cd test_proj && \
     ./../../rscli-dev project add grpc
 
 dev-build: .compile-pattern .dev-build

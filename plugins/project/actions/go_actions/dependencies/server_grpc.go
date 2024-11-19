@@ -29,7 +29,7 @@ func (r GrpcServer) GetFolderName() string {
 		return r.Name
 	}
 
-	return "grpc_impl"
+	return "grpc"
 }
 
 func (r GrpcServer) AppendToProject(proj Project) error {
@@ -45,7 +45,7 @@ func (r GrpcServer) AppendToProject(proj Project) error {
 
 	if !ok {
 		protoPath := path.Join(r.Cfg.Env.PathToServerDefinition, r.GetFolderName(), protoName)
-		err := r.applyApiFolder(proj, protoPath)
+		err = r.applyApiFolder(proj, protoPath)
 		if err != nil {
 			return errors.Wrap(err, "error applying grpc api folder")
 		}
@@ -59,21 +59,19 @@ func (r GrpcServer) AppendToProject(proj Project) error {
 }
 
 func (r GrpcServer) applyApiFolder(proj Project, protoPath string) error {
-	serverF := patterns.ProtoServer.CopyWithNewName(protoPath)
+	protoFile := patterns.ProtoServer.CopyWithNewName(protoPath)
 
 	projName := stringy.New(proj.GetShortName())
 
-	serverF.Content = bytes.Replace(serverF.Content,
+	protoFile.Content = bytes.Replace(protoFile.Content,
 		[]byte(envpatterns.ProjNamePattern),
 		[]byte(projName.SnakeCase().ToLower()),
 		1)
 
-	serverF.Content = bytes.Replace(serverF.Content,
+	protoFile.Content = bytes.Replace(protoFile.Content,
 		[]byte(envpatterns.ProjNamePattern),
 		[]byte(projName.CamelCase().Get()),
 		1)
-
-	proj.GetFolder().Add(serverF)
 
 	return nil
 }
