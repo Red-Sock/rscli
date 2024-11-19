@@ -15,7 +15,7 @@ func SnakeToPascal(v string) string {
 			if parts[i] == "" {
 				continue
 			}
-			parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
+			parts[i] = strings.ToUpper(parts[i][:1]) + strings.ToLower(parts[i][1:])
 		}
 	}
 

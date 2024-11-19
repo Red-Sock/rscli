@@ -10,16 +10,11 @@ import (
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project/actions"
-	"github.com/Red-Sock/rscli/plugins/project/actions/git"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/validators"
 )
 
 const (
-	defaultVersion  = "0.0.1"
+	defaultVersion  = "v0.0.1"
 	startupDuration = time.Second * 10
 )
 
@@ -27,33 +22,15 @@ type CreateArgs struct {
 	Name        string
 	CfgPath     string
 	ProjectPath string
-	Validators  []Validator
-	Actions     []actions.Action
+
+	Type Type
 }
 
-func CreateGoProject(args CreateArgs) (*Project, error) {
+func CreateProject(args CreateArgs) (*Project, error) {
 	proj := &Project{
 		Name: args.Name,
 
-		Actions: append([]actions.Action{
-			go_actions.PrepareProjectStructureAction{}, // basic go project structure
-			go_actions.PrepareGoConfigFolderAction{},   // generates config keys
-
-			go_actions.BuildProjectAction{}, // build project in file system
-
-			go_actions.InitGoModAction{},       // executes go mod
-			go_actions.PrepareMakefileAction{}, // prepare Makefile
-
-			go_actions.BuildProjectAction{}, // builds project to file system
-
-			go_actions.RunGoTidyAction{}, // adds/clears project initialization(api, resources) and replaces project name template with actual project name
-			go_actions.RunGoFmtAction{},  // fetches dependencies and formats go code
-
-			git.InitGit{}, // initializing and committing project as git repo
-		}, args.Actions...),
-
-		validators: append(args.Validators, validators.ValidateProjectName),
-		projType:   proj_interfaces.ProjectTypeGo,
+		ProjType: args.Type,
 	}
 
 	if args.ProjectPath == "" {
@@ -66,11 +43,7 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 		args.ProjectPath = path.Join(wd, proj.Name)
 	}
 
-	proj.ProjectPath = args.ProjectPath
-
-	proj.root = folder.Folder{
-		Name: proj.ProjectPath,
-	}
+	proj.Path = args.ProjectPath
 
 	if args.CfgPath == "" {
 		args.CfgPath = rscliconfig.GetConfig().Env.PathToConfig
@@ -85,6 +58,10 @@ func CreateGoProject(args CreateArgs) (*Project, error) {
 			},
 		},
 		ConfigDir: path.Join(proj.GetProjectPath(), args.CfgPath),
+	}
+
+	proj.Root = folder.Folder{
+		Name: proj.Path,
 	}
 
 	return proj, nil

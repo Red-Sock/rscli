@@ -7,12 +7,15 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
+	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/app_struct_generators"
 )
 
 type InitGoModAction struct{}
 
-func (a InitGoModAction) Do(p proj_interfaces.Project) error {
+func (a InitGoModAction) Do(p project.IProject) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"mod", "init", p.GetName()},
@@ -41,4 +44,36 @@ func (a InitGoModAction) Do(p proj_interfaces.Project) error {
 }
 func (a InitGoModAction) NameInAction() string {
 	return "Initiating go project"
+}
+
+type InitGoProjectApp struct{}
+
+func (a InitGoProjectApp) Do(p project.IProject) error {
+	appFolderPath := path.Join(patterns.InternalFolder, patterns.AppFolder)
+	appFolder := p.GetFolder().GetByPath(appFolderPath)
+	if appFolder == nil {
+		appFolder = &folder.Folder{
+			Name: path.Join(patterns.InternalFolder, patterns.AppFolder),
+		}
+		p.GetFolder().Add(appFolder)
+	}
+
+	appFiles, err := app_struct_generators.GenerateAppFiles(p)
+	if err != nil {
+		return errors.Wrap(err, "error generating app file")
+	}
+
+	for fileName, fileContent := range appFiles {
+		appFolder.Add(
+			&folder.Folder{
+				Name:    fileName,
+				Content: fileContent,
+			})
+	}
+
+	return nil
+}
+
+func (a InitGoProjectApp) NameInAction() string {
+	return "Generating app skeleton"
 }

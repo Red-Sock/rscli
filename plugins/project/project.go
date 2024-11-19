@@ -4,30 +4,19 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Red-Sock/trace-errors"
-
 	"github.com/Red-Sock/rscli/internal/io/folder"
-	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
 )
 
-type Validator func(p proj_interfaces.Project) error
-
 type Project struct {
-	Name        string
-	ProjectPath string
+	Name string
+	Path string
 
 	Cfg *config.Config
 
-	Actions []actions.Action
+	ProjType Type
 
-	RsCLIVersion proj_interfaces.Version
-
-	projType proj_interfaces.ProjectType
-
-	validators []Validator
-	root       folder.Folder
+	Root folder.Folder
 }
 
 func (p *Project) GetShortName() string {
@@ -45,7 +34,7 @@ func (p *Project) GetName() string {
 }
 
 func (p *Project) GetFolder() *folder.Folder {
-	return &p.root
+	return &p.Root
 }
 
 func (p *Project) GetConfig() *config.Config {
@@ -53,66 +42,9 @@ func (p *Project) GetConfig() *config.Config {
 }
 
 func (p *Project) GetProjectPath() string {
-	return p.ProjectPath
+	return p.Path
 }
 
-func (p *Project) GetActionNames() []string {
-	out := make([]string, 0, len(p.Actions))
-	for _, a := range p.Actions {
-		out = append(out, a.NameInAction())
-	}
-	return out
-}
-
-func (p *Project) Build() (<-chan string, <-chan error) {
-	progressCh := make(chan string)
-	errCh := make(chan error)
-
-	go func() {
-		defer close(progressCh)
-		defer close(errCh)
-
-		for _, a := range p.Actions {
-			progressCh <- a.NameInAction()
-			if err := a.Do(p); err != nil {
-				errCh <- err
-				return
-			}
-		}
-
-	}()
-
-	return progressCh, errCh
-}
-
-func (p *Project) Validate() error {
-	var errs []error
-	for _, v := range p.validators {
-		if err := v(p); err != nil {
-			errs = append(errs, err)
-		}
-	}
-
-	if len(errs) == 0 {
-		return nil
-	}
-
-	globalErr := errors.New("error while validating the project")
-	for _, e := range errs {
-		globalErr = errors.Wrap(globalErr, e.Error())
-	}
-
-	return globalErr
-}
-
-func (p *Project) GetVersion() proj_interfaces.Version {
-	return p.RsCLIVersion
-}
-
-func (p *Project) SetVersion(version proj_interfaces.Version) {
-	p.RsCLIVersion = version
-}
-
-func (p *Project) GetType() proj_interfaces.ProjectType {
-	return p.projType
+func (p *Project) GetType() Type {
+	return p.ProjType
 }

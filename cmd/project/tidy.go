@@ -6,6 +6,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/processor"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
 )
@@ -30,8 +31,9 @@ func newTidyCmd(pl projectTidy) *cobra.Command {
 		SilenceUsage:  true,
 	}
 
-	// TODO
-	c.Flags().StringP(pathFlag, pathFlag[:1], "", `path to folder with project`)
+	c.Flags().StringP(
+		processor.PathFlag,
+		processor.PathFlag[:1], "", `path to folder with project`)
 
 	return c
 }
@@ -40,13 +42,13 @@ func (p *projectTidy) run(_ *cobra.Command, _ []string) (err error) {
 	if p.proj == nil {
 		p.proj, err = project.LoadProject(p.path, p.config)
 		if err != nil {
-			return errors.Wrap(err, "error fetching project")
+			return errors.Wrap(err, "error fetching project for tidy")
 		}
 	}
 
-	ap := actions.NewActionPerformer(p.io, p.proj)
+	ap := actions.NewActionPerformer(p.io)
 
-	err = ap.Tidy()
+	err = ap.Tidy(p.proj)
 	if err != nil {
 		return errors.Wrap(err, "error performing tidy")
 	}

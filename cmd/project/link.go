@@ -8,10 +8,11 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
+	"github.com/Red-Sock/rscli/internal/processor"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
+	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/link_service"
 )
 
 type projectLink struct {
@@ -34,7 +35,7 @@ func newLinkCmd(pl projectLink) *cobra.Command {
 		SilenceUsage:  true,
 	}
 
-	c.Flags().StringP(pathFlag, pathFlag[:1], "", `path to folder with project`)
+	c.Flags().StringP(processor.PathFlag, processor.PathFlag[:1], "", `path to folder with project`)
 
 	return c
 }
@@ -43,12 +44,12 @@ func (p *projectLink) run(_ *cobra.Command, args []string) (err error) {
 	if p.proj == nil {
 		p.proj, err = project.LoadProject(p.path, p.config)
 		if err != nil {
-			return errors.Wrap(err, "error fetching project")
+			return errors.Wrap(err, "error fetching project for linking")
 		}
 	}
 
 	p.io.Println("Linking project...")
-	grpcClient := dependencies.GrpcClient{
+	grpcClient := link_service.GrpcClient{
 		Modules: args,
 		Cfg:     p.config,
 		Io:      p.io,
@@ -59,9 +60,9 @@ func (p *projectLink) run(_ *cobra.Command, args []string) (err error) {
 		return errors.Wrap(err, "error applying grpc clients")
 	}
 
-	actionPerformer := actions.NewActionPerformer(p.io, p.proj)
+	actionPerformer := actions.NewActionPerformer(p.io)
 
-	err = actionPerformer.Tidy()
+	err = actionPerformer.Tidy(p.proj)
 	if err != nil {
 		return errors.Wrap(err, "error tiding project")
 	}

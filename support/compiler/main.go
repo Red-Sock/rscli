@@ -37,7 +37,7 @@ func main() {
 }
 
 var pathToPattern = []string{
-	"plugins", "project", "projpatterns", "pattern",
+	"plugins", "project", "go_project", "patterns", "pattern",
 }
 
 func findPatternFolder() string {

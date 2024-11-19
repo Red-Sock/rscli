@@ -4,13 +4,13 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
+	"github.com/Red-Sock/rscli/plugins/project"
 )
 
 type CommitWithUntrackedAction struct {
 }
 
-func (a CommitWithUntrackedAction) Do(p proj_interfaces.Project) error {
+func (a CommitWithUntrackedAction) Do(p project.IProject) error {
 	err := CommitWithUntracked(p.GetProjectPath(), "rscli auto-commit")
 	if err != nil {
 		return errors.Wrap(err)
@@ -26,7 +26,7 @@ func (a CommitWithUntrackedAction) NameInAction() string {
 func Commit(workingDir, msg string) error {
 
 	_, err := cmd.Execute(cmd.Request{
-		Tool:    exe,
+		Tool:    bin,
 		Args:    []string{"commit", "-m", "\"" + msg + "\""},
 		WorkDir: workingDir,
 	})
@@ -40,7 +40,7 @@ func Commit(workingDir, msg string) error {
 
 func CommitWithUntracked(workDir, msg string) error {
 	_, err := cmd.Execute(cmd.Request{
-		Tool:    exe,
+		Tool:    bin,
 		Args:    []string{"add", "."},
 		WorkDir: workDir,
 	})

@@ -13,8 +13,7 @@ import (
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/config"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
-	"github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 const (
@@ -30,25 +29,25 @@ var configOrder = map[string]int{
 }
 
 func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
-	c, err := LoadProjectConfig(pth, cfg)
-	if err != nil {
-		return nil, errors.Wrap(err, "error loading project config")
-	}
-
 	root, err := folder.Load(pth)
 	if err != nil {
 		return nil, err
 	}
 
+	conf, err := LoadProjectConfig(pth, cfg)
+	if err != nil {
+		return nil, errors.Wrap(err, "error loading project config")
+	}
+
 	p := &Project{
-		ProjectPath: pth,
-		Cfg:         c,
-		root:        *root,
+		Path: pth,
+		Cfg:  conf,
+		Root: *root,
 	}
 
 	projectLoaders := []func(p *Project) (name *string){
-		goProjectLoader,
 		unknownProjectLoader,
+		goProjectLoader,
 	}
 
 	for _, pLoader := range projectLoaders {
@@ -56,11 +55,6 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 		if name != nil {
 			p.Name = *name
 		}
-	}
-
-	err = proj_interfaces.LoadProjectVersion(p)
-	if err != nil {
-		return p, errors.Wrap(err, "error loading project version")
 	}
 
 	return p, nil
@@ -100,19 +94,21 @@ func LoadProjectConfig(projectPath string, cfg *rscliconfig.RsCliConfig) (c *con
 }
 
 func goProjectLoader(p *Project) (name *string) {
-	goModFile := p.root.GetByPath(projpatterns.GoMod)
+	goModFile := p.Root.GetByPath(patterns.GoMod)
 	if goModFile == nil {
 		return nil
 	}
+
 	moduleBts := goModFile.Content[:bytes.IndexByte(goModFile.Content, '\n')]
 	moduleBts = moduleBts[1+bytes.IndexByte(moduleBts, ' '):]
 
 	modName := string(moduleBts)
 
-	p.projType = proj_interfaces.ProjectTypeGo
+	p.ProjType = TypeGo
 
 	return &modName
 }
+
 func unknownProjectLoader(p *Project) *string {
 	name := p.Cfg.AppInfo.Name
 	return &name

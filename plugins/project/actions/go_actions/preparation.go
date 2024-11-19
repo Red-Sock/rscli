@@ -12,15 +12,15 @@ import (
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
-	"github.com/Red-Sock/rscli/plugins/project/proj_interfaces"
-	patterns "github.com/Red-Sock/rscli/plugins/project/projpatterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 type PrepareProjectStructureAction struct {
 }
 
-func (a PrepareProjectStructureAction) Do(p proj_interfaces.Project) error {
+func (a PrepareProjectStructureAction) Do(p project.IProject) error {
 	rootF := p.GetFolder()
 
 	cmd := &folder.Folder{Name: patterns.CmdFolder}
@@ -29,8 +29,6 @@ func (a PrepareProjectStructureAction) Do(p proj_interfaces.Project) error {
 
 	rootF.Add(&folder.Folder{Name: patterns.ConfigsFolder})
 	rootF.Add(&folder.Folder{Name: patterns.InternalFolder})
-
-	rootF.Add(&folder.Folder{Name: patterns.PkgFolder})
 
 	rootF.Add(
 		patterns.Dockerfile.Copy(),
@@ -50,7 +48,7 @@ type PrepareClientsAction struct {
 	IO io.IO
 }
 
-func (a PrepareClientsAction) Do(p proj_interfaces.Project) error {
+func (a PrepareClientsAction) Do(p project.IProject) error {
 	if a.C == nil {
 		a.C = rscliconfig.GetConfig()
 	}
@@ -61,8 +59,9 @@ func (a PrepareClientsAction) Do(p proj_interfaces.Project) error {
 
 	var simpleClients []string
 	var grpcClients []string
+	cfg := p.GetConfig()
 
-	for _, r := range p.GetConfig().DataSources {
+	for _, r := range cfg.DataSources {
 		grpcC, ok := r.(*resources.GRPC)
 		if ok {
 			grpcClients = append(grpcClients, grpcC.Module)
@@ -82,40 +81,32 @@ func (a PrepareClientsAction) Do(p proj_interfaces.Project) error {
 		}
 	}
 
-	err := dependencies.GrpcClient{
-		Modules: grpcClients,
-		Cfg:     a.C,
-		Io:      a.IO,
-	}.AppendToProject(p)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
 	if len(errs) != 0 {
 		return stderrs.Join(errs...)
 	}
 
 	return nil
 }
+
 func (a PrepareClientsAction) NameInAction() string {
 	return "Generating clients"
 }
 
 type PrepareMakefileAction struct{}
 
-func (a PrepareMakefileAction) Do(p proj_interfaces.Project) error {
+func (a PrepareMakefileAction) Do(p project.IProject) error {
 	genScriptSummary := make([]string, 0)
 
 	// first part for summary scripts
 	makefileContent := make([][]byte, 1, 4)
 	{
 		// basic info
-		rscliBasicScript := make([]byte, len(patterns.RscliMK))
-		copy(rscliBasicScript, patterns.RscliMK)
+		rscliBasicScript := make([]byte, len(patterns.RscliMK.Content))
+		copy(rscliBasicScript, patterns.RscliMK.Content)
 
 		rscliBasicScript = renamer.ReplaceProjectNameShort(rscliBasicScript, p.GetShortName())
 
-		makefileContent = append(makefileContent, append([]byte(`### General Rscli info`+"\n"), rscliBasicScript...))
+		makefileContent = append(makefileContent, rscliBasicScript)
 	}
 
 	if len(p.GetConfig().Servers) != 0 {
@@ -127,22 +118,57 @@ func (a PrepareMakefileAction) Do(p proj_interfaces.Project) error {
 		genScriptSummary = append(genScriptSummary, patterns.GenGrpcServerCommand)
 	}
 
-	makeFile := p.GetFolder().GetByPath(patterns.Makefile)
-	if makeFile == nil {
+	rscliMk := p.GetFolder().GetByPath(patterns.RscliMakefileFile)
+	if rscliMk == nil {
 		p.GetFolder().Add(&folder.Folder{
-			Name: patterns.Makefile,
+			Name: patterns.RscliMakefileFile,
 		})
-		makeFile = p.GetFolder().GetByPath(patterns.Makefile)
+		rscliMk = p.GetFolder().GetByPath(patterns.RscliMakefileFile)
 	}
 
 	if len(genScriptSummary) != 0 {
 		makefileContent[0] = []byte(patterns.GenCommand + ": " + strings.Join(genScriptSummary, " "))
+	} else {
+		makefileContent = makefileContent[1:]
 	}
 
-	makeFile.Content = bytes.Join(makefileContent, []byte{'\n', '\n'})
+	rscliMk.Content = bytes.Join(makefileContent, []byte{'\n'})
+
+	makefile := p.GetFolder().GetByPath(patterns.MakefileFile)
+	if makefile == nil {
+		p.GetFolder().Add(patterns.Makefile.Copy())
+	}
 
 	return nil
 }
 func (a PrepareMakefileAction) NameInAction() string {
 	return "Generating Makefile"
+}
+
+type PrepareServerAction struct{}
+
+func (a PrepareServerAction) Do(p project.IProject) error {
+	if len(p.GetConfig().Servers) == 0 {
+		return nil
+	}
+
+	rootF := p.GetFolder()
+
+	if rootF.GetByPath(patterns.EasyP.Name) == nil {
+		rootF.Add(patterns.EasyP.Copy())
+	}
+
+	transportFolder := rootF.GetByPath(patterns.InternalFolder, patterns.TransportFolder)
+	if transportFolder == nil {
+		transportFolder = &folder.Folder{}
+	}
+
+	transportFolder.Add(patterns.ServerManager.Copy())
+	transportFolder.Add(patterns.GrpcServerManager.Copy())
+	transportFolder.Add(patterns.HttpServerManager.Copy())
+
+	return nil
+}
+func (a PrepareServerAction) NameInAction() string {
+	return "Preparing server files"
 }

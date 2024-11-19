@@ -8,7 +8,7 @@ import (
 
 func Init(workingDir string) error {
 	_, err := cmd.Execute(cmd.Request{
-		Tool:    exe,
+		Tool:    bin,
 		Args:    []string{"init"},
 		WorkDir: workingDir,
 	})

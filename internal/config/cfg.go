@@ -34,6 +34,13 @@ const (
 	envDefaultProjectGitPath = "RSCLI_DEFAULT_PROJECT_GIT_PATH"
 )
 
+func init() {
+	err := InitConfig(nil, nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
 //go:embed rscli.yaml
 var builtInConfig []byte
 
@@ -42,7 +49,7 @@ type RsCliConfig struct {
 	DefaultProjectGitPath string  `yaml:"default_project_git_path"`
 }
 
-var rsCliConfig RsCliConfig
+var rsCliConfig *RsCliConfig
 
 type Project struct {
 	PathToMain   string `yaml:"path_to_main"`
@@ -59,24 +66,35 @@ type Project struct {
 }
 
 func GetConfig() *RsCliConfig {
-	return &rsCliConfig
+	if rsCliConfig == nil {
+		err := InitConfig(nil, nil)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return rsCliConfig
 }
 
 func InitConfig(cmd *cobra.Command, _ []string) error {
-	err := yaml.Unmarshal(builtInConfig, &rsCliConfig)
+	if rsCliConfig == nil {
+		rsCliConfig = &RsCliConfig{}
+	}
+
+	err := yaml.Unmarshal(builtInConfig, rsCliConfig)
 	if err != nil {
 		panic(errors.Wrap(err, "error parsing built in config file. This is serious issue and MUST BE fixed A$A₽\n\n\n Like Rocky\n\n\n\n in a way (: "))
 	}
 
-	rsCliConfig = mergeConfigs(getConfigFromEnvironment(), rsCliConfig)
+	*rsCliConfig = mergeConfigs(getConfigFromEnvironment(), *rsCliConfig)
 
 	configFromFile, err := getConfigFromFile(cmd)
 	if err != nil {
-		return errors.Wrap(err, "")
+		return errors.Wrap(err, "error obtaining config from custom file")
 	}
 
 	if configFromFile != nil {
-		rsCliConfig = mergeConfigs(*configFromFile, rsCliConfig)
+		*rsCliConfig = mergeConfigs(*configFromFile, *rsCliConfig)
 	}
 
 	return nil
@@ -109,6 +127,10 @@ func getConfigFromEnvironment() (r RsCliConfig) {
 }
 
 func getConfigFromFile(cmd *cobra.Command) (*RsCliConfig, error) {
+	if cmd == nil {
+		return nil, nil
+	}
+
 	cfgFilePath := cmd.Flag(CustomPathToConfig).Value.String()
 
 	if cfgFilePath == "" {

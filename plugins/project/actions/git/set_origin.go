@@ -13,7 +13,7 @@ func SetOrigin(wordDir, originURL string) error {
 		originURL = "https://" + originURL
 	}
 	res, err := cmd.Execute(cmd.Request{
-		Tool:    exe,
+		Tool:    bin,
 		Args:    []string{"remote", "-v"},
 		WorkDir: wordDir,
 	})
@@ -22,7 +22,7 @@ func SetOrigin(wordDir, originURL string) error {
 	}
 
 	setRemote := cmd.Request{
-		Tool:    exe,
+		Tool:    bin,
 		Args:    []string{"remote", "", "origin", originURL},
 		WorkDir: wordDir,
 	}

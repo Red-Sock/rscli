@@ -1,0 +1,13 @@
+app_info:
+    name: test_project
+    version: v0.0.1
+    startup_duration: 10s
+data_sources:
+    - resource_name: postgres
+      migrations_folder: ./migrations
+      host: localhost
+      port: 5432
+      user: POSTGRES
+      pwd: ""
+      name: POSTGRES
+      ssl_mode: ""
