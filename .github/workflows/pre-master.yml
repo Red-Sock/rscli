@@ -3,7 +3,7 @@ run-name: pre-master-checks
 on:
   pull_request:
     branches:
-      - main
+      - master
 
 env:
   PATTERN_MK_FILE_PTH: plugins/project/projpatterns/pattern/rscli.mk
