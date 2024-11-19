@@ -1,8 +1,6 @@
 package app_struct_generators
 
 import (
-	"strconv"
-
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
 
@@ -22,20 +20,22 @@ func generateServerInitFileAndArgs(servers matreshka.Servers) (InitDepFuncGenArg
 
 	serversMustHaveNames := len(servers) > 1
 
-	for port, server := range servers {
-		portStr := strconv.Itoa(port)
+	for _, server := range servers {
+
 		if serversMustHaveNames && server.Name == "" {
 			return InitDepFuncGenArgs{}, nil,
 				errors.Wrap(ErrServerMustHaveName,
-					"server with port "+portStr+" doesn't have name")
+					"server \""+server.Name+"\" doesn't exist in config")
 		}
+
+		name := matreshka.ServerName(server.Name)
 
 		initFuncCall := InitFuncCall{
 			FuncName:     "transport.NewServerManager",
-			Args:         "a.Ctx, \":" + portStr + "\"",
+			Args:         "a.Ctx, a.Cfg.Servers." + name + ".Port",
 			ResultName:   "Server" + generators.NormalizeResourceName(server.Name),
 			ResultType:   "*transport.ServersManager",
-			ErrorMessage: "error during server initialization on port: " + portStr,
+			ErrorMessage: "error during \\\"" + matreshka.ServerName(server.Name) + "\\\" server initialization",
 		}
 		if server.Name != "" {
 			initFuncCall.ErrorMessage += ", with name: " + server.Name

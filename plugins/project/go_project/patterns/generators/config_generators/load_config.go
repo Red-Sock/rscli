@@ -29,6 +29,10 @@ func GenerateConfigFolder(cfg *config.Config) (*folder.Folder, error) {
 
 	generators := make([]internalConfigGenerator, 0, 3)
 
+	if len(cfg.Servers) != 0 {
+		generators = append(generators, newGenerateServerConfigStruct(cfg.Servers))
+	}
+
 	// Data sources
 	if len(cfg.DataSources) != 0 {
 		generators = append(generators, newGenerateDataSourcesConfigStruct(cfg.DataSources))

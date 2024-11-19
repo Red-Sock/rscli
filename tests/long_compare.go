@@ -17,6 +17,7 @@ import (
 func CompareLongStrings(t *testing.T, expected, actual []byte) {
 	expectedReader := bytes.NewReader(expected)
 	actualReader := bytes.NewReader(actual)
+
 	for {
 		expectedSlice := make([]byte, 800)
 		actualSlice := make([]byte, 800)

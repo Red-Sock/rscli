@@ -21,7 +21,7 @@ type ServersManager struct {
 }
 
 func NewServerManager(ctx context.Context, port string) (*ServersManager, error) {
-	listener, err := net.Listen("tcp", port)
+	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		return nil, errors.Wrap(err, "error opening listener")
 	}
