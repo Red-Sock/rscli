@@ -13,7 +13,7 @@ jobs:
         uses: RedSockActions/create_pr@v0.0.10
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          target-branch: dev
+          target-branch: master
 
   build-and-test:
     runs-on: ubuntu-latest
