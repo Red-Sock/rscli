@@ -17,10 +17,10 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
-type PrepareProjectStructureAction struct {
+type PrepareProjectStructure struct {
 }
 
-func (a PrepareProjectStructureAction) Do(p project.IProject) error {
+func (a PrepareProjectStructure) Do(p project.IProject) error {
 	rootF := p.GetFolder()
 
 	cmd := &folder.Folder{Name: patterns.CmdFolder}
@@ -39,16 +39,16 @@ func (a PrepareProjectStructureAction) Do(p project.IProject) error {
 
 	return nil
 }
-func (a PrepareProjectStructureAction) NameInAction() string {
+func (a PrepareProjectStructure) NameInAction() string {
 	return "Preparing project structure"
 }
 
-type PrepareClientsAction struct {
+type PrepareClients struct {
 	C  *rscliconfig.RsCliConfig
 	IO io.IO
 }
 
-func (a PrepareClientsAction) Do(p project.IProject) error {
+func (a PrepareClients) Do(p project.IProject) error {
 	if a.C == nil {
 		a.C = rscliconfig.GetConfig()
 	}
@@ -88,13 +88,13 @@ func (a PrepareClientsAction) Do(p project.IProject) error {
 	return nil
 }
 
-func (a PrepareClientsAction) NameInAction() string {
+func (a PrepareClients) NameInAction() string {
 	return "Generating clients"
 }
 
-type PrepareMakefileAction struct{}
+type PrepareMakefile struct{}
 
-func (a PrepareMakefileAction) Do(p project.IProject) error {
+func (a PrepareMakefile) Do(p project.IProject) error {
 	genScriptSummary := make([]string, 0)
 
 	// first part for summary scripts
@@ -141,13 +141,13 @@ func (a PrepareMakefileAction) Do(p project.IProject) error {
 
 	return nil
 }
-func (a PrepareMakefileAction) NameInAction() string {
+func (a PrepareMakefile) NameInAction() string {
 	return "Generating Makefile"
 }
 
-type PrepareServerAction struct{}
+type PrepareServer struct{}
 
-func (a PrepareServerAction) Do(p project.IProject) error {
+func (a PrepareServer) Do(p project.IProject) error {
 	if len(p.GetConfig().Servers) == 0 {
 		return nil
 	}
@@ -169,6 +169,6 @@ func (a PrepareServerAction) Do(p project.IProject) error {
 
 	return nil
 }
-func (a PrepareServerAction) NameInAction() string {
+func (a PrepareServer) NameInAction() string {
 	return "Preparing server files"
 }

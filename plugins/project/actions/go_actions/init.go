@@ -13,9 +13,9 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/app_struct_generators"
 )
 
-type InitGoModAction struct{}
+type InitGoMod struct{}
 
-func (a InitGoModAction) Do(p project.IProject) error {
+func (a InitGoMod) Do(p project.IProject) error {
 	_, err := cmd.Execute(cmd.Request{
 		Tool:    goBin,
 		Args:    []string{"mod", "init", p.GetName()},
@@ -42,7 +42,7 @@ func (a InitGoModAction) Do(p project.IProject) error {
 
 	return nil
 }
-func (a InitGoModAction) NameInAction() string {
+func (a InitGoMod) NameInAction() string {
 	return "Initiating go project"
 }
 

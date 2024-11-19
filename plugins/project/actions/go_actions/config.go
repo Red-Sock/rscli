@@ -12,9 +12,9 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/config_generators"
 )
 
-type PrepareGoConfigFolderAction struct{}
+type PrepareConfigFolder struct{}
 
-func (a PrepareGoConfigFolderAction) Do(p project.IProject) (err error) {
+func (a PrepareConfigFolder) Do(p project.IProject) (err error) {
 	cfgFolder, err := config_generators.GenerateConfigFolder(p.GetConfig())
 	if err != nil {
 		return errors.Wrap(err, "error generating config folder")
@@ -31,11 +31,11 @@ func (a PrepareGoConfigFolderAction) Do(p project.IProject) (err error) {
 
 	return nil
 }
-func (a PrepareGoConfigFolderAction) NameInAction() string {
+func (a PrepareConfigFolder) NameInAction() string {
 	return "Preparing config folder"
 }
 
-func (a PrepareGoConfigFolderAction) generateConfigYamlFile(p project.IProject) error {
+func (a PrepareConfigFolder) generateConfigYamlFile(p project.IProject) error {
 	configFolder := p.GetFolder().GetByPath(patterns.ConfigsFolder)
 
 	newConfig := p.GetConfig()

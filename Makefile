@@ -22,5 +22,7 @@ gen:
     cd testproj && \
     ./../../rscli-dev project add grpc
 
-dev-build:
+dev-build: .compile-pattern .dev-build
+
+.dev-build:
 	go build -o $(GOBIN)/rscli-dev .

@@ -99,8 +99,8 @@ func expectedGrpc(t *testing.T) testCase {
 	apMock := mocks.NewActionPerformerMock(t)
 	apMock.TidyMock.Set(func(p project.IProject) (_ error) {
 		shorActionList := []actions.Action{
-			go_actions.PrepareGoConfigFolderAction{},
-			go_actions.PrepareServerAction{},
+			go_actions.PrepareConfigFolder{},
+			go_actions.PrepareServer{},
 			go_actions.BuildProjectAction{},
 		}
 
