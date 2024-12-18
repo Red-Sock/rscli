@@ -3,9 +3,9 @@ package processor
 import (
 	"os"
 
-	"github.com/Red-Sock/toolbox"
 	"github.com/spf13/cobra"
 	"go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"

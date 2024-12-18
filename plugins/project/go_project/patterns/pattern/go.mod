@@ -4,8 +4,6 @@ go 1.23.3
 
 require (
 	github.com/Red-Sock/go_tg v0.0.18
-	github.com/Red-Sock/toolbox v0.0.6
-	github.com/Red-Sock/trace-errors v0.0.13
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/godverv/matreshka v0.0.40
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0
@@ -15,6 +13,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/soheilhy/cmux v0.1.5
 	go.redsock.ru/rerrors v0.0.2
+	go.redsock.ru/toolbox v0.0.8
 	golang.org/x/sync v0.8.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241015192408-796eee8c2d53
 	google.golang.org/grpc v1.69.0
@@ -24,6 +23,7 @@ require (
 
 require (
 	github.com/Red-Sock/evon v0.0.15 // indirect
+	github.com/Red-Sock/trace-errors v0.0.13 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect

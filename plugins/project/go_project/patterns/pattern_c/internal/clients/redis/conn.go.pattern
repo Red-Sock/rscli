@@ -3,10 +3,10 @@ package redis
 import (
 	"strconv"
 
-	"github.com/Red-Sock/toolbox/closer"
 	"github.com/go-redis/redis"
 	"github.com/godverv/matreshka/resources"
 	"go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox/closer"
 )
 
 var ErrUnexpectedPing = rerrors.New("error pinging redis")
