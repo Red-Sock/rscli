@@ -3,9 +3,9 @@ package dependencies
 import (
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	ErrNoFolderInConfig = errors.New("no folder path in rscli config")
+	ErrNoFolderInConfig = rerrors.New("no folder path in rscli config")
 )
 
 type Dependency interface {
@@ -75,7 +75,7 @@ func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {
 // IF Dependency already placed - returns path to it
 func containsDependencyFolder(paths []string, rootF *folder.Folder, depName string) (ok bool, err error) {
 	if len(paths) == 0 {
-		return false, errors.Wrap(ErrNoFolderInConfig, "no client")
+		return false, rerrors.Wrap(ErrNoFolderInConfig, "no client")
 	}
 
 	for _, clientPath := range paths {

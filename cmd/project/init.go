@@ -5,8 +5,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	emptyNameErr = errors.New("no name entered")
+	emptyNameErr = rerrors.New("no name entered")
 )
 
 type projectInit struct {
@@ -51,7 +51,7 @@ func (p *projectInit) run(_ *cobra.Command, argsIn []string) error {
 	var err error
 	projArgs.Name, err = p.obtainNameFromUser(argsIn)
 	if err != nil {
-		return errors.Wrap(err, "error obtaining name")
+		return rerrors.Wrap(err, "error obtaining name")
 	}
 
 	p.io.PrintlnColored(colors.ColorCyan, fmt.Sprintf(`Wonderful!!! "%s" it is!`, projArgs.Name))
@@ -61,7 +61,7 @@ func (p *projectInit) run(_ *cobra.Command, argsIn []string) error {
 
 	p.proj, err = p.buildProject(projArgs)
 	if err != nil {
-		return errors.Wrap(err, "error building project")
+		return rerrors.Wrap(err, "error building project")
 	}
 
 	p.io.PrintlnColored(colors.ColorGreen, "Done.\nInitialized new project "+p.proj.GetName()+"\nat "+p.proj.GetProjectPath())
@@ -84,7 +84,7 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 
 		name, err = p.io.GetInput()
 		if err != nil {
-			return "", errors.Wrap(err, "error obtaining project name")
+			return "", rerrors.Wrap(err, "error obtaining project name")
 		}
 	}
 	if name == "" {
@@ -105,7 +105,7 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 
 	err = validators.ValidateProjectNameStr(name)
 	if err != nil {
-		return "", errors.Wrap(err, "error validating project name")
+		return "", rerrors.Wrap(err, "error validating project name")
 	}
 
 	if !containsHost {
@@ -128,7 +128,7 @@ func (p *projectInit) obtainFolderPathFromUser(name string, args []string) (dirP
 func (p *projectInit) buildProject(args project.CreateArgs) (proj project.IProject, err error) {
 	proj, err = project.CreateProject(args)
 	if err != nil {
-		return nil, errors.Wrap(err, "error during project creation")
+		return nil, rerrors.Wrap(err, "error during project creation")
 	}
 
 	p.io.Println("Starting project constructor")
@@ -137,7 +137,7 @@ func (p *projectInit) buildProject(args project.CreateArgs) (proj project.IProje
 	for _, act := range initActions {
 		err = act.Do(proj)
 		if err != nil {
-			return nil, errors.Wrap(err, "error performing init actions")
+			return nil, rerrors.Wrap(err, "error performing init actions")
 		}
 	}
 

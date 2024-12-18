@@ -3,8 +3,8 @@ package project
 import (
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
@@ -44,7 +44,7 @@ func (p *projectLink) run(_ *cobra.Command, args []string) (err error) {
 	if p.proj == nil {
 		p.proj, err = project.LoadProject(p.path, p.config)
 		if err != nil {
-			return errors.Wrap(err, "error fetching project for linking")
+			return rerrors.Wrap(err, "error fetching project for linking")
 		}
 	}
 
@@ -57,21 +57,21 @@ func (p *projectLink) run(_ *cobra.Command, args []string) (err error) {
 
 	err = grpcClient.AppendToProject(p.proj)
 	if err != nil {
-		return errors.Wrap(err, "error applying grpc clients")
+		return rerrors.Wrap(err, "error applying grpc clients")
 	}
 
 	actionPerformer := actions.NewActionPerformer(p.io)
 
 	err = actionPerformer.Tidy(p.proj)
 	if err != nil {
-		return errors.Wrap(err, "error tiding project")
+		return rerrors.Wrap(err, "error tiding project")
 	}
 
 	p.io.Println("Tidy executed. Commiting changes")
 
 	err = git.CommitWithUntracked(p.proj.GetProjectPath(), "added "+strings.Join(args, "; "))
 	if err != nil {
-		return errors.Wrap(err, "error performing git commit")
+		return rerrors.Wrap(err, "error performing git commit")
 	}
 
 	return nil

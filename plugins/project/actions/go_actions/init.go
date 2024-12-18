@@ -4,7 +4,7 @@ import (
 	"os"
 	"path"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	"github.com/Red-Sock/rscli/internal/io/folder"
@@ -22,7 +22,7 @@ func (a InitGoMod) Do(p project.IProject) error {
 		WorkDir: p.GetProjectPath(),
 	})
 	if err != nil {
-		return errors.Wrap(err, "error executing go mod init")
+		return rerrors.Wrap(err, "error executing go mod init")
 	}
 
 	goMod, err := os.OpenFile(path.Join(p.GetProjectPath(), "go.mod"), os.O_APPEND|os.O_WRONLY, os.ModeAppend)
@@ -33,7 +33,7 @@ func (a InitGoMod) Do(p project.IProject) error {
 		err2 := goMod.Close()
 		if err2 != nil {
 			if err != nil {
-				err = errors.Wrap(err, "error on closing"+err2.Error())
+				err = rerrors.Wrap(err, "error on closing"+err2.Error())
 			} else {
 				err = err2
 			}
@@ -60,7 +60,7 @@ func (a InitGoProjectApp) Do(p project.IProject) error {
 
 	appFiles, err := app_struct_generators.GenerateAppFiles(p)
 	if err != nil {
-		return errors.Wrap(err, "error generating app file")
+		return rerrors.Wrap(err, "error generating app file")
 	}
 
 	for fileName, fileContent := range appFiles {

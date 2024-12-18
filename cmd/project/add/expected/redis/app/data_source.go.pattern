@@ -4,13 +4,13 @@ package app
 
 import (
 	"Test_AddDependency/REDIS/internal/clients/redis"
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 )
 
 func (a *App) InitDataSources() (err error) {
 	a.Redis, err = redis.New(a.Cfg.DataSources.Redis)
 	if err != nil {
-		return errors.Wrap(err, "error during redis connection initialization")
+		return rerrors.Wrap(err, "error during redis connection initialization")
 	}
 
 	return nil

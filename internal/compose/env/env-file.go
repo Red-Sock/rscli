@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 )
@@ -29,8 +29,8 @@ type Variable struct {
 func ReadContainer(pth string) (*Container, error) {
 	f, err := os.ReadFile(pth)
 	if err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
-			return nil, errors.Wrap(err, "error reading container")
+		if !rerrors.Is(err, os.ErrNotExist) {
+			return nil, rerrors.Wrap(err, "error reading container")
 		}
 	}
 

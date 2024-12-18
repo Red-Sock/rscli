@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -52,8 +52,8 @@ func (s *grpcServer) start() error {
 
 	err := server.Serve(s.listener)
 	if err != nil {
-		if !errors.Is(err, http.ErrServerClosed) {
-			return errors.Wrap(err, "error serving grpc server")
+		if !rerrors.Is(err, http.ErrServerClosed) {
+			return rerrors.Wrap(err, "error serving grpc server")
 		}
 	}
 

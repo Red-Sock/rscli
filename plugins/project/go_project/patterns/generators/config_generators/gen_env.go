@@ -3,8 +3,8 @@ package config_generators
 import (
 	"reflect"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
@@ -45,7 +45,7 @@ func newGenerateEnvironmentConfigStruct(environment matreshka.Environment) inter
 		buf := &rw.RW{}
 		err := configStructTemplate.Execute(buf, ecg)
 		if err != nil {
-			return InternalConfig{}, nil, errors.Wrap(err, "error executing config struct template")
+			return InternalConfig{}, nil, rerrors.Wrap(err, "error executing config struct template")
 		}
 
 		f := &folder.Folder{

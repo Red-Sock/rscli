@@ -1,12 +1,13 @@
 package app_struct_generators
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/rw"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/link_service/grpc_discovery"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators"
 )
 
@@ -42,10 +43,10 @@ func generateDataSourceInitFileAndArgs(dataSources matreshka.DataSources) (*AppC
 			var err error
 			fc, err = grpcInitFunc(ds, appContent)
 			if err != nil {
-				return nil, nil, errors.Wrap(err, "error creating init func for grpc client")
+				return nil, nil, rerrors.Wrap(err, "error creating init func for grpc client")
 			}
 		default:
-			return nil, nil, errors.New("unknown resource " + ds.GetType())
+			return nil, nil, rerrors.New("unknown resource " + ds.GetType())
 		}
 		for importPath, alias := range fc.Import {
 			initDsFileArgs.Imports[importPath] = alias
@@ -60,12 +61,12 @@ func generateDataSourceInitFileAndArgs(dataSources matreshka.DataSources) (*AppC
 			})
 	}
 
-	initDsFileArgs.Imports["github.com/Red-Sock/trace-errors"] = "errors"
+	initDsFileArgs.Imports[patterns.ImportNameErrorsPackage] = ""
 
 	file := &rw.RW{}
 	err := initAppStructFuncTemplate.Execute(file, initDsFileArgs)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "error generating server init file")
+		return nil, nil, rerrors.Wrap(err, "error generating server init file")
 	}
 
 	return appContent, file.Bytes(), nil
@@ -123,12 +124,12 @@ func telegramInitFunc(res resources.Resource, appContent *AppContent) (fc InitFu
 func grpcInitFunc(res resources.Resource, appContent *AppContent) (fc InitFuncCall, err error) {
 	grpcRes, ok := res.(*resources.GRPC)
 	if !ok {
-		return fc, errors.New("not a grpc struct")
+		return fc, rerrors.New("not a grpc struct")
 	}
 
 	grpcPackage, err := grpc_discovery.DiscoverPackage(grpcRes.Module)
 	if err != nil {
-		return fc, errors.Wrap(err, "error discovering grpc package")
+		return fc, rerrors.Wrap(err, "error discovering grpc package")
 	}
 
 	fc.ResultName = generators.NormalizeResourceName(res.GetName())

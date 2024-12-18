@@ -5,8 +5,8 @@ import (
 	"path"
 	"time"
 
-	"github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
+	"go.redsock.ru/rerrors"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
@@ -37,7 +37,7 @@ func CreateProject(args CreateArgs) (*Project, error) {
 		var wd string
 		wd, err := os.Getwd()
 		if err != nil {
-			return proj, errors.Wrapf(err, "error obtaining working dir")
+			return proj, rerrors.Wrapf(err, "error obtaining working dir")
 		}
 
 		args.ProjectPath = path.Join(wd, proj.Name)

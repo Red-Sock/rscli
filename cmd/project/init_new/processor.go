@@ -3,8 +3,8 @@ package init_new
 import (
 	"fmt"
 
-	"github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/io/colors"
 	"github.com/Red-Sock/rscli/internal/processor"
@@ -46,7 +46,7 @@ func (p *Proc) run(_ *cobra.Command, cmdArgs []string) (err error) {
 	// step 1: obtain name
 	cArgs.Name, err = p.nameCollector.collect(cmdArgs)
 	if err != nil {
-		return errors.Wrap(err, "can't obtain name")
+		return rerrors.Wrap(err, "can't obtain name")
 	}
 
 	// step 2: obtain path to project folder
@@ -54,7 +54,7 @@ func (p *Proc) run(_ *cobra.Command, cmdArgs []string) (err error) {
 
 	proj, err := p.createProject(cArgs)
 	if err != nil {
-		return errors.Wrap(err, "error building project")
+		return rerrors.Wrap(err, "error building project")
 	}
 
 	p.IO.PrintlnColored(colors.ColorGreen,

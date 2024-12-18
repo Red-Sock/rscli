@@ -3,8 +3,8 @@ package dependencies
 import (
 	"path"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
@@ -31,7 +31,7 @@ func (p Redis) GetFolderName() string {
 func (p Redis) AppendToProject(proj Project) error {
 	err := p.applyClientFolder(proj)
 	if err != nil {
-		return errors.Wrap(err, "error applying client folder")
+		return rerrors.Wrap(err, "error applying client folder")
 	}
 
 	p.applyConfig(proj)
@@ -42,7 +42,7 @@ func (p Redis) AppendToProject(proj Project) error {
 func (p Redis) applyClientFolder(proj Project) error {
 	ok, err := containsDependencyFolder(p.Cfg.Env.PathsToClients, proj.GetFolder(), p.GetFolderName())
 	if err != nil {
-		return errors.Wrap(err, "error finding Dependency path")
+		return rerrors.Wrap(err, "error finding Dependency path")
 	}
 
 	if ok {

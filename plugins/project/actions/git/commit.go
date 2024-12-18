@@ -1,7 +1,7 @@
 package git
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	"github.com/Red-Sock/rscli/plugins/project"
@@ -13,7 +13,7 @@ type CommitWithUntrackedAction struct {
 func (a CommitWithUntrackedAction) Do(p project.IProject) error {
 	err := CommitWithUntracked(p.GetProjectPath(), "rscli auto-commit")
 	if err != nil {
-		return errors.Wrap(err)
+		return rerrors.Wrap(err)
 	}
 
 	return nil
@@ -31,7 +31,7 @@ func Commit(workingDir, msg string) error {
 		WorkDir: workingDir,
 	})
 	if err != nil {
-		return errors.Wrap(err, "error committing files to git repository")
+		return rerrors.Wrap(err, "error committing files to git repository")
 	}
 
 	return nil
@@ -45,12 +45,12 @@ func CommitWithUntracked(workDir, msg string) error {
 		WorkDir: workDir,
 	})
 	if err != nil {
-		return errors.Wrap(err, "error adding files to git repository")
+		return rerrors.Wrap(err, "error adding files to git repository")
 	}
 
 	status, err := Status(workDir)
 	if err != nil {
-		return errors.Wrap(err, "error getting git status")
+		return rerrors.Wrap(err, "error getting git status")
 	}
 	if len(status) == 0 {
 		return nil
@@ -58,7 +58,7 @@ func CommitWithUntracked(workDir, msg string) error {
 
 	err = Commit(workDir, msg)
 	if err != nil {
-		return errors.Wrap(err, "error performing commit")
+		return rerrors.Wrap(err, "error performing commit")
 	}
 
 	return nil

@@ -3,7 +3,7 @@
 package grpc
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 	pb "{{ .ImportPath }}"
 	"github.com/godverv/matreshka/resources"
 	"google.golang.org/grpc"
@@ -14,7 +14,7 @@ type {{ .ClientName }} pb.{{ .ClientName }}
 func {{ .Constructor }}(grpcConn *resources.GRPC, opts ...grpc.DialOption) ({{ .ClientName }}, error) {
 	conn, err := connect(grpcConn.ConnectionString, opts...)
 	if err != nil {
-		return nil, errors.Wrap(err, "error crating grpc client")
+		return nil, rerrors.Wrap(err, "error crating grpc client")
 	}
 
 	return pb.{{ .Constructor }}(conn), nil

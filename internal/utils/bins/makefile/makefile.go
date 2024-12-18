@@ -3,13 +3,13 @@ package makefile
 import (
 	"runtime"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 )
 
 var (
-	ErrUnsupportedOS = errors.New("unsuported OS")
+	ErrUnsupportedOS = rerrors.New("unsuported OS")
 )
 
 const bin = "make"
@@ -33,7 +33,7 @@ func Install() error {
 			return installLinux()
 		}
 	default:
-		return errors.Wrap(ErrUnsupportedOS, runtime.GOOS)
+		return rerrors.Wrap(ErrUnsupportedOS, runtime.GOOS)
 	}
 
 	return nil
@@ -48,7 +48,7 @@ func Run(wd, mkFilePath string, command string) (string, error) {
 
 	msg, err := cmd.Execute(req)
 	if err != nil {
-		return "", errors.Wrap(err, "error running command:"+command+". "+err.Error())
+		return "", rerrors.Wrap(err, "error running command:"+command+". "+err.Error())
 	}
 
 	return msg, nil

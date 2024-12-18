@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/stretchr/testify/require"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
@@ -28,7 +28,7 @@ type testCase struct {
 }
 
 // deleteGenerated - for debug purposes. Set to true when need to look at what script generates
-const deleteGenerated = true
+const deleteGenerated = false
 
 func Test_AddDependency(t *testing.T) {
 	t.Parallel()
@@ -107,7 +107,7 @@ func expectedGrpc(t *testing.T) testCase {
 		for _, a := range shorActionList {
 			err := a.Do(p)
 			if err != nil {
-				return errors.Wrap(err, "error performing action: ", a.NameInAction())
+				return rerrors.Wrap(err, "error performing action: ", a.NameInAction())
 			}
 		}
 

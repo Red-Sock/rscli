@@ -3,8 +3,8 @@ package config_generators
 import (
 	"reflect"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
@@ -48,7 +48,7 @@ func newGenerateDataSourcesConfigStruct(dataSources matreshka.DataSources) inter
 		buf := &rw.RW{}
 		err := configStructTemplate.Execute(buf, ecg)
 		if err != nil {
-			return InternalConfig{}, nil, errors.Wrap(err, "error executing config struct template on data sources")
+			return InternalConfig{}, nil, rerrors.Wrap(err, "error executing config struct template on data sources")
 		}
 
 		f := &folder.Folder{
@@ -64,7 +64,7 @@ func GenerateGRPCClient(args grpc_discovery.GrpcPackage) ([]byte, error) {
 	buf := &rw.RW{}
 	err := grpcConnectionTemplate.Execute(buf, args)
 	if err != nil {
-		return nil, errors.Wrap(err, "error executing template on grpc connection")
+		return nil, rerrors.Wrap(err, "error executing template on grpc connection")
 	}
 
 	return buf.Bytes(), nil

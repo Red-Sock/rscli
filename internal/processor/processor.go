@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/Red-Sock/toolbox"
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
@@ -64,7 +64,7 @@ func (p *Processor) LoadProject(cmd *cobra.Command) (proj *project.Project, err 
 
 	proj, err = project.LoadProject(pathToProject, p.RscliConfig)
 	if err != nil {
-		return nil, errors.Wrap(err, "error loading project")
+		return nil, rerrors.Wrap(err, "error loading project")
 	}
 
 	return proj, nil

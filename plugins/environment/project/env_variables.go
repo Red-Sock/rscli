@@ -5,7 +5,7 @@ import (
 	"path"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/compose/env"
 	"github.com/Red-Sock/rscli/internal/envpatterns"
@@ -26,19 +26,19 @@ func (e *envVariables) fetch(globalEnvFile *env.Container, pathToProjEnv string)
 	dotEnvFilePath := path.Join(pathToProjEnv, projPatterns.ExampleFile+envpatterns.EnvFile.Name)
 	envFile, err := os.ReadFile(dotEnvFilePath)
 	if err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
-			return errors.Wrap(err, "error reading project .env example file "+dotEnvFilePath)
+		if !rerrors.Is(err, os.ErrNotExist) {
+			return rerrors.Wrap(err, "error reading project .env example file "+dotEnvFilePath)
 		}
 	}
 
 	e.Container, err = env.NewEnvContainer(nil)
 	if err != nil {
-		return errors.Wrap(err, "error initializing empty container")
+		return rerrors.Wrap(err, "error initializing empty container")
 	}
 
 	example, err := env.NewEnvContainer(envFile)
 	if err != nil {
-		return errors.Wrap(err, "error creating project example .env file")
+		return rerrors.Wrap(err, "error creating project example .env file")
 	}
 
 	globalValidEnvs := make([]env.Variable, 0, len(globalEnvFile.Content)/2)

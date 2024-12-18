@@ -3,8 +3,8 @@ package add
 import (
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/processor"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
@@ -45,7 +45,7 @@ func NewCommand(basicProc processor.Processor) *cobra.Command {
 func (p *Proc) run(cmd *cobra.Command, args []string) error {
 	project, err := p.LoadProject(cmd)
 	if err != nil {
-		return errors.Wrap(err, "error loading project for add action")
+		return rerrors.Wrap(err, "error loading project for add action")
 	}
 
 	p.IO.Println(preparingMsg)
@@ -58,7 +58,7 @@ func (p *Proc) run(cmd *cobra.Command, args []string) error {
 	for _, d := range deps {
 		err = d.AppendToProject(project)
 		if err != nil {
-			return errors.Wrap(err, "error adding dependency to project")
+			return rerrors.Wrap(err, "error adding dependency to project")
 		}
 	}
 
@@ -66,14 +66,14 @@ func (p *Proc) run(cmd *cobra.Command, args []string) error {
 
 	err = p.ActionPerformer.Tidy(project)
 	if err != nil {
-		return errors.Wrap(err, "error tidying project")
+		return rerrors.Wrap(err, "error tidying project")
 	}
 
 	p.IO.Println(endMsg)
 
 	err = git.CommitWithUntracked(project.GetProjectPath(), "added "+strings.Join(args, "; "))
 	if err != nil {
-		return errors.Wrap(err, "error performing git commit")
+		return rerrors.Wrap(err, "error performing git commit")
 	}
 
 	return nil

@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
+	"go.redsock.ru/rerrors"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
@@ -36,7 +36,7 @@ func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
 
 	conf, err := LoadProjectConfig(pth, cfg)
 	if err != nil {
-		return nil, errors.Wrap(err, "error loading project config")
+		return nil, rerrors.Wrap(err, "error loading project config")
 	}
 
 	p := &Project{
@@ -67,7 +67,7 @@ func LoadProjectConfig(projectPath string, cfg *rscliconfig.RsCliConfig) (c *con
 
 	dir, err := os.ReadDir(c.ConfigDir)
 	if err != nil {
-		return nil, errors.Wrap(err, "error reading config folder")
+		return nil, rerrors.Wrap(err, "error reading config folder")
 	}
 
 	configsPaths := make([]string, 0, 3)
@@ -87,7 +87,7 @@ func LoadProjectConfig(projectPath string, cfg *rscliconfig.RsCliConfig) (c *con
 
 	c.AppConfig, err = matreshka.ReadConfigs(configsPaths...) // TODO
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing config")
+		return nil, rerrors.Wrap(err, "error parsing config")
 	}
 
 	return c, nil

@@ -10,7 +10,7 @@ import (
 	"path"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 )
@@ -32,12 +32,12 @@ func DiscoverPackage(packageName string) (*GrpcPackage, error) {
 func (g GrpcDiscovery) DiscoverPackage(packageName string) (*GrpcPackage, error) {
 	pathToPackageInMod, err := GetPathToGlobalModule(packageName)
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting path to package in global module")
+		return nil, rerrors.Wrap(err, "error getting path to package in global module")
 	}
 
 	grpcPackage, err := g.getGrpcPackageFromMod(pathToPackageInMod)
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting grpc package from mod")
+		return nil, rerrors.Wrap(err, "error getting grpc package from mod")
 	}
 
 	return grpcPackage, nil
@@ -66,7 +66,7 @@ func (g GrpcDiscovery) getGrpcPackageFromMod(packagePath string) (*GrpcPackage, 
 			var pkg *GrpcPackage
 			pkg, err = readGrpcPackageFromPackageClientPath(packagePath, path.Join(compiledClientPath, file.Name()))
 			if err != nil {
-				return nil, errors.Wrap(err, "error reading package from path")
+				return nil, rerrors.Wrap(err, "error reading package from path")
 			}
 
 			if pkg != nil {
@@ -89,7 +89,7 @@ func readGrpcPackageFromPackageClientPath(projectPath, apiContractPath string) (
 	packagePath := path.Join(projectPath, apiContractPath)
 	files, err := os.ReadDir(packagePath)
 	if err != nil {
-		return nil, errors.Wrap(err, "error reading contracts dir")
+		return nil, rerrors.Wrap(err, "error reading contracts dir")
 	}
 
 	var clientContractPath string
@@ -111,13 +111,13 @@ func readGrpcPackageFromPackageClientPath(projectPath, apiContractPath string) (
 
 	clientContractB, err := os.ReadFile(clientContractPath)
 	if err != nil {
-		return nil, errors.Wrap(err, "error reading client contract files")
+		return nil, rerrors.Wrap(err, "error reading client contract files")
 	}
 
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path.Base(clientContractPath), clientContractB, 0)
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing go contract file")
+		return nil, rerrors.Wrap(err, "error parsing go contract file")
 	}
 
 	out := &GrpcPackage{}

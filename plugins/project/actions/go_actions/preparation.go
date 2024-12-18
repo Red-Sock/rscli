@@ -6,8 +6,8 @@ import (
 	"path"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/rerrors"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
@@ -171,7 +171,7 @@ func (a PrepareServer) Do(p project.IProject) error {
 
 	implFolders, err := impl_gen.GenerateImpl(rscliconfig.GetConfig(), p)
 	if err != nil {
-		return errors.Wrap(err, "error during stub generation")
+		return rerrors.Wrap(err, "error during stub generation")
 	}
 	transportFolder.Add(implFolders...)
 	return nil

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"text/template"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
@@ -20,7 +20,7 @@ var (
 	implPattern  string
 	implTemplate = template.Must(template.New("grpc_impl").Parse(implPattern))
 
-	ErrNoGoPackageOption = errors.New("no Go package option")
+	ErrNoGoPackageOption = rerrors.New("no Go package option")
 )
 
 type genArgs struct {
@@ -43,7 +43,7 @@ func GenerateImpl(cfg *rscliconfig.RsCliConfig, proj project.IProject) ([]*folde
 
 		stub, err := generateImpl(proj, f.Content)
 		if err != nil {
-			return nil, errors.Wrap(err, "error generating stub")
+			return nil, rerrors.Wrap(err, "error generating stub")
 		}
 
 		if stub != nil {
@@ -66,7 +66,7 @@ func generateImpl(proj project.IProject, protoContract []byte) (*folder.Folder, 
 
 	args.GrpcPackage, err = extractGoGrpcPackage(protoContract)
 	if err != nil {
-		return nil, errors.Wrap(err)
+		return nil, rerrors.Wrap(err)
 	}
 
 	if proj.GetFolder().GetByPath(patterns.TransportFolder, args.GrpcPackage, "impl.go") != nil {
@@ -75,7 +75,7 @@ func generateImpl(proj project.IProject, protoContract []byte) (*folder.Folder, 
 
 	err = implTemplate.Execute(&out, args)
 	if err != nil {
-		return nil, errors.Wrap(err, "error executing template for grpc impl")
+		return nil, rerrors.Wrap(err, "error executing template for grpc impl")
 	}
 
 	outF := &folder.Folder{
@@ -94,7 +94,7 @@ func extractGoGrpcPackage(contract []byte) (string, error) {
 	const patternToFind = "option go_package ="
 	idxStart := bytes.Index(contract, []byte(patternToFind))
 	if idxStart == -1 {
-		return "", errors.Wrap(ErrNoGoPackageOption)
+		return "", rerrors.Wrap(ErrNoGoPackageOption)
 	}
 
 	endIdx := idxStart + bytes.Index(contract[idxStart:], []byte("\n"))

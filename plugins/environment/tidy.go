@@ -5,7 +5,7 @@ import (
 	stderrs "errors"
 	"path"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/io/loader"
 	"github.com/Red-Sock/rscli/internal/ports"
@@ -15,12 +15,12 @@ import (
 func (e *GlobalEnvironment) Tidy() error {
 	err := e.fetchFiles()
 	if err != nil {
-		return errors.Wrap(err, "error fetching global environment")
+		return rerrors.Wrap(err, "error fetching global environment")
 	}
 
 	progresses, projEnvs, err := e.collectProjectEnvironments()
 	if err != nil {
-		return errors.Wrap(err, "error collecting environment info")
+		return rerrors.Wrap(err, "error collecting environment info")
 	}
 
 	return e.run(progresses, projEnvs)
@@ -50,12 +50,12 @@ func (e *GlobalEnvironment) collectProjectEnvironments() ([]loader.Progress, []*
 			path.Join(path.Dir(e.envDirPath), projName),
 		)
 		if err != nil {
-			return nil, nil, errors.Wrap(err, "error loading environment for project "+projName)
+			return nil, nil, rerrors.Wrap(err, "error loading environment for project "+projName)
 		}
 
 		envPorts, err := proj.Environment.GetPortValues()
 		if err != nil {
-			return nil, nil, errors.Wrap(err, "error fetching ports for environment of "+projName)
+			return nil, nil, rerrors.Wrap(err, "error fetching ports for environment of "+projName)
 		}
 
 		for _, item := range envPorts {

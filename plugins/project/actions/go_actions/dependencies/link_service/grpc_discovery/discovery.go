@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 )
 
 var modFolderPath = os.Getenv("GOPATH") + "/pkg/mod/"
@@ -22,7 +22,7 @@ func GetPathToGlobalModule(packageName string) (pathToModule string, err error) 
 	root := path.Dir(packagePath)
 	potentialDirs, err := os.ReadDir(root)
 	if err != nil {
-		return "", errors.Wrap(err, "error reading potential packages paths")
+		return "", rerrors.Wrap(err, "error reading potential packages paths")
 	}
 
 	baseName := path.Base(packageName)

@@ -14,7 +14,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project"
 )
 
-func CompareLongStrings(t *testing.T, expected, actual []byte) {
+func CompareLongStrings(t *testing.T, expected, actual []byte) (eq bool) {
 	expectedReader := bytes.NewReader(expected)
 	actualReader := bytes.NewReader(actual)
 
@@ -26,27 +26,37 @@ func CompareLongStrings(t *testing.T, expected, actual []byte) {
 		actLen, actErr := actualReader.Read(actualSlice)
 
 		if expErr == io.EOF && actErr == io.EOF {
-			return
+			break
 		}
 
 		expectedSlice = expectedSlice[:expLen]
 		actualSlice = actualSlice[:actLen]
 
-		require.Equal(t, string(expectedSlice), string(actualSlice))
-
+		eq = assert.Equal(t, string(expectedSlice), string(actualSlice))
+		if !eq {
+			return false
+		}
 		require.NoError(t, actErr)
 		require.NoError(t, expErr)
 	}
+
+	return true
 }
 
 func AssertFolderInFs(t *testing.T, dirPath string, expected *folder.Folder) {
 	if len(expected.Content) != 0 {
-		file, err := os.ReadFile(path.Join(dirPath, expected.Name))
+		targetPath := path.Join(dirPath, expected.Name)
+		file, err := os.ReadFile(targetPath)
 		require.NoError(t, err)
+		eq := false
 		if len(expected.Content) < 800 {
-			assert.Equal(t, string(expected.Content), string(file))
+			eq = assert.Equal(t, string(expected.Content), string(file))
 		} else {
-			CompareLongStrings(t, expected.Content, file)
+			eq = CompareLongStrings(t, expected.Content, file)
+		}
+
+		if !eq {
+			assert.Failf(t, "contents not equal", "expected content of file %s to be same as %s", targetPath, expected.Name)
 		}
 		return
 	}

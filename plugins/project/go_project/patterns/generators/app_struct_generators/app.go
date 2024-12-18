@@ -1,7 +1,7 @@
 package app_struct_generators
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/rw"
 	"github.com/Red-Sock/rscli/plugins/project"
@@ -42,7 +42,7 @@ func GenerateAppFiles(p project.IProject) (map[string][]byte, error) {
 	if len(cfg.DataSources) != 0 {
 		initDataSourcesArgs, initDataSourcesFile, err := generateDataSourceInitFileAndArgs(cfg.DataSources)
 		if err != nil {
-			return nil, errors.Wrap(err, "error generation data source init file")
+			return nil, rerrors.Wrap(err, "error generation data source init file")
 		}
 
 		out[patterns.AppInitDataSourcesFileName] = initDataSourcesFile
@@ -55,7 +55,7 @@ func GenerateAppFiles(p project.IProject) (map[string][]byte, error) {
 	if len(cfg.Servers) != 0 {
 		initServerArgs, initServerFile, err := generateServerInitFileAndArgs(cfg.Servers)
 		if err != nil {
-			return nil, errors.Wrap(err, "error generating server init file")
+			return nil, rerrors.Wrap(err, "error generating server init file")
 		}
 
 		out[patterns.AppInitServerFileName] = initServerFile
@@ -73,7 +73,7 @@ func GenerateAppFiles(p project.IProject) (map[string][]byte, error) {
 		for importPath, dependencyAlias := range ac.Imports {
 			appAlias, ok := initAppArgs.Imports[importPath]
 			if ok && appAlias != dependencyAlias {
-				return nil, errors.New("Fatal error: app already imported package " +
+				return nil, rerrors.New("Fatal error: app already imported package " +
 					importPath + " with alias " + appAlias +
 					". But dependency requires this package to be imported as " +
 					dependencyAlias)
@@ -85,7 +85,7 @@ func GenerateAppFiles(p project.IProject) (map[string][]byte, error) {
 	mainAppFile := &rw.RW{}
 	err := appTemplate.Execute(mainAppFile, initAppArgs)
 	if err != nil {
-		return nil, errors.Wrap(err, "error generating app file")
+		return nil, rerrors.Wrap(err, "error generating app file")
 	}
 
 	out[patterns.AppFileName] = mainAppFile.Bytes()

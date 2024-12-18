@@ -5,7 +5,7 @@ import (
 	"path"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/io/colors"
@@ -23,7 +23,7 @@ hint: You can specify name with custom git url like "github.com/RedSock/rscli"
 )
 
 var (
-	emptyNameErr = errors.New("no name entered")
+	emptyNameErr = rerrors.New("no name entered")
 )
 
 type nameCollector struct {
@@ -45,19 +45,19 @@ func (p *nameCollector) collect(args []string) (name string, err error) {
 	} else {
 		name, err = p.askUserForName()
 		if err != nil {
-			return "", errors.Wrap(err, "error while asking user for name")
+			return "", rerrors.Wrap(err, "error while asking user for name")
 		}
 	}
 
 	if name == "" {
-		return "", errors.Wrap(emptyNameErr)
+		return "", rerrors.Wrap(emptyNameErr)
 	}
 
 	name = p.removeHttpProtoc(name)
 	name = p.preAppendHost(name)
 	err = validators.ValidateProjectNameStr(name)
 	if err != nil {
-		return "", errors.Wrap(err, "error validating project name")
+		return "", rerrors.Wrap(err, "error validating project name")
 	}
 
 	name = path.Join(path.Dir(name), strings.ToLower(path.Base(name)))
@@ -72,7 +72,7 @@ func (p *nameCollector) askUserForName() (name string, err error) {
 
 	name, err = p.io.GetInput()
 	if err != nil {
-		return "", errors.Wrap(err, "error obtaining project name")
+		return "", rerrors.Wrap(err, "error obtaining project name")
 	}
 
 	return name, nil

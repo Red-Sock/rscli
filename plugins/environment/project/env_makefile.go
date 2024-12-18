@@ -6,7 +6,7 @@ import (
 	"path"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/makefile"
@@ -20,8 +20,8 @@ type envMakefile struct {
 func (e *envMakefile) fetch(envProjPath string) (err error) {
 	e.Makefile, err = makefile.ReadMakeFile(path.Join(envProjPath, envpatterns.Makefile.Name))
 	if err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
-			return errors.Wrap(err, "error getting makefile")
+		if !rerrors.Is(err, os.ErrNotExist) {
+			return rerrors.Wrap(err, "error getting makefile")
 		}
 
 		e.Makefile = makefile.MewEmptyMakefile()

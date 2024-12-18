@@ -1,8 +1,8 @@
 package project
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
@@ -42,7 +42,7 @@ func (p *projectTidy) run(_ *cobra.Command, _ []string) (err error) {
 	if p.proj == nil {
 		p.proj, err = project.LoadProject(p.path, p.config)
 		if err != nil {
-			return errors.Wrap(err, "error fetching project for tidy")
+			return rerrors.Wrap(err, "error fetching project for tidy")
 		}
 	}
 
@@ -50,7 +50,7 @@ func (p *projectTidy) run(_ *cobra.Command, _ []string) (err error) {
 
 	err = ap.Tidy(p.proj)
 	if err != nil {
-		return errors.Wrap(err, "error performing tidy")
+		return rerrors.Wrap(err, "error performing tidy")
 	}
 
 	return nil

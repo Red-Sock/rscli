@@ -3,8 +3,8 @@ package environment
 import (
 	"path"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/envpatterns"
@@ -43,12 +43,12 @@ func (e *envTidy) RunTidy(cmd *cobra.Command, arg []string) error {
 
 	constructor, err := environment.NewGlobalEnv(e.io, e.cfg, e.getEnvDirPath(cmd))
 	if err != nil {
-		return errors.Wrap(err, "error creating global environment struct")
+		return rerrors.Wrap(err, "error creating global environment struct")
 	}
 	if !constructor.IsEnvExist() {
 		err := constructor.Init()
 		if err != nil {
-			return errors.Wrap(err, "error initializing environment")
+			return rerrors.Wrap(err, "error initializing environment")
 		}
 	}
 

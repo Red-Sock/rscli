@@ -1,7 +1,8 @@
 package dependencies
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
+
 	"github.com/godverv/matreshka/resources"
 )
 
@@ -22,7 +23,7 @@ func (p Postgres) AppendToProject(proj Project) error {
 
 	err := sc.applySqlConnFile(proj)
 	if err != nil {
-		return errors.Wrap(err, "error applying sql conn file")
+		return rerrors.Wrap(err, "error applying sql conn file")
 	}
 
 	appNameInfo := proj.GetShortName()

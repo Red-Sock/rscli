@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	"github.com/Red-Sock/rscli/plugins/tools/shared/ghversion"
@@ -21,7 +21,7 @@ const (
 	versionURL    = "https://api.github.com/repos/pressly/goose/releases/latest"
 )
 
-var ErrUnknownResourceToMigrate = errors.New("unknown resource to perform migration")
+var ErrUnknownResourceToMigrate = rerrors.New("unknown resource to perform migration")
 
 type Tool struct {
 }
@@ -32,7 +32,7 @@ func (t *Tool) Install() error {
 		Args: []string{"install", installURL},
 	})
 	if err != nil {
-		return errors.Wrap(err, "error executing install command")
+		return rerrors.Wrap(err, "error executing install command")
 	}
 
 	return nil
@@ -44,11 +44,11 @@ func (t *Tool) Version() (version string, err error) {
 		Args: []string{"-version"},
 	})
 	if err != nil {
-		return "", errors.Wrap(err, "error executing goose version")
+		return "", rerrors.Wrap(err, "error executing goose version")
 	}
 
 	if !strings.HasPrefix(res, versionPrefix) {
-		return res, errors.New("unexpected result of executing goose version")
+		return res, rerrors.New("unexpected result of executing goose version")
 	}
 
 	return res, nil
@@ -57,19 +57,19 @@ func (t *Tool) Version() (version string, err error) {
 func (t *Tool) GetLatestVersion() (version string, err error) {
 	resp, err := http.Get(versionURL)
 	if err != nil {
-		return "", errors.Wrap(err, "error getting goose latest version")
+		return "", rerrors.Wrap(err, "error getting goose latest version")
 	}
 
 	var versionB []byte
 	versionB, err = io.ReadAll(resp.Body)
 	if err != nil {
-		return "", errors.Wrap(err, "error reading response with goose latest version")
+		return "", rerrors.Wrap(err, "error reading response with goose latest version")
 	}
 
 	var versionGH ghversion.GithubVersion
 	err = json.Unmarshal(versionB, &versionGH)
 	if err != nil {
-		return "", errors.Wrap(err, "error unmarshalling gh response")
+		return "", rerrors.Wrap(err, "error unmarshalling gh response")
 	}
 
 	return versionGH.Name, nil
@@ -95,7 +95,7 @@ func (t *Tool) MigratePostgres(pathToFolder string, resource resources.Resource)
 
 	pg, ok := resource.(*resources.Postgres)
 	if !ok {
-		return errors.Wrapf(matreshka.ErrUnexpectedType, "expected postgres, got %T", resource)
+		return rerrors.Wrapf(matreshka.ErrUnexpectedType, "expected postgres, got %T", resource)
 	}
 
 	command.Args[1] = fmt.Sprintf("postgresql://%s:%s@%s:%d/%s",
@@ -108,7 +108,7 @@ func (t *Tool) MigratePostgres(pathToFolder string, resource resources.Resource)
 
 	res, err := cmd.Execute(command)
 	if err != nil {
-		return errors.Wrap(err, "error during migration")
+		return rerrors.Wrap(err, "error during migration")
 	}
 
 	// Todo

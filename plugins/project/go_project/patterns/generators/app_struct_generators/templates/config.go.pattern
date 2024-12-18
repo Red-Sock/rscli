@@ -6,7 +6,7 @@ import (
 	"context"
 
 	"github.com/Red-Sock/toolbox/closer"
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"proj_name/internal/config"
 )
@@ -17,7 +17,7 @@ func (a *App) InitConfig() (err error) {
 
 	a.Cfg, err = config.Load()
 	if err != nil {
-		return errors.Wrap(err, "error reading config")
+		return rerrors.Wrap(err, "error reading config")
 	}
 
 	return nil

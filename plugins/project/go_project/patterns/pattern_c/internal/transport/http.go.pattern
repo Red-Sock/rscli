@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"text/template"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/rs/cors"
+	"go.redsock.ru/rerrors"
 )
 
 type httpServer struct {
@@ -47,8 +47,8 @@ func (s *httpServer) start() error {
 
 	err := s.server.Serve(s.listener)
 	if err != nil {
-		if !errors.Is(err, http.ErrServerClosed) {
-			return errors.Wrap(err, "error listening http server")
+		if !rerrors.Is(err, http.ErrServerClosed) {
+			return rerrors.Wrap(err, "error listening http server")
 		}
 	}
 

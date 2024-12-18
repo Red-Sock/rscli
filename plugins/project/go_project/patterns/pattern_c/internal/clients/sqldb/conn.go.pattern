@@ -5,8 +5,8 @@ import (
 	"database/sql"
 
 	"github.com/Red-Sock/toolbox/closer"
-	"github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/rerrors"
 
 	"github.com/pressly/goose/v3"
 	"github.com/sirupsen/logrus"
@@ -18,7 +18,7 @@ func New(cfg resources.SqlResource) (*sql.DB, error) {
 
 	conn, err := sql.Open(dialect, connStr)
 	if err != nil {
-		return nil, errors.Wrap(err, "error checking connection to postgres")
+		return nil, rerrors.Wrap(err, "error checking connection to postgres")
 	}
 
 	closer.Add(func() error {
@@ -28,7 +28,7 @@ func New(cfg resources.SqlResource) (*sql.DB, error) {
 	goose.SetLogger(logrus.StandardLogger())
 	err = goose.SetDialect(dialect)
 	if err != nil {
-		return nil, errors.Wrap(err, "error setting dialect")
+		return nil, rerrors.Wrap(err, "error setting dialect")
 	}
 
 	mig := cfg.MigrationFolder()
@@ -38,7 +38,7 @@ func New(cfg resources.SqlResource) (*sql.DB, error) {
 
 	err = goose.Up(conn, mig)
 	if err != nil {
-		return nil, errors.Wrap(err, "error performing up")
+		return nil, rerrors.Wrap(err, "error performing up")
 	}
 
 	return conn, nil

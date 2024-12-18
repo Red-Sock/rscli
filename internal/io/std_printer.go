@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/io/colors"
 )
@@ -53,7 +53,7 @@ func (p StdIO) Error(in string) {
 func (p StdIO) GetInput() (string, error) {
 	out, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil {
-		return out, errors.Wrap(err, "error reading user input")
+		return out, rerrors.Wrap(err, "error reading user input")
 	}
 
 	out, _ = strings.CutSuffix(out, "\n")

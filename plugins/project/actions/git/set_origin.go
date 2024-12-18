@@ -3,7 +3,7 @@ package git
 import (
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 )
@@ -18,7 +18,7 @@ func SetOrigin(wordDir, originURL string) error {
 		WorkDir: wordDir,
 	})
 	if err != nil {
-		return errors.Wrap(err, "error listing remote repositories")
+		return rerrors.Wrap(err, "error listing remote repositories")
 	}
 
 	setRemote := cmd.Request{
@@ -35,7 +35,7 @@ func SetOrigin(wordDir, originURL string) error {
 
 	_, err = cmd.Execute(setRemote)
 	if err != nil {
-		return errors.Wrap(err, "error setting origin url")
+		return rerrors.Wrap(err, "error setting origin url")
 	}
 
 	return nil
