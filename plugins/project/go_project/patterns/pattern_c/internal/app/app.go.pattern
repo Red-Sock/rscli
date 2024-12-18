@@ -5,11 +5,11 @@ package app
 import (
 	"context"
 
-	"go.redsock.ru/rerrors"
 	"github.com/Red-Sock/toolbox"
 	"github.com/Red-Sock/toolbox/closer"
-	"proj_name/internal/config"
 	"github.com/sirupsen/logrus"
+	"go.redsock.ru/rerrors"
+	"proj_name/internal/config"
 )
 
 type App struct {
