@@ -12,8 +12,6 @@ github.com/Red-Sock/evon v0.0.15 h1:yjTO3CwMh73cXYUcMBdMFYsZ89xGbH1BBmqYty3hVH4=
 github.com/Red-Sock/evon v0.0.15/go.mod h1:BSqhsH7BWJu59QFmyzpIc7kqNQkvVi5Gb1MhZMx7mlc=
 github.com/Red-Sock/go_tg v0.0.18 h1:YF3CC2D8+8ApJLQ+iKQeg73VzYKhX555Yfi+VFJyuZw=
 github.com/Red-Sock/go_tg v0.0.18/go.mod h1:zOQ7l6ymmkFEKMVADRTYF7Ed0oGnlBUsH3MDZmnbeH8=
-github.com/Red-Sock/toolbox v0.0.6 h1:UHbPOajt98n8dQLa4IC/tEZ8GtlJmuQA2TBBNRMNZWw=
-github.com/Red-Sock/toolbox v0.0.6/go.mod h1:tUdTJObA0EDPjJc/iYVHNZIETAL4wmb8VIQSqSi2C/s=
 github.com/Red-Sock/trace-errors v0.0.13 h1:T8f5Mp+Ts7PsTBINP7yYbFUs+gq7JoA2/be6WOsCMwA=
 github.com/Red-Sock/trace-errors v0.0.13/go.mod h1:Yk7KzCmvgX3zxgS7Qvf7/iZUGS3s7dxFHetsgQ3YZvM=
 github.com/andybalholm/brotli v1.0.6 h1:Yf9fFpf49Zrxb9NlQaluyE92/+X7UVHlhMNJN2sxfOI=
@@ -196,6 +194,8 @@ go.opentelemetry.io/otel/trace v1.31.0 h1:ffjsj1aRouKewfr85U2aGagJ46+MvodynlQ1HY
 go.opentelemetry.io/otel/trace v1.31.0/go.mod h1:TXZkRk7SM2ZQLtR6eoAWQFIHPvzQ06FJAsO1tJg480A=
 go.redsock.ru/rerrors v0.0.2 h1:3aKN+JWDcWKYD1Thsb0mIHHY47UK+zHT3Fpyc9AbBpg=
 go.redsock.ru/rerrors v0.0.2/go.mod h1:CjYf9jw790Tc4gVrTb8H1XOjkvSXDryuwBvC6XENQJs=
+go.redsock.ru/toolbox v0.0.8 h1:Y1TQbPqFCM/ijl4m1R5ACOj00nMtn9GwldiyPOcU+zk=
+go.redsock.ru/toolbox v0.0.8/go.mod h1:Lf4Pqojk3ralEXNSubkDEFJbnQqKQvplqceTur8UIfQ=
 go.uber.org/multierr v1.11.0 h1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=
 go.uber.org/multierr v1.11.0/go.mod h1:20+QtiLqy0Nd6FdQB9TLXag12DsQkrbs3htMFfDN80Y=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=

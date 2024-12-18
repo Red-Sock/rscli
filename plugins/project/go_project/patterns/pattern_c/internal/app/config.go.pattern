@@ -5,7 +5,7 @@ package app
 import (
 	"context"
 
-	"github.com/Red-Sock/toolbox/closer"
+	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/rerrors"
 
 	"proj_name/internal/config"

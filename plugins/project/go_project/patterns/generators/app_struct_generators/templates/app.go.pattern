@@ -4,8 +4,8 @@ package app
 
 import (
 	"context"
-	"github.com/Red-Sock/toolbox"
-	"github.com/Red-Sock/toolbox/closer"
+	"go.redsock.ru/toolbox"
+	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/rerrors"
 	"github.com/sirupsen/logrus"{{ range $key, $value := .Imports }}
     {{ $value }} "{{ $key }}"{{ end }}

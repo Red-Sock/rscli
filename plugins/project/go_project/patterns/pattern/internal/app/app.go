@@ -5,10 +5,10 @@ package app
 import (
 	"context"
 
-	"github.com/Red-Sock/toolbox"
-	"github.com/Red-Sock/toolbox/closer"
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox"
+	"go.redsock.ru/toolbox/closer"
 	"proj_name/internal/config"
 )
 

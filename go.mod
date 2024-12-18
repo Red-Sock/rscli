@@ -4,7 +4,6 @@ go 1.23.3
 
 require (
 	github.com/Red-Sock/evon v0.0.15
-	github.com/Red-Sock/toolbox v0.0.6
 	github.com/gobeam/stringy v0.0.7
 	github.com/godverv/matreshka v0.0.41
 	github.com/gojuno/minimock/v3 v3.4.2
@@ -14,6 +13,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	go.redsock.ru/rerrors v0.0.2
+	go.redsock.ru/toolbox v0.0.8
 	gopkg.in/yaml.v3 v3.0.1
 )
 
