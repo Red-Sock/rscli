@@ -6,13 +6,17 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 )
 
+const (
+	GrpcImplFolder = "grpc_impl"
+)
+
 // Proto contract
 var (
 	//go:embed pattern_c/api/grpc/api.proto
-	protoServer []byte
-	ProtoServer = &folder.Folder{
+	protoContract []byte
+	ProtoContract = &folder.Folder{
 		Name:    "api.proto",
-		Content: protoServer,
+		Content: protoContract,
 	}
 )
 
@@ -27,4 +31,13 @@ var (
 
 	//go:embed pattern_c/grpc.mk
 	GrpcServerGenMK []byte
+)
+
+var (
+	//go:embed pattern_c/internal/transport/grpc/example_api_impl/impl.go.pattern
+	grpcImpl []byte
+	GrpcImpl = &folder.Folder{
+		Name:    "impl.go",
+		Content: grpcImpl,
+	}
 )

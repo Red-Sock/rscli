@@ -4,26 +4,26 @@ import (
 	"io/fs"
 	"os"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 )
 
 func CreateFileIfNotExists(pathToFile string, content []byte) error {
 	fi, err := os.Stat(pathToFile)
 	if err == nil {
 		if fi.IsDir() {
-			return errors.New(pathToFile + " already exists and it is folder")
+			return rerrors.New(pathToFile + " already exists and it is folder")
 		} else {
 			return nil
 		}
 	}
 
-	if !errors.Is(err, fs.ErrNotExist) {
-		return errors.Wrap(err, "error reading file: "+pathToFile)
+	if !rerrors.Is(err, fs.ErrNotExist) {
+		return rerrors.Wrap(err, "error reading file: "+pathToFile)
 	}
 
 	err = os.WriteFile(pathToFile, content, os.ModePerm)
 	if err != nil {
-		return errors.Wrap(err, "error writing Makefile")
+		return rerrors.Wrap(err, "error writing Makefile")
 	}
 
 	return nil
@@ -47,18 +47,18 @@ func CreateFolderIfNotExists(pth string) error {
 	fi, err := os.Stat(pth)
 	if err == nil {
 		if !fi.IsDir() {
-			return errors.New(pth + " is not a directory")
+			return rerrors.New(pth + " is not a directory")
 		}
 		return nil
 	}
 
-	if !errors.Is(err, fs.ErrNotExist) {
-		return errors.Wrap(err, "error reading stat on path "+pth)
+	if !rerrors.Is(err, fs.ErrNotExist) {
+		return rerrors.Wrap(err, "error reading stat on path "+pth)
 	}
 
 	err = os.MkdirAll(pth, os.ModePerm)
 	if err != nil {
-		return errors.Wrap(err, "error making dir "+pth)
+		return rerrors.Wrap(err, "error making dir "+pth)
 	}
 
 	return nil

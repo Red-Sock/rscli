@@ -3,8 +3,8 @@ package go_actions
 import (
 	"path"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
@@ -17,7 +17,7 @@ type PrepareConfigFolder struct{}
 func (a PrepareConfigFolder) Do(p project.IProject) (err error) {
 	cfgFolder, err := config_generators.GenerateConfigFolder(p.GetConfig())
 	if err != nil {
-		return errors.Wrap(err, "error generating config folder")
+		return rerrors.Wrap(err, "error generating config folder")
 	}
 
 	cfgFolder.Name = path.Join(patterns.InternalFolder, patterns.ConfigsFolder)
@@ -26,7 +26,7 @@ func (a PrepareConfigFolder) Do(p project.IProject) (err error) {
 
 	err = a.generateConfigYamlFile(p)
 	if err != nil {
-		return errors.Wrap(err, "error generating config yaml-files")
+		return rerrors.Wrap(err, "error generating config yaml-files")
 	}
 
 	return nil
@@ -47,7 +47,7 @@ func (a PrepareConfigFolder) generateConfigYamlFile(p project.IProject) error {
 	} {
 		err := appendToConfig(newConfig.AppConfig, configFolder, cfgName)
 		if err != nil {
-			return errors.Wrap(err, "error appending changes to dev config")
+			return rerrors.Wrap(err, "error appending changes to dev config")
 		}
 	}
 
@@ -68,7 +68,7 @@ func appendToConfig(newConfig matreshka.AppConfig, configFolder *folder.Folder, 
 	if len(configFile.Content) != 0 {
 		err = currentConfig.Unmarshal(configFile.Content)
 		if err != nil {
-			return errors.Wrap(err, "error reading dev config file")
+			return rerrors.Wrap(err, "error reading dev config file")
 		}
 	}
 
@@ -76,7 +76,7 @@ func appendToConfig(newConfig matreshka.AppConfig, configFolder *folder.Folder, 
 
 	configFile.Content, err = currentConfig.Marshal()
 	if err != nil {
-		return errors.Wrap(err, "error marshalling dev config to yaml")
+		return rerrors.Wrap(err, "error marshalling dev config to yaml")
 	}
 
 	return nil

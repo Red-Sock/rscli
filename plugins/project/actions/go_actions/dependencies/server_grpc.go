@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"path"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/gobeam/stringy"
 	"github.com/godverv/matreshka/server"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
@@ -29,7 +29,7 @@ func (r GrpcServer) GetFolderName() string {
 		return r.Name
 	}
 
-	return "grpc_impl"
+	return "grpc"
 }
 
 func (r GrpcServer) AppendToProject(proj Project) error {
@@ -40,14 +40,14 @@ func (r GrpcServer) AppendToProject(proj Project) error {
 		proj.GetFolder(),
 		protoName)
 	if err != nil {
-		return errors.Wrap(err, "error searching dependencies")
+		return rerrors.Wrap(err, "error searching dependencies")
 	}
 
 	if !ok {
 		protoPath := path.Join(r.Cfg.Env.PathToServerDefinition, r.GetFolderName(), protoName)
-		err := r.applyApiFolder(proj, protoPath)
+		err = r.applyApiFolder(proj, protoPath)
 		if err != nil {
-			return errors.Wrap(err, "error applying grpc api folder")
+			return rerrors.Wrap(err, "error applying grpc api folder")
 		}
 	}
 
@@ -59,22 +59,20 @@ func (r GrpcServer) AppendToProject(proj Project) error {
 }
 
 func (r GrpcServer) applyApiFolder(proj Project, protoPath string) error {
-	serverF := patterns.ProtoServer.CopyWithNewName(protoPath)
+	protoFile := patterns.ProtoContract.CopyWithNewName(protoPath)
 
 	projName := stringy.New(proj.GetShortName())
 
-	serverF.Content = bytes.Replace(serverF.Content,
+	protoFile.Content = bytes.Replace(protoFile.Content,
 		[]byte(envpatterns.ProjNamePattern),
 		[]byte(projName.SnakeCase().ToLower()),
 		1)
 
-	serverF.Content = bytes.Replace(serverF.Content,
+	protoFile.Content = bytes.Replace(protoFile.Content,
 		[]byte(envpatterns.ProjNamePattern),
 		[]byte(projName.CamelCase().Get()),
 		1)
-
-	proj.GetFolder().Add(serverF)
-
+	proj.GetFolder().Add(protoFile)
 	return nil
 }
 

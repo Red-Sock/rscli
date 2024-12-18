@@ -9,7 +9,7 @@ import ({{ range $key, $value := .Imports }}
 func (a *App) {{ .InitFunctionName }}() (err error) { {{ range .Functions }}
     	a.{{ .ResultName }}, err = {{ .FuncName }}({{ .Args }})
     	if err != nil {
-            return errors.Wrap(err, "{{ .ErrorMessage }}")
+            return rerrors.Wrap(err, "{{ .ErrorMessage }}")
         }
     	{{ end }}
 	return nil

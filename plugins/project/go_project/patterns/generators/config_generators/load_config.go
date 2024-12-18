@@ -1,7 +1,7 @@
 package config_generators
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
@@ -46,7 +46,7 @@ func GenerateConfigFolder(cfg *config.Config) (*folder.Folder, error) {
 	for _, g := range generators {
 		ic, f, err := g()
 		if err != nil {
-			return nil, errors.Wrap(err)
+			return nil, rerrors.Wrap(err)
 		}
 
 		configFolder.Add(f)
@@ -56,7 +56,7 @@ func GenerateConfigFolder(cfg *config.Config) (*folder.Folder, error) {
 	autoLoadFile := &rw.RW{}
 	err := configAutoLoadTemplate.Execute(autoLoadFile, args)
 	if err != nil {
-		return nil, errors.Wrap(err, "error generating load-config file ")
+		return nil, rerrors.Wrap(err, "error generating load-config file ")
 	}
 
 	configFolder.Add(&folder.Folder{

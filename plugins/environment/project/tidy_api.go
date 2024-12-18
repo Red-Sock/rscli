@@ -3,7 +3,7 @@ package project
 import (
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 )
@@ -13,7 +13,7 @@ func (e *ProjEnv) tidyServerAPIs() error {
 	if !ok {
 		p, ok := e.globalComposePatternManager.Patterns[envpatterns.ProjNamePattern]
 		if !ok {
-			return errors.New("no pattern for service was found")
+			return rerrors.New("no pattern for service was found")
 		}
 
 		service = &p.ContainerDefinition

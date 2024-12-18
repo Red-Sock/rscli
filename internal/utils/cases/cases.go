@@ -1,7 +1,9 @@
 package cases
 
 import (
+	"bytes"
 	"strings"
+	"unicode"
 
 	"github.com/Red-Sock/rscli/internal/utils/slices"
 )
@@ -35,3 +37,27 @@ var initialisms = []string{"acl", "api", "ascii", "cpu", "css", "dns",
 	"udp", "ui", "gid", "uid", "uuid", "uri",
 	"url", "utf8", "vm", "xml", "xmpp", "xsrf",
 	"xss", "sip", "rtp", "amqp", "db", "ts"}
+
+func ToPascal(newName string) string {
+	pascalNameSB := bytes.Buffer{}
+	nameRuned := []rune(newName)
+
+	pascalNameSB.WriteRune(unicode.ToUpper(nameRuned[0]))
+
+	nextUpper := false
+	for _, n := range nameRuned[1:] {
+		if n == '-' || n == '_' {
+			nextUpper = true
+			continue
+		}
+
+		if nextUpper {
+			nextUpper = false
+			n = unicode.ToUpper(n)
+		}
+
+		pascalNameSB.WriteRune(n)
+	}
+
+	return pascalNameSB.String()
+}

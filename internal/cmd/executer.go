@@ -4,7 +4,7 @@ import (
 	"io"
 	"os/exec"
 
-	"github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 )
 
 type Request struct {
@@ -26,7 +26,7 @@ func Execute(r Request) (message string, err error) {
 
 	err = cmd.Run()
 	if err != nil {
-		return "", errors.Wrap(errors.Wrap(err, errRW.String()), msgRW.String())
+		return "", rerrors.Wrap(rerrors.Wrap(err, errRW.String()), msgRW.String())
 	}
 
 	return msgRW.String(), err
@@ -60,7 +60,7 @@ func (r *RW) Read(b []byte) (n int, err error) {
 func (r *RW) String() string {
 	bts, err := io.ReadAll(r)
 	if err != nil {
-		return errors.Wrap(err, "error parsing message from execution error").Error()
+		return rerrors.Wrap(err, "error parsing message from execution error").Error()
 	}
 	return string(bts)
 }

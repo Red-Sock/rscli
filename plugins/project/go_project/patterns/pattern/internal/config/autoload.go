@@ -3,11 +3,11 @@ package config
 import (
 	"flag"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
+	"go.redsock.ru/rerrors"
 )
 
-var ErrAlreadyLoaded = errors.New("config already loaded")
+var ErrAlreadyLoaded = rerrors.New("config already loaded")
 
 type Config struct {
 	AppInfo matreshka.AppInfo
@@ -44,13 +44,13 @@ func Load() (Config, error) {
 
 	rootConfig, err := matreshka.ReadConfigs(cfgPath)
 	if err != nil {
-		return defaultConfig, errors.Wrap(err, "error reading matreshka config")
+		return defaultConfig, rerrors.Wrap(err, "error reading matreshka config")
 	}
 
 	defaultConfig.AppInfo = rootConfig.AppInfo
 	err = rootConfig.Environment.ParseToStruct(defaultConfig.Environment)
 	if err != nil {
-		return defaultConfig, errors.Wrap(err, "error parsing environment variables")
+		return defaultConfig, rerrors.Wrap(err, "error parsing environment variables")
 	}
 
 	return defaultConfig, nil

@@ -5,7 +5,7 @@ import (
 	"path"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/compose"
 	"github.com/Red-Sock/rscli/internal/compose/env"
@@ -59,22 +59,22 @@ func (e *GlobalEnvironment) fetchFiles() error {
 
 	err = e.fetchSrcProjectDirs()
 	if err != nil {
-		return errors.Wrap(err, "error fetching folders for environment")
+		return rerrors.Wrap(err, "error fetching folders for environment")
 	}
 
 	err = e.fetchCompose()
 	if err != nil {
-		return errors.Wrap(err, "error fetching compose")
+		return rerrors.Wrap(err, "error fetching compose")
 	}
 
 	err = e.fetchDotEnv()
 	if err != nil {
-		return errors.Wrap(err, "error fetching dot env file")
+		return rerrors.Wrap(err, "error fetching dot env file")
 	}
 
 	err = e.fetchMakefile()
 	if err != nil {
-		return errors.Wrap(err, "error fetching makefile")
+		return rerrors.Wrap(err, "error fetching makefile")
 	}
 
 	return nil
@@ -93,8 +93,8 @@ func (e *GlobalEnvironment) fetchSrcProjectDirs() (err error) {
 
 				fi, err := os.Stat(pathToMainFile)
 				if err != nil {
-					if !errors.Is(err, os.ErrNotExist) {
-						return dirs, errors.Wrap(err, "error reading main.go file: "+pathToMainFile)
+					if !rerrors.Is(err, os.ErrNotExist) {
+						return dirs, rerrors.Wrap(err, "error reading main.go file: "+pathToMainFile)
 					}
 				} else {
 					if !fi.IsDir() {
@@ -118,25 +118,25 @@ func (e *GlobalEnvironment) fetchSrcProjectDirs() (err error) {
 	{
 		e.srcProjDirs, err = os.ReadDir(path.Dir(e.envDirPath))
 		if err != nil {
-			return errors.Wrapf(err, "error reading directory projects %s ", e.envDirPath)
+			return rerrors.Wrapf(err, "error reading directory projects %s ", e.envDirPath)
 		}
 		e.srcProjDirs, err = filter(e.srcProjDirs, path.Dir(e.envDirPath))
 		if err != nil {
-			return errors.Wrap(err, "error filtering source projects directories")
+			return rerrors.Wrap(err, "error filtering source projects directories")
 		}
 	}
 
 	{
 		e.envProjDirs, err = os.ReadDir(e.envDirPath)
 		if err != nil {
-			if !errors.Is(err, os.ErrNotExist) {
-				return errors.Wrapf(err, "error reading environment directory  %s ", e.envDirPath)
+			if !rerrors.Is(err, os.ErrNotExist) {
+				return rerrors.Wrapf(err, "error reading environment directory  %s ", e.envDirPath)
 			}
 		}
 
 		e.envProjDirs, err = filter(e.envProjDirs, path.Dir(e.envDirPath))
 		if err != nil {
-			return errors.Wrap(err, "error filtering environment projects directories")
+			return rerrors.Wrap(err, "error filtering environment projects directories")
 		}
 	}
 
@@ -148,7 +148,7 @@ func (e *GlobalEnvironment) fetchCompose() (err error) {
 
 	e.composePatterns, err = compose.ReadComposePatternsFromFile(composePatternsPath)
 	if err != nil {
-		return errors.Wrap(err, "error creating compose file at "+composePatternsPath)
+		return rerrors.Wrap(err, "error creating compose file at "+composePatternsPath)
 	}
 
 	return nil
@@ -157,13 +157,13 @@ func (e *GlobalEnvironment) fetchCompose() (err error) {
 func (e *GlobalEnvironment) fetchDotEnv() (err error) {
 	builtIn, err := env.NewEnvContainer(envpatterns.EnvFile.Content)
 	if err != nil {
-		return errors.Wrap(err, "error parsing env container")
+		return rerrors.Wrap(err, "error parsing env container")
 	}
 
 	envPattern := path.Join(e.envDirPath, envpatterns.EnvFile.Name)
 	globalEnv, err := env.ReadContainer(envPattern)
 	if err != nil {
-		return errors.Wrap(err, "can't open env file at "+envPattern)
+		return rerrors.Wrap(err, "can't open env file at "+envPattern)
 	}
 
 	for _, preDefined := range builtIn.GetContent() {
@@ -182,21 +182,21 @@ func (e *GlobalEnvironment) fetchDotEnv() (err error) {
 func (e *GlobalEnvironment) fetchMakefile() (err error) {
 	e.makefile, err = makefile.NewMakeFile(envpatterns.Makefile.Content)
 	if err != nil {
-		return errors.Wrap(err, "error parsing built in makefile")
+		return rerrors.Wrap(err, "error parsing built in makefile")
 	}
 
 	userDefinedMakefilePath := path.Join(e.envDirPath, envpatterns.Makefile.Name)
 	_, err = os.Stat(userDefinedMakefilePath)
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
+		if rerrors.Is(err, os.ErrNotExist) {
 			return nil
 		}
-		return errors.Wrap(err, "error getting stat on makefile")
+		return rerrors.Wrap(err, "error getting stat on makefile")
 	}
 
 	m, err := makefile.ReadMakeFile(userDefinedMakefilePath)
 	if err != nil {
-		return errors.Wrap(err, "error parsing user defined config")
+		return rerrors.Wrap(err, "error parsing user defined config")
 	}
 
 	m.Merge(e.makefile)

@@ -5,9 +5,9 @@ import (
 	"net"
 	"net/http"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/sirupsen/logrus"
 	"github.com/soheilhy/cmux"
+	"go.redsock.ru/rerrors"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -23,7 +23,7 @@ type ServersManager struct {
 func NewServerManager(ctx context.Context, port string) (*ServersManager, error) {
 	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
-		return nil, errors.Wrap(err, "error opening listener")
+		return nil, rerrors.Wrap(err, "error opening listener")
 	}
 
 	mainMux := cmux.New(listener)
@@ -55,7 +55,7 @@ func (m *ServersManager) Start() error {
 		return nil
 	case errC <- errGroup.Wait():
 		err := <-errC
-		return errors.Wrap(err)
+		return rerrors.Wrap(err)
 	}
 }
 
@@ -68,7 +68,7 @@ func (m *ServersManager) Stop() error {
 
 	err := eg.Wait()
 	if err != nil {
-		return errors.Wrap(err, "error stopping server")
+		return rerrors.Wrap(err, "error stopping server")
 	}
 
 	return nil

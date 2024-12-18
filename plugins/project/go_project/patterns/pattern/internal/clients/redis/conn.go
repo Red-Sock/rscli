@@ -4,12 +4,12 @@ import (
 	"strconv"
 
 	"github.com/Red-Sock/toolbox/closer"
-	"github.com/Red-Sock/trace-errors"
 	"github.com/go-redis/redis"
 	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/rerrors"
 )
 
-var ErrUnexpectedPing = errors.New("error pinging redis")
+var ErrUnexpectedPing = rerrors.New("error pinging redis")
 
 func New(cfg *resources.Redis) (*redis.Client, error) {
 	opts := &redis.Options{
@@ -21,11 +21,11 @@ func New(cfg *resources.Redis) (*redis.Client, error) {
 
 	res, err := c.Ping().Result()
 	if err != nil {
-		return nil, errors.Wrap(err, "error checking connection to redis")
+		return nil, rerrors.Wrap(err, "error checking connection to redis")
 	}
 
 	if res != "pong" {
-		return nil, errors.Wrapf(ErrUnexpectedPing, "not a pong has returned but %s", res)
+		return nil, rerrors.Wrapf(ErrUnexpectedPing, "not a pong has returned but %s", res)
 	}
 
 	closer.Add(c.Close)

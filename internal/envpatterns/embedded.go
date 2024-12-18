@@ -14,6 +14,7 @@ const (
 
 const (
 	ProjNamePattern            = "proj_name"
+	ProjNamePascalPattern      = "ProjName"
 	ProjNameCapsPattern        = "PROJ_NAME_CAPS"
 	AbsoluteProjectPathPattern = "abs_proj_path"
 	PathToMain                 = "path_to_main"

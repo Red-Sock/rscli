@@ -7,10 +7,9 @@ import (
 
 	"github.com/Red-Sock/toolbox"
 	"github.com/Red-Sock/toolbox/closer"
-	errors "github.com/Red-Sock/trace-errors"
-	"proj_name/internal/config"
-
 	"github.com/sirupsen/logrus"
+	"go.redsock.ru/rerrors"
+	"proj_name/internal/config"
 )
 
 type App struct {
@@ -26,12 +25,12 @@ func New() (app App, err error) {
 
 	err = app.InitConfig()
 	if err != nil {
-		return App{}, errors.Wrap(err, "error initializing config")
+		return App{}, rerrors.Wrap(err, "error initializing config")
 	}
 
 	err = app.Custom.Init(&app)
 	if err != nil {
-		return App{}, errors.Wrap(err, "error initializing custom app properties")
+		return App{}, rerrors.Wrap(err, "error initializing custom app properties")
 	}
 
 	return app, nil
@@ -44,7 +43,7 @@ func (a *App) Start() (err error) {
 
 	err = closer.Close()
 	if err != nil {
-		return errors.Wrap(err, "error while shutting down application")
+		return rerrors.Wrap(err, "error while shutting down application")
 	}
 
 	return nil

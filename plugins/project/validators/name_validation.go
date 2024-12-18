@@ -1,10 +1,10 @@
 package validators
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 )
 
-var ErrInvalidNameErr = errors.New("name contains invalid symbol(s)")
+var ErrInvalidNameErr = rerrors.New("name contains invalid symbol(s)")
 
 func ValidateProjectNameStr(name string) error {
 	// starting and ending ascii symbols ranges that are applicable to project name
@@ -24,7 +24,7 @@ func ValidateProjectNameStr(name string) error {
 			}
 		}
 		if !hasHitRange {
-			return errors.Wrap(ErrInvalidNameErr, string(s))
+			return rerrors.Wrap(ErrInvalidNameErr, string(s))
 		}
 	}
 

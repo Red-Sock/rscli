@@ -5,11 +5,11 @@ package config
 import (
 	"flag"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 	"github.com/godverv/matreshka"
 )
 
-var ErrAlreadyLoaded = errors.New("config already loaded")
+var ErrAlreadyLoaded = rerrors.New("config already loaded")
 
 type Config struct {
 	AppInfo matreshka.AppInfo
@@ -46,14 +46,14 @@ func Load() (Config, error) {
 
 	rootConfig, err := matreshka.ReadConfigs(cfgPath)
 	if err != nil {
-		return defaultConfig, errors.Wrap(err, "error reading matreshka config")
+		return defaultConfig, rerrors.Wrap(err, "error reading matreshka config")
 	}
 
 	defaultConfig.AppInfo = rootConfig.AppInfo
 
     {{range .Configs }}err = rootConfig.{{ .From }}.ParseToStruct(&defaultConfig.{{ .FieldName }})
     if err != nil {
-        return defaultConfig, errors.Wrap(err, "{{ .ErrorMessage }}")
+        return defaultConfig, rerrors.Wrap(err, "{{ .ErrorMessage }}")
     }
 	{{ end }}
 	return defaultConfig, nil

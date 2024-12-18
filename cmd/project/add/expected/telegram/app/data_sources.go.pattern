@@ -4,13 +4,13 @@ package app
 
 import (
 	"Test_AddDependency/TELEGRAM/internal/clients/telegram"
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 )
 
 func (a *App) InitDataSources() (err error) {
 	a.Telegram, err = telegram.New(a.Cfg.DataSources.Telegram)
 	if err != nil {
-		return errors.Wrap(err, "error during telegram bot initialization")
+		return rerrors.Wrap(err, "error during telegram bot initialization")
 	}
 
 	return nil

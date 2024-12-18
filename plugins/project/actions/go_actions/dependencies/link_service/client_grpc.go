@@ -11,9 +11,9 @@ import (
 	"sort"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
@@ -103,7 +103,7 @@ func (g GrpcClient) applyLink(proj project.IProject, packageName string) error {
 
 	pkg, err := discovery.DiscoverPackage(packageName)
 	if err != nil {
-		return errors.Wrap(err, "error discovering package")
+		return rerrors.Wrap(err, "error discovering package")
 	}
 
 	if pkg == nil {
@@ -128,8 +128,8 @@ func (g GrpcClient) applyLink(proj project.IProject, packageName string) error {
 
 	grpcResource, err := proj.GetConfig().DataSources.GRPC(resourceName)
 	if err != nil {
-		if !errors.Is(err, matreshka.ErrNotFound) {
-			return errors.Wrap(err, "error getting grpc resource from config")
+		if !rerrors.Is(err, matreshka.ErrNotFound) {
+			return rerrors.Wrap(err, "error getting grpc resource from config")
 		}
 
 		grpcResource = &resources.GRPC{
@@ -142,7 +142,7 @@ func (g GrpcClient) applyLink(proj project.IProject, packageName string) error {
 
 	grpcClientFile, err := config_generators.GenerateGRPCClient(*pkg)
 	if err != nil {
-		return errors.Wrap(err, "error generating grpc client")
+		return rerrors.Wrap(err, "error generating grpc client")
 	}
 
 	grpcClientsFolder.Add(
@@ -162,7 +162,7 @@ func (g GrpcClient) getPathToModule(packageName string) (pathToModule string, er
 		root := path.Dir(packagePath)
 		potentialDirs, err := os.ReadDir(root)
 		if err != nil {
-			return "", errors.Wrap(err, "error reading potential packages paths")
+			return "", rerrors.Wrap(err, "error reading potential packages paths")
 		}
 
 		baseName := path.Base(packageName)
@@ -244,7 +244,7 @@ func readGrpcPackage(projectPath, apiContractPath string) (*grpcPackage, error) 
 	packagePath := path.Join(projectPath, apiContractPath)
 	files, err := os.ReadDir(packagePath)
 	if err != nil {
-		return nil, errors.Wrap(err, "error reading contracts dir")
+		return nil, rerrors.Wrap(err, "error reading contracts dir")
 	}
 
 	var clientContractPath string
@@ -266,13 +266,13 @@ func readGrpcPackage(projectPath, apiContractPath string) (*grpcPackage, error) 
 
 	clientContractB, err := os.ReadFile(clientContractPath)
 	if err != nil {
-		return nil, errors.Wrap(err, "error reading client contract files")
+		return nil, rerrors.Wrap(err, "error reading client contract files")
 	}
 
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path.Base(clientContractPath), clientContractB, 0)
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing go contract file")
+		return nil, rerrors.Wrap(err, "error parsing go contract file")
 	}
 
 	out := &grpcPackage{}

@@ -1,14 +1,14 @@
 package project
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/compose"
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/utils/copier"
 )
 
-var ErrNoProjectComposePattern = errors.New("")
+var ErrNoProjectComposePattern = rerrors.New("")
 
 func (e *ProjEnv) tidyService() error {
 	srcPattern, ok := e.globalComposePatternManager.Patterns[envpatterns.ProjNamePattern]
@@ -19,7 +19,7 @@ func (e *ProjEnv) tidyService() error {
 	var pattern compose.Pattern
 	err := copier.Copy(srcPattern, &pattern)
 	if err != nil {
-		return errors.Wrap(err, "error coping proj pattern")
+		return rerrors.Wrap(err, "error coping proj pattern")
 	}
 
 	// TODO

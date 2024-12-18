@@ -5,7 +5,7 @@ import (
 	"io/fs"
 	"net/http"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 )
 
 //go:embed all:{{ .DistPath }}
@@ -16,7 +16,7 @@ func NewServer() (http.Handler, error) {
 
 	distSub, err := fs.Sub(distFS, {{ .DistPath }})
 	if err != nil {
-	return nil, errors.Wrap(err, "error creating dist fs")
+	return nil, rerrors.Wrap(err, "error creating dist fs")
 	}
 
 	ffs := http.FileServer(http.FS(distSub))

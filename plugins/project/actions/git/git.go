@@ -1,7 +1,7 @@
 package git
 
 import (
-	"github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/plugins/project"
 )
@@ -21,17 +21,17 @@ func (a InitGit) Do(p project.IProject) error {
 
 	err := Init(projectPath)
 	if err != nil {
-		return errors.Wrap(err, "error initializing project")
+		return rerrors.Wrap(err, "error initializing project")
 	}
 
 	err = CommitWithUntracked(projectPath, "project init via RedSock CLI")
 	if err != nil {
-		return errors.Wrap(err, "error committing changes")
+		return rerrors.Wrap(err, "error committing changes")
 	}
 
 	err = SetOrigin(projectPath, p.GetName())
 	if err != nil {
-		return errors.Wrap(err, "error setting git origin")
+		return rerrors.Wrap(err, "error setting git origin")
 	}
 
 	return nil

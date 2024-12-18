@@ -1,0 +1,38 @@
+package {{ .GrpcPackage }}_impl
+
+import (
+    "context"
+    "net/http"
+
+    "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+    "github.com/sirupsen/logrus"
+    "google.golang.org/grpc"
+)
+
+type Impl struct {
+    {{ .GrpcPackage }}.Unimplemented{{.ServiceName}}Server
+}
+
+func New() *Impl {
+    return &Impl{}
+}
+
+func (impl *Impl) Register(server grpc.ServiceRegistrar) {
+    {{ .GrpcPackage }}.Register{{ .ServiceName }}Server(server, impl)
+}
+
+func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.DialOption) (route string, handler http.Handler) {
+    gwHttpMux := runtime.NewServeMux()
+
+    err := {{ .GrpcPackage }}.Register{{ .ServiceName }}HandlerFromEndpoint(
+        ctx,
+        gwHttpMux,
+        endpoint,
+        opts,
+    )
+    if err != nil {
+        logrus.Errorf("error registering grpc2http handler: %s", err)
+    }
+
+    return "/api/", gwHttpMux
+}

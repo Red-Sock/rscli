@@ -1,4 +1,4 @@
-package perun
+package example_api_impl
 
 import (
 	"context"

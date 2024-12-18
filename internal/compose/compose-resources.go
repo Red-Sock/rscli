@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/Red-Sock/evon"
-	"github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/rerrors"
 	"gopkg.in/yaml.v3"
 
 	"github.com/Red-Sock/rscli/internal/compose/env"
@@ -24,8 +24,8 @@ const (
 )
 
 var (
-	ErrInvalidComposeFileFormat = errors.New("invalid compose format. MUST be a VALID compose file with \"services:\" field")
-	ErrInvalidComposeEnvFormat  = errors.New("invalid environment variable format in docker-compose file. \"${\" must be followed by \"}\"")
+	ErrInvalidComposeFileFormat = rerrors.New("invalid compose format. MUST be a VALID compose file with \"services:\" field")
+	ErrInvalidComposeEnvFormat  = rerrors.New("invalid environment variable format in docker-compose file. \"${\" must be followed by \"}\"")
 )
 
 type PatternManager struct {
@@ -45,22 +45,22 @@ func ReadComposePatternsFromFile(pth string) (out *PatternManager, err error) {
 	// Basic compose examples: rscli built-in
 	out, err = extractComposePatternsFromFile(envpatterns.BuildInComposeExamples.Content)
 	if err != nil {
-		return nil, errors.Wrap(err, "error extracting composePatterns from prepared file")
+		return nil, rerrors.Wrap(err, "error extracting composePatterns from prepared file")
 	}
 
 	// User's defined compose examples from
 	userDockerComposeExample, err := os.ReadFile(pth)
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
+		if rerrors.Is(err, os.ErrNotExist) {
 			return out, nil
 		}
 
-		return out, errors.Wrap(err, "error reading user defined compose file")
+		return out, rerrors.Wrap(err, "error reading user defined compose file")
 	}
 
 	userServicesDefinitions, err := extractComposePatternsFromFile(userDockerComposeExample)
 	if err != nil {
-		return out, errors.Wrap(err, "error extracting composePatterns from prepared file")
+		return out, rerrors.Wrap(err, "error extracting composePatterns from prepared file")
 	}
 
 	for serviceName, content := range userServicesDefinitions.Patterns {
@@ -118,7 +118,7 @@ func (c *PatternManager) GetServiceDependencies(resource resources.Resource) (*P
 	var pattern Pattern
 	err := copier.Copy(&originalPattern, &pattern)
 	if err != nil {
-		return nil, errors.Wrap(err, "error coping pattern")
+		return nil, rerrors.Wrap(err, "error coping pattern")
 	}
 
 	pattern.Name = resource.GetName()
@@ -134,7 +134,7 @@ func (c *PatternManager) GetServiceDependencies(resource resources.Resource) (*P
 
 	envVars, err := evon.MarshalEnvWithPrefix(resource.GetType(), resource)
 	if err != nil {
-		return nil, errors.Wrap(err, "error marshalling environment variables")
+		return nil, rerrors.Wrap(err, "error marshalling environment variables")
 	}
 	for _, v := range envVars.InnerNodes {
 		if envVariable, ok := pattern.ContainerDefinition.Environment[v.Name]; ok {
@@ -157,7 +157,7 @@ func extractComposePatternsFromFile(dockerComposeFile []byte) (out *PatternManag
 		// validating prepared config
 		err = yaml.Unmarshal(dockerComposeFile, composeServices)
 		if err != nil {
-			return nil, errors.Wrap(err, "error validating prepared config")
+			return nil, rerrors.Wrap(err, "error validating prepared config")
 		}
 
 		network := composeServices[networkPart]
@@ -165,7 +165,7 @@ func extractComposePatternsFromFile(dockerComposeFile []byte) (out *PatternManag
 
 		examplesMap, ok := composeServices[servicesPart]
 		if !ok {
-			return nil, errors.Wrapf(ErrInvalidComposeFileFormat, "expected to have \"%s\" object", servicesPart)
+			return nil, rerrors.Wrapf(ErrInvalidComposeFileFormat, "expected to have \"%s\" object", servicesPart)
 		}
 		composeServices = examplesMap.(map[string]interface{})
 	}
@@ -181,17 +181,17 @@ func extractComposePatternsFromFile(dockerComposeFile []byte) (out *PatternManag
 		var bts []byte
 		bts, err = yaml.Marshal(content)
 		if err != nil {
-			return nil, errors.Wrapf(err, "error marshaling service to yaml")
+			return nil, rerrors.Wrapf(err, "error marshaling service to yaml")
 		}
 
 		err = yaml.Unmarshal(bts, &cs.ContainerDefinition)
 		if err != nil {
-			return nil, errors.Wrap(err, "error unmarshalling service "+serviceName+" to struct")
+			return nil, rerrors.Wrap(err, "error unmarshalling service "+serviceName+" to struct")
 		}
 
 		cs.Envs, err = extractEnvsFromComposeFile(bts)
 		if err != nil {
-			return nil, errors.Wrap(err, "error extracting environment variables")
+			return nil, rerrors.Wrap(err, "error extracting environment variables")
 		}
 
 		out.Patterns[serviceName] = cs
@@ -220,7 +220,7 @@ func extractEnvsFromComposeFile(b []byte) (*env.Container, error) {
 
 		endIdx = startIdx + bytes.IndexByte(b[startIdx:], 125) // "}"
 		if endIdx == -1 {
-			return nil, errors.Wrapf(ErrInvalidComposeEnvFormat, string(b[startIdx:nums.Min(len(b)-1, 10)]))
+			return nil, rerrors.Wrapf(ErrInvalidComposeEnvFormat, string(b[startIdx:nums.Min(len(b)-1, 10)]))
 		}
 
 		// validate if after env variable goes ":" -> extract value

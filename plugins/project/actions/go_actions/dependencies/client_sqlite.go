@@ -1,8 +1,8 @@
 package dependencies
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/rerrors"
 )
 
 type Sqlite struct {
@@ -20,7 +20,7 @@ func (s Sqlite) AppendToProject(proj Project) error {
 
 	err := sc.applySqlConnFile(proj)
 	if err != nil {
-		return errors.Wrap(err, "error applying changes to folder")
+		return rerrors.Wrap(err, "error applying changes to folder")
 	}
 
 	appNameInfo := proj.GetShortName()

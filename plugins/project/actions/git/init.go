@@ -1,7 +1,7 @@
 package git
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 )
@@ -13,7 +13,7 @@ func Init(workingDir string) error {
 		WorkDir: workingDir,
 	})
 	if err != nil {
-		return errors.Wrap(err, "error initiating git repository")
+		return rerrors.Wrap(err, "error initiating git repository")
 	}
 
 	return nil

@@ -6,8 +6,8 @@ import (
 	"path"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/spf13/cobra"
+	"go.redsock.ru/rerrors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -83,14 +83,14 @@ func InitConfig(cmd *cobra.Command, _ []string) error {
 
 	err := yaml.Unmarshal(builtInConfig, rsCliConfig)
 	if err != nil {
-		panic(errors.Wrap(err, "error parsing built in config file. This is serious issue and MUST BE fixed A$A₽\n\n\n Like Rocky\n\n\n\n in a way (: "))
+		panic(rerrors.Wrap(err, "error parsing built in config file. This is serious issue and MUST BE fixed A$A₽\n\n\n Like Rocky\n\n\n\n in a way (: "))
 	}
 
 	*rsCliConfig = mergeConfigs(getConfigFromEnvironment(), *rsCliConfig)
 
 	configFromFile, err := getConfigFromFile(cmd)
 	if err != nil {
-		return errors.Wrap(err, "error obtaining config from custom file")
+		return rerrors.Wrap(err, "error obtaining config from custom file")
 	}
 
 	if configFromFile != nil {
@@ -143,8 +143,8 @@ func getConfigFromFile(cmd *cobra.Command) (*RsCliConfig, error) {
 	}
 
 	file, err := os.ReadFile(cfgFilePath)
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return nil, errors.Wrap(err, "error reading file from FS")
+	if err != nil && !rerrors.Is(err, os.ErrNotExist) {
+		return nil, rerrors.Wrap(err, "error reading file from FS")
 	}
 
 	if len(file) == 0 {
@@ -154,7 +154,7 @@ func getConfigFromFile(cmd *cobra.Command) (*RsCliConfig, error) {
 	var externalConf RsCliConfig
 	err = yaml.Unmarshal(file, &externalConf)
 	if err != nil {
-		return nil, errors.Wrap(err, "error unmarshalling config from: "+cfgFilePath)
+		return nil, rerrors.Wrap(err, "error unmarshalling config from: "+cfgFilePath)
 	}
 
 	return &externalConf, nil

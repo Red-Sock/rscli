@@ -5,8 +5,8 @@ import (
 	"os"
 	"path"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/plugins/tools/migrations"
 	"github.com/Red-Sock/rscli/plugins/tools/migrations/goose"
@@ -25,16 +25,16 @@ func (e *ProjEnv) tidyMigrationDirs() error {
 
 	migs, err := os.ReadDir(srcMigrationsFolder)
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
+		if rerrors.Is(err, os.ErrNotExist) {
 			return nil
 		}
 
-		return errors.Wrap(err, "error reading migrations dir")
+		return rerrors.Wrap(err, "error reading migrations dir")
 	}
 
 	err = os.MkdirAll(targetMigrationFolder, os.ModePerm)
 	if err != nil {
-		return errors.Wrap(err, "error creating migrations folder in env")
+		return rerrors.Wrap(err, "error creating migrations folder in env")
 	}
 
 	toolToMigrations := make(map[migrations.MigrationTool][]resources.Resource)

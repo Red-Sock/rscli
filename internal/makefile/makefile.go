@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"os"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/compose/env"
 )
 
 var (
-	ErrMarshallingMakefile = errors.New("error marshalling makefile")
+	ErrMarshallingMakefile = rerrors.New("error marshalling makefile")
 )
 
 const phony = ".PHONY"
@@ -31,10 +31,10 @@ type Makefile struct {
 func ReadMakeFile(pth string) (*Makefile, error) {
 	makeFile, err := os.ReadFile(pth)
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
+		if rerrors.Is(err, os.ErrNotExist) {
 			return nil, err
 		}
-		return nil, errors.Wrap(err, "error reading makefile")
+		return nil, rerrors.Wrap(err, "error reading makefile")
 	}
 
 	return NewMakeFile(makeFile)
@@ -62,7 +62,7 @@ func NewMakeFile(in []byte) (*Makefile, error) {
 		if index := bytes.Index(l, []byte{':'}); index != -1 {
 			rule, offset, err := parseRule(lines[idx:])
 			if err != nil {
-				return nil, errors.Wrap(err, "error parsing rule")
+				return nil, rerrors.Wrap(err, "error parsing rule")
 			}
 			m.rules = append(m.rules, rule)
 			idx += offset
@@ -146,7 +146,7 @@ func (m *Makefile) Marshal() ([]byte, error) {
 		}
 
 		if len(rule.Name) == 0 {
-			return nil, errors.Wrap(ErrMarshallingMakefile, "no name provided for a rule")
+			return nil, rerrors.Wrap(ErrMarshallingMakefile, "no name provided for a rule")
 		}
 
 		sb.Write(rule.Name)
@@ -157,7 +157,7 @@ func (m *Makefile) Marshal() ([]byte, error) {
 
 			for _, r := range rule.Commands {
 				if len(r) == 0 {
-					return nil, errors.Wrap(ErrMarshallingMakefile, "empty command rule in "+string(rule.Name))
+					return nil, rerrors.Wrap(ErrMarshallingMakefile, "empty command rule in "+string(rule.Name))
 				}
 
 				if r[0] != '\t' {
@@ -187,7 +187,7 @@ func parseVariable(equalIndex int, b []byte) env.Variable {
 func parseRule(b [][]byte) (rule Rule, idx int, err error) {
 	delimeterIdx := bytes.Index(b[idx], []byte{':'})
 	if delimeterIdx == -1 {
-		return rule, idx, errors.Wrap(err, "no \":\" symbol at the beginning of a make rule")
+		return rule, idx, rerrors.Wrap(err, "no \":\" symbol at the beginning of a make rule")
 	}
 
 	rule.Name = b[idx][:delimeterIdx]
@@ -197,7 +197,7 @@ func parseRule(b [][]byte) (rule Rule, idx int, err error) {
 		idx++
 		delimeterIdx = bytes.Index(b[idx], []byte{':'})
 		if delimeterIdx == -1 {
-			return rule, idx, errors.Wrap(err, "rule must contain a name. "+
+			return rule, idx, rerrors.Wrap(err, "rule must contain a name. "+
 				"A proper format is \"rule-name:\", but \""+string(b[idx])+"\" is given")
 		}
 		rule.Name = b[idx][:delimeterIdx]

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/stretchr/testify/require"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/io/colors"
 	"github.com/Red-Sock/rscli/plugins/project/validators"
@@ -116,7 +116,7 @@ func Test_collectName(t *testing.T) {
 		},
 		"ERR_GETTING_USER_RESPONSE": {
 			new: func() (tc testCase) {
-				tc.expectedErr = errors.New("some err")
+				tc.expectedErr = rerrors.New("some err")
 
 				tc.io = mocks.NewIOMock(t)
 				tc.io.PrintMock.Expect(fmt.Sprintf(askUserForNameMessagePattern, defaultGitPath))

@@ -4,8 +4,8 @@ import (
 	_ "embed"
 	"text/template"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/server"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
@@ -30,7 +30,7 @@ func GenerateFileServer(fs server.FS) (*folder.Folder, error) {
 	file := &rw.RW{}
 	err := fileServerTemplate.Execute(file, args)
 	if err != nil {
-		return nil, errors.Wrap(err, "error executing file server template")
+		return nil, rerrors.Wrap(err, "error executing file server template")
 	}
 
 	f := &folder.Folder{

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/compose"
 	"github.com/Red-Sock/rscli/internal/compose/env"
@@ -21,7 +21,7 @@ func (e *ProjEnv) tidyResources(enableService bool) error {
 	for idx := range e.Config.AppConfig.DataSources {
 		err := e.tidyResource(e.projName, idx, enableService)
 		if err != nil {
-			return errors.Wrap(err, "error tiding resource "+
+			return rerrors.Wrap(err, "error tiding resource "+
 				e.Config.AppConfig.DataSources[idx].GetName())
 		}
 	}
@@ -47,7 +47,7 @@ func (e *ProjEnv) tidyResources(enableService bool) error {
 func (e *ProjEnv) tidyResource(projName string, resourceIdx int, enableService bool) error {
 	resource, err := e.globalComposePatternManager.GetServiceDependencies(e.Config.DataSources[resourceIdx])
 	if err != nil {
-		return errors.Wrapf(err, "error getting resource pattern for type: %s, with name %s",
+		return rerrors.Wrapf(err, "error getting resource pattern for type: %s, with name %s",
 			e.Config.DataSources[resourceIdx].GetType(),
 			e.Config.DataSources[resourceIdx].GetName())
 	}
@@ -99,7 +99,7 @@ func (e *ProjEnv) tidyResource(projName string, resourceIdx int, enableService b
 
 	err = e.tidyResourceConfig(resourceIdx, resource, envMap)
 	if err != nil {
-		return errors.Wrap(err, "error tidy resource config")
+		return rerrors.Wrap(err, "error tidy resource config")
 	}
 
 	return nil

@@ -1,15 +1,16 @@
 package app_struct_generators
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/rw"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators"
 )
 
 var (
-	ErrServerMustHaveName = errors.New("application contains more than two servers. Names required to be specified")
+	ErrServerMustHaveName = rerrors.New("application contains more than two servers. Names required to be specified")
 )
 
 func generateServerInitFileAndArgs(servers matreshka.Servers) (InitDepFuncGenArgs, []byte, error) {
@@ -24,7 +25,7 @@ func generateServerInitFileAndArgs(servers matreshka.Servers) (InitDepFuncGenArg
 
 		if serversMustHaveNames && server.Name == "" {
 			return InitDepFuncGenArgs{}, nil,
-				errors.Wrap(ErrServerMustHaveName,
+				rerrors.Wrap(ErrServerMustHaveName,
 					"server \""+server.Name+"\" doesn't exist in config")
 		}
 
@@ -45,13 +46,13 @@ func generateServerInitFileAndArgs(servers matreshka.Servers) (InitDepFuncGenArg
 		genArgs.ServerName = initFuncCall.ResultName
 	}
 
-	genArgs.Imports["github.com/Red-Sock/trace-errors"] = "errors"
+	genArgs.Imports[patterns.ImportNameErrorsPackage] = ""
 	genArgs.Imports["proj_name/internal/transport"] = ""
 
 	initServer := &rw.RW{}
 	err := initAppStructFuncTemplate.Execute(initServer, genArgs)
 	if err != nil {
-		return genArgs, nil, errors.Wrap(err, "error generating server init file")
+		return genArgs, nil, rerrors.Wrap(err, "error generating server init file")
 	}
 
 	return genArgs, initServer.Bytes(), nil

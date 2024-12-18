@@ -3,7 +3,7 @@ package project
 import (
 	"path"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/compose"
 	"github.com/Red-Sock/rscli/internal/compose/env"
@@ -15,7 +15,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/utils/renamer"
 )
 
-var ErrNoConfig = errors.New("no config found")
+var ErrNoConfig = rerrors.New("no config found")
 
 type ProjEnv struct {
 	projName        string
@@ -63,17 +63,17 @@ func LoadProjectEnvironment(
 
 	err = p.Environment.fetch(globalEnv, pathToProjectEnv)
 	if err != nil {
-		return nil, errors.Wrap(err, "error fetching .env file")
+		return nil, rerrors.Wrap(err, "error fetching .env file")
 	}
 
 	err = p.Config.fetch(rscliConfig, pathToProjectEnv, pathToProject)
 	if err != nil {
-		return nil, errors.Wrap(err, "error fetching config")
+		return nil, rerrors.Wrap(err, "error fetching config")
 	}
 
 	err = p.Makefile.fetch(pathToProjectEnv)
 	if err != nil {
-		return nil, errors.Wrap(err, "error fetching makefile")
+		return nil, rerrors.Wrap(err, "error fetching makefile")
 	}
 
 	return p, nil
@@ -84,22 +84,22 @@ func (e *ProjEnv) Tidy(serviceEnabled bool) error {
 
 	err := e.tidyResources(serviceEnabled)
 	if err != nil {
-		return errors.Wrap(err, "error doing tidy on resources")
+		return rerrors.Wrap(err, "error doing tidy on resources")
 	}
 
 	err = e.tidyServerAPIs()
 	if err != nil {
-		return errors.Wrap(err, "error doing tidy on server api")
+		return rerrors.Wrap(err, "error doing tidy on server api")
 	}
 
 	err = e.flush(projName)
 	if err != nil {
-		return errors.Wrap(err, "error flushing files")
+		return rerrors.Wrap(err, "error flushing files")
 	}
 
 	err = e.tidyMigrationDirs()
 	if err != nil {
-		return errors.Wrap(err, "error")
+		return rerrors.Wrap(err, "error")
 	}
 
 	return nil
@@ -113,7 +113,7 @@ func (e *ProjEnv) flush(projName string) (err error) {
 		if len(envBytes) != 0 {
 			err = io.OverrideFile(pathToProjectEnvFile, renamer.ReplaceProjectNameShort(envBytes, projName))
 			if err != nil {
-				return errors.Wrap(err, "error writing environment file: "+pathToProjectEnvFile)
+				return rerrors.Wrap(err, "error writing environment file: "+pathToProjectEnvFile)
 			}
 		}
 	}
@@ -122,13 +122,13 @@ func (e *ProjEnv) flush(projName string) (err error) {
 		var composeFile []byte
 		composeFile, err = e.Compose.Marshal()
 		if err != nil {
-			return errors.Wrap(err, "error marshalling composer file")
+			return rerrors.Wrap(err, "error marshalling composer file")
 		}
 
 		pathToDockerComposeFile := path.Join(e.pathToProjInEnv, envpatterns.DockerComposeFile.Name)
 		err = io.OverrideFile(pathToDockerComposeFile, renamer.ReplaceProjectNameShort(composeFile, projName))
 		if err != nil {
-			return errors.Wrap(err, "error writing docker compose file file")
+			return rerrors.Wrap(err, "error writing docker compose file file")
 		}
 	}
 
@@ -136,12 +136,12 @@ func (e *ProjEnv) flush(projName string) (err error) {
 		var b []byte
 		b, err = e.Config.Marshal()
 		if err != nil {
-			return errors.Wrap(err, "error marshalling env config")
+			return rerrors.Wrap(err, "error marshalling env config")
 		}
 
 		err = io.OverrideFile(e.Config.pth, b)
 		if err != nil {
-			return errors.Wrap(err, "error writing env config")
+			return rerrors.Wrap(err, "error writing env config")
 		}
 	}
 
@@ -151,14 +151,14 @@ func (e *ProjEnv) flush(projName string) (err error) {
 		var mkFile []byte
 		mkFile, err = e.Makefile.Marshal()
 		if err != nil {
-			return errors.Wrap(err, "error marshalling makefile")
+			return rerrors.Wrap(err, "error marshalling makefile")
 		}
 
 		mkFile = renamer.ReplaceProjectNameShort(mkFile, projName)
 
 		err = io.OverrideFile(path.Join(e.pathToProjInEnv, envpatterns.Makefile.Name), mkFile)
 		if err != nil {
-			return errors.Wrap(err, "error writing makefile")
+			return rerrors.Wrap(err, "error writing makefile")
 		}
 	}
 

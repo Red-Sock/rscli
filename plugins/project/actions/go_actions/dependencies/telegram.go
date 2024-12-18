@@ -3,8 +3,8 @@ package dependencies
 import (
 	"path"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"
@@ -32,12 +32,12 @@ func (t Telegram) GetFolderName() string {
 func (t Telegram) AppendToProject(proj Project) error {
 	err := t.applyClient(proj)
 	if err != nil {
-		return errors.Wrap(err, "error applying tg client")
+		return rerrors.Wrap(err, "error applying tg client")
 	}
 
 	err = t.applyFolder(proj)
 	if err != nil {
-		return errors.Wrap(err, "error applying tg folder")
+		return rerrors.Wrap(err, "error applying tg folder")
 	}
 
 	t.applyConfig(proj)
@@ -48,7 +48,7 @@ func (t Telegram) AppendToProject(proj Project) error {
 func (t Telegram) applyClient(proj Project) error {
 	ok, err := containsDependencyFolder(t.Cfg.Env.PathsToClients, proj.GetFolder(), t.GetFolderName())
 	if err != nil {
-		return errors.Wrap(err, "error finding Dependency path")
+		return rerrors.Wrap(err, "error finding Dependency path")
 	}
 
 	if ok {

@@ -3,7 +3,7 @@ package git
 import (
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 )
@@ -15,7 +15,7 @@ func Status(pth string) (uncommitted StatusDiff, err error) {
 		WorkDir: pth,
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting git status")
+		return nil, rerrors.Wrap(err, "error getting git status")
 	}
 
 	out := make([]Changes, 0, 2)

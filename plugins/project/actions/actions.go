@@ -3,7 +3,7 @@ package actions
 //go:generate minimock -i ActionPerformer -o ./../../../tests/mocks -g -s "_mock.go"
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/plugins/project"
@@ -36,7 +36,7 @@ func (a *actionPerformer) Tidy(proj project.IProject) error {
 
 		err := ac.Do(proj)
 		if err != nil {
-			return errors.Wrap(err)
+			return rerrors.Wrap(err)
 		}
 	}
 

@@ -13,13 +13,13 @@ gen:
 
 .gen-test-project-with-deps:
 	go build -o rscli-dev
-	rm -rf test/testproj
+	rm -rf test/test_proj
 	mkdir -p test
 	mkdir -p test/testproj
 
 	cd test &&\
-    ./../rscli-dev project init Testproj && \
-    cd testproj && \
+    ./../rscli-dev project init Test_proj && \
+    cd test_proj && \
     ./../../rscli-dev project add grpc
 
 dev-build: .compile-pattern .dev-build

@@ -6,7 +6,7 @@ import (
 	"path"
 	"sync"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/internal/io"
@@ -16,12 +16,12 @@ import (
 func (e *GlobalEnvironment) Init() error {
 	err := e.initBasis()
 	if err != nil {
-		return errors.Wrap(err, "error initiating basis")
+		return rerrors.Wrap(err, "error initiating basis")
 	}
 
 	err = e.initProjectsDirs()
 	if err != nil {
-		return errors.Wrap(err, "error initiating project dirs")
+		return rerrors.Wrap(err, "error initiating project dirs")
 	}
 
 	return nil
@@ -33,7 +33,7 @@ func (e *GlobalEnvironment) initBasis() error {
 	for _, f := range e.getSpirits() {
 		err = io.CreateFileIfNotExists(path.Join(e.envDirPath, f.Name), f.Content)
 		if err != nil {
-			return errors.Wrap(err, "error creating file "+f.Name+" file")
+			return rerrors.Wrap(err, "error creating file "+f.Name+" file")
 		}
 	}
 
@@ -50,7 +50,7 @@ func (e *GlobalEnvironment) initProjectsDirs() error {
 
 			err := e.initProjectDir(d)
 			if err != nil {
-				errC <- errors.Wrap(err, "error creating "+d.Name())
+				errC <- rerrors.Wrap(err, "error creating "+d.Name())
 			}
 
 		}(d)
@@ -69,7 +69,7 @@ func (e *GlobalEnvironment) initProjectsDirs() error {
 		return nil
 	}
 
-	return stderrs.Join(errors.New("error preparing projects dirs"), stderrs.Join(errs...))
+	return stderrs.Join(rerrors.New("error preparing projects dirs"), stderrs.Join(errs...))
 }
 
 func (e *GlobalEnvironment) initProjectDir(d os.DirEntry) error {
@@ -77,7 +77,7 @@ func (e *GlobalEnvironment) initProjectDir(d os.DirEntry) error {
 
 	err := io.CreateFolderIfNotExists(envProjDir)
 	if err != nil {
-		return errors.Wrap(err, "error creating folder "+envProjDir)
+		return rerrors.Wrap(err, "error creating folder "+envProjDir)
 	}
 
 	var f []byte
@@ -85,15 +85,15 @@ func (e *GlobalEnvironment) initProjectDir(d os.DirEntry) error {
 
 		f, err = os.ReadFile(path.Join(e.envDirPath, spirit.Name))
 		if err != nil {
-			if errors.Is(err, os.ErrNotExist) {
+			if rerrors.Is(err, os.ErrNotExist) {
 				continue
 			}
-			return errors.Wrap(err, "error reading "+envProjDir+" file")
+			return rerrors.Wrap(err, "error reading "+envProjDir+" file")
 		}
 
 		err = io.CreateFileIfNotExists(path.Join(envProjDir, spirit.Name), f)
 		if err != nil {
-			return errors.Wrap(err, "error reading "+envProjDir+" file")
+			return rerrors.Wrap(err, "error reading "+envProjDir+" file")
 		}
 	}
 

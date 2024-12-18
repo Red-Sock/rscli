@@ -1,15 +1,14 @@
 package go_actions
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
-
-	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/cmd"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
 	"github.com/Red-Sock/rscli/internal/utils/bins/makefile"
 	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )
 
 const goBin = "go"
@@ -41,12 +40,12 @@ func (a RunGoTidyAction) Do(p project.IProject) error {
 		WorkDir: p.GetProjectPath(),
 	})
 	if err != nil {
-		return errors.Wrap(err, "error executing go mod tidy")
+		return rerrors.Wrap(err, "error executing go mod tidy")
 	}
 
 	err = GoFmt{}.Do(p)
 	if err != nil {
-		return errors.Wrap(err, "error formatting project")
+		return rerrors.Wrap(err, "error formatting project")
 	}
 
 	return nil
@@ -67,12 +66,12 @@ func (a RunMakeGenAction) Do(p project.IProject) error {
 
 	err := makefile.Install()
 	if err != nil {
-		return errors.Wrap(err, "error installing makefile")
+		return rerrors.Wrap(err, "error installing makefile")
 	}
 
 	_, err = makefile.Run(p.GetProjectPath(), patterns.RscliMakefileFile, patterns.GenCommand)
 	if err != nil {
-		return errors.Wrap(err, "error running rscli generate command")
+		return rerrors.Wrap(err, "error running rscli generate command")
 	}
 	return nil
 }
