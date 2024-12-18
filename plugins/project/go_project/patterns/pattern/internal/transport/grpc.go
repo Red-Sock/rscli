@@ -11,7 +11,7 @@ import (
 )
 
 type GrpcImpl interface {
-	Register(srv *grpc.Server)
+	Register(srv grpc.ServiceRegistrar)
 }
 
 type GrpcWithGateway interface {

@@ -13,7 +13,7 @@ gen:
 
 .gen-test-project-with-deps:
 	go build -o rscli-dev
-	rm -rf test/testproj
+	rm -rf test/test_proj
 	mkdir -p test
 	mkdir -p test/testproj
 

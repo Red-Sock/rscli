@@ -17,6 +17,6 @@ config/dev.yaml
 # Dependency directories (remove the comment below to include it)
 # vendor/
 .idea
-api/*
 !api/grpc
+proto_deps
 

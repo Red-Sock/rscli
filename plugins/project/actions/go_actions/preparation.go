@@ -6,6 +6,7 @@ import (
 	"path"
 	"strings"
 
+	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
@@ -15,6 +16,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/server_generators/impl_gen"
 )
 
 type PrepareProjectStructure struct {
@@ -167,6 +169,11 @@ func (a PrepareServer) Do(p project.IProject) error {
 	transportFolder.Add(patterns.GrpcServerManager.Copy())
 	transportFolder.Add(patterns.HttpServerManager.Copy())
 
+	implFolders, err := impl_gen.GenerateImpl(rscliconfig.GetConfig(), p)
+	if err != nil {
+		return errors.Wrap(err, "error during stub generation")
+	}
+	transportFolder.Add(implFolders...)
 	return nil
 }
 func (a PrepareServer) NameInAction() string {

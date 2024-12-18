@@ -59,7 +59,7 @@ func (r GrpcServer) AppendToProject(proj Project) error {
 }
 
 func (r GrpcServer) applyApiFolder(proj Project, protoPath string) error {
-	protoFile := patterns.ProtoServer.CopyWithNewName(protoPath)
+	protoFile := patterns.ProtoContract.CopyWithNewName(protoPath)
 
 	projName := stringy.New(proj.GetShortName())
 
