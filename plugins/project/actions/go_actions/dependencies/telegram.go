@@ -3,8 +3,8 @@ package dependencies
 import (
 	"path"
 
-	"github.com/godverv/matreshka/resources"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"

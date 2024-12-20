@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/godverv/matreshka/resources"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
+	"go.verv.tech/matreshka/resources"
 
 	"github.com/pressly/goose/v3"
 	"github.com/sirupsen/logrus"

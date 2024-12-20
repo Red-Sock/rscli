@@ -5,8 +5,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/godverv/matreshka/resources"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/plugins/tools/migrations"
 	"github.com/Red-Sock/rscli/plugins/tools/migrations/goose"

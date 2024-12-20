@@ -3,8 +3,8 @@ package go_actions
 import (
 	"path"
 
-	"github.com/godverv/matreshka"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"

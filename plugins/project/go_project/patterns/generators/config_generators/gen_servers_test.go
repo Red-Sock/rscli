@@ -3,8 +3,8 @@ package config_generators
 import (
 	"testing"
 
-	"github.com/godverv/matreshka"
 	"github.com/stretchr/testify/require"
+	"go.verv.tech/matreshka"
 
 	"github.com/Red-Sock/rscli/tests"
 )
@@ -31,7 +31,7 @@ func TestGenServer(t *testing.T) {
 package config
 
 import ( 
-     "github.com/godverv/matreshka/server"
+     "go.verv.tech/matreshka/server"
 )
 
 type ServersConfig struct { 

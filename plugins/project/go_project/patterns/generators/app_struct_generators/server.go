@@ -1,8 +1,8 @@
 package app_struct_generators
 
 import (
-	"github.com/godverv/matreshka"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka"
 
 	"github.com/Red-Sock/rscli/internal/rw"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"

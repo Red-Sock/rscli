@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/godverv/matreshka"
+	"go.verv.tech/matreshka"
 )
 
 type Config struct {

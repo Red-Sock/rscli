@@ -5,8 +5,8 @@ import (
 	"path"
 
 	"github.com/gobeam/stringy"
-	"github.com/godverv/matreshka/server"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka/server"
 
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"

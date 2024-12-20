@@ -4,8 +4,8 @@ import (
 	_ "embed"
 	"text/template"
 
-	"github.com/godverv/matreshka/server"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka/server"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"

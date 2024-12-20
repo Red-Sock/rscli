@@ -5,7 +5,7 @@ go 1.23.3
 require (
 	github.com/Red-Sock/go_tg v0.0.18
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/godverv/matreshka v0.0.40
+	go.verv.tech/matreshka v0.0.40
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0
 	github.com/lib/pq v1.10.9
 	github.com/pressly/goose/v3 v3.16.0

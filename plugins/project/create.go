@@ -5,8 +5,8 @@ import (
 	"path"
 	"time"
 
-	"github.com/godverv/matreshka"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"

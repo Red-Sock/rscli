@@ -4,9 +4,9 @@ import (
 	"strconv"
 
 	"github.com/go-redis/redis"
-	"github.com/godverv/matreshka/resources"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
+	"go.verv.tech/matreshka/resources"
 )
 
 var ErrUnexpectedPing = rerrors.New("error pinging redis")

@@ -3,8 +3,8 @@ package config
 import (
 	"flag"
 
-	"github.com/godverv/matreshka"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka"
 )
 
 var ErrAlreadyLoaded = rerrors.New("config already loaded")

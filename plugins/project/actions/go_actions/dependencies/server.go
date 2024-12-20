@@ -3,7 +3,7 @@ package dependencies
 import (
 	"path"
 
-	"github.com/godverv/matreshka/server"
+	"go.verv.tech/matreshka/server"
 
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 )

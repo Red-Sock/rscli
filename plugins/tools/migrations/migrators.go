@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"github.com/godverv/matreshka/resources"
+	"go.verv.tech/matreshka/resources"
 )
 
 type MigrationTool interface {

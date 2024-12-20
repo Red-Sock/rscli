@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Red-Sock/evon"
-	"github.com/godverv/matreshka/resources"
+	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka/resources"
 	"gopkg.in/yaml.v3"
 
 	"github.com/Red-Sock/rscli/internal/compose/env"

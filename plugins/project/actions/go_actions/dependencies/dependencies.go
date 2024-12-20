@@ -3,9 +3,9 @@ package dependencies
 import (
 	"strings"
 
-	"github.com/godverv/matreshka"
-	"github.com/godverv/matreshka/resources"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka"
+	"go.verv.tech/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"

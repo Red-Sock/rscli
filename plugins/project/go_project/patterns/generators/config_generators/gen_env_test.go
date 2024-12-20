@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/godverv/matreshka"
 	"github.com/stretchr/testify/require"
+	"go.verv.tech/matreshka"
 )
 
 func Test_GenerateEnvConfig(t *testing.T) {

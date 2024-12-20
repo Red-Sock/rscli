@@ -1,9 +1,9 @@
 package app_struct_generators
 
 import (
-	"github.com/godverv/matreshka"
-	"github.com/godverv/matreshka/resources"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka"
+	"go.verv.tech/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/rw"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/link_service/grpc_discovery"

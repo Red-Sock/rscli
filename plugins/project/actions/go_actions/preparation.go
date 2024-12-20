@@ -6,8 +6,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/godverv/matreshka/resources"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka/resources"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"
@@ -173,7 +173,20 @@ func (a PrepareServer) Do(p project.IProject) error {
 	if err != nil {
 		return rerrors.Wrap(err, "error during stub generation")
 	}
-	transportFolder.Add(implFolders...)
+	for _, implF := range implFolders {
+		exists := false
+		for _, tF := range transportFolder.Inner {
+			if tF.Name == implF.Name {
+				exists = true
+				break
+			}
+		}
+
+		if !exists {
+			transportFolder.Add(implFolders...)
+		}
+	}
+
 	return nil
 }
 func (a PrepareServer) NameInAction() string {

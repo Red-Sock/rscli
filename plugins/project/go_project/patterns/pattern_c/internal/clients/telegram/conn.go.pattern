@@ -2,7 +2,7 @@ package telegram
 
 import (
 	"github.com/Red-Sock/go_tg"
-	"github.com/godverv/matreshka/resources"
+	"go.verv.tech/matreshka/resources"
 )
 
 func New(cfg *resources.Telegram) (*go_tg.Bot, error) {

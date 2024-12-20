@@ -5,8 +5,8 @@ import (
 	"path"
 	"testing"
 
-	"github.com/godverv/matreshka/environment"
 	"github.com/stretchr/testify/require"
+	"go.verv.tech/matreshka/environment"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"

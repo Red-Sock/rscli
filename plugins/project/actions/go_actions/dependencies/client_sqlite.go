@@ -1,8 +1,8 @@
 package dependencies
 
 import (
-	"github.com/godverv/matreshka/resources"
 	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka/resources"
 )
 
 type Sqlite struct {

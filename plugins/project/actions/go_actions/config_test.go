@@ -4,10 +4,10 @@ import (
 	"path"
 	"testing"
 
-	"github.com/godverv/matreshka"
-	"github.com/godverv/matreshka/environment"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.verv.tech/matreshka"
+	"go.verv.tech/matreshka/environment"
 
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 	"github.com/Red-Sock/rscli/tests/project_mock"
