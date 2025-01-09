@@ -7,7 +7,7 @@ on:
 
 jobs:
   tag-release:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
     steps:
       - name: Release
         uses: RedSockActions/release_tag@v0.0.5

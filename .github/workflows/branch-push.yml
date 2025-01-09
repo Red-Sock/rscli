@@ -7,7 +7,7 @@ on:
 
 jobs:
   create-pr:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
     steps:
       - name: Create PR
         uses: RedSockActions/create_pr@v0.0.10
