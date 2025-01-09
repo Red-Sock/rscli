@@ -7,7 +7,7 @@ on:
 
 jobs:
   tag-release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Release tag
         id: release
@@ -18,7 +18,7 @@ jobs:
       tag: ${{ steps.release.outputs.tag }}
 
   registry_release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs:
       - tag-release
     steps:
