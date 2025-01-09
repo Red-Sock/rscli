@@ -8,7 +8,9 @@ RUN --mount=target=. \
         GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 \
     go build -o /deploy/server/service ./cmd/service/main.go && \
     cp -r config /deploy/server/config &&\
-     [ -d "./migrations" ] && cp -r ./migrations /deploy/server/migrations
+     if [ -d "./migrations" ];  then \
+      cp -r ./migrations /deploy/server/migrations;  \
+     fi
 FROM alpine
 
 LABEL MATRESHKA_CONFIG_ENABLED=true

@@ -3,9 +3,26 @@
 
 package app
 
+import (
+	"context"
+)
+
 type Custom struct {}
 
 func (c *Custom) Init(a *App) error{
     // Repository, Service logic, transport registration happens here
+    return nil
+}
+
+// Start - launch custom handlers
+// Even if you won't use it keep it for proper work
+func (c *Custom) Start(ctx context.Context) error {
+    return nil
+}
+
+
+// Stop - gracefully stop custom handlers
+// Even if you won't use it keep it for proper work
+func (c *Custom) Stop() error {
     return nil
 }
