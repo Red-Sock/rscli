@@ -1,11 +1,10 @@
 module proj_name
 
-go 1.23.3
+go 1.23.4
 
 require (
 	github.com/Red-Sock/go_tg v0.0.18
 	github.com/go-redis/redis v6.15.9+incompatible
-	go.verv.tech/matreshka v0.0.40
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0
 	github.com/lib/pq v1.10.9
 	github.com/pressly/goose/v3 v3.16.0
@@ -14,6 +13,7 @@ require (
 	github.com/soheilhy/cmux v0.1.5
 	go.redsock.ru/rerrors v0.0.2
 	go.redsock.ru/toolbox v0.0.8
+	go.verv.tech/matreshka v0.0.44
 	golang.org/x/sync v0.8.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241015192408-796eee8c2d53
 	google.golang.org/grpc v1.69.0
