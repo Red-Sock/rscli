@@ -1,6 +1,7 @@
 gen-test-project-with-deps: .compile-pattern .gen-test-project-with-deps
 
 .compile-pattern:
+	cd plugins/project/go_project/patterns/pattern && go mod tidy
 	@echo Compiling project pattern...
 	go run support/compiler/main.go
 	@echo Project pattern is succesfully compiled!
