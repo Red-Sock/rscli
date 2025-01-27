@@ -11,3 +11,21 @@ data_sources:
       pwd: ""
       name: POSTGRES
       ssl_mode: ""
+environment:
+    - enum:
+          - Trace
+          - Debug
+          - Info
+          - Warn
+          - Error
+          - Fatal
+          - Panic
+      name: log_level
+      type: string
+      value: Info
+    - enum:
+          - JSON
+          - TEXT
+      name: log_format
+      type: string
+      value: TEXT

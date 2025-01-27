@@ -22,6 +22,9 @@ import (
 //go:embed expected/load_config/load_config_file.go
 var loadConfigFile []byte
 
+//go:embed expected/load_config/environment.go
+var envConfigFile []byte
+
 func Test_InitProject(t *testing.T) {
 	dirPath := path.Join(os.TempDir(), t.Name())
 
@@ -109,6 +112,24 @@ app_info:
     name: github.com/RedSock/test_proj
     version: v0.0.1
     startup_duration: 10s
+environment:
+    - enum:
+        - Trace
+        - Debug
+        - Info
+        - Warn
+        - Error
+        - Fatal
+        - Panic
+      name: log-level
+      type: string
+      value: Info
+    - enum:
+        - JSON
+        - TEXT
+      name: log-format
+      type: string
+      value: TEXT
 `)[1:]
 
 		tests.AssertFolderInFs(t, projectPath,
@@ -141,6 +162,10 @@ app_info:
 						{
 							Name:    patterns.ConfigLoadFileName,
 							Content: loadConfigFile,
+						},
+						{
+							Name:    patterns.ConfigEnvironmentFileName,
+							Content: envConfigFile,
 						},
 					},
 				},
