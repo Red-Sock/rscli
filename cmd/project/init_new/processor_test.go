@@ -113,11 +113,20 @@ app_info:
     version: v0.0.1
     startup_duration: 10s
 environment:
-    - enum: '[Trace Debug Info Warn Error Fatal Panic]'
+    - enum:
+        - Trace
+        - Debug
+        - Info
+        - Warn
+        - Error
+        - Fatal
+        - Panic
       name: log-level
       type: string
       value: Info
-    - enum: '[JSON TEXT]'
+    - enum:
+        - JSON
+        - TEXT
       name: log-format
       type: string
       value: TEXT

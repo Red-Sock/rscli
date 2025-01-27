@@ -8,7 +8,7 @@ environment:
       value: test_value
     - name: test_int_variable
       type: int
-      value: 1
+      value: "1"
     - name: test_bool_variable
       type: bool
       value: true
@@ -25,9 +25,7 @@ environment:
         - test_value2
     - name: test_int_variables
       type: int
-      value:
-        - 1
-        - 2
+      value: '[1-2]'
     - name: test_bool_variables
       type: bool
       value:

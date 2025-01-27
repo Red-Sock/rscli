@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -49,6 +50,12 @@ func AssertFolderInFs(t *testing.T, dirPath string, expected *folder.Folder) {
 		file, err := os.ReadFile(targetPath)
 		require.NoError(t, err)
 		eq := false
+
+		if strings.HasSuffix(expected.Name, ".yaml") {
+			require.YAMLEq(t, string(expected.Content), string(file))
+			return
+		}
+
 		if len(expected.Content) < 800 {
 			eq = assert.Equal(t, string(expected.Content), string(file))
 		} else {

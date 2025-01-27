@@ -30,3 +30,7 @@ require (
 	google.golang.org/grpc v1.69.0 // indirect
 	google.golang.org/protobuf v1.35.1 // indirect
 )
+
+replace (
+	go.verv.tech/matreshka => /Users/alexbukov/Yandex.Disk.localized/проекты/redsock/Matreshka
+)

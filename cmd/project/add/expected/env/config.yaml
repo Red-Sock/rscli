@@ -1,8 +1,25 @@
 app_info:
-    name: test_project
-    version: v0.0.1
-    startup_duration: 10s
+  name: test_project
+  version: v0.0.1
+  startup_duration: 10s
 environment:
-    - name: new_variable
-      type: string
-      value: new string value
+  - enum:
+      - Trace
+      - Debug
+      - Info
+      - Warn
+      - Error
+      - Fatal
+      - Panic
+    name: log_level
+    type: string
+    value: Info
+  - enum:
+      - JSON
+      - TEXT
+    name: log_format
+    type: string
+    value: TEXT
+  - name: new_variable
+    type: string
+    value: new string value

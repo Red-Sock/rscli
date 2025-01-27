@@ -7,3 +7,21 @@ servers:
         /{GRPC}:
             module: Test_AddDependency/GRPC
             gateway: /api
+environment:
+  - enum:
+      - Trace
+      - Debug
+      - Info
+      - Warn
+      - Error
+      - Fatal
+      - Panic
+    name: log_level
+    type: string
+    value: Info
+  - enum:
+      - JSON
+      - TEXT
+    name: log_format
+    type: string
+    value: TEXT

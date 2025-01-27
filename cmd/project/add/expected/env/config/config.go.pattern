@@ -3,5 +3,7 @@
 package config
 
 type EnvironmentConfig struct {
+	LogFormat   string
+	LogLevel    string
 	NewVariable string
 }
