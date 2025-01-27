@@ -5,12 +5,75 @@ import (
 
 	"go.redsock.ru/rerrors"
 	"go.verv.tech/matreshka"
+	"go.verv.tech/matreshka/environment"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/config_generators"
 )
+
+const (
+	LogLevelEvonName = "log-level"
+	LogLevelTrace    = "Trace"
+	LogLevelDebug    = "Debug"
+	LogLevelInfo     = "Info"
+	LogLevelWarn     = "Warn"
+	LogLevelError    = "Error"
+	LogLevelFatal    = "Fatal"
+	LogLevelPanic    = "Panic"
+
+	LogFormatEvonName = "log-format"
+	LogFormatJSON     = "JSON"
+	LogFormatTEXT     = "TEXT"
+)
+
+type GenerateProjectConfig struct {
+}
+
+func (a GenerateProjectConfig) Do(p project.IProject) error {
+	cfg := p.GetConfig()
+
+	envVars := map[string]*environment.Variable{}
+
+	for _, v := range cfg.Environment {
+		envVars[v.Name] = v
+	}
+
+	if envVars[LogLevelEvonName] == nil {
+		cfg.Environment = append(cfg.Environment, &environment.Variable{
+			Name: LogLevelEvonName,
+			Type: environment.VariableTypeStr,
+			Enum: []any{
+				LogLevelTrace,
+				LogLevelDebug,
+				LogLevelInfo,
+				LogLevelWarn,
+				LogLevelError,
+				LogLevelFatal,
+				LogLevelPanic,
+			},
+			Value: LogLevelInfo,
+		})
+	}
+
+	if envVars[LogFormatEvonName] == nil {
+		cfg.Environment = append(cfg.Environment, &environment.Variable{
+			Name: LogFormatEvonName,
+			Type: environment.VariableTypeStr,
+			Enum: []any{
+				LogFormatJSON,
+				LogFormatTEXT,
+			},
+			Value: LogFormatTEXT,
+		})
+	}
+
+	return nil
+}
+func (a GenerateProjectConfig) NameInAction() string {
+	return "Generating project config"
+}
 
 type PrepareConfigFolder struct{}
 

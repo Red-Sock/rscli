@@ -19,6 +19,7 @@ func initVirtualGoProject() []Action {
 	return []Action{
 		go_actions.PrepareProjectStructure{}, // basic go project structure
 		go_actions.InitGoProjectApp{},
+		go_actions.GenerateProjectConfig{},
 		go_actions.PrepareConfigFolder{}, // generates config keys
 		go_actions.PrepareMakefile{},
 		go_actions.PrepareClients{},
