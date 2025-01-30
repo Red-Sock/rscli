@@ -13,7 +13,7 @@ require (
 	go.redsock.ru/evon v0.0.17
 	go.redsock.ru/rerrors v0.0.3
 	go.redsock.ru/toolbox v0.0.10
-	go.verv.tech/matreshka v0.0.51
+	go.verv.tech/matreshka v0.0.52
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -30,5 +30,3 @@ require (
 	google.golang.org/grpc v1.69.0 // indirect
 	google.golang.org/protobuf v1.35.1 // indirect
 )
-
-replace go.verv.tech/matreshka v0.0.51 => /Users/alexbukov/Yandex.Disk.localized/проекты/redsock/Matreshka
