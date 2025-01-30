@@ -2,6 +2,7 @@ package go_actions
 
 import (
 	"path"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -62,11 +63,7 @@ func Test_PrepareConfig(t *testing.T) {
 				cfg := matreshka.NewEmptyConfig()
 				require.NoError(t, cfg.Unmarshal(basicConfigFile))
 
-				newEnvVariable := &environment.Variable{
-					Name:  "test_value",
-					Type:  environment.VariableTypeStr,
-					Value: "test",
-				}
+				newEnvVariable := environment.MustNewVariable("test_value", "test")
 
 				cfg.Environment = append(cfg.Environment, newEnvVariable)
 
@@ -106,7 +103,12 @@ func Test_PrepareConfig(t *testing.T) {
 
 			for pathToFile, expected := range tc.expectedFiles {
 				actualFile := projectMock.GetFolder().GetByPath(pathToFile)
-				if string(expected) != string(actualFile.Content) {
+
+				if strings.HasSuffix(pathToFile, ".yaml") {
+					if !assert.YAMLEq(t, string(expected), string(actualFile.Content)) {
+						require.YAMLEq(t, string(expected), string(actualFile.Content))
+					}
+				} else if string(expected) != string(actualFile.Content) {
 					assert.Fail(t, pathToFile+" is not as expected")
 					require.Equal(t, string(expected), string(actualFile.Content))
 				}
