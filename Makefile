@@ -16,7 +16,7 @@ gen:
 	go build -o rscli-dev
 	rm -rf test/test_proj
 	mkdir -p test
-	mkdir -p test/testproj
+	mkdir -p test/test_proj
 
 	cd test &&\
     ./../rscli-dev project init Test_proj && \
