@@ -48,7 +48,7 @@ func newGenerateDataSourcesConfigStruct(dataSources matreshka.DataSources) inter
 		buf := &rw.RW{}
 		err := configStructTemplate.Execute(buf, ecg)
 		if err != nil {
-			return InternalConfig{}, nil, rerrors.Wrap(err, "error executing config struct template on data sources")
+			return InternalConfig{}, nil, rerrors.Wrap(err, "error executing data source config struct template")
 		}
 
 		f := &folder.Folder{

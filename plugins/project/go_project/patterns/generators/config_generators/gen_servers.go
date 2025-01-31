@@ -47,7 +47,7 @@ func newGenerateServerConfigStruct(srv matreshka.Servers) internalConfigGenerato
 		buf := &rw.RW{}
 		err := configStructTemplate.Execute(buf, ecg)
 		if err != nil {
-			return InternalConfig{}, nil, rerrors.Wrap(err, "error executing config struct template")
+			return InternalConfig{}, nil, rerrors.Wrap(err, "error executing server config struct template")
 		}
 
 		f := &folder.Folder{

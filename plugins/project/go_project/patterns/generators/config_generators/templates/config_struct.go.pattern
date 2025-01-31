@@ -9,3 +9,9 @@ import ( {{ range $key, $value := .Imports }}
 type {{ .StructName }} struct { {{ range .Fields }}
     {{ .Key }} {{ .Value }}{{ end }}
 }
+{{ if .Enums }}{{ range $enumIdx, $enum := .Enums }}
+const ( {{range $valIdx, $enumVal := $enum.Values }}
+    {{$enum.Name}}_{{$enumVal.Key}} = {{ $enumVal.Value }}{{ end }}
+)
+{{ end }}
+{{end}}
