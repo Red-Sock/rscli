@@ -9,11 +9,11 @@ require (
 	github.com/morikuni/aec v1.0.0
 	github.com/nsf/termbox-go v1.1.1
 	github.com/spf13/cobra v1.8.1
-	github.com/stretchr/testify v1.9.0
-	go.redsock.ru/evon v0.0.16
+	github.com/stretchr/testify v1.10.0
+	go.redsock.ru/evon v0.0.17
 	go.redsock.ru/rerrors v0.0.3
-	go.redsock.ru/toolbox v0.0.9
-	go.verv.tech/matreshka v0.0.49
+	go.redsock.ru/toolbox v0.0.10
+	go.verv.tech/matreshka v0.0.52
 	gopkg.in/yaml.v3 v3.0.1
 )
 

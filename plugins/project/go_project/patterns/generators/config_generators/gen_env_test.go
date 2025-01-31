@@ -6,21 +6,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.verv.tech/matreshka"
+	"go.verv.tech/matreshka/environment"
 )
 
 func Test_GenerateEnvConfig(t *testing.T) {
 	t.Run("environment", func(t *testing.T) {
 		env := matreshka.Environment{
-			{
-				Name:  "one",
-				Type:  "int",
-				Value: 1,
-			},
-			{
-				Name:  "two",
-				Type:  "duration",
-				Value: time.Second,
-			},
+			environment.MustNewVariable("one", 1),
+			environment.MustNewVariable("two", time.Second),
 		}
 
 		_, generatedFolder, err := newGenerateEnvironmentConfigStruct(env)()

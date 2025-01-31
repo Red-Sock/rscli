@@ -32,56 +32,16 @@ func BasicConfig() []byte {
 func GetAllEnvVariables() []*environment.Variable {
 	return []*environment.Variable{
 		// Single values
-		{
-			Name:  "test_string_variable",
-			Type:  environment.VariableTypeStr,
-			Value: "test_value",
-		},
-		{
-			Name:  "test_int_variable",
-			Type:  environment.VariableTypeInt,
-			Value: 1,
-		},
-		{
-			Name:  "test_bool_variable",
-			Type:  environment.VariableTypeBool,
-			Value: true,
-		},
-		{
-			Name:  "test_float_variable",
-			Type:  environment.VariableTypeFloat,
-			Value: 1.1,
-		},
-		{
-			Name:  "test_duration_variable",
-			Type:  environment.VariableTypeDuration,
-			Value: time.Second * 5,
-		},
+		environment.MustNewVariable("test_string_variable", "test_value"),
+		environment.MustNewVariable("test_int_variable", 1),
+		environment.MustNewVariable("test_bool_variable", true),
+		environment.MustNewVariable("test_float_variable", 1.1),
+		environment.MustNewVariable("test_duration_variable", time.Second*5),
 		// Multiple values
-		{
-			Name:  "test_string_variables",
-			Type:  environment.VariableTypeStr,
-			Value: []string{"test_value", "test_value2"},
-		},
-		{
-			Name:  "test_int_variables",
-			Type:  environment.VariableTypeInt,
-			Value: []int{1, 2},
-		},
-		{
-			Name:  "test_bool_variables",
-			Type:  environment.VariableTypeBool,
-			Value: []bool{true, false},
-		},
-		{
-			Name:  "test_float_variables",
-			Type:  environment.VariableTypeFloat,
-			Value: []float64{1.1, 2.2},
-		},
-		{
-			Name:  "test_duration_variables",
-			Type:  environment.VariableTypeDuration,
-			Value: []time.Duration{time.Second * 5, time.Second * 8},
-		},
+		environment.MustNewVariable("test_string_variables", []string{"test_value", "test_value2"}),
+		environment.MustNewVariable("test_int_variables", []int{1, 2}),
+		environment.MustNewVariable("test_bool_variables", []bool{true, false}),
+		environment.MustNewVariable("test_float_variables", []float64{1.1, 2.2}),
+		environment.MustNewVariable("test_duration_variables", []time.Duration{time.Second * 5, time.Second * 8}),
 	}
 }

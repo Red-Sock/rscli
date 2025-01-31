@@ -27,8 +27,10 @@ func newGenerateEnvironmentConfigStruct(environment matreshka.Environment) inter
 			var fieldKV generators.KeyValue
 			fieldKV.Key = generators.NormalizeResourceName(env.Name)
 
-			if env.Value != nil {
-				refVal := reflect.ValueOf(env.Value)
+			v := env.Value.Value()
+
+			if v != nil {
+				refVal := reflect.ValueOf(v)
 				tp := refVal.Type()
 				fieldKV.Value = tp.String()
 
