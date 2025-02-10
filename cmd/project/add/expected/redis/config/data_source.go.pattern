@@ -3,7 +3,7 @@
 package config
 
 import (
-	"go.verv.tech/matreshka/resources"
+	"go.vervstack.ru/matreshka/resources"
 )
 
 type DataSourcesConfig struct {

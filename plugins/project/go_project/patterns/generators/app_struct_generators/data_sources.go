@@ -2,8 +2,8 @@ package app_struct_generators
 
 import (
 	"go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka"
-	"go.verv.tech/matreshka/resources"
+	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/rw"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies/link_service/grpc_discovery"

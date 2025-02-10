@@ -12,8 +12,8 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/soheilhy/cmux v0.1.5
 	go.redsock.ru/rerrors v0.0.3
-	go.redsock.ru/toolbox v0.0.9
-	go.verv.tech/matreshka v0.0.49
+	go.redsock.ru/toolbox v0.0.10
+	go.vervstack.ru/matreshka v0.0.54
 	golang.org/x/sync v0.8.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241015192408-796eee8c2d53
 	google.golang.org/grpc v1.69.0
@@ -33,7 +33,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/sethvargo/go-retry v0.2.4 // indirect
-	go.redsock.ru/evon v0.0.16 // indirect
+	go.redsock.ru/evon v0.0.17 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.30.0 // indirect

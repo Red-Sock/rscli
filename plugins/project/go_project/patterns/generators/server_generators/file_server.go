@@ -5,7 +5,7 @@ import (
 	"text/template"
 
 	"go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka/server"
+	"go.vervstack.ru/matreshka/server"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
