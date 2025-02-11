@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"go.verv.tech/matreshka/resources"
+	"go.vervstack.ru/matreshka/resources"
 )
 
 type MigrationTool interface {

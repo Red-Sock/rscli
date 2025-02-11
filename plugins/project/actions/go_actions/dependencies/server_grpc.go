@@ -6,7 +6,7 @@ import (
 
 	"github.com/gobeam/stringy"
 	"go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka/server"
+	"go.vervstack.ru/matreshka/server"
 
 	"github.com/Red-Sock/rscli/internal/envpatterns"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"

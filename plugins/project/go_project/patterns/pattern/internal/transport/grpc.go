@@ -67,15 +67,19 @@ func (s *grpcServer) stop() error {
 	return nil
 }
 
-func (s *grpcServer) AddImplementation(grpcImpl GrpcImpl, opts ...grpc.ServerOption) {
-	s.implementations = append(s.implementations, grpcImpl)
+func (s *grpcServer) AddImplementation(grpcImpls ...GrpcImpl) {
+	for _, grpcImpl := range grpcImpls {
+		s.implementations = append(s.implementations, grpcImpl)
 
-	grpcWithGateway, ok := grpcImpl.(GrpcWithGateway)
-	if ok {
-		s.gatewayMux.Handle(grpcWithGateway.Gateway(s.ctx,
-			s.listener.Addr().String(),
-			grpc.WithTransportCredentials(insecure.NewCredentials())))
+		grpcWithGateway, ok := grpcImpl.(GrpcWithGateway)
+		if ok {
+			s.gatewayMux.Handle(grpcWithGateway.Gateway(s.ctx,
+				s.listener.Addr().String(),
+				grpc.WithTransportCredentials(insecure.NewCredentials())))
+		}
 	}
+}
 
+func (s *grpcServer) AddServerOption(opts ...grpc.ServerOption) {
 	s.opts = append(s.opts, opts...)
 }

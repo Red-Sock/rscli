@@ -5,7 +5,7 @@ import (
 	"path"
 
 	"go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka"
+	"go.vervstack.ru/matreshka"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/plugins/project"

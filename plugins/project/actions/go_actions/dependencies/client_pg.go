@@ -3,7 +3,7 @@ package dependencies
 import (
 	"go.redsock.ru/rerrors"
 
-	"go.verv.tech/matreshka/resources"
+	"go.vervstack.ru/matreshka/resources"
 )
 
 type Postgres struct {

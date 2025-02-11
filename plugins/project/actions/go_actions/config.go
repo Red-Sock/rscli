@@ -4,8 +4,8 @@ import (
 	"path"
 
 	"go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka"
-	"go.verv.tech/matreshka/environment"
+	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka/environment"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
@@ -41,32 +41,28 @@ func (a GenerateProjectConfig) Do(p project.IProject) error {
 	}
 
 	if envVars[LogLevelEvonName] == nil {
-		cfg.Environment = append(cfg.Environment, &environment.Variable{
-			Name: LogLevelEvonName,
-			Type: environment.VariableTypeStr,
-			Enum: []any{
-				LogLevelTrace,
-				LogLevelDebug,
-				LogLevelInfo,
-				LogLevelWarn,
-				LogLevelError,
-				LogLevelFatal,
-				LogLevelPanic,
-			},
-			Value: LogLevelInfo,
-		})
+		cfg.Environment = append(cfg.Environment,
+			environment.MustNewVariable(LogLevelEvonName, LogLevelInfo,
+				environment.WithEnum(
+					LogLevelTrace,
+					LogLevelDebug,
+					LogLevelInfo,
+					LogLevelWarn,
+					LogLevelError,
+					LogLevelFatal,
+					LogLevelPanic,
+				),
+			),
+		)
 	}
 
 	if envVars[LogFormatEvonName] == nil {
-		cfg.Environment = append(cfg.Environment, &environment.Variable{
-			Name: LogFormatEvonName,
-			Type: environment.VariableTypeStr,
-			Enum: []any{
-				LogFormatJSON,
-				LogFormatTEXT,
-			},
-			Value: LogFormatTEXT,
-		})
+		cfg.Environment = append(cfg.Environment,
+			environment.MustNewVariable(LogFormatEvonName, LogFormatTEXT,
+				environment.WithEnum(
+					LogFormatJSON,
+					LogFormatTEXT,
+				)))
 	}
 
 	return nil

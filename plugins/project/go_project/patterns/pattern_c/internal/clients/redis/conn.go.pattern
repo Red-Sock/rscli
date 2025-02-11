@@ -6,7 +6,7 @@ import (
 	"github.com/go-redis/redis"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
-	"go.verv.tech/matreshka/resources"
+	"go.vervstack.ru/matreshka/resources"
 )
 
 var ErrUnexpectedPing = rerrors.New("error pinging redis")

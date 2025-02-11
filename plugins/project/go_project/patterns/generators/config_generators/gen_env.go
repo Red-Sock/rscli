@@ -4,7 +4,7 @@ import (
 	"reflect"
 
 	"go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka"
+	"go.vervstack.ru/matreshka"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
@@ -21,29 +21,56 @@ func newGenerateEnvironmentConfigStruct(environment matreshka.Environment) inter
 			ErrorMessage: "error parsing environment config",
 		}
 
-		ecg := newConfigStructGenArgs(ic.StructName)
+		generateReq := newConfigStructGenArgs(ic.StructName)
 
 		for _, env := range environment {
 			var fieldKV generators.KeyValue
 			fieldKV.Key = generators.NormalizeResourceName(env.Name)
 
-			if env.Value != nil {
-				refVal := reflect.ValueOf(env.Value)
+			v := env.Value.Value()
+
+			if v != nil {
+				refVal := reflect.ValueOf(v)
 				tp := refVal.Type()
 				fieldKV.Value = tp.String()
 
 				if tp.PkgPath() != "" {
-					ecg.Imports[tp.PkgPath()] = ""
+					generateReq.Imports[tp.PkgPath()] = ""
 				}
 			} else {
 				fieldKV.Value = ""
 			}
 
-			ecg.Fields = append(ecg.Fields, fieldKV)
+			enumVal := env.Enum.Value()
+			if !env.Enum.IsZero() {
+				switch vals := enumVal.(type) {
+				case []string:
+					enumToGen := EnumGenArg{
+						Name: generators.NormalizeResourceName(env.Name),
+					}
+
+					enumToGen.Values = make([]generators.KeyValue, 0, len(vals))
+					for _, old := range vals {
+						enumToGen.Values = append(enumToGen.Values,
+							generators.KeyValue{
+								Key:   generators.NormalizeResourceName(old),
+								Value: "\"" + old + "\"",
+							})
+					}
+					generateReq.Enums = append(generateReq.Enums, enumToGen)
+				case []int:
+				default:
+					return InternalConfig{}, nil,
+						rerrors.New("error generating enums for config value. Unsupported enum type %T. Expected String slice",
+							enumVal)
+				}
+			}
+
+			generateReq.Fields = append(generateReq.Fields, fieldKV)
 		}
 
 		buf := &rw.RW{}
-		err := configStructTemplate.Execute(buf, ecg)
+		err := configStructTemplate.Execute(buf, generateReq)
 		if err != nil {
 			return InternalConfig{}, nil, rerrors.Wrap(err, "error executing config struct template")
 		}
