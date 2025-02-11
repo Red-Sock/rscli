@@ -13,7 +13,7 @@ require (
 	github.com/soheilhy/cmux v0.1.5
 	go.redsock.ru/rerrors v0.0.3
 	go.redsock.ru/toolbox v0.0.10
-	go.vervstack.ru/matreshka v0.0.54
+	go.vervstack.ru/matreshka v0.0.55
 	golang.org/x/sync v0.8.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241015192408-796eee8c2d53
 	google.golang.org/grpc v1.69.0
