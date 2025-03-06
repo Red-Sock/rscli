@@ -113,23 +113,14 @@ app_info:
     version: v0.0.1
     startup_duration: 10s
 environment:
-    - enum:
-        - Trace
-        - Debug
-        - Info
-        - Warn
-        - Error
-        - Fatal
-        - Panic
-      name: log-level
+    - name: log-level
       type: string
       value: Info
-    - enum:
-        - JSON
-        - TEXT
-      name: log-format
+      enum: [ Trace, Debug, Info, Warn, Error, Fatal, Panic ]
+    - name: log-format
       type: string
       value: TEXT
+      enum: [JSON, TEXT ]
 `)[1:]
 
 		tests.AssertFolderInFs(t, projectPath,
