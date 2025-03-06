@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.verv.tech/matreshka"
-	"go.verv.tech/matreshka/environment"
+	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka/environment"
 
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 	"github.com/Red-Sock/rscli/tests/project_mock"

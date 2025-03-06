@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka/resources"
+	"go.vervstack.ru/matreshka/resources"
 
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io"

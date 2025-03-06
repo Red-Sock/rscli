@@ -13,7 +13,7 @@ require (
 	go.redsock.ru/evon v0.0.17
 	go.redsock.ru/rerrors v0.0.3
 	go.redsock.ru/toolbox v0.0.10
-	go.verv.tech/matreshka v0.0.52
+	go.vervstack.ru/matreshka v0.0.56
 	gopkg.in/yaml.v3 v3.0.1
 )
 

@@ -6,7 +6,7 @@ import (
 
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
-	"go.verv.tech/matreshka/resources"
+	"go.vervstack.ru/matreshka/resources"
 
 	"github.com/pressly/goose/v3"
 	"github.com/sirupsen/logrus"

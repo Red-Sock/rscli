@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka"
-	"go.verv.tech/matreshka/resources"
+	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	rscliconfig "github.com/Red-Sock/rscli/internal/config"

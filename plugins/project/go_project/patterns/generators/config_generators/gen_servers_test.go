@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.verv.tech/matreshka"
+	"go.vervstack.ru/matreshka"
 
 	"github.com/Red-Sock/rscli/tests"
 )
@@ -31,7 +31,7 @@ func TestGenServer(t *testing.T) {
 package config
 
 import ( 
-     "go.verv.tech/matreshka/server"
+     "go.vervstack.ru/matreshka/server"
 )
 
 type ServersConfig struct { 

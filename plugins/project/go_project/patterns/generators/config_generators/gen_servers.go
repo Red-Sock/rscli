@@ -4,7 +4,7 @@ import (
 	"reflect"
 
 	"go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka"
+	"go.vervstack.ru/matreshka"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"
@@ -47,7 +47,7 @@ func newGenerateServerConfigStruct(srv matreshka.Servers) internalConfigGenerato
 		buf := &rw.RW{}
 		err := configStructTemplate.Execute(buf, ecg)
 		if err != nil {
-			return InternalConfig{}, nil, rerrors.Wrap(err, "error executing config struct template")
+			return InternalConfig{}, nil, rerrors.Wrap(err, "error executing server config struct template")
 		}
 
 		f := &folder.Folder{
