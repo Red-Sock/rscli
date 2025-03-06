@@ -23,7 +23,7 @@ environment:
       value: [test_value, test_value2]
     - name: test_int_variables
       type: int
-      value: [1-2]
+      value: [1:2]
     - name: test_bool_variables
       type: bool
       value: [true, false]
