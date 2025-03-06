@@ -24,11 +24,15 @@ func (a TidyGithubWorkflowAction) Do(p project.IProject) error {
 		ghF = ghF.Inner[0]
 	}
 
-	ghF.Add(patterns.GithubWorkflowRelease.Copy())
+	if ghF.GetByPath(patterns.GithubWorkflowRelease.Name) == nil {
+		ghF.Add(patterns.GithubWorkflowRelease.Copy())
+	}
 
 	switch p.GetType() {
 	case project.TypeGo:
-		ghF.Add(patterns.GithubWorkflowGoBranchPush.Copy())
+		if ghF.GetByPath(patterns.GithubWorkflowGoBranchPush.Name) == nil {
+			ghF.Add(patterns.GithubWorkflowGoBranchPush.Copy())
+		}
 	}
 
 	return nil

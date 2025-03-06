@@ -99,12 +99,17 @@ func (a PrepareConfigFolder) generateConfigYamlFile(p project.IProject) error {
 
 	newConfig := p.GetConfig()
 
+	err := appendToConfig(newConfig.AppConfig, configFolder, patterns.ConfigDevYamlFile)
+	if err != nil {
+		return rerrors.Wrap(err, "error generating dev config")
+	}
+
 	for _, cfgName := range []string{
-		patterns.ConfigDevYamlFile,
 		patterns.ConfigTemplateYaml,
 		patterns.ConfigMasterYamlFile,
 	} {
-		err := appendToConfig(newConfig.AppConfig, configFolder, cfgName)
+		newConfig.AppConfig.ServiceDiscovery = matreshka.ServiceDiscovery{}
+		err = appendToConfig(newConfig.AppConfig, configFolder, cfgName)
 		if err != nil {
 			return rerrors.Wrap(err, "error appending changes to dev config")
 		}
