@@ -11,6 +11,7 @@ var ignoredFolders = []string{
 	".idea",
 	".git",
 	".DS_Store",
+	"node_modules",
 }
 
 func Load(root string) (*Folder, error) {
@@ -37,7 +38,7 @@ func Load(root string) (*Folder, error) {
 }
 
 func load(root, parent string) (*Folder, error) {
-	if slices.Contains(ignoredFolders, path.Join(parent, path.Base(root))) {
+	if slices.Contains(ignoredFolders, path.Base(root)) {
 		return nil, nil
 	}
 
