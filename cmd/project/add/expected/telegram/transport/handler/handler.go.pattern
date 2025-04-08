@@ -4,7 +4,7 @@ import (
 	tgapi "github.com/Red-Sock/go_tg/interfaces"
 	"github.com/Red-Sock/go_tg/model"
 	"github.com/Red-Sock/go_tg/model/response"
-	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 )
 
 const Command = "/version"

@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"time"
 
-	"go.vervstack.ru/matreshka/environment"
+	"go.vervstack.ru/matreshka/pkg/matreshka/environment"
 )
 
 //go:embed full_config.yaml

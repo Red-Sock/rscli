@@ -1,7 +1,7 @@
 package dependencies
 
 import (
-	"go.vervstack.ru/matreshka/environment"
+	"go.vervstack.ru/matreshka/pkg/matreshka/environment"
 )
 
 type EnvVariable struct {

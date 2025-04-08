@@ -4,7 +4,7 @@ import (
 	"reflect"
 
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/rw"

@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.vervstack.ru/matreshka/environment"
+	"go.vervstack.ru/matreshka/pkg/matreshka/environment"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"

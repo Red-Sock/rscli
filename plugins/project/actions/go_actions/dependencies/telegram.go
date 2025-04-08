@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka/resources"
+	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/renamer"

@@ -5,7 +5,7 @@ package grpc
 import (
 	"go.redsock.ru/rerrors"
 	pb "{{ .ImportPath }}"
-	"go.vervstack.ru/matreshka/resources"
+	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 	"google.golang.org/grpc"
 )
 

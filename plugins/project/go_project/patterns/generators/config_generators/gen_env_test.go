@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"go.vervstack.ru/matreshka"
-	"go.vervstack.ru/matreshka/environment"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka/environment"
 )
 
 func Test_GenerateEnvConfig(t *testing.T) {

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 )
 
 type Config struct {

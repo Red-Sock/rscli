@@ -6,7 +6,7 @@ import (
 	"flag"
 
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 )
 
 var ErrAlreadyLoaded = rerrors.New("config already loaded")
