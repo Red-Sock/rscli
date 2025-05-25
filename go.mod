@@ -1,19 +1,19 @@
 module github.com/Red-Sock/rscli
 
-go 1.23.4
+go 1.24.2
 
 require (
 	github.com/gobeam/stringy v0.0.7
-	github.com/gojuno/minimock/v3 v3.4.3
+	github.com/gojuno/minimock/v3 v3.4.5
 	github.com/hashicorp/go-version v1.7.0
 	github.com/morikuni/aec v1.0.0
 	github.com/nsf/termbox-go v1.1.1
-	github.com/spf13/cobra v1.8.1
+	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
-	go.redsock.ru/evon v0.0.17
+	go.redsock.ru/evon v0.0.25
 	go.redsock.ru/rerrors v0.0.3
-	go.redsock.ru/toolbox v0.0.10
-	go.vervstack.ru/matreshka v1.0.58
+	go.redsock.ru/toolbox v0.0.11
+	go.vervstack.ru/matreshka v1.0.78
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -24,9 +24,9 @@ require (
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250303144028-a0af3efb3deb // indirect
-	google.golang.org/grpc v1.70.0 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
+	github.com/spf13/pflag v1.0.6 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 // indirect
+	google.golang.org/grpc v1.72.1 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 )
