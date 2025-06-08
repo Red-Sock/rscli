@@ -3,10 +3,13 @@ package project_mock
 import (
 	"os"
 	"path"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	"go.vervstack.ru/matreshka/pkg/matreshka/environment"
+	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
+	"go.vervstack.ru/matreshka/pkg/matreshka/server"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
@@ -47,5 +50,30 @@ func WithGit(t *testing.T) Opt {
 	return func(m *MockProject) {
 		require.NotEmpty(t, m.Path, "to enable git in mock project WithFileSystem is required")
 		require.NoError(t, git.Init(m.Project.GetProjectPath()))
+	}
+}
+
+func WithSqlite(name string) Opt {
+	return func(m *MockProject) {
+		s := resources.NewSqlite(resources.Name(resources.SqliteResourceName + "_" + name))
+		sq := s.(*resources.Sqlite)
+		sq.Path = path.Join(sq.Path, name+".db")
+
+		m.Cfg.DataSources = append(m.Cfg.DataSources, sq)
+	}
+}
+
+func WithGrpcServer(port int) Opt {
+	return func(m *MockProject) {
+		m.Cfg.Servers[port] = &server.Server{
+			Name: "MASTER",
+			Port: strconv.Itoa(port),
+			GRPC: map[string]*server.GRPC{
+				"/": {
+					Module:  m.Name,
+					Gateway: "/api",
+				},
+			},
+		}
 	}
 }
