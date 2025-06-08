@@ -11,6 +11,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/app_struct_generators"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/dockerfile"
 )
 
 type InitGoMod struct{}
@@ -68,6 +69,18 @@ func (a InitGoProjectApp) Do(p project.IProject) error {
 			&folder.Folder{
 				Name:    fileName,
 				Content: fileContent,
+			})
+	}
+
+	if p.GetFolder().GetByPath(patterns.DockerfileFile) == nil {
+		df, err := dockerfile.GenerateDockerfile(p)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+		p.GetFolder().Add(
+			&folder.Folder{
+				Name:    patterns.DockerfileFile,
+				Content: df,
 			})
 	}
 

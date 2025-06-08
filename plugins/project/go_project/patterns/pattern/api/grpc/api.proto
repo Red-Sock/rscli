@@ -13,7 +13,6 @@ service proj_nameAPI {
   rpc Version(Version.Request) returns (Version.Response) {
     option (google.api.http) = {
       get: "/api/version"
-      body: "*"
     };
   };
 }
