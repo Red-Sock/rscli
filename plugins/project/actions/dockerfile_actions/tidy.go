@@ -3,18 +3,31 @@ package dockerfile_actions
 import (
 	"bytes"
 
+	"go.redsock.ru/rerrors"
+
+	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/dockerfile"
 )
 
 type DockerFileTidyAction struct {
 }
 
 func (a DockerFileTidyAction) Do(p project.IProject) error {
-	dockerFile := p.GetFolder().GetByPath(patterns.Dockerfile.Name)
+	dockerFile := p.GetFolder().GetByPath(patterns.DockerfileFile)
 	if dockerFile == nil {
-		dockerFile = patterns.Dockerfile.Copy()
-		p.GetFolder().Add(dockerFile)
+		df, err := dockerfile.GenerateDockerfile(p)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+
+		p.GetFolder().Add(
+			&folder.Folder{
+				Name:    patterns.DockerfileFile,
+				Inner:   nil,
+				Content: df,
+			})
 	}
 
 	servers := p.GetConfig().Servers

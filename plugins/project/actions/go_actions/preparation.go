@@ -33,7 +33,6 @@ func (a PrepareProjectStructure) Do(p project.IProject) error {
 	rootF.Add(&folder.Folder{Name: patterns.InternalFolder})
 
 	rootF.Add(
-		patterns.Dockerfile.Copy(),
 		patterns.Readme.Copy(),
 		patterns.GitIgnore.Copy(),
 		patterns.Linter.Copy(),

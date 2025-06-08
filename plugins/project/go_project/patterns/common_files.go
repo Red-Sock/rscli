@@ -12,6 +12,7 @@ const (
 	ConfigMasterYamlFile = "config.yaml"
 	MakefileFile         = "Makefile"
 	RscliMakefileFile    = "rscli.mk"
+	DockerfileFile       = "Dockerfile"
 
 	GenCommand           = "gen"
 	GenGrpcServerCommand = "gen-server-grpc"
@@ -19,13 +20,6 @@ const (
 
 // Build and deploy
 var (
-	//go:embed pattern_c/Dockerfile
-	dockerfile []byte
-	Dockerfile = &folder.Folder{
-		Name:    "Dockerfile",
-		Content: dockerfile,
-	}
-
 	//go:embed pattern_c/.gitignore
 	gitIgnore []byte
 	GitIgnore = &folder.Folder{

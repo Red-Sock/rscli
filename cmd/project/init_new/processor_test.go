@@ -92,7 +92,6 @@ func Test_InitProject(t *testing.T) {
 
 	projectPath := path.Join(dirPath, projName)
 
-	tests.AssertFolderInFs(t, projectPath, patterns.Dockerfile)
 	tests.AssertFolderInFs(t, projectPath, patterns.Makefile)
 
 	readme := patterns.Readme.Copy()
