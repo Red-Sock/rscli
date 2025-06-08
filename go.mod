@@ -3,7 +3,6 @@ module github.com/Red-Sock/rscli
 go 1.24.2
 
 require (
-	github.com/gobeam/stringy v0.0.7
 	github.com/gojuno/minimock/v3 v3.4.5
 	github.com/hashicorp/go-version v1.7.0
 	github.com/morikuni/aec v1.0.0

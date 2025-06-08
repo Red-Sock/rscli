@@ -2,6 +2,7 @@ package dependencies
 
 import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
+	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/config"
 )
 
@@ -13,4 +14,5 @@ type Project interface {
 
 	GetFolder() *folder.Folder
 	GetProjectPath() string
+	GetType() project.Type
 }

@@ -1,25 +1,28 @@
 syntax = "proto3";
 
-package grpc_api;
+package GRPC_api;
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
+import "npm.proto";
 
-option go_package = "/example_api";
+option go_package = "/GRPC_api";
+option (npm_package) = "@GRPC/api";
 
-service grpcAPI {
-  rpc Version(PingRequest) returns (PingResponse) {
+service GRPCAPI {
+  rpc Version(Version.Request) returns (Version.Response) {
     option (google.api.http) = {
-      post: "/api/version"
+      get: "/api/version"
       body: "*"
     };
   };
 }
 
-message PingRequest {
-  google.protobuf.Timestamp client_timestamp = 1;
-}
+message Version {
+  message Request {}
 
-message PingResponse {
-   uint32 took = 1;
+  message Response {
+    string version = 1;
+    google.protobuf.Timestamp client_timestamp = 2;
+  }
 }

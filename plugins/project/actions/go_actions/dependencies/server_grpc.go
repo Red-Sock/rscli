@@ -1,15 +1,12 @@
 package dependencies
 
 import (
-	"bytes"
 	"path"
 
-	"github.com/gobeam/stringy"
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka/server"
 
-	"github.com/Red-Sock/rscli/internal/envpatterns"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/grpc_api"
 )
 
 const grpcServerBasePath = "/{GRPC}"
@@ -59,19 +56,13 @@ func (r GrpcServer) AppendToProject(proj Project) error {
 }
 
 func (r GrpcServer) applyApiFolder(proj Project, protoPath string) error {
-	protoFile := patterns.ProtoContract.CopyWithNewName(protoPath)
+	protoFile, err := grpc_api.GenerateServiceApiProto(proj)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
 
-	projName := stringy.New(proj.GetShortName())
+	protoFile.Name = protoPath
 
-	protoFile.Content = bytes.Replace(protoFile.Content,
-		[]byte(envpatterns.ProjNamePattern),
-		[]byte(projName.SnakeCase().ToLower()),
-		1)
-
-	protoFile.Content = bytes.Replace(protoFile.Content,
-		[]byte(envpatterns.ProjNamePattern),
-		[]byte(projName.CamelCase().Get()),
-		1)
 	proj.GetFolder().Add(protoFile)
 	return nil
 }

@@ -28,7 +28,7 @@ func GetMockProject(t *testing.T, opts ...Opt) *MockProject {
 	p := &MockProject{
 		rscliConfig: rscliconfig.GetConfig(),
 		Project: &project.Project{
-			Name: t.Name(),
+			Name: "github.com/" + t.Name(),
 			Cfg: &config.Config{
 				AppConfig: matreshka.NewEmptyConfig(),
 			},

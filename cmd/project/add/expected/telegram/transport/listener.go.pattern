@@ -5,8 +5,8 @@ import (
 
 	client "github.com/Red-Sock/go_tg"
 
-	"Test_AddDependency/TELEGRAM/internal/config"
-	"Test_AddDependency/TELEGRAM/internal/transport/telegram/version"
+	"github.com/Test_AddDependency/TELEGRAM/internal/config"
+	"github.com/Test_AddDependency/TELEGRAM/internal/transport/telegram/version"
 )
 
 type Server struct {

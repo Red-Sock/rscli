@@ -2,26 +2,28 @@ version: v1alpha
 
 deps:
     - github.com/googleapis/googleapis
-
+    - github.com/Red-Sock/protoc-gen-npm@v0.0.10
 generate:
+    proto_root: api/grpc
+    generate_out_dirs: true
     inputs:
       - directory: "api/grpc"
     plugins:
+        # Go server + client
         - name: go
           out: pkg
-
         - name: go-grpc
           out: pkg
-
         - name: grpc-gateway
           out: pkg
-
+        # TypeScript client + npm package
         - name: grpc-gateway-ts
           out: pkg/web
-
+        - name: npm
+          out: pkg/web
+        # Documentation + swagger
         - name: openapiv2
           out: pkg/docs
-
         - name: docs
           out: pkg/docs/api
           opts:

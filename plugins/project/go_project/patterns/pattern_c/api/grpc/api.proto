@@ -4,22 +4,25 @@ package proj_name_api;
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
+import "npm.proto";
 
-option go_package = "/example_api";
+option go_package = "/proj_name_api";
+option (npm_package) = "@proj_name/api";
 
 service proj_nameAPI {
-  rpc Version(PingRequest) returns (PingResponse) {
+  rpc Version(Version.Request) returns (Version.Response) {
     option (google.api.http) = {
-      post: "/api/version"
+      get: "/api/version"
       body: "*"
     };
   };
 }
 
-message PingRequest {
-  google.protobuf.Timestamp client_timestamp = 1;
-}
+message Version {
+  message Request {}
 
-message PingResponse {
-   uint32 took = 1;
+  message Response {
+    string version = 1;
+    google.protobuf.Timestamp client_timestamp = 2;
+  }
 }

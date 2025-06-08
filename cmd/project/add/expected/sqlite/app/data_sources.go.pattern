@@ -3,7 +3,7 @@
 package app
 
 import (
-	"Test_AddDependency/SQLITE/internal/clients/sqldb"
+	"github.com/Test_AddDependency/SQLITE/internal/clients/sqldb"
 	"go.redsock.ru/rerrors"
 )
 

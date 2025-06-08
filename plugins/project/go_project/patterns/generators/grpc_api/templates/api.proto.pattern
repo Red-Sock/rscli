@@ -1,15 +1,15 @@
 syntax = "proto3";
 
-package proj_name_api;
+package {{.PackageName}}_api;
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "npm.proto";
 
-option go_package = "/proj_name_api";
-option (npm_package) = "@proj_name/api";
+option go_package = "/{{.PackageName}}_api";
+option (npm_package) = "@{{.PackageName}}/api";
 
-service proj_nameAPI {
+service {{.PackageName}}API {
   rpc Version(Version.Request) returns (Version.Response) {
     option (google.api.http) = {
       get: "/api/version"

@@ -5,23 +5,14 @@ app_info:
 servers:
     80:
         /{GRPC}:
-            module: Test_AddDependency/GRPC
+            module: github.com/Test_AddDependency/GRPC
             gateway: /api
 environment:
-  - enum:
-      - Trace
-      - Debug
-      - Info
-      - Warn
-      - Error
-      - Fatal
-      - Panic
-    name: log_level
+  - name: log_level
+    enum: [Trace, Debug, Info, Warn, Error, Fatal, Panic]
     type: string
     value: Info
-  - enum:
-      - JSON
-      - TEXT
-    name: log_format
+  - name: log_format
+    enum: [JSON,TEXT]
     type: string
     value: TEXT

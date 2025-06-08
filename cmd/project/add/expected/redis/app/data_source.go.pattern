@@ -3,7 +3,7 @@
 package app
 
 import (
-	"Test_AddDependency/REDIS/internal/clients/redis"
+	"github.com/Test_AddDependency/REDIS/internal/clients/redis"
 	"go.redsock.ru/rerrors"
 )
 

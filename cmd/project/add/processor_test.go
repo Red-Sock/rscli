@@ -85,7 +85,6 @@ func Test_AddDependency(t *testing.T) {
 					),
 					ActionPerformer: tc.actionPerformer,
 				}
-
 				require.NoError(t, command.run(nil, tc.args))
 
 				for _, expFile := range tc.expectedFiles {
