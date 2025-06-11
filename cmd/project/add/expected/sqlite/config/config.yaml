@@ -1,0 +1,26 @@
+app_info:
+    name: test_project
+    version: v0.0.1
+    startup_duration: 10s
+data_sources:
+    - resource_name: sqlite
+      path: /app/data/sqlite.db
+      migrations_folder: ./migrations
+environment:
+    - enum:
+          - Trace
+          - Debug
+          - Info
+          - Warn
+          - Error
+          - Fatal
+          - Panic
+      name: log_level
+      type: string
+      value: Info
+    - enum:
+          - JSON
+          - TEXT
+      name: log_format
+      type: string
+      value: TEXT

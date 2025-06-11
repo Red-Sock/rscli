@@ -15,6 +15,8 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project"
 )
 
+const PatternExt = ".pattern"
+
 func CompareLongStrings(t *testing.T, expected, actual []byte) (eq bool) {
 	expectedReader := bytes.NewReader(expected)
 	actualReader := bytes.NewReader(actual)
@@ -46,9 +48,15 @@ func CompareLongStrings(t *testing.T, expected, actual []byte) (eq bool) {
 
 func AssertFolderInFs(t *testing.T, dirPath string, expected *folder.Folder) {
 	if len(expected.Content) != 0 {
-		targetPath := path.Join(dirPath, expected.Name)
+		targetFile := expected.Name
+		if strings.HasSuffix(targetFile, PatternExt) {
+			targetFile = targetFile[:len(targetFile)-len(PatternExt)]
+		}
+
+		targetPath := path.Join(dirPath, targetFile)
 		file, err := os.ReadFile(targetPath)
 		require.NoError(t, err)
+
 		eq := false
 
 		if strings.HasSuffix(expected.Name, ".yaml") {

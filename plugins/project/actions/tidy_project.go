@@ -30,11 +30,13 @@ func goProjectTidyActions() []Action {
 		go_actions.PrepareServer{},
 		go_actions.PrepareDockerfile{},
 		go_actions.BuildProjectAction{},
-		go_actions.RunMakeGenAction{},
+		// Takes too long
+		//go_actions.RunMakeGenAction{},
 		go_actions.InitGoProjectApp{},
 
 		go_actions.BuildProjectAction{},
-		go_actions.RunGoTidyAction{},
+		// Takes too long
+		// go_actions.RunGoTidyAction{},
 		go_actions.GoFmt{},
 	}
 }

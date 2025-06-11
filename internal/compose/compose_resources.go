@@ -220,7 +220,7 @@ func extractEnvsFromComposeFile(b []byte) (*env.Container, error) {
 
 		endIdx = startIdx + bytes.IndexByte(b[startIdx:], 125) // "}"
 		if endIdx == -1 {
-			return nil, rerrors.Wrapf(ErrInvalidComposeEnvFormat, string(b[startIdx:nums.Min(len(b)-1, 10)]))
+			return nil, rerrors.Wrap(ErrInvalidComposeEnvFormat, string(b[startIdx:nums.Min(len(b)-1, 10)]))
 		}
 
 		// validate if after env variable goes ":" -> extract value

@@ -3,7 +3,7 @@
 package app
 
 import (
-	"github.com/Test_AddDependency/TELEGRAM/internal/clients/telegram"
+	"github.com/Test_AddDependency/telegram/internal/clients/telegram"
 	"go.redsock.ru/rerrors"
 )
 

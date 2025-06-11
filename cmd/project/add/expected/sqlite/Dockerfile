@@ -19,6 +19,6 @@ WORKDIR /app
 
 COPY --from=builder /deploy/server/ .
 
-VOLUME '/app/data/SQLITE.db'
+VOLUME '/app/data/sqlite.db'
 
 ENTRYPOINT ["./service"]

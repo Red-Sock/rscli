@@ -3,14 +3,12 @@ app_info:
     version: v0.0.1
     startup_duration: 10s
 data_sources:
-    - resource_name: postgres
-      migrations_folder: ./migrations
+    - resource_name: redis
       host: localhost
-      port: 5432
-      user: POSTGRES
+      port: 6379
+      user: ""
       pwd: ""
-      name: POSTGRES
-      ssl_mode: ""
+      db: 0
 environment:
     - enum:
           - Trace

@@ -1,15 +1,15 @@
 syntax = "proto3";
 
-package GRPC_api;
+package grpc_api;
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "npm.proto";
 
-option go_package = "/GRPC_api";
-option (npm_package) = "@GRPC/api";
+option go_package = "/grpc_api";
+option (npm_package) = "@grpc/api";
 
-service GRPCAPI {
+service grpcAPI {
   rpc Version(Version.Request) returns (Version.Response) {
     option (google.api.http) = {
       get: "/api/version"

@@ -14,42 +14,42 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 	"github.com/Red-Sock/rscli/tests"
 	"github.com/Red-Sock/rscli/tests/mocks"
 	"github.com/Red-Sock/rscli/tests/project_mock"
 )
 
 type testCase struct {
-	actionPerformer actions.ActionPerformer
-	cfg             *config.RsCliConfig
-	args            []string
-	expectedFiles   []*folder.Folder
+	cfg  *config.RsCliConfig
+	args []string
 }
 
 // deleteGenerated - for debug purposes. Set to true when need to look at what script generates
-const deleteGenerated = false
+const (
+	deleteGenerated = false
+	snapshotPath    = "./expected/"
+)
 
 func Test_AddDependency(t *testing.T) {
 	t.Parallel()
 
 	testCases := map[string]struct{ prep func(t *testing.T) testCase }{
-		"GRPC": {
+		"grpc": {
 			prep: expectedGrpc,
 		},
-		"REDIS": {
+		"redis": {
 			prep: expectedRedis,
 		},
-		"POSTGRES": {
+		"postgres": {
 			prep: expectedPostgres,
 		},
-		"TELEGRAM": {
+		"telegram": {
 			prep: expectedTelegram,
 		},
-		"SQLITE": {
+		"sqlite": {
 			prep: expectedSqlite,
 		},
-		"ENV": {
+		"env": {
 			prep: expectedEnv,
 		},
 	}
@@ -69,6 +69,7 @@ func Test_AddDependency(t *testing.T) {
 						require.NoError(t, os.RemoveAll(projectMock.Path))
 					}
 				}()
+
 				initActions := actions.InitProject(project.TypeGo)
 				for _, action := range initActions {
 					require.NoError(t, action.Do(projectMock))
@@ -83,20 +84,92 @@ func Test_AddDependency(t *testing.T) {
 						processor.WithWd(projectMock.Project.GetProjectPath()),
 						processor.WithConfig(tc.cfg),
 					),
-					ActionPerformer: tc.actionPerformer,
+					ActionPerformer: actions.NewActionPerformer(mocks.IoDevNul{}), //apMock(t),
 				}
 				require.NoError(t, command.run(nil, tc.args))
 
-				for _, expFile := range tc.expectedFiles {
-					tests.AssertFolderInFs(t, projectMock.Path, expFile)
-				}
+				expected, err := folder.Load(snapshotPath + name)
+				require.NoError(t, err, "error loading expected folder")
+				expected.Name = ""
+
+				tests.AssertFolderInFs(t, projectMock.Path, expected)
 			})
 	}
 }
 
 func expectedGrpc(t *testing.T) testCase {
-	apMock := mocks.NewActionPerformerMock(t)
-	apMock.TidyMock.Set(func(p project.IProject) (_ error) {
+
+	return testCase{
+		cfg: &config.RsCliConfig{
+			Env: config.Project{
+				PathToServerDefinition: "api",
+			},
+		},
+		args: []string{dependencies.DependencyNameGrpc},
+	}
+}
+
+func expectedRedis(t *testing.T) testCase {
+	apIoMock := mocks.NewIOMock(t)
+	apIoMock.PrintlnMock.Set(func(_ ...string) {})
+
+	return testCase{
+		args: []string{dependencies.DependencyNameRedis},
+	}
+}
+
+func expectedPostgres(t *testing.T) testCase {
+	apIoMock := mocks.NewIOMock(t)
+	apIoMock.PrintlnMock.Set(func(_ ...string) {})
+
+	return testCase{
+		args: []string{dependencies.DependencyNamePostgres},
+	}
+}
+
+func expectedTelegram(t *testing.T) testCase {
+	apIoMock := mocks.NewIOMock(t)
+	apIoMock.PrintlnMock.Set(func(_ ...string) {})
+
+	return testCase{
+		args: []string{dependencies.DependencyNameTelegram},
+	}
+}
+
+func expectedSqlite(t *testing.T) testCase {
+	apIoMock := mocks.NewIOMock(t)
+	apIoMock.PrintlnMock.Set(func(_ ...string) {})
+
+	return testCase{
+		args: []string{dependencies.DependencyNameSqlite},
+	}
+}
+
+func expectedEnv(t *testing.T) testCase {
+	apIoMock := mocks.NewIOMock(t)
+	apIoMock.PrintlnMock.Set(func(_ ...string) {})
+
+	return testCase{
+		args: []string{dependencies.DependencyEnvVariable},
+	}
+}
+
+func setupPrintlnMock(t *testing.T, ioMock *mocks.IOMock, printlnCalls ...string) {
+	prinlnIdx := 0
+	ioMock.PrintlnMock.Set(func(in ...string) {
+		if prinlnIdx >= len(printlnCalls) {
+			return
+		}
+		for _, text := range in {
+			require.Equal(t, printlnCalls[prinlnIdx], text)
+			prinlnIdx++
+		}
+	})
+}
+
+func apMock(t *testing.T) actions.ActionPerformer {
+	apm := mocks.NewActionPerformerMock(t)
+	apm.TidyMock.Set(func(p project.IProject) (_ error) {
 		shorActionList := []actions.Action{
 			go_actions.PrepareConfigFolder{},
 			go_actions.PrepareServer{},
@@ -112,239 +185,6 @@ func expectedGrpc(t *testing.T) testCase {
 
 		return nil
 	})
-	apIoMock := mocks.NewIOMock(t)
-	apIoMock.PrintlnMock.Set(func(_ ...string) {})
 
-	return testCase{
-		actionPerformer: apMock,
-		cfg: &config.RsCliConfig{
-			Env: config.Project{
-				PathToServerDefinition: "api",
-			},
-		},
-		args: []string{dependencies.DependencyNameGrpc},
-		expectedFiles: []*folder.Folder{
-			{
-				Name:    "api/grpc/GRPC_api.proto",
-				Content: grpcExpectedProtoFile,
-			},
-			{
-				Name: "config",
-				Inner: []*folder.Folder{
-					{
-						Name:    "config.yaml",
-						Content: grpcMatreshkaConfigExpected,
-					},
-					{
-						Name:    "config_template.yaml",
-						Content: grpcMatreshkaConfigExpected,
-					},
-					{
-						Name:    "dev.yaml",
-						Content: grpcMatreshkaConfigExpected,
-					},
-				},
-			},
-			{
-				Name: "internal/transport",
-				Inner: []*folder.Folder{
-					{
-						Name:    "grpc.go",
-						Content: patterns.GrpcServerManager.Content,
-					},
-					{
-						Name:    "http.go",
-						Content: patterns.HttpServerManager.Content,
-					},
-					{
-						Name:    "manager.go",
-						Content: patterns.ServerManager.Content,
-					},
-				},
-			},
-		},
-	}
-}
-
-func expectedRedis(t *testing.T) testCase {
-	apIoMock := mocks.NewIOMock(t)
-	apIoMock.PrintlnMock.Set(func(_ ...string) {})
-
-	return testCase{
-		actionPerformer: actions.NewActionPerformer(apIoMock),
-		args:            []string{dependencies.DependencyNameRedis},
-		expectedFiles: []*folder.Folder{
-			{
-				Name: "config",
-				Inner: []*folder.Folder{
-					{
-						Name:    "config.yaml",
-						Content: expectedRedisConfig,
-					},
-					{
-						Name:    "config_template.yaml",
-						Content: expectedRedisConfig,
-					},
-					{
-						Name:    "dev.yaml",
-						Content: expectedRedisConfig,
-					},
-				},
-			},
-			{
-				Name:    "internal/clients/redis/conn.go",
-				Content: patterns.RedisConnFile.Content,
-			},
-			{
-				Name:    "internal/config/data_sources.go",
-				Content: expectedRedisDataSourceConfig,
-			},
-			{
-				Name:    "internal/app/data_sources.go",
-				Content: expectedRedisDataSourceApp,
-			},
-		},
-	}
-}
-
-func expectedPostgres(t *testing.T) testCase {
-	apIoMock := mocks.NewIOMock(t)
-	apIoMock.PrintlnMock.Set(func(_ ...string) {})
-
-	return testCase{
-		actionPerformer: actions.NewActionPerformer(apIoMock),
-		args:            []string{dependencies.DependencyNamePostgres},
-		expectedFiles: []*folder.Folder{
-			{
-				Name: "config",
-				Inner: []*folder.Folder{
-					{
-						Name:    "config.yaml",
-						Content: expectedPostgresConfig,
-					},
-				},
-			},
-			{
-				Name:    "internal/app/data_sources.go",
-				Content: expectedPostgresDataSourceApp,
-			},
-			{
-				Name:    "internal/config/data_sources.go",
-				Content: expectedPostgresDataSourceConfig,
-			},
-			{
-				Name:    "internal/clients/sqldb/conn.go",
-				Content: patterns.SqlConnFile.Content,
-			},
-			{
-				Name:    "internal/clients/sqldb/postgres.go",
-				Content: patterns.PostgresConnFile.Content,
-			},
-		},
-	}
-}
-
-func expectedTelegram(t *testing.T) testCase {
-	apIoMock := mocks.NewIOMock(t)
-	apIoMock.PrintlnMock.Set(func(_ ...string) {})
-
-	return testCase{
-		actionPerformer: actions.NewActionPerformer(apIoMock),
-		args:            []string{dependencies.DependencyNameTelegram},
-		expectedFiles: []*folder.Folder{
-			{
-				Name:    "config/config.yaml",
-				Content: expectedTelegramConfig,
-			},
-			{
-				Name:    "internal/app/data_sources.go",
-				Content: expectedTelegramDataSourcesApp,
-			},
-			{
-				Name:    "internal/config/data_sources.go",
-				Content: expectedTelegramDataSourcesConfig,
-			},
-			{
-				Name:    "internal/clients/telegram/conn.go",
-				Content: patterns.TgConnFile.Content,
-			},
-			{
-				Name:    "internal/transport/telegram/listener.go",
-				Content: expectedTelegramServer,
-			},
-			{
-				Name:    "internal/transport/telegram/version/handler.go",
-				Content: expectedTelegramServerHandlerExample,
-			},
-		},
-	}
-}
-
-func expectedSqlite(t *testing.T) testCase {
-	apIoMock := mocks.NewIOMock(t)
-	apIoMock.PrintlnMock.Set(func(_ ...string) {})
-
-	return testCase{
-		actionPerformer: actions.NewActionPerformer(apIoMock),
-		args:            []string{dependencies.DependencyNameSqlite},
-		expectedFiles: []*folder.Folder{
-			{
-				Name:    "config/config.yaml",
-				Content: expectedSqliteConfig,
-			},
-			{
-				Name:    "internal/app/data_sources.go",
-				Content: expectedSqliteDataSourcesApp,
-			},
-			{
-				Name:    "internal/config/data_sources.go",
-				Content: expectedSqliteDataSourcesConfig,
-			},
-			{
-				Name:    "internal/clients/sqldb/conn.go",
-				Content: patterns.SqlConnFile.Content,
-			},
-			{
-				Name:    "internal/clients/sqldb/sqlite.go",
-				Content: patterns.SqliteConnFile.Content,
-			},
-			{
-				Name:    "Dockerfile",
-				Content: expectedSqliteDockerfile,
-			},
-		},
-	}
-}
-
-func expectedEnv(t *testing.T) testCase {
-	apIoMock := mocks.NewIOMock(t)
-	apIoMock.PrintlnMock.Set(func(_ ...string) {})
-
-	return testCase{
-		actionPerformer: actions.NewActionPerformer(apIoMock),
-		args:            []string{dependencies.DependencyEnvVariable},
-		expectedFiles: []*folder.Folder{
-			{
-				Name:    "config/config.yaml",
-				Content: expectedEnvConfig,
-			},
-			{
-				Name:    "internal/config/environment.go",
-				Content: expectedEnvConfigGo,
-			},
-		},
-	}
-}
-
-func setupPrintlnMock(t *testing.T, ioMock *mocks.IOMock, printlnCalls ...string) {
-	prinlnIdx := 0
-	ioMock.PrintlnMock.Set(func(in ...string) {
-		if prinlnIdx >= len(printlnCalls) {
-			return
-		}
-		for _, text := range in {
-			require.Equal(t, printlnCalls[prinlnIdx], text)
-			prinlnIdx++
-		}
-	})
+	return apm
 }
