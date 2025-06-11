@@ -21,7 +21,7 @@ func (p Postgres) AppendToProject(proj Project) error {
 		Cfg: p.dependencyBase.Cfg,
 	}
 
-	err := sc.applySqlConnFile(proj)
+	err := sc.applySqlConnectionFile(proj)
 	if err != nil {
 		return rerrors.Wrap(err, "error applying sql conn file")
 	}

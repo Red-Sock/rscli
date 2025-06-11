@@ -16,6 +16,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/dockerfile_generator"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/server_generators/impl_gen"
 )
 
@@ -190,4 +191,24 @@ func (a PrepareServer) Do(p project.IProject) error {
 }
 func (a PrepareServer) NameInAction() string {
 	return "Preparing server files"
+}
+
+type PrepareDockerfile struct{}
+
+func (a PrepareDockerfile) Do(p project.IProject) error {
+	d, err := dockerfile_generator.GenerateDockerfile(p)
+	if err != nil {
+		return rerrors.Wrap(err, "error during dockerfile generation")
+	}
+
+	dfFile := &folder.Folder{
+		Name:    patterns.DockerfileFile,
+		Content: d,
+	}
+	p.GetFolder().Add(dfFile)
+
+	return nil
+}
+func (a PrepareDockerfile) NameInAction() string {
+	return "Preparing Dockerfile"
 }

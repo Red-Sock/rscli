@@ -1,4 +1,4 @@
-package grpc_api
+package grpc_api_generator
 
 import (
 	_ "embed"

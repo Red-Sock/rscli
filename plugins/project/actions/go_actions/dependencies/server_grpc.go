@@ -6,7 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka/server"
 
-	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/grpc_api"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/grpc_api_generator"
 )
 
 const grpcServerBasePath = "/{GRPC}"
@@ -56,7 +56,7 @@ func (r GrpcServer) AppendToProject(proj Project) error {
 }
 
 func (r GrpcServer) applyApiFolder(proj Project, protoPath string) error {
-	protoFile, err := grpc_api.GenerateServiceApiProto(proj)
+	protoFile, err := grpc_api_generator.GenerateServiceApiProto(proj)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}

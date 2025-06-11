@@ -308,6 +308,10 @@ func expectedSqlite(t *testing.T) testCase {
 				Name:    "internal/clients/sqldb/sqlite.go",
 				Content: patterns.SqliteConnFile.Content,
 			},
+			{
+				Name:    "Dockerfile",
+				Content: expectedSqliteDockerfile,
+			},
 		},
 	}
 }

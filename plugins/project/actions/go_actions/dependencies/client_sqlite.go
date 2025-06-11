@@ -3,6 +3,8 @@ package dependencies
 import (
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
+
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/dockerfile_generator"
 )
 
 type Sqlite struct {
@@ -18,7 +20,7 @@ func sqlite(dep dependencyBase) Dependency {
 func (s Sqlite) AppendToProject(proj Project) error {
 	sc := sqlConn{Cfg: s.Cfg}
 
-	err := sc.applySqlConnFile(proj)
+	err := sc.applySqlConnectionFile(proj)
 	if err != nil {
 		return rerrors.Wrap(err, "error applying changes to folder")
 	}
@@ -27,7 +29,7 @@ func (s Sqlite) AppendToProject(proj Project) error {
 
 	res := &resources.Sqlite{
 		Name:             resources.SqliteResourceName,
-		Path:             "./data/sqlite/" + appNameInfo + ".db",
+		Path:             dockerfile_generator.DataVolumeName + "/" + appNameInfo + ".db",
 		MigrationsFolder: "./migrations",
 	}
 

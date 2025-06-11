@@ -18,7 +18,7 @@ func (sc sqlConn) GetFolderName() string {
 	return "sqldb"
 }
 
-func (sc sqlConn) applySqlConnFile(proj Project) error {
+func (sc sqlConn) applySqlConnectionFile(proj Project) error {
 	if len(sc.Cfg.Env.PathsToClients) == 0 {
 		return ErrNoFolderInConfig
 	}

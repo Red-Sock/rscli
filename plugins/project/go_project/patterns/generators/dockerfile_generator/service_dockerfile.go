@@ -1,4 +1,4 @@
-package dockerfile
+package dockerfile_generator
 
 import (
 	_ "embed"
@@ -41,13 +41,15 @@ func GenerateDockerfile(proj project.IProject) ([]byte, error) {
 	cfg := proj.GetConfig()
 
 	for _, ds := range cfg.DataSources {
-		sqlite, ok := ds.(*resources.Sqlite)
-		if !ok {
-			continue
+
+		switch v := ds.(type) {
+		case *resources.Sqlite:
+			args.HasMigrations = true
+			args.Volumes = append(args.Volumes, v.Path)
+		case *resources.Postgres:
+			args.HasMigrations = true
 		}
 
-		args.HasMigrations = true
-		args.Volumes = append(args.Volumes, sqlite.Path)
 	}
 
 	ports := []string{}

@@ -55,6 +55,8 @@ var (
 	expectedSqliteDataSourcesApp []byte
 	//go:embed expected/sqlite/config/data_sources.go.pattern
 	expectedSqliteDataSourcesConfig []byte
+	//go:embed expected/sqlite/Dockerfile
+	expectedSqliteDockerfile []byte
 )
 
 // Env

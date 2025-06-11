@@ -8,7 +8,7 @@ import (
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
-	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/dockerfile"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns/generators/dockerfile_generator"
 )
 
 type DockerFileTidyAction struct {
@@ -17,7 +17,7 @@ type DockerFileTidyAction struct {
 func (a DockerFileTidyAction) Do(p project.IProject) error {
 	dockerFile := p.GetFolder().GetByPath(patterns.DockerfileFile)
 	if dockerFile == nil {
-		df, err := dockerfile.GenerateDockerfile(p)
+		df, err := dockerfile_generator.GenerateDockerfile(p)
 		if err != nil {
 			return rerrors.Wrap(err)
 		}

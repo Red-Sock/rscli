@@ -1,4 +1,4 @@
-package dockerfile
+package dockerfile_generator
 
 import (
 	_ "embed"
@@ -11,18 +11,18 @@ import (
 )
 
 var (
-	//go:embed basic.Dockerfile
+	//go:embed test_snapshots/basic.Dockerfile
 	basicDockerfile string
-	//go:embed sqlite.Dockerfile
+	//go:embed test_snapshots/with_sqlite.Dockerfile
 	sqliteDockerfile string
-	//go:embed multiple_sqlite.Dockerfile
+	//go:embed test_snapshots/with_sqlite_multiple.Dockerfile
 	multipleSqliteDockerfile string
 
-	//go:embed server.Dockerfile
+	//go:embed test_snapshots/with_server.Dockerfile
 	serverDockerfile string
-	//go:embed multiple_servers.Dockerfile
+	//go:embed test_snapshots/with_multiple_servers.Dockerfile
 	multipleServersDockerfile string
-	//go:embed multiple_servers_and_sqlite.Dockerfile
+	//go:embed test_snapshots/with_multiple_servers_and_sqlite.Dockerfile
 	multipleServersAndSqliteDockerfile string
 )
 
@@ -34,12 +34,13 @@ func Test_GenerateDockerfile(t *testing.T) {
 	}
 
 	testCases := map[string]testCase{
-		"simple": {
+		"basic": {
 			genProj: func() project.IProject {
 				return project_mock.GetMockProject(t)
 			},
 			expected: basicDockerfile,
 		},
+
 		"with_sqlite": {
 			genProj: func() project.IProject {
 				return project_mock.GetMockProject(t,
@@ -56,6 +57,7 @@ func Test_GenerateDockerfile(t *testing.T) {
 			},
 			expected: multipleSqliteDockerfile,
 		},
+
 		"with_server": {
 			genProj: func() project.IProject {
 				return project_mock.GetMockProject(t,

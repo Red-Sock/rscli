@@ -4,7 +4,7 @@ app_info:
     startup_duration: 10s
 data_sources:
     - resource_name: sqlite
-      path: ./data/sqlite/SQLITE.db
+      path: /app/data/SQLITE.db
       migrations_folder: ./migrations
 environment:
     - enum:

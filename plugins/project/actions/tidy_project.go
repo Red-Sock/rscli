@@ -28,6 +28,7 @@ func goProjectTidyActions() []Action {
 		go_actions.PrepareMakefile{},
 		go_actions.PrepareClients{},
 		go_actions.PrepareServer{},
+		go_actions.PrepareDockerfile{},
 		go_actions.BuildProjectAction{},
 		go_actions.RunMakeGenAction{},
 		go_actions.InitGoProjectApp{},
@@ -35,7 +36,6 @@ func goProjectTidyActions() []Action {
 		go_actions.BuildProjectAction{},
 		go_actions.RunGoTidyAction{},
 		go_actions.GoFmt{},
-		go_actions.UpdateAllPackages{},
 	}
 }
 
