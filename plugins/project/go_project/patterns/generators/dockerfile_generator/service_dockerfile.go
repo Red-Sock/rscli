@@ -60,7 +60,7 @@ func GenerateDockerfile(proj project.IProject) ([]byte, error) {
 
 	sort.Strings(ports)
 
-	args.PortsList = strings.Join(ports, ", ")
+	args.PortsList = strings.Join(ports, " ")
 
 	out := rw.RW{}
 

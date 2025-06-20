@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang as builder
+FROM --platform=$BUILDPLATFORM golang AS builder
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ WORKDIR /app
 
 COPY --from=builder /deploy/server/ .{{ if .PortsList }}
 
-EXPOSE [{{ .PortsList }}]{{ end }}
+EXPOSE {{ .PortsList }}{{ end }}
 {{ if .Volumes }}
 {{ range .Volumes }}VOLUME '{{ . }}'
 {{ end }}{{ end }}
