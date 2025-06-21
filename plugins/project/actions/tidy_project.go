@@ -2,7 +2,6 @@ package actions
 
 import (
 	"github.com/Red-Sock/rscli/plugins/project"
-	"github.com/Red-Sock/rscli/plugins/project/actions/dockerfile_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/git"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/pipelines"
@@ -49,7 +48,6 @@ func commonProjectTidyPreActions() []Action {
 
 func commonProjectTidyPostActions() []Action {
 	return []Action{
-		dockerfile_actions.DockerFileTidyAction{},
 		git.CommitWithUntrackedAction{},
 	}
 }

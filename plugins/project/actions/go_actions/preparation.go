@@ -195,17 +195,22 @@ func (a PrepareServer) NameInAction() string {
 
 type PrepareDockerfile struct{}
 
-func (a PrepareDockerfile) Do(p project.IProject) error {
-	d, err := dockerfile_generator.GenerateDockerfile(p)
-	if err != nil {
-		return rerrors.Wrap(err, "error during dockerfile generation")
+func (a PrepareDockerfile) Do(p project.IProject) (err error) {
+	dockerFile := p.GetFolder().GetByPath(patterns.DockerfileFile)
+	if dockerFile != nil {
+		return nil
 	}
 
-	dfFile := &folder.Folder{
-		Name:    patterns.DockerfileFile,
-		Content: d,
+	dockerFile = &folder.Folder{
+		Name: patterns.DockerfileFile,
 	}
-	p.GetFolder().Add(dfFile)
+
+	dockerFile.Content, err = dockerfile_generator.GenerateDockerfile(p)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	p.GetFolder().Add(dockerFile)
 
 	return nil
 }

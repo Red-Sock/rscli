@@ -11,6 +11,7 @@ import (
 
 	"github.com/Red-Sock/rscli/internal/rw"
 	"github.com/Red-Sock/rscli/plugins/project"
+	"github.com/Red-Sock/rscli/plugins/project/config"
 )
 
 var (
@@ -32,35 +33,12 @@ type serviceDockerfileArgs struct {
 }
 
 func GenerateDockerfile(proj project.IProject) ([]byte, error) {
-	args := serviceDockerfileArgs{
-		Volumes:       nil,
-		PortsList:     "",
-		HasMigrations: false,
-	}
+	args := serviceDockerfileArgs{}
 
 	cfg := proj.GetConfig()
 
-	for _, ds := range cfg.DataSources {
-
-		switch v := ds.(type) {
-		case *resources.Sqlite:
-			args.HasMigrations = true
-			args.Volumes = append(args.Volumes, v.Path)
-		case *resources.Postgres:
-			args.HasMigrations = true
-		}
-
-	}
-
-	ports := []string{}
-
-	for _, srv := range cfg.Servers {
-		ports = append(ports, srv.Port)
-	}
-
-	sort.Strings(ports)
-
-	args.PortsList = strings.Join(ports, " ")
+	args.extractDataVolumes(cfg)
+	args.extractPorts(cfg)
 
 	out := rw.RW{}
 
@@ -70,4 +48,31 @@ func GenerateDockerfile(proj project.IProject) ([]byte, error) {
 	}
 
 	return out.Bytes(), nil
+}
+
+func (args *serviceDockerfileArgs) extractDataVolumes(cfg *config.Config) {
+	args.HasMigrations = false
+	args.Volumes = nil
+
+	for _, ds := range cfg.DataSources {
+		switch v := ds.(type) {
+		case *resources.Sqlite:
+			args.HasMigrations = true
+			args.Volumes = append(args.Volumes, v.Path)
+		case *resources.Postgres:
+			args.HasMigrations = true
+		}
+	}
+}
+
+func (args *serviceDockerfileArgs) extractPorts(cfg *config.Config) {
+	ports := []string{}
+
+	for _, srv := range cfg.Servers {
+		ports = append(ports, srv.Port)
+	}
+
+	sort.Strings(ports)
+
+	args.PortsList = strings.Join(ports, " ")
 }
