@@ -10,7 +10,7 @@ data_sources:
       user: postgres
       pwd: ""
       name: postgres
-      ssl_mode: ""
+      ssl_mode: "disable"
 environment:
     - enum:
           - Trace
