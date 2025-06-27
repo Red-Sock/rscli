@@ -35,7 +35,6 @@ func (p Postgres) AppendToProject(proj Project) error {
 		DbName:           appNameInfo,
 		User:             appNameInfo,
 		MigrationsFolder: "./migrations",
-		SslMode:          "disable",
 	}
 
 	cfg := proj.GetConfig()

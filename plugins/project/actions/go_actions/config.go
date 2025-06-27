@@ -6,6 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 	"go.vervstack.ru/matreshka/pkg/matreshka/environment"
+	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/plugins/project"
@@ -99,7 +100,7 @@ func (a PrepareConfigFolder) generateConfigYamlFile(p project.IProject) error {
 
 	newConfig := p.GetConfig()
 
-	err := appendToConfig(newConfig.AppConfig, configFolder, patterns.ConfigDevYamlFile)
+	err := appendToConfig(devConfig(newConfig.AppConfig), configFolder, patterns.ConfigDevYamlFile)
 	if err != nil {
 		return rerrors.Wrap(err, "error generating dev config")
 	}
@@ -116,6 +117,21 @@ func (a PrepareConfigFolder) generateConfigYamlFile(p project.IProject) error {
 	}
 
 	return nil
+}
+
+func devConfig(cfg matreshka.AppConfig) matreshka.AppConfig {
+	marshalled, _ := cfg.Marshal()
+	cfg = matreshka.NewEmptyConfig()
+	_ = cfg.Unmarshal(marshalled)
+
+	for _, ds := range cfg.DataSources {
+		switch v := ds.(type) {
+		case *resources.Postgres:
+			v.SslMode = "disable"
+		}
+	}
+
+	return cfg
 }
 
 func appendToConfig(newConfig matreshka.AppConfig, configFolder *folder.Folder, path string) (err error) {
