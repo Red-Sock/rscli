@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 
 	"proj_name/internal/app"
 )
@@ -9,11 +9,11 @@ import (
 func main() {
 	a, err := app.New()
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal().Err(err)
 	}
 
 	err = a.Start()
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal().Err(err)
 	}
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/Red-Sock/rscli/plugins/project/actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
+	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 	"github.com/Red-Sock/rscli/tests"
 	"github.com/Red-Sock/rscli/tests/mocks"
 	"github.com/Red-Sock/rscli/tests/project_mock"
@@ -74,6 +75,9 @@ func Test_AddDependency(t *testing.T) {
 				for _, action := range initActions {
 					require.NoError(t, action.Do(projectMock))
 				}
+
+				projectMock.Root.GetByPath(patterns.DockerfileFile).Delete()
+				require.NoError(t, projectMock.Root.Build())
 
 				ioMock := mocks.NewIOMock(t)
 				setupPrintlnMock(t, ioMock, preparingMsg, startingMsg, endMsg)

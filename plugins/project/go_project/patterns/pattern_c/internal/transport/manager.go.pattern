@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"github.com/soheilhy/cmux"
 	"go.redsock.ru/rerrors"
 	"golang.org/x/sync/errgroup"
@@ -41,7 +41,7 @@ func NewServerManager(ctx context.Context, port string) (*ServersManager, error)
 }
 
 func (m *ServersManager) Start() error {
-	logrus.Info("Starting server at http://0.0.0.0" + m.grpcServer.listener.Addr().String()[4:])
+	log.Info().Msg("Starting server at http://0.0.0.0" + m.grpcServer.listener.Addr().String()[4:])
 	errGroup, ctx := errgroup.WithContext(context.Background())
 
 	errGroup.Go(m.mux.Serve)

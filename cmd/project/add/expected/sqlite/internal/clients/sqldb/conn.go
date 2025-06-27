@@ -4,12 +4,12 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 
 	"github.com/pressly/goose/v3"
-	"github.com/sirupsen/logrus"
 )
 
 func New(cfg resources.SqlResource) (*sql.DB, error) {
@@ -25,7 +25,7 @@ func New(cfg resources.SqlResource) (*sql.DB, error) {
 		return conn.Close()
 	})
 
-	goose.SetLogger(logrus.StandardLogger())
+	goose.SetLogger(sqlLogger{})
 	err = goose.SetDialect(dialect)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error setting dialect")
@@ -56,4 +56,14 @@ type DB interface {
 
 	QueryRow(query string, args ...any) *sql.Row
 	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
+}
+
+type sqlLogger struct{}
+
+func (s sqlLogger) Fatalf(format string, v ...interface{}) {
+	log.Fatal().Msgf(format, v...)
+}
+
+func (s sqlLogger) Printf(format string, v ...interface{}) {
+	log.Printf(format, v...)
 }
