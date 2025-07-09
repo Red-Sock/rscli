@@ -106,7 +106,7 @@ func Test_PrepareConfig(t *testing.T) {
 
 				if strings.HasSuffix(pathToFile, ".yaml") {
 					if !assert.YAMLEq(t, string(expected), string(actualFile.Content)) {
-						require.YAMLEq(t, string(expected), string(actualFile.Content))
+						assert.Fail(t, pathToFile)
 					}
 				} else if string(expected) != string(actualFile.Content) {
 					assert.Fail(t, pathToFile+" is not as expected")

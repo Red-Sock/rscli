@@ -8,11 +8,12 @@ servers:
       module: github.com/Test_AddDependency/grpc
       gateway: /api
 environment:
-  - name: log_level
-    enum: [Trace, Debug, Info, Warn, Error, Fatal, Panic]
-    type: string
-    value: Info
   - name: log_format
     enum: [JSON,TEXT]
     type: string
     value: TEXT
+
+  - name: log_level
+    enum: [Trace, Debug, Info, Warn, Error, Fatal, Panic]
+    type: string
+    value: Info

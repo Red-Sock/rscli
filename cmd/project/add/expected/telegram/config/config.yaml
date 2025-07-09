@@ -6,7 +6,17 @@ data_sources:
   - resource_name: telegram
     api_key: ""
 environment:
-  - enum:
+  - name: log_format
+    type: string
+    value: TEXT
+    enum:
+      - JSON
+      - TEXT
+  
+  - name: log_level
+    type: string
+    value: Info
+    enum:
       - Trace
       - Debug
       - Info
@@ -14,12 +24,3 @@ environment:
       - Error
       - Fatal
       - Panic
-    name: log_level
-    type: string
-    value: Info
-  - enum:
-      - JSON
-      - TEXT
-    name: log_format
-    type: string
-    value: TEXT

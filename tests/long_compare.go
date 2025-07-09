@@ -60,7 +60,9 @@ func AssertFolderInFs(t *testing.T, dirPath string, expected *folder.Folder) {
 		eq := false
 
 		if strings.HasSuffix(expected.Name, ".yaml") {
-			require.YAMLEq(t, string(expected.Content), string(file))
+			if !assert.YAMLEq(t, string(expected.Content), string(file)) {
+				assert.Fail(t, targetPath)
+			}
 			return
 		}
 

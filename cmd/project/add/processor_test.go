@@ -5,14 +5,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.redsock.ru/rerrors"
 
 	"github.com/Red-Sock/rscli/internal/config"
 	"github.com/Red-Sock/rscli/internal/io/folder"
 	"github.com/Red-Sock/rscli/internal/processor"
 	"github.com/Red-Sock/rscli/plugins/project"
 	"github.com/Red-Sock/rscli/plugins/project/actions"
-	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions"
 	"github.com/Red-Sock/rscli/plugins/project/actions/go_actions/dependencies"
 	"github.com/Red-Sock/rscli/plugins/project/go_project/patterns"
 	"github.com/Red-Sock/rscli/tests"
@@ -101,58 +99,37 @@ func Test_AddDependency(t *testing.T) {
 	}
 }
 
-func expectedGrpc(t *testing.T) testCase {
-
+func expectedGrpc(_ *testing.T) testCase {
 	return testCase{
-		cfg: &config.RsCliConfig{
-			Env: config.Project{
-				PathToServerDefinition: "api",
-			},
-		},
 		args: []string{dependencies.DependencyNameGrpc},
 	}
 }
 
 func expectedRedis(t *testing.T) testCase {
-	apIoMock := mocks.NewIOMock(t)
-	apIoMock.PrintlnMock.Set(func(_ ...string) {})
-
 	return testCase{
 		args: []string{dependencies.DependencyNameRedis},
 	}
 }
 
 func expectedPostgres(t *testing.T) testCase {
-	apIoMock := mocks.NewIOMock(t)
-	apIoMock.PrintlnMock.Set(func(_ ...string) {})
-
 	return testCase{
 		args: []string{dependencies.DependencyNamePostgres},
 	}
 }
 
 func expectedTelegram(t *testing.T) testCase {
-	apIoMock := mocks.NewIOMock(t)
-	apIoMock.PrintlnMock.Set(func(_ ...string) {})
-
 	return testCase{
 		args: []string{dependencies.DependencyNameTelegram},
 	}
 }
 
 func expectedSqlite(t *testing.T) testCase {
-	apIoMock := mocks.NewIOMock(t)
-	apIoMock.PrintlnMock.Set(func(_ ...string) {})
-
 	return testCase{
 		args: []string{dependencies.DependencyNameSqlite},
 	}
 }
 
 func expectedEnv(t *testing.T) testCase {
-	apIoMock := mocks.NewIOMock(t)
-	apIoMock.PrintlnMock.Set(func(_ ...string) {})
-
 	return testCase{
 		args: []string{dependencies.DependencyEnvVariable},
 	}
@@ -169,26 +146,4 @@ func setupPrintlnMock(t *testing.T, ioMock *mocks.IOMock, printlnCalls ...string
 			prinlnIdx++
 		}
 	})
-}
-
-func apMock(t *testing.T) actions.ActionPerformer {
-	apm := mocks.NewActionPerformerMock(t)
-	apm.TidyMock.Set(func(p project.IProject) (_ error) {
-		shorActionList := []actions.Action{
-			go_actions.PrepareConfigFolder{},
-			go_actions.PrepareServer{},
-			go_actions.BuildProjectAction{},
-		}
-
-		for _, a := range shorActionList {
-			err := a.Do(p)
-			if err != nil {
-				return rerrors.Wrap(err, "error performing action: ", a.NameInAction())
-			}
-		}
-
-		return nil
-	})
-
-	return apm
 }

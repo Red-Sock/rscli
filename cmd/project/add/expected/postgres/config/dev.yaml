@@ -12,20 +12,20 @@ data_sources:
       name: postgres
       ssl_mode: "disable"
 environment:
-    - enum:
-          - Trace
-          - Debug
-          - Info
-          - Warn
-          - Error
-          - Fatal
-          - Panic
-      name: log_level
-      type: string
-      value: Info
-    - enum:
-          - JSON
-          - TEXT
-      name: log_format
-      type: string
-      value: TEXT
+  - type: string
+    value: TEXT
+    name: log_format
+    enum:
+      - JSON
+      - TEXT
+  - name: log_level
+    type: string
+    value: Info
+    enum:
+      - Trace
+      - Debug
+      - Info
+      - Warn
+      - Error
+      - Fatal
+      - Panic

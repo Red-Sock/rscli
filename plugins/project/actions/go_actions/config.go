@@ -2,6 +2,7 @@ package go_actions
 
 import (
 	"path"
+	"sort"
 
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
@@ -15,7 +16,7 @@ import (
 )
 
 const (
-	LogLevelEvonName = "log-level"
+	LogLevelEvonName = "log_level"
 	LogLevelTrace    = "Trace"
 	LogLevelDebug    = "Debug"
 	LogLevelInfo     = "Info"
@@ -24,7 +25,7 @@ const (
 	LogLevelFatal    = "Fatal"
 	LogLevelPanic    = "Panic"
 
-	LogFormatEvonName = "log-format"
+	LogFormatEvonName = "log_format"
 	LogFormatJSON     = "JSON"
 	LogFormatTEXT     = "TEXT"
 )
@@ -95,14 +96,25 @@ func (a PrepareConfigFolder) NameInAction() string {
 	return "Preparing config folder"
 }
 
-func (a PrepareConfigFolder) generateConfigYamlFile(p project.IProject) error {
+func (a PrepareConfigFolder) generateConfigYamlFile(p project.IProject) (err error) {
 	configFolder := p.GetFolder().GetByPath(patterns.ConfigsFolder)
 
 	newConfig := p.GetConfig()
 
-	err := appendToConfig(newConfig.AppConfig, configFolder, patterns.ConfigDevYamlFile)
+	sortEnv(newConfig.AppConfig)
+
+	devCfgFile := configFolder.GetByPath(patterns.ConfigDevYamlFile)
+	if devCfgFile == nil {
+		devCfgFile = &folder.Folder{
+			Name: patterns.ConfigDevYamlFile,
+		}
+		configFolder.Add(devCfgFile)
+	}
+
+	devCfg := makeDevConfig(newConfig.AppConfig)
+	devCfgFile.Content, err = devCfg.Marshal()
 	if err != nil {
-		return rerrors.Wrap(err, "error generating dev config")
+		return rerrors.Wrap(err, "error marshalling dev config")
 	}
 
 	for _, cfgName := range []string{
@@ -119,7 +131,7 @@ func (a PrepareConfigFolder) generateConfigYamlFile(p project.IProject) error {
 	return nil
 }
 
-func devConfig(cfg matreshka.AppConfig) matreshka.AppConfig {
+func makeDevConfig(cfg matreshka.AppConfig) matreshka.AppConfig {
 	marshalled, _ := cfg.Marshal()
 	cfg = matreshka.NewEmptyConfig()
 	_ = cfg.Unmarshal(marshalled)
@@ -153,11 +165,17 @@ func appendToConfig(newConfig matreshka.AppConfig, configFolder *folder.Folder, 
 	}
 
 	currentConfig = matreshka.MergeConfigs(currentConfig, newConfig)
-
+	sortEnv(currentConfig)
 	configFile.Content, err = currentConfig.Marshal()
 	if err != nil {
 		return rerrors.Wrap(err, "error marshalling dev config to yaml")
 	}
 
 	return nil
+}
+
+func sortEnv(cfg matreshka.AppConfig) {
+	sort.Slice(cfg.Environment, func(i, j int) bool {
+		return cfg.Environment[i].Name < cfg.Environment[j].Name
+	})
 }
