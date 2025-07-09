@@ -105,6 +105,10 @@ func extractGoGrpcPackage(contract []byte) (string, error) {
 	if goPackage[0] == '/' {
 		goPackage = goPackage[1:]
 	}
+	aliasStartIdx := strings.LastIndex(goPackage, ";")
+	if aliasStartIdx != -1 {
+		goPackage = goPackage[aliasStartIdx+1:]
+	}
 	return goPackage, nil
 }
 

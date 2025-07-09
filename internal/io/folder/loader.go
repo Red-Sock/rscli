@@ -7,17 +7,15 @@ import (
 	"github.com/Red-Sock/rscli/internal/utils/slices"
 )
 
-var ignoredFolders = []string{
-	".idea",
-	".git",
-	".DS_Store",
-	"node_modules",
-}
-
-func Load(root string) (*Folder, error) {
+func Load(root string, ops ...opt) (*Folder, error) {
 	dir, err := os.ReadDir(root)
 	if err != nil {
 		return nil, err
+	}
+
+	o := opts{}
+	for _, f := range ops {
+		f(&o)
 	}
 
 	f := &Folder{
@@ -25,7 +23,7 @@ func Load(root string) (*Folder, error) {
 		Inner: make([]*Folder, 0, len(dir)),
 	}
 	for _, d := range dir {
-		innerFolder, err := load(path.Join(root, d.Name()), "")
+		innerFolder, err := load(path.Join(root, d.Name()), "", o)
 		if err != nil {
 			return nil, err
 		}
@@ -37,8 +35,8 @@ func Load(root string) (*Folder, error) {
 	return f, nil
 }
 
-func load(root, parent string) (*Folder, error) {
-	if slices.Contains(ignoredFolders, path.Base(root)) {
+func load(root, parent string, o opts) (*Folder, error) {
+	if slices.Contains(o.ignoredPaths, path.Base(root)) {
 		return nil, nil
 	}
 
@@ -73,7 +71,7 @@ func load(root, parent string) (*Folder, error) {
 
 	for _, d := range dir {
 		var innerDir *Folder
-		innerDir, err = load(path.Join(root, d.Name()), path.Join(parent, f.Name))
+		innerDir, err = load(path.Join(root, d.Name()), path.Join(parent, f.Name), o)
 		if err != nil {
 			return nil, err
 		}

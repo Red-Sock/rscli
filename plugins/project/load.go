@@ -29,7 +29,12 @@ var configOrder = map[string]int{
 }
 
 func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {
-	root, err := folder.Load(pth)
+	ignoredFiles, err := readIgnoredFiles(pth)
+	if err != nil {
+		return nil, rerrors.Wrap(err)
+	}
+
+	root, err := folder.Load(pth, folder.WithIgnore(ignoredFiles...))
 	if err != nil {
 		return nil, err
 	}
@@ -112,4 +117,42 @@ func goProjectLoader(p *Project) (name *string) {
 func unknownProjectLoader(p *Project) *string {
 	name := p.Cfg.AppInfo.Name
 	return &name
+}
+
+func readIgnoredFiles(projectPath string) ([]string, error) {
+	gitignoreFile, err := os.ReadFile(path.Join(projectPath, patterns.GitIgnore.Name))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, rerrors.Wrap(err, "error reading gitignore file")
+	}
+
+	ignoredFiles := strings.Split(string(gitignoreFile), "\n")
+	out := make([]string, 0, len(ignoredFiles))
+
+	for _, igFile := range ignoredFiles {
+		if isFileIgnoreFolder(projectPath, igFile) {
+			out = append(out, igFile)
+		}
+	}
+
+	return ignoredFiles, nil
+}
+
+func isFileIgnoreFolder(wd, igFile string) bool {
+	if igFile == "" {
+		return false
+	}
+
+	stat, err := os.Stat(path.Join(wd, igFile))
+	if err != nil {
+		return false
+	}
+
+	if !stat.IsDir() {
+		return false
+	}
+
+	return true
 }
