@@ -57,6 +57,11 @@ func GenerateImpl(cfg *rscliconfig.RsCliConfig, proj project.IProject) ([]*folde
 func generateImpl(proj project.IProject, protoContract []byte) (*folder.Folder, error) {
 	out := bytes.Buffer{}
 
+	serviceName := extractServiceName(protoContract)
+	if serviceName == "" {
+		return nil, nil
+	}
+
 	args := genArgs{
 		FullProjPath: proj.GetName(),
 		ServiceName:  cases.ToPascal(extractServiceName(protoContract)),

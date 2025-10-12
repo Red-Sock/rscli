@@ -19,13 +19,11 @@ import (
 const (
 	prodConfigFileName     = "config.yaml"
 	templateConfigFileName = "config_template.yaml"
-	devConfigFileName      = "dev.yaml"
 )
 
 var configOrder = map[string]int{
 	prodConfigFileName:     1,
 	templateConfigFileName: 2,
-	devConfigFileName:      3,
 }
 
 func LoadProject(pth string, cfg *rscliconfig.RsCliConfig) (*Project, error) {

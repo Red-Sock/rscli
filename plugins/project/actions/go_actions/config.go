@@ -109,12 +109,11 @@ func (a PrepareConfigFolder) generateConfigYamlFile(p project.IProject) (err err
 			Name: patterns.ConfigDevYamlFile,
 		}
 		configFolder.Add(devCfgFile)
-	}
-
-	devCfg := makeDevConfig(newConfig.AppConfig)
-	devCfgFile.Content, err = devCfg.Marshal()
-	if err != nil {
-		return rerrors.Wrap(err, "error marshalling dev config")
+		devCfg := makeDevConfig(newConfig.AppConfig)
+		devCfgFile.Content, err = devCfg.Marshal()
+		if err != nil {
+			return rerrors.Wrap(err, "error marshalling dev config")
+		}
 	}
 
 	for _, cfgName := range []string{
