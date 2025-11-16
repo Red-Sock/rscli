@@ -16,6 +16,8 @@ type Config struct {
 	{{ range .Configs }}
 	{{ .FieldName }} {{ .StructName }}	{{ end }}
 	Overrides matreshka.ServiceDiscovery
+
+	MatreshkaConfig matreshka.AppConfig
 }
 
 var defaultConfig Config
@@ -45,15 +47,16 @@ func Load() (Config, error) {
 		}
 	}
 
-	rootConfig, err := matreshka.ReadConfigs(cfgPath)
+	var err error
+    defaultConfig.MatreshkaConfig, err = matreshka.ReadConfigs(cfgPath)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "error reading matreshka config")
 	}
 
-	defaultConfig.AppInfo = rootConfig.AppInfo
-	defaultConfig.Overrides = rootConfig.ServiceDiscovery
+	defaultConfig.AppInfo = defaultConfig.MatreshkaConfig.AppInfo
+	defaultConfig.Overrides = defaultConfig.MatreshkaConfig.ServiceDiscovery
 
-    {{range .Configs }}err = rootConfig.{{ .From }}.ParseToStruct(&defaultConfig.{{ .FieldName }})
+    {{range .Configs }}err = defaultConfig.MatreshkaConfig.{{ .From }}.ParseToStruct(&defaultConfig.{{ .FieldName }})
     if err != nil {
         return defaultConfig, rerrors.Wrap(err, "{{ .ErrorMessage }}")
     }

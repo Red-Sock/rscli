@@ -130,27 +130,12 @@ func readIgnoredFiles(projectPath string) ([]string, error) {
 	out := make([]string, 0, len(ignoredFiles))
 
 	for _, igFile := range ignoredFiles {
-		if isFileIgnoreFolder(projectPath, igFile) {
+		if igFile != "" && igFile[0] != '#' {
 			out = append(out, igFile)
 		}
 	}
 
-	return ignoredFiles, nil
-}
+	out = append(out, ".git")
 
-func isFileIgnoreFolder(wd, igFile string) bool {
-	if igFile == "" {
-		return false
-	}
-
-	stat, err := os.Stat(path.Join(wd, igFile))
-	if err != nil {
-		return false
-	}
-
-	if !stat.IsDir() {
-		return false
-	}
-
-	return true
+	return out, nil
 }
