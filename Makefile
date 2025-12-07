@@ -25,5 +25,6 @@ gen:
 
 dev-build: .compile-pattern .dev-build
 
+GOBIN=$(GOPATH)/bin
 .dev-build:
 	go build -o $(GOBIN)/rscli-dev .
