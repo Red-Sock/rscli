@@ -51,7 +51,7 @@ func Init() (Config, error) {
     configsPaths = append(configsPaths, prodConfigPath)
 
     var err error
-    defaultConfig, err = Load()
+    defaultConfig, err = Load(configsPaths...)
     if err != nil {
         return defaultConfig, rerrors.Wrap(err, "error loading config")
     }
