@@ -15,7 +15,7 @@ func (a *App) InitConfig() (err error) {
 	a.Ctx, a.Stop = context.WithCancel(context.Background())
     closer.Add(func() error { a.Stop(); return nil })
 
-	a.Cfg, err = config.Load()
+	a.Cfg, err = config.Init()
 	if err != nil {
 		return rerrors.Wrap(err, "error reading config")
 	}

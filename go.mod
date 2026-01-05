@@ -1,6 +1,6 @@
 module github.com/Red-Sock/rscli
 
-go 1.24.2
+go 1.25.5
 
 require (
 	github.com/Red-Sock/go_tg v0.0.25
