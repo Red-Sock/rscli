@@ -52,7 +52,9 @@ func (p *Proc) run(cmd *cobra.Command, args []string) error {
 
 	deps := dependencies.GetDependencies(p.RscliConfig, args)
 	if len(deps) == 0 {
-		//	TODO return with help message
+		missingDeps := dependencies.HelpWithDependencyNames()
+		p.IO.Println("Unknown dependencies. Try use these: [" + strings.Join(missingDeps, ",") + "]")
+		return nil
 	}
 
 	for _, d := range deps {

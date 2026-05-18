@@ -18,6 +18,10 @@ var (
 	//go:embed templates/init_structure.go.pattern
 	initAppStructFuncPattern  string
 	initAppStructFuncTemplate *template.Template
+
+	//go:embed templates/init_server.go.pattern
+	initServerPattern  string
+	initServerTemplate *template.Template
 )
 
 func init() {
@@ -28,4 +32,8 @@ func init() {
 	initAppStructFuncTemplate = template.Must(
 		template.New("init_app_struct_func").
 			Parse(initAppStructFuncPattern))
+
+	initServerTemplate = template.Must(
+		template.New("init_server_struct_func").
+			Parse(initServerPattern))
 }

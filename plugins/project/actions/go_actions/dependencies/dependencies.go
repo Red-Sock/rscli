@@ -47,6 +47,23 @@ var nameToDependencyConstructor = map[string]func(dep dependencyBase) Dependency
 	DependencyEnvVariable: envVariable,
 }
 
+func HelpWithDependencyNames(passedDeps ...string) (missingDeps []string) {
+
+	passedDepsMap := map[string]struct{}{}
+	for _, dep := range passedDeps {
+		passedDepsMap[dep] = struct{}{}
+	}
+
+	for depName := range nameToDependencyConstructor {
+		_, ok := passedDepsMap[depName]
+		if !ok {
+			missingDeps = append(missingDeps, depName)
+		}
+	}
+
+	return missingDeps
+}
+
 func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {
 	serverOpts := make([]Dependency, 0, len(args))
 
@@ -69,6 +86,8 @@ func GetDependencies(c *config.RsCliConfig, args []string) []Dependency {
 
 	return serverOpts
 }
+
+// TODO method checks if the root folder of dependecy is presented. In case it's empty - nothing is generated
 
 // containsDependencyFolder - searches through RSCLI_PATH_TO_CLIENTS
 // folders in order to find depName

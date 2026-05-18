@@ -59,14 +59,25 @@ func GenerateAppFiles(p project.IProject) (map[string][]byte, error) {
 		}
 
 		out[patterns.AppInitServerFileName] = initServerFile
-		initAppArgs.addAppContent(
-			"/* Servers managers */",
-			"error during server initialization",
-			initServerArgs)
 
-		initAppArgs.Starters = append(initAppArgs.Starters, AppStarter{
-			FieldName: initServerArgs.ServerName,
-		})
+		depArgs := InitDepFuncGenArgs{
+			InitFunctionName: "InitServers",
+			Imports:          initServerArgs.Imports,
+		}
+
+		for _, sn := range initServerArgs.Servers {
+			depArgs.Functions = append(depArgs.Functions,
+				InitFuncCall{
+					ResultName: sn.ServerName,
+					ResultType: "net.Listener",
+				})
+		}
+
+		initAppArgs.addAppContent(
+			"/* Servers network listeners */",
+			"error during network listeners initialization",
+			depArgs,
+		)
 	}
 
 	for _, ac := range initAppArgs.AppContent {

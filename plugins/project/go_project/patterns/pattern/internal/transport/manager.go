@@ -20,12 +20,7 @@ type ServersManager struct {
 	httpServer
 }
 
-func NewServerManager(ctx context.Context, port string) (*ServersManager, error) {
-	listener, err := net.Listen("tcp", ":"+port)
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error opening listener")
-	}
-
+func NewServerManager(ctx context.Context, listener net.Listener) (*ServersManager, error) {
 	mainMux := cmux.New(listener)
 	httpMux := http.NewServeMux()
 

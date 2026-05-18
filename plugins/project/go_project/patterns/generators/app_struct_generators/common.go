@@ -18,3 +18,13 @@ type InitFuncCall struct {
 
 	Import map[string]string
 }
+
+type InitServerListenersArgs struct {
+	Servers []InitServerListenerArgs
+
+	Imports map[string]string
+}
+
+type InitServerListenerArgs struct {
+	ServerName string
+}
