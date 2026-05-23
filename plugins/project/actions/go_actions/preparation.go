@@ -30,7 +30,9 @@ func (a PrepareProjectStructure) Do(p project.IProject) error {
 	cmd.Add(patterns.MainFile.CopyWithNewName(path.Join(patterns.ServiceFolder, patterns.MainFile.Name)))
 	rootF.Add(cmd)
 
-	rootF.Add(&folder.Folder{Name: patterns.ConfigsFolder})
+	configFolder := &folder.Folder{Name: patterns.ConfigsFolder}
+	configFolder.Add(patterns.KeysFile.Copy())
+	rootF.Add(configFolder)
 	rootF.Add(&folder.Folder{Name: patterns.InternalFolder})
 
 	rootF.Add(

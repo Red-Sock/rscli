@@ -55,4 +55,11 @@ var (
 		Name:    "main.go",
 		Content: mainFile,
 	}
+
+	//go:embed pattern_c/internal/config/keys.go.pattern
+	keysFile []byte
+	KeysFile = &folder.Folder{
+		Name:    "keys.go",
+		Content: keysFile,
+	}
 )
