@@ -1,28 +1,14 @@
-# configuration settings https://golangci-lint.run/usage/configuration/
+version: 2
 
 run:
   timeout: 5m
   issues-exit-code: 42
-  skip-dirs:
-    - configs
 
-output:
-  format: colored-line-number
-
-linters-settings:
-  varnamelen: # scope of variable
-    max-distance: 25 # amount of lines when variable can be used (about 1 screen space)
-    min-name-length: 2 # minimal lenght of variable that goes out of scope
-
-    ignore-type-assert-ok: true
-    check-type-param: true
-    ignore-chan-recv-ok: true
 
 linters:
-  disable-all: true
   enable:
     - varnamelen # check lenght of scope of a variable
-
+    - err113
     - asasalint # prevents from passing []any
     - asciicheck
     - bidichk
@@ -114,12 +100,3 @@ linters:
     - whitespace
     - wrapcheck
     - wsl
-issues:
-  # See the dedicated "issues" documentation section.
-  exclude-rules:
-    - linters:
-        - staticcheck
-      text: "SA9003:"
-    - linters:
-        - lll
-      source: "^//go:generate "

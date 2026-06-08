@@ -38,8 +38,11 @@ func (a PrepareProjectStructure) Do(p project.IProject) error {
 	rootF.Add(
 		patterns.Readme.Copy(),
 		patterns.GitIgnore.Copy(),
-		patterns.Linter.Copy(),
 	)
+
+	if rootF.GetByPath(patterns.Linter.Name) == nil {
+		rootF.Add(patterns.Linter.Copy())
+	}
 
 	return nil
 }
